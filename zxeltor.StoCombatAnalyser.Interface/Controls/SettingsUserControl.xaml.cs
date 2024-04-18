@@ -5,6 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,7 +27,7 @@ public partial class SettingsUserControl : UserControl
         this.DataContext = this.MyPrivateContext = new SettingsUserControlBindingContext();
     }
 
-    private SettingsUserControlBindingContext? MyPrivateContext { get; }
+    private SettingsUserControlBindingContext MyPrivateContext { get; }
 
     /// <summary>
     ///     Opens a folder dialog letting the user select a logging folder.
@@ -38,6 +39,9 @@ public partial class SettingsUserControl : UserControl
             Title = "Select STO combat log folder",
             Multiselect = false
         };
+
+        if (Directory.Exists(this.MyPrivateContext.CombatLogPath))
+            dialog.InitialDirectory = this.MyPrivateContext.CombatLogPath;
 
         var dialogResult = dialog.ShowDialog(Application.Current.MainWindow);
 
@@ -56,12 +60,14 @@ public partial class SettingsUserControl : UserControl
 
             this.MyPrivateContext.MaxNumberOfCombatsToDisplay = parseResult;
 
-            MessageBox.Show(Application.Current.MainWindow, "The field has successfully updated.",
+            MessageBox.Show(Application.Current.MainWindow!, "The field has successfully updated.",
                 "Information", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         else
         {
-            MessageBox.Show(Application.Current.MainWindow, "This field only supports numeric values.",
+            this.MyPrivateContext.MaxNumberOfCombatsToDisplay = 0;
+
+            MessageBox.Show(Application.Current.MainWindow!, "This field only supports numeric values.",
                 "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
@@ -75,17 +81,28 @@ public partial class SettingsUserControl : UserControl
     /// </summary>
     private void UiButtonBoxCombatLogPathDetect_OnClick(object sender, RoutedEventArgs e)
     {
-        if (AppHelper.TryGetStoBaseLogFolder(out var stoFolder))
+        if (AppHelper.TryGetStoBaseFolder(out var stoBaseFolder))
         {
-            this.MyPrivateContext.CombatLogPath = stoFolder;
-            MessageBox.Show(Application.Current.MainWindow,
-                "A folder was found in the Windows registry, and it does exist.",
-                "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            var stoLogFolderPath = Path.Combine(stoBaseFolder, AppHelper.StoCombatLogSubFolder);
+            if (Directory.Exists(stoLogFolderPath))
+            {
+                this.MyPrivateContext.CombatLogPath = stoLogFolderPath;
+                MessageBox.Show(Application.Current.MainWindow!,
+                    "The STO log folder was found. Setting CombatLogPath with the folder path.",
+                    "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                this.MyPrivateContext.CombatLogPath = stoBaseFolder;
+                MessageBox.Show(Application.Current.MainWindow!,
+                    "The STO base folder was found, but not the combat log sub folder. Setting CombatLogPath to the base STO folder as a starting point.",
+                    "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
         else
         {
-            MessageBox.Show(Application.Current.MainWindow,
-                "Failed to find the STO combat log folder from the Windows registry.",
+            MessageBox.Show(Application.Current.MainWindow!,
+                "Failed to find the STO base folder in the Windows registry.",
                 "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }

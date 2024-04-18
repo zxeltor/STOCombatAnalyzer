@@ -12,11 +12,44 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Helpers;
 public static class AppHelper
 {
     /// <summary>
+    ///     A string for the STO combat log folder.
+    /// </summary>
+    public const string StoCombatLogSubFolder = @"Star Trek Online\Live\logs\GameClient";
+
+    /// <summary>
+    ///     Attempt to get the STO base folder using a Windows registry key.
+    /// </summary>
+    /// <param name="stoBaseFolderPath">The STO base folder path.</param>
+    /// <returns>True is successful. False otherwise.</returns>
+    public static bool TryGetStoBaseFolder(out string stoBaseFolderPath)
+    {
+        // Attempt to get a windows registry key with STO install location i.e. "HKEY_CURRENT_USER\Software\Cryptic\Star Trek Online"
+        var crypticInstallLocation = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Cryptic\Star Trek Online",
+            "InstallLocation", null);
+
+        if (crypticInstallLocation != null)
+        {
+            var stoBaseFolder = crypticInstallLocation.ToString()!.Replace("/", "\\");
+
+            // Confirm the folder exists
+            if (Directory.Exists(stoBaseFolder))
+            {
+                // If we get here we succeeded. Set the folder path and return
+                stoBaseFolderPath = stoBaseFolder;
+                return true;
+            }
+        }
+
+        stoBaseFolderPath = string.Empty;
+        return false;
+    }
+
+    /// <summary>
     ///     Attempt to get the STO log folder using a Windows registry key.
     /// </summary>
     /// <param name="stoLogFolderPath">The STO log folder path.</param>
     /// <returns>True is successful. False otherwise.</returns>
-    public static bool TryGetStoBaseLogFolder(out string? stoLogFolderPath)
+    public static bool TryGetStoBaseLogFolder(out string stoLogFolderPath)
     {
         // Attempt to get a windows registry key with STO install location i.e. "HKEY_CURRENT_USER\Software\Cryptic\Star Trek Online"
         var crypticInstallLocation = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Cryptic\Star Trek Online",
@@ -36,7 +69,7 @@ public static class AppHelper
             }
         }
 
-        stoLogFolderPath = null;
+        stoLogFolderPath = string.Empty;
         return false;
     }
 }

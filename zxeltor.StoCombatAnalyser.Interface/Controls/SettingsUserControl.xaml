@@ -8,47 +8,65 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <ListBox Margin="0,0,0,0" Padding="2,2,2,2" HorizontalContentAlignment="Left">
-            <ListBoxItem BorderThickness="2" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+        <ListBox Margin="0,0,0,0" Padding="2,2,2,2" HorizontalContentAlignment="Stretch">
+            <ListBoxItem BorderThickness="2" BorderBrush="Black"  HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180" />
-                        <ColumnDefinition Width="33*" />
-                        <ColumnDefinition Width="90" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="CombatLogPath" />
-                    <TextBox Grid.Column="1" Name="uiTextBoxCombatLogPath"
-                             Text="{Binding Path=CombatLogPath, Mode=TwoWay}" Margin="0,0,10,0" />
-                    <Button Grid.Column="2" Name="uiButtonBoxCombatLogPathSelect" Content="select"
-                            Click="UiButtonBoxCombatLogPath_OnClick" HorizontalAlignment="Left" Width="40" />
-                    <Button Grid.Column="2" Name="uiButtonBoxCombatLogPathDetect" Content="detect"
-                            Click="UiButtonBoxCombatLogPathDetect_OnClick" HorizontalAlignment="Right" Width="40" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0">
+                        <TextBlock Text="Name:" />
+                        <TextBlock Text="CombatLogPath" Margin="4,0,10,0" />
+                        <TextBox Name="uiTextBoxCombatLogPath" Text="{Binding Path=CombatLogPath, Mode=TwoWay}" Margin="0,0,10,0" MinWidth="100" />
+                        <StackPanel Orientation="Horizontal" Margin="10,0,10,0" HorizontalAlignment="Right">
+                            <Button Name="uiButtonBoxCombatLogPathSelect" Content="select"
+                                    Click="UiButtonBoxCombatLogPath_OnClick" Width="40" />
+                            <Button Name="uiButtonBoxCombatLogPathDetect" Content="detect"
+                                    Click="UiButtonBoxCombatLogPathDetect_OnClick" Width="40" Margin="10,0,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                        <TextBlock>Description:</TextBlock>
+                        <TextBlock Margin="4,0,10,0">The path to the STO log folder.</TextBlock>
+                    </StackPanel>
                 </Grid>
             </ListBoxItem>
-            <ListBoxItem BorderThickness="2" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+            <ListBoxItem BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180" />
-                        <ColumnDefinition Width="180" />
-                        <ColumnDefinition Width="33" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="CombatLogPathFilePattern" />
-                    <TextBox Grid.Column="1" Name="uiTextBoxCombatLogPathFilePattern"
-                             Text="{Binding Path=CombatLogPathFilePattern, Mode=TwoWay}" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Width="Auto">
+                        <TextBlock Text="Name:" />
+                        <TextBlock Text="CombatLogPathFilePattern" Width="Auto" Margin="4,0,10,0" />
+                        <TextBox Name="uiTextBoxCombatLogPathFilePattern" Width="Auto" Text="{Binding Path=CombatLogPathFilePattern, Mode=TwoWay}" MinWidth="100"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
+                        <TextBlock>Description:</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">A file pattern used to select one or more combat log files from the log folder. This search pattern supports wildcards so one or more files can be selected.</TextBlock>
+                    </StackPanel>
                 </Grid>
             </ListBoxItem>
-            <ListBoxItem BorderThickness="2" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+            <ListBoxItem BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180" />
-                        <ColumnDefinition Width="60" />
-                        <ColumnDefinition Width="33" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="MaxNumberOfCombatsToDisplay" />
-                    <TextBox Grid.Column="1" Name="uiTextBoxMaxNumberOfCombatsToDisplay"
-                             Text="{Binding Path=MaxNumberOfCombatsToDisplay, Mode=OneWay}" Margin="0,0,10,0" />
-                    <Button Grid.Column="2" Name="uiButtonMaxNumberOfCombatsToDisplay" Content="set"
-                            Click="UiButtonMaxNumberOfCombatsToDisplay_OnClick" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Name:" />
+                        <TextBlock Text="MaxNumberOfCombatsToDisplay" Margin="4,0,10,0"/>
+                        <TextBox Name="uiTextBoxMaxNumberOfCombatsToDisplay"
+                                 Text="{Binding Path=MaxNumberOfCombatsToDisplay, Mode=OneWay}" Margin="0,0,10,0" MinWidth="100" />
+                        <Button Name="uiButtonMaxNumberOfCombatsToDisplay" Content="set"
+                                Click="UiButtonMaxNumberOfCombatsToDisplay_OnClick" Width="40"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
+                        <TextBlock>Description:</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">The max number of combat instances to load and display. If set to zero, load them all.</TextBlock>
+                    </StackPanel>
                 </Grid>
             </ListBoxItem>
         </ListBox>
