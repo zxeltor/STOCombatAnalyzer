@@ -214,28 +214,11 @@
 
                     <GroupBox Header="Logging" Grid.Row="1" Margin="10,10,10,10">
                         <Grid>
-                            <GroupBox Header="Log Summary" Margin="0,10,213,0">
+                            <GroupBox Header="Log Summary" Margin="0,10,0,0">
                                 <Grid Margin="0,0,0,0">
                                     <TextBox x:Name="uiTextBoxLog" Margin="4,4,4,4" BorderThickness="0"
                                              TextWrapping="NoWrap" Text="" HorizontalScrollBarVisibility="Auto"
-                                             VerticalScrollBarVisibility="Auto" />
-                                </Grid>
-                            </GroupBox>
-                            <GroupBox Header="Log File Settings" Margin="0,10,0,0" HorizontalAlignment="Right"
-                                      Width="208">
-                                <Grid>
-                                    <Label Content="Logging Level:" HorizontalAlignment="Right" Height="30"
-                                           Margin="0,6,93,0" VerticalAlignment="Top" Width="94"
-                                           RenderTransformOrigin="0.542,0.587" />
-                                    <ComboBox Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right"
-                                              Width="74">
-                                        <ComboBoxItem Content="DEBUG" />
-                                        <ComboBoxItem Content="INFO" />
-                                        <ComboBoxItem Content="WARN" />
-                                        <ComboBoxItem Content="ERROR" />
-                                        <ComboBoxItem Content="FATAL" />
-                                        <ComboBoxItem IsSelected="True" Content="OFF" />
-                                    </ComboBox>
+                                             VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
                                 </Grid>
                             </GroupBox>
                         </Grid>

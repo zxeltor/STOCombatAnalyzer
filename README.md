@@ -1,1 +1,2 @@
-# StoDpsParser
+# Star Trek Online Combat Analyzer
+
