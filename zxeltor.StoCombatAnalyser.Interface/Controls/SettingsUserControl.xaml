@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="zxeltor.StoCombatAnalyzer.Interface.Controls.SettingsUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Controls"
+             d:DataContext="{d:DesignInstance Type=local:SettingsUserControlBindingContext}"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <ListBox Margin="0,0,0,0" Padding="2,2,2,2" HorizontalContentAlignment="Left">
+            <ListBoxItem BorderThickness="2" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="33*" />
+                        <ColumnDefinition Width="90" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="CombatLogPath" />
+                    <TextBox Grid.Column="1" Name="uiTextBoxCombatLogPath"
+                             Text="{Binding Path=CombatLogPath, Mode=TwoWay}" Margin="0,0,10,0" />
+                    <Button Grid.Column="2" Name="uiButtonBoxCombatLogPathSelect" Content="select"
+                            Click="UiButtonBoxCombatLogPath_OnClick" HorizontalAlignment="Left" Width="40" />
+                    <Button Grid.Column="2" Name="uiButtonBoxCombatLogPathDetect" Content="detect"
+                            Click="UiButtonBoxCombatLogPathDetect_OnClick" HorizontalAlignment="Right" Width="40" />
+                </Grid>
+            </ListBoxItem>
+            <ListBoxItem BorderThickness="2" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="33" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="CombatLogPathFilePattern" />
+                    <TextBox Grid.Column="1" Name="uiTextBoxCombatLogPathFilePattern"
+                             Text="{Binding Path=CombatLogPathFilePattern, Mode=TwoWay}" />
+                </Grid>
+            </ListBoxItem>
+            <ListBoxItem BorderThickness="2" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="60" />
+                        <ColumnDefinition Width="33" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="MaxNumberOfCombatsToDisplay" />
+                    <TextBox Grid.Column="1" Name="uiTextBoxMaxNumberOfCombatsToDisplay"
+                             Text="{Binding Path=MaxNumberOfCombatsToDisplay, Mode=OneWay}" Margin="0,0,10,0" />
+                    <Button Grid.Column="2" Name="uiButtonMaxNumberOfCombatsToDisplay" Content="set"
+                            Click="UiButtonMaxNumberOfCombatsToDisplay_OnClick" />
+                </Grid>
+            </ListBoxItem>
+        </ListBox>
+    </Grid>
+</UserControl>

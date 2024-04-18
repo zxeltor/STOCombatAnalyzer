@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="zxeltor.StoCombatAnalyzer.Interface.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="CombatLogLineRegex" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">^(?&lt;year&gt;\d+):(?&lt;month&gt;\d+):(?&lt;day&gt;\d+):(?&lt;hour&gt;\d+):(?&lt;min&gt;\d+):(?&lt;sec&gt;\d+)\.(?&lt;milli&gt;\d+)::(?&lt;OwnerDisplay&gt;[^|]*),(?&lt;OwnerId&gt;[^|]*),(?&lt;SourceLabel&gt;[^|]*),(?&lt;SourceId&gt;[^|]*),(?&lt;TargetLabel&gt;[^|]*),(?&lt;TargetId&gt;[^|]*),(?&lt;EventLabel&gt;[^|]*),(?&lt;EventId&gt;[^|]*),(?&lt;Type&gt;[^|]*),(?&lt;Flags&gt;[^|]*),(?&lt;Magnitude&gt;[^|]*),(?&lt;MagnitudeBase&gt;[^|]*)</Value>
+    </Setting>
+    <Setting Name="EnableSettingsEdit" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="CombatLogPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">c:\temp</Value>
+    </Setting>
+    <Setting Name="CombatLogPathFilePattern" Type="System.String" Scope="User">
+      <Value Profile="(Default)">combatlog*.log</Value>
+    </Setting>
+    <Setting Name="MaxNumberOfCombatsToDisplay" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

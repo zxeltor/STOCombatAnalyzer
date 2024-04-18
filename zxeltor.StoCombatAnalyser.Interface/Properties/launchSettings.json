@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "zxeltor.StoCombatAnalyzer.Interface": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
