@@ -1,7 +1,7 @@
 # Star Trek Online Combat Analyzer ![Latest application version](https://img.shields.io/badge/beta.1-v1.0.1-blue)
 
 #### License and Disclaimer
-We are not affiliated, associated, authorized, endorsed by, or in any way officially connected with the game Star Trek Online, or any of its subsidiaries or its affiliates. The official Star Trek Online website can be found at [https://www.playstartrekonline.com/](https://www.playstartrekonline.com/en/)
+I am not affiliated, associated, authorized, endorsed by, or in any way officially connected with the game Star Trek Online, or any of its subsidiaries or its affiliates. The official Star Trek Online website can be found at [https://www.playstartrekonline.com/](https://www.playstartrekonline.com/en/)
 
 Please see license info [here](https://github.com/zxeltor/STOCombatAnalyzer?tab=Apache-2.0-1-ov-file).
 
