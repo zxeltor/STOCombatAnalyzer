@@ -3,7 +3,17 @@
 ## Overview
 This is a PC application used to parse and analyze Star Trek Online combat logs. I became interested in trying out STO random elites, but I was curious if my Space DPS was up to snuff. After a little research, I found a reddit post which had a brief outline of the combat log, and the available fields. I figured doing a real-time DPS analyzer would be futile. until I could wrap my head around the combat log an it's fields.
 
+## Building
+The source in this repo is wrapped up in a Visual Studio 2022 solution. You should be able to clone this repo localy, then build and run from inside of Visual Studio.
+
+You could also run the dotnet cli build and run commands from inside the zxeltor.StoCombatAnalyser.Interface project folder as well.
+
+## Release and package installer
+In the near, I plan on adding a link for downloading an installer package for the built application.
+
 ## Quick Start
+After you have a successful build, do the following to get started using the application.
+
 - Start the application
 - Under the Settings tab, set the following settings:
   - **CombatLogPath**: Set this to match the STO log folder on your local machine.
