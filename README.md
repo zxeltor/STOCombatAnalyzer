@@ -18,6 +18,7 @@ You could also run the dotnet cli build and run commands from inside the zxeltor
 
 ## Release and package installer
 I've been playing with a ClickOnce installer. You can download and install the latest from this link: [https://starfleet.engineer/StoCombatAnalyzer/Publish.html](https://starfleet.engineer/StoCombatAnalyzer/Publish.html)
+
 Note: The app and installer are signed with a localy generated certificate. Since it's not from a known publisher, you'll get warnings during the install process about it coming from an untrusted publisher.
 
 ## Quick Start
