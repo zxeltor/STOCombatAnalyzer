@@ -7,6 +7,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
@@ -16,13 +17,13 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 /// </summary>
 public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
 {
-    /// <summary>
-    ///     ToddDo: I'm experimenting with using regex to parse log file lines. At the moment, it's considerably slower than my
-    ///     original method.
-    ///     Will revisit this when I can.
-    /// </summary>
-    private static readonly Regex RegexCombatLogLineRegex =
-        new(Settings.Default.CombatLogLineRegex, RegexOptions.Compiled);
+    ///// <summary>
+    /////     ToddDo: I'm experimenting with using regex to parse log file lines. At the moment, it's considerably slower than my
+    /////     original method.
+    /////     Will revisit this when I can.
+    ///// </summary>
+    //private static readonly Regex RegexCombatLogLineRegex =
+    //    new(Settings.Default.CombatLogLineRegex, RegexOptions.Compiled);
 
     /// <summary>
     ///     The main constructor
@@ -285,73 +286,73 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
             this.IsPlayerEntity = true;
     }
 
-    /// <summary>
-    ///     ToddDo: I'm experimenting with using regex to parse log file lines. At the moment, it's considerably slower than my
-    ///     original method.
-    ///     Will revisit this when I can.
-    /// </summary>
-    private void ParseLogFileEntryUsingRegex(string combatLogEntry)
-    {
-        if (combatLogEntry == null)
-            throw new NullReferenceException(nameof(combatLogEntry));
+    ///// <summary>
+    /////     ToddDo: I'm experimenting with using regex to parse log file lines. At the moment, it's considerably slower than my
+    /////     original method.
+    /////     Will revisit this when I can.
+    ///// </summary>
+    //private void ParseLogFileEntryUsingRegex(string combatLogEntry)
+    //{
+    //    if (combatLogEntry == null)
+    //        throw new NullReferenceException(nameof(combatLogEntry));
 
-        var logRegexMatch = RegexCombatLogLineRegex.Match(combatLogEntry);
+    //    var logRegexMatch = RegexCombatLogLineRegex.Match(combatLogEntry);
 
-        if (logRegexMatch == null)
-            throw new Exception(
-                "Failed to parse combat log entry. Line was not properly delimited with commas, or you need to fix your CombatLogFileRegex setting.");
+    //    if (logRegexMatch == null)
+    //        throw new Exception(
+    //            "Failed to parse combat log entry. Line was not properly delimited with commas, or you need to fix your CombatLogFileRegex setting.");
 
-        // 24:04:11:17:10:35.9::zxeltor
-        this.Timestamp = DateTime.MinValue;
+    //    // 24:04:11:17:10:35.9::zxeltor
+    //    this.Timestamp = DateTime.MinValue;
 
-        if (int.TryParse(logRegexMatch.Groups["year"].Value, out var year))
-            if (int.TryParse(logRegexMatch.Groups["month"].Value, out var month))
-                if (int.TryParse(logRegexMatch.Groups["day"].Value, out var day))
-                    if (int.TryParse(logRegexMatch.Groups["hour"].Value, out var hour))
-                        if (int.TryParse(logRegexMatch.Groups["min"].Value, out var min))
-                            if (int.TryParse(logRegexMatch.Groups["sec"].Value, out var sec))
-                                if (int.TryParse(logRegexMatch.Groups["milli"].Value, out var fraction))
-                                    this.Timestamp = new DateTime(2000 + year, month, day, hour, min, sec,
-                                        fraction * 100, DateTimeKind.Local);
+    //    if (int.TryParse(logRegexMatch.Groups["year"].Value, out var year))
+    //        if (int.TryParse(logRegexMatch.Groups["month"].Value, out var month))
+    //            if (int.TryParse(logRegexMatch.Groups["day"].Value, out var day))
+    //                if (int.TryParse(logRegexMatch.Groups["hour"].Value, out var hour))
+    //                    if (int.TryParse(logRegexMatch.Groups["min"].Value, out var min))
+    //                        if (int.TryParse(logRegexMatch.Groups["sec"].Value, out var sec))
+    //                            if (int.TryParse(logRegexMatch.Groups["milli"].Value, out var fraction))
+    //                                this.Timestamp = new DateTime(2000 + year, month, day, hour, min, sec,
+    //                                    fraction * 100, DateTimeKind.Local);
 
-        if (this.Timestamp == DateTime.MinValue)
-            throw new Exception($"Failed to parse {nameof(this.Timestamp)} from Line.");
+    //    if (this.Timestamp == DateTime.MinValue)
+    //        throw new Exception($"Failed to parse {nameof(this.Timestamp)} from Line.");
 
-        this.OwnerDisplay = logRegexMatch.Groups["OwnerDisplay"].Value;
-        this.OwnerId = logRegexMatch.Groups["OwnerId"].Value;
-        this.SourceLabel = logRegexMatch.Groups["SourceLabel"].Value;
-        this.SourceId = logRegexMatch.Groups["SourceId"].Value;
-        this.TargetLabel = logRegexMatch.Groups["TargetLabel"].Value;
-        this.TargetId = logRegexMatch.Groups["TargetId"].Value;
-        this.EventLabel = logRegexMatch.Groups["EventLabel"].Value;
-        this.EventId = logRegexMatch.Groups["EventId"].Value;
-        this.Type = logRegexMatch.Groups["Type"].Value;
-        this.Flags = logRegexMatch.Groups["Flags"].Value;
+    //    this.OwnerDisplay = logRegexMatch.Groups["OwnerDisplay"].Value;
+    //    this.OwnerId = logRegexMatch.Groups["OwnerId"].Value;
+    //    this.SourceLabel = logRegexMatch.Groups["SourceLabel"].Value;
+    //    this.SourceId = logRegexMatch.Groups["SourceId"].Value;
+    //    this.TargetLabel = logRegexMatch.Groups["TargetLabel"].Value;
+    //    this.TargetId = logRegexMatch.Groups["TargetId"].Value;
+    //    this.EventLabel = logRegexMatch.Groups["EventLabel"].Value;
+    //    this.EventId = logRegexMatch.Groups["EventId"].Value;
+    //    this.Type = logRegexMatch.Groups["Type"].Value;
+    //    this.Flags = logRegexMatch.Groups["Flags"].Value;
 
-        if (!double.TryParse(logRegexMatch.Groups["Magnitude"].Value, out var magnitudeResult))
-            throw new Exception($"Failed to parse {nameof(this.Magnitude)} from Line.");
+    //    if (!double.TryParse(logRegexMatch.Groups["Magnitude"].Value, out var magnitudeResult))
+    //        throw new Exception($"Failed to parse {nameof(this.Magnitude)} from Line.");
 
-        if (!double.TryParse(logRegexMatch.Groups["MagnitudeBase"].Value, out var magnitudeBaseResult))
-            throw new Exception($"Failed to parse {nameof(this.MagnitudeBase)} from Line.");
+    //    if (!double.TryParse(logRegexMatch.Groups["MagnitudeBase"].Value, out var magnitudeBaseResult))
+    //        throw new Exception($"Failed to parse {nameof(this.MagnitudeBase)} from Line.");
 
-        this.Magnitude = magnitudeResult;
-        this.MagnitudeBase = magnitudeBaseResult;
+    //    this.Magnitude = magnitudeResult;
+    //    this.MagnitudeBase = magnitudeBaseResult;
 
-        this.OriginalHashCode = this.GetHashCode();
+    //    this.OriginalHashCode = this.GetHashCode();
 
-        if (string.IsNullOrWhiteSpace(this.OwnerId))
-        {
-            this.OwnerDisplay = this.TargetLabel;
-            this.OwnerId = this.TargetId;
-            this.IsOwnerModified = true;
-        }
+    //    if (string.IsNullOrWhiteSpace(this.OwnerId))
+    //    {
+    //        this.OwnerDisplay = this.TargetLabel;
+    //        this.OwnerId = this.TargetId;
+    //        this.IsOwnerModified = true;
+    //    }
 
-        if (!string.IsNullOrWhiteSpace(this.SourceLabel) && !this.SourceLabel.Equals("*"))
-            this.IsPetEvent = true;
+    //    if (!string.IsNullOrWhiteSpace(this.SourceLabel) && !this.SourceLabel.Equals("*"))
+    //        this.IsPetEvent = true;
 
-        if (this.OwnerId.StartsWith("P["))
-            this.IsPlayerEntity = true;
-    }
+    //    if (this.OwnerId.StartsWith("P["))
+    //        this.IsPlayerEntity = true;
+    //}
 
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.

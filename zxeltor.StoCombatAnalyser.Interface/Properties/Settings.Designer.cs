@@ -23,24 +23,6 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"^(?<year>\d+):(?<month>\d+):(?<day>\d+):(?<hour>\d+):(?<min>\d+):(?<sec>\d+)\.(?<milli>\d+)::(?<OwnerDisplay>[^|]*),(?<OwnerId>[^|]*),(?<SourceLabel>[^|]*),(?<SourceId>[^|]*),(?<TargetLabel>[^|]*),(?<TargetId>[^|]*),(?<EventLabel>[^|]*),(?<EventId>[^|]*),(?<Type>[^|]*),(?<Flags>[^|]*),(?<Magnitude>[^|]*),(?<MagnitudeBase>[^|]*)")]
-        public string CombatLogLineRegex {
-            get {
-                return ((string)(this["CombatLogLineRegex"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool EnableSettingsEdit {
-            get {
-                return ((bool)(this["EnableSettingsEdit"]));
-            }
-        }
-        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("c:\\temp")]

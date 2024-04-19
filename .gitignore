@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /zxeltor.StoCombatAnalyser.Interface/StoCombatAnalyzerSettings2.json
+/zxeltor.StoCombatAnalyser.Interface/Log4Net.Development.config
