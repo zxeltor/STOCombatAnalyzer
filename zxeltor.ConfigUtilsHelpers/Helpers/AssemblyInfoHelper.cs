@@ -42,6 +42,16 @@ public static class AssemblyInfoHelper
     }
 
     /// <summary>
+    ///     Get assembly version from the entry assembly for the current application.
+    /// </summary>
+    /// <returns>The application version</returns>
+    public static Version? GetApplicationVersionFromAssembly()
+    {
+        var assemblyVersion = Assembly.GetEntryAssembly()?.GetName().Version;
+        return assemblyVersion;
+    }
+
+    /// <summary>
     ///     Get the root folder from the location of the entry assembly for the current application.
     ///     <para>If assembly info is not available, a default is taken from <see cref="Environment.CurrentDirectory" /></para>
     /// </summary>

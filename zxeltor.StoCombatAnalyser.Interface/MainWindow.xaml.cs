@@ -4,10 +4,8 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-using log4net;
-
 using System.Windows;
-
+using log4net;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
@@ -46,9 +44,12 @@ public partial class MainWindow : Window
         // Initialize log4net settings based on log4net.config
         LoggingHelper.ConfigureLog4NetLogging();
 
+        var version = AssemblyInfoHelper.GetApplicationVersionFromAssembly();
+
         // Set our window title using assembly information.
-        this.Title =
-            $"{AssemblyInfoHelper.GetApplicationNameFromAssemblyOrDefault()} v{AssemblyInfoHelper.GetApplicationInfoVersionFromAssemblyOrDefault()}";
+        this.Title = version == null
+            ? $"{AssemblyInfoHelper.GetApplicationNameFromAssemblyOrDefault()}"
+            : $"{AssemblyInfoHelper.GetApplicationNameFromAssemblyOrDefault()} v{version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
 
         this.CombatLogManagerContext = new CombatLogManager();
         this.CombatLogManagerContext.StatusChange += this.combatLogManager_StatusChange;
