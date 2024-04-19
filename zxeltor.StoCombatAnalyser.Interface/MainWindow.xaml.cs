@@ -4,8 +4,10 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-using System.Windows;
 using log4net;
+
+using System.Windows;
+
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
