@@ -1,12 +1,13 @@
 # Star Trek Online Combat Analyzer ![Latest application version](https://img.shields.io/badge/beta.2-v1.0.0-blue)
 
-#### License and Disclaimer
-We are not affiliated, associated, authorized, endorsed by, or in any way officially connected with the game Star Trek Online, or any of its subsidiaries or its affiliates. The official Star Trek Online website can be found at [https://www.playstartrekonline.com/](https://www.playstartrekonline.com/en/)
-
-Please see license info [here](https://github.com/zxeltor/STOCombatAnalyzer?tab=Apache-2.0-1-ov-file).
-
 #### Revision History and Updates
-Please more information please visit the [WIKI](https://github.com/zxeltor/STOCombatAnalyzer/wiki)
+For more information please visit the [WIKI](https://github.com/zxeltor/STOCombatAnalyzer/wiki)
+
+* [Overview](#overview)
+* [Building](#building)
+* [Release and package installer](#release-and-package-installer)
+* [Quick Start](#quick-start)
+* [Disclaimer](#disclaimer)
 
 ## Overview
 This is a PC application used to parse and analyze Star Trek Online combat logs. I became interested in trying out STO random elites, but I was curious if my Space DPS was up to snuff. After a little research, I found a reddit post which had a brief outline of the combat log, and the available fields. I figured doing a real-time DPS analyzer would be futile. until I could wrap my head around the combat log an it's fields.
@@ -40,3 +41,8 @@ After you have a successful build, do the following to get started using the app
   - A dialog will appear and inform you of success, or failure. If a failure occurs, there should be details on what to do.
 
 ![Main UI](zxeltor.StoCombatAnalyser.Interface/Images/StoCombatAnalyzerScreenShot.jpg)
+
+## Disclaimer
+This software and any related documentation is provided “as is” without warranty of any kind, either express or implied, including, without limitation, the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. Licensee accepts any and all risk arising out of use or performance of Software
+
+**Note:** We are not affiliated, associated, authorized, endorsed by, or in any way officially connected with the game Star Trek Online, or any of its subsidiaries or its affiliates. The official Star Trek Online website can be found at [https://www.playstartrekonline.com/](https://www.playstartrekonline.com/en/)
