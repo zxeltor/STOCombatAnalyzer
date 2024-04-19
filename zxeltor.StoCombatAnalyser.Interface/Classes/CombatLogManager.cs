@@ -68,19 +68,23 @@ public class CombatLogManager : INotifyPropertyChanged
             // A search pattern to select log files in the base folder.
             // This uses standard wildcard conventions, so multiple files can be selected.
             var combatLogFilePattern = Settings.Default.CombatLogPathFilePattern;
-
-            // If our configured log folder isn't found, alert the user to do something about it.
-            if (!Directory.Exists(combatLogPath))
-            {
-                var errorMessageString =
-                    $"The selected log folder doesn't exist: {combatLogPath}. Go to settings and set CombatLogPath to a valid folder.";
-                this.AddToLogAndLogSummaryInUi(errorMessageString, isError: true);
-                DetailsDialog.Show(null, errorMessageString, "Folder Select Error");
-                return;
-            }
-
+            
             try
             {
+                // If our configured log folder isn't found, alert the user to do something about it.
+                if (!Directory.Exists(combatLogPath))
+                {
+                    this.AddToLogAndLogSummaryInUi(
+                        $"The selected log folder doesn't exist: {combatLogPath}. Go to settings and set CombatLogPath to a valid folder.",
+                        isError: true);
+
+                    MessageBox.Show(Application.Current.MainWindow,
+                        $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set CombatLogPath to a valid folder.",
+                        "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                    return;
+                }
+
                 // Get a list of 1 or more files, if any exist.
                 filesToParse = Directory.GetFiles(combatLogPath, combatLogFilePattern, SearchOption.TopDirectoryOnly)
                     .ToList();
@@ -90,7 +94,10 @@ public class CombatLogManager : INotifyPropertyChanged
                 var errorMessageString =
                     $"Failed to get log files using pattern=\"{combatLogPath}\" and path=\"{combatLogFilePattern}\"";
                 this.AddToLogAndLogSummaryInUi(errorMessageString, isError: true);
-                DetailsDialog.Show(null, errorMessageString, "Folder Select Error");
+
+                MessageBox.Show(Application.Current.MainWindow,
+                    errorMessageString, "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                
                 return;
             }
         }
