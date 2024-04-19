@@ -22,12 +22,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Log4Net.config" />
     <None Remove="Log4Net.Development.config" />
     <None Remove="StoCombatAnalyzerSettings2.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="favicon.ico" />
+    <Content Include="Log4Net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -61,9 +65,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Log4Net.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
