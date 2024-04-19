@@ -93,7 +93,7 @@ public class CombatLogManager : INotifyPropertyChanged
             {
                 var errorMessageString =
                     $"Failed to get log files using pattern=\"{combatLogPath}\" and path=\"{combatLogFilePattern}\"";
-                this.AddToLogAndLogSummaryInUi(errorMessageString, isError: true);
+                this.AddToLogAndLogSummaryInUi(errorMessageString, exception: ex, isError: true);
 
                 MessageBox.Show(Application.Current.MainWindow,
                     errorMessageString, "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
