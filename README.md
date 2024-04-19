@@ -1,4 +1,4 @@
-# Star Trek Online Combat Analyzer ![Latest application version](https://img.shields.io/badge/beta.1-v1.0.1-blue)
+# Star Trek Online Combat Analyzer ![Latest application version](https://img.shields.io/badge/beta.2-v1.0.0-blue)
 
 #### License and Disclaimer
 We are not affiliated, associated, authorized, endorsed by, or in any way officially connected with the game Star Trek Online, or any of its subsidiaries or its affiliates. The official Star Trek Online website can be found at [https://www.playstartrekonline.com/](https://www.playstartrekonline.com/en/)
