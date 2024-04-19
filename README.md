@@ -18,9 +18,7 @@ The source in this repo is wrapped up in a Visual Studio 2022 solution. You shou
 You could also run the dotnet cli build and run commands from inside the zxeltor.StoCombatAnalyser.Interface project folder as well.
 
 ## Release and package installer
-I've been playing with a ClickOnce installer. You can download and install the latest from this link: [https://starfleet.engineer/StoCombatAnalyzer/Publish.html](https://starfleet.engineer/StoCombatAnalyzer/Publish.html)
-
-Note: The app and installer are signed with a localy generated certificate. Since it's not from a known publisher, you'll get warnings during the install process about it coming from an untrusted publisher.
+I've been playing with a ClickOnce installer. I will make it available once I figure things out.
 
 ## Quick Start
 After you have a successful build, do the following to get started using the application.
