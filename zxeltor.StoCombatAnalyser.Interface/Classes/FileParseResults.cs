@@ -51,6 +51,6 @@ public class FileParseResults
     public string ToLog()
     {
         return
-            $"File={Path.GetFileName(this.FileName)}, SuccessfulParses={this.SuccessfulParses}, FailedParses={this.FailedParses}";
+            $"{Path.GetFileName(this.FileName)}, ParsedLines={this.SuccessfulParses}, FailedLines={this.FailedParses}";
     }
 }
