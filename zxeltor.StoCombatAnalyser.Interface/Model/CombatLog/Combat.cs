@@ -4,6 +4,7 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using System.Buffers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -38,14 +39,10 @@ public class Combat : INotifyPropertyChanged
     {
         get
         {
-            var minValue = DateTime.MaxValue;
+            if(this.PlayerEntities.Count + this.NonPlayerEntities.Count == 0)
+                return DateTime.MinValue;
 
-            if (this.PlayerEntities.Count != 0)
-                minValue = this.PlayerEntities.Min(owner => owner.CombatStart);
-            if (this.NonPlayerEntities.Count != 0)
-                minValue = this.NonPlayerEntities.Min(owner => owner.CombatStart);
-
-            return minValue;
+            return this.PlayerEntities.Union(this.NonPlayerEntities).Min(entity => entity.CombatStart);
         }
     }
 
@@ -57,14 +54,10 @@ public class Combat : INotifyPropertyChanged
     {
         get
         {
-            var maxValue = DateTime.MinValue;
+            if (this.PlayerEntities.Count + this.NonPlayerEntities.Count == 0)
+                return DateTime.MinValue;
 
-            if (this.PlayerEntities.Count != 0)
-                maxValue = this.PlayerEntities.Max(owner => owner.CombatEnd);
-            if (this.NonPlayerEntities.Count != 0)
-                maxValue = this.NonPlayerEntities.Max(owner => owner.CombatEnd);
-
-            return maxValue;
+            return this.PlayerEntities.Union(this.NonPlayerEntities).Max(entity => entity.CombatEnd);
         }
     }
 
