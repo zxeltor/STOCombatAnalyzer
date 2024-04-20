@@ -39,10 +39,21 @@ public class Combat : INotifyPropertyChanged
     {
         get
         {
-            if(this.PlayerEntities.Count + this.NonPlayerEntities.Count == 0)
-                return DateTime.MinValue;
+            var minPlayer = DateTime.MinValue;
+            var minNonPlayer = DateTime.MinValue;
 
-            return this.PlayerEntities.Union(this.NonPlayerEntities).Min(entity => entity.CombatStart);
+            if (this.PlayerEntities.Count > 0)
+                minPlayer = this.PlayerEntities.Min(entity => entity.CombatStart);
+            if (this.NonPlayerEntities.Count > 0)
+                minNonPlayer = this.NonPlayerEntities.Min(entity => entity.CombatStart);
+
+            if(minPlayer == minNonPlayer)
+                return minPlayer;
+            
+            if(minNonPlayer < minPlayer)
+                return minNonPlayer;
+            
+            return minPlayer;
         }
     }
 
@@ -54,10 +65,21 @@ public class Combat : INotifyPropertyChanged
     {
         get
         {
-            if (this.PlayerEntities.Count + this.NonPlayerEntities.Count == 0)
-                return DateTime.MinValue;
+            var maxPlayer = DateTime.MinValue;
+            var maxNonPlayer = DateTime.MinValue;
 
-            return this.PlayerEntities.Union(this.NonPlayerEntities).Max(entity => entity.CombatEnd);
+            if (this.PlayerEntities.Count > 0)
+                maxPlayer = this.PlayerEntities.Max(entity => entity.CombatEnd);
+            if (this.NonPlayerEntities.Count > 0)
+                maxNonPlayer = this.NonPlayerEntities.Max(entity => entity.CombatEnd);
+
+            if (maxPlayer == maxNonPlayer)
+                return maxPlayer;
+
+            if (maxNonPlayer > maxPlayer)
+                return maxNonPlayer;
+
+            return maxPlayer;
         }
     }
 
