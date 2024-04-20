@@ -17,8 +17,8 @@ The source in this repo is wrapped up in a Visual Studio 2022 solution. You shou
 
 You could also run the dotnet cli build and run commands from inside the zxeltor.StoCombatAnalyser.Interface project folder as well.
 
-## Release and package installer
-I've been playing with a ClickOnce installer. I will make it available once I figure things out.
+## Release Info and Download
+See the [wiki](https://github.com/zxeltor/STOCombatAnalyzer/wiki) for more details.
 
 ## Quick Start
 After you have a successful build, do the following to get started using the application.
