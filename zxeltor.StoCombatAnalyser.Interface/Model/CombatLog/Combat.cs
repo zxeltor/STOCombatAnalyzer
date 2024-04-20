@@ -4,6 +4,7 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using System.Buffers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -38,14 +39,21 @@ public class Combat : INotifyPropertyChanged
     {
         get
         {
-            var minValue = DateTime.MaxValue;
+            var minPlayer = DateTime.MinValue;
+            var minNonPlayer = DateTime.MinValue;
 
-            if (this.PlayerEntities.Count != 0)
-                minValue = this.PlayerEntities.Min(owner => owner.CombatStart);
-            if (this.NonPlayerEntities.Count != 0)
-                minValue = this.NonPlayerEntities.Min(owner => owner.CombatStart);
+            if (this.PlayerEntities.Count > 0)
+                minPlayer = this.PlayerEntities.Min(entity => entity.CombatStart);
+            if (this.NonPlayerEntities.Count > 0)
+                minNonPlayer = this.NonPlayerEntities.Min(entity => entity.CombatStart);
 
-            return minValue;
+            if(minPlayer == minNonPlayer)
+                return minPlayer;
+            
+            if(minNonPlayer < minPlayer)
+                return minNonPlayer;
+            
+            return minPlayer;
         }
     }
 
@@ -57,14 +65,21 @@ public class Combat : INotifyPropertyChanged
     {
         get
         {
-            var maxValue = DateTime.MinValue;
+            var maxPlayer = DateTime.MinValue;
+            var maxNonPlayer = DateTime.MinValue;
 
-            if (this.PlayerEntities.Count != 0)
-                maxValue = this.PlayerEntities.Max(owner => owner.CombatEnd);
-            if (this.NonPlayerEntities.Count != 0)
-                maxValue = this.NonPlayerEntities.Max(owner => owner.CombatEnd);
+            if (this.PlayerEntities.Count > 0)
+                maxPlayer = this.PlayerEntities.Max(entity => entity.CombatEnd);
+            if (this.NonPlayerEntities.Count > 0)
+                maxNonPlayer = this.NonPlayerEntities.Max(entity => entity.CombatEnd);
 
-            return maxValue;
+            if (maxPlayer == maxNonPlayer)
+                return maxPlayer;
+
+            if (maxNonPlayer > maxPlayer)
+                return maxNonPlayer;
+
+            return maxPlayer;
         }
     }
 

@@ -43,15 +43,13 @@ public class CombatEntity : INotifyPropertyChanged
     ///     Used to establish the start time for this combat entity.
     ///     <para>The first timestamp from our <see cref="CombatEvent" /> collections, based on an ordered list.</para>
     /// </summary>
-    public DateTime CombatStart =>
-        this.CombatEventList.Count == 0 ? DateTime.MinValue : this.CombatEventList.First().Timestamp;
+    public DateTime CombatStart => this.CombatEventList.Count == 0 ? DateTime.MinValue : this.CombatEventList.First().Timestamp;
 
     /// <summary>
     ///     Used to establish the end time for this combat entity.
     ///     <para>The last timestamp from our <see cref="CombatEvent" /> collections, based on ann ordered list.</para>
     /// </summary>
-    public DateTime CombatEnd =>
-        this.CombatEventList.Count == 0 ? DateTime.MinValue : this.CombatEventList.Last().Timestamp;
+    public DateTime CombatEnd => this.CombatEventList.Count == 0 ? DateTime.MinValue : this.CombatEventList.Last().Timestamp;
 
     /// <summary>
     ///     A humanized string base on combat duration. (<see cref="CombatEnd" /> - <see cref="CombatStart" />)
