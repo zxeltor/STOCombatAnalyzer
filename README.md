@@ -30,7 +30,7 @@ After you have a successful build, do the following to get started using the app
     - If you click the **detect** button, the application will attempt to get the STO install folder from the windows registry. A dialog box will appear to let you know if it was succesfull, and will update the field with the STO log folder if it was.
   - **CombatLogPathFilePattern**: Set a file pattern used to select one or more combat log files.
     - This search pattern supports wildcards so more then one file can be selected.
-  - (Optional) **MaxNumberOfCombatsToDisplay** You can set the number of combat instances to display in the UI after you parse the logs.
+  - **MaxNumberOfCombatsToDisplay** You can set the number of combat instances to display in the UI after you parse the logs.
     - If you set this to 0 or less, it will display all combat instances
 
 ![Settings Tab](zxeltor.StoCombatAnalyser.Interface/Images/StoCombatAnalyzerScreenShot_Settings.jpg)
