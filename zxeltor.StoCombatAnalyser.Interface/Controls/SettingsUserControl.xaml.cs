@@ -106,6 +106,30 @@ public partial class SettingsUserControl : UserControl
                 "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
+
+    /// <summary>
+    ///     Do some additional validation on the field, before the setting is saved.
+    /// </summary>
+    /// <remarks>ToddDo: Revisit later. Probably a better way to do validation as part of the databind.</remarks>
+    private void UiButtonHowLongBeforeNewCombat_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (int.TryParse(this.uiTextBoxHowLongBeforeNewCombat.Text, out var parseResult))
+        {
+            if (parseResult < 1) parseResult = 10;
+
+            this.MyPrivateContext.HowLongBeforeNewCombat = parseResult;
+
+            MessageBox.Show(Application.Current.MainWindow!, "The field has successfully updated.",
+                "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        else
+        {
+            this.MyPrivateContext.HowLongBeforeNewCombat = 10;
+
+            MessageBox.Show(Application.Current.MainWindow!, "This field only supports numeric values.",
+                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
 }
 
 /// <summary>
@@ -115,6 +139,7 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
 {
     private string? _combatLogPath;
     private string? _combatLogPathFilePattern;
+    private int _howLongBeforeNewCombat;
     private int _maxNumberOfCombatsToDisplay;
 
     public SettingsUserControlBindingContext()
@@ -122,6 +147,7 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         this.CombatLogPath = Settings.Default.CombatLogPath;
         this.CombatLogPathFilePattern = Settings.Default.CombatLogPathFilePattern;
         this.MaxNumberOfCombatsToDisplay = Settings.Default.MaxNumberOfCombatsToDisplay;
+        this.HowLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombat;
     }
 
     /// <summary>
@@ -153,9 +179,20 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
     }
 
     /// <summary>
-    ///     The max number of combat entries to list in the UI after log file parsing is complete.
-    ///     <para>If less than equal to 0, display all of them.</para>
+    ///     How long to wait in seconds between attacks before an event is considered part of a new combat instance.
+    ///     <para>If less than equal to 1, set the parameter to 10 seconds.</para>
     /// </summary>
+    public int HowLongBeforeNewCombat
+    {
+        get => this._howLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombat;
+        set
+        {
+            Settings.Default.HowLongBeforeNewCombat = value;
+            Settings.Default.Save();
+            this.SetField(ref this._howLongBeforeNewCombat, value);
+        }
+    }
+
     public int MaxNumberOfCombatsToDisplay
     {
         get => this._maxNumberOfCombatsToDisplay = Settings.Default.MaxNumberOfCombatsToDisplay;

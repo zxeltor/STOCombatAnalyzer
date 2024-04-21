@@ -221,7 +221,7 @@ public class CombatLogManager : INotifyPropertyChanged
             }
             // We check our current combat event, with the last entry in our current combat instance. If they're more than
             // 90 seconds apart, we use the new combat event to create a new combat instance.
-            else if (combatEvent.Timestamp - latestCombat.CombatEnd > TimeSpan.FromSeconds(90))
+            else if (combatEvent.Timestamp - latestCombat.CombatEnd > TimeSpan.FromSeconds(Settings.Default.HowLongBeforeNewCombat))
             {
                 latestCombat = new Combat(combatEvent);
                 combatList.Add(latestCombat);

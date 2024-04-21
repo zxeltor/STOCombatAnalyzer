@@ -69,6 +69,26 @@
                     </StackPanel>
                 </Grid>
             </ListBoxItem>
+            <ListBoxItem BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Name:" />
+                        <TextBlock Text="HowLongBeforeNewCombat" Margin="4,0,10,0"/>
+                        <TextBox Name="uiTextBoxHowLongBeforeNewCombat"
+                                 Text="{Binding Path=HowLongBeforeNewCombat, Mode=OneWay}" Margin="0,0,10,0" MinWidth="100" />
+                        <Button Name="uiButtonHowLongBeforeNewCombat" Content="set"
+                                Click="UiButtonHowLongBeforeNewCombat_OnClick" Width="40"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
+                        <TextBlock>Description:</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">How long to wait in seconds between attacks before an event is considered part of a new combat instance. If less than equal to 1, set the parameter to 10 seconds.</TextBlock>
+                    </StackPanel>
+                </Grid>
+            </ListBoxItem>
         </ListBox>
     </Grid>
 </UserControl>

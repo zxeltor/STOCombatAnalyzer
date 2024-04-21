@@ -58,5 +58,17 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
                 this["MaxNumberOfCombatsToDisplay"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int HowLongBeforeNewCombat {
+            get {
+                return ((int)(this["HowLongBeforeNewCombat"]));
+            }
+            set {
+                this["HowLongBeforeNewCombat"] = value;
+            }
+        }
     }
 }
