@@ -80,7 +80,8 @@ public partial class MainWindow : Window
 
     private void uiTreeViewCombatEntityList_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
-        if (e.NewValue is CombatEntity combatEntity)
-            this.CombatLogManagerContext?.SetSelectedCombatEventList(combatEntity.CombatEventList);
+        if (!(e.NewValue is CombatEntity combatEntity)) return;
+            
+        this.CombatLogManagerContext?.SetSelectedCombatEntity(combatEntity);
     }
 }

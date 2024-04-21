@@ -19,7 +19,7 @@ public class DateTimeToExtendedDateStringConverter : IValueConverter
     /// <inheritdoc />
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        return ((DateTime)value).ToString("MM/dd/yyyy h:mm:ss.fff tt");
+        return ((DateTime)value).ToString("MM/dd H:mm:ss.fff");
     }
 
     /// <inheritdoc />

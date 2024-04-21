@@ -29,6 +29,37 @@ public class CombatEntity : INotifyPropertyChanged
         this.AddCombatEvent(combatEvent);
     }
 
+    public List<CombatEventType> CombatEventTypeList_ForEntity
+    {
+        get
+        {
+            var myEvents = this.CombatEventList.Where(ev => ev.SourceId.Equals("*"))
+                .GroupBy(ev => new { ev.EventId, ev.EventLabel, ev.SourceLabel })
+                .OrderBy(evg => evg.Key.EventLabel)
+                .Select(evg => new CombatEventType(evg.Key.SourceLabel, evg.Key.EventId,
+                    evg.Key.EventLabel, evg.ToList())).ToList();
+
+            return myEvents;
+        }
+    }
+
+    public List<CombatPetEventType> CombatEventTypeList_ForEntityPets
+    {
+        get
+        {
+            var myEvents = this.CombatEventList.Where(ev => !ev.SourceId.Equals("*"))
+                .GroupBy(ev => new { ev.EventId, ev.EventLabel, ev.SourceLabel })
+                .OrderBy(evg => evg.Key.EventLabel)
+                .Select(evg => new CombatEventType(evg.Key.SourceLabel, evg.Key.EventId,
+                    evg.Key.EventLabel, evg.ToList())).ToList();
+
+            var petEvents = myEvents.GroupBy(evt => new { evt.SourceLabel }).Select(evtg =>
+                new CombatPetEventType(evtg.Key.SourceLabel, evtg.ToList())).ToList();
+
+            return petEvents;
+        }
+    }
+
     /// <summary>
     ///     A string representation of <see cref="CombatStart" /> which includes milliseconds.
     /// </summary>
@@ -67,15 +98,15 @@ public class CombatEntity : INotifyPropertyChanged
     /// </summary>
     public string DPS => this.CombatEventList.Count == 0
         ? "0"
-        : (this.CombatEventList.Select(dam => Math.Abs(dam.Magnitude)).Sum() /
-           ((this.CombatEnd - this.CombatStart).TotalSeconds + .001)).ToMetric(null, 3);
+        : (this.CombatEventList.Sum(dam => Math.Abs(dam.Magnitude)) /
+           ((this.CombatEventList.Max(ev => ev.Timestamp) - this.CombatEventList.Min(ev => ev.Timestamp)).TotalSeconds + .001)).ToMetric(null, 3);
 
     /// <summary>
     ///     A rudimentary calculation for max damage for this entity, and probably incorrect.
     /// </summary>
     public string MaxDamage => this.CombatEventList.Count == 0
         ? "0"
-        : this.CombatEventList.Select(dam => Math.Abs(dam.Magnitude)).Max().ToMetric(null, 3);
+        : this.CombatEventList.Max(dam => Math.Abs(dam.Magnitude)).ToMetric(null, 3);
 
     /// <summary>
     ///     The ID for our entity

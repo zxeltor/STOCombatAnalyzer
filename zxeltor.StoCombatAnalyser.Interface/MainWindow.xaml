@@ -39,7 +39,9 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Name=" />
                             <TextBlock Text="{Binding OwnerDisplay}" />
-                            <TextBlock Text="GameId=" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="GameId=" />
                             <TextBlock Text="{Binding OwnerId}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
@@ -59,7 +61,9 @@
                             <TextBlock Text="{Binding CombatEventList.Count}" />
                             <TextBlock Text="Kills=" Margin="8,0,0,0" />
                             <TextBlock Text="{Binding Kills}" />
-                            <TextBlock Text="DPS=" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="DPS=" />
                             <TextBlock Text="{Binding DPS}" />
                             <TextBlock Text="Max Damage=" Margin="8,0,0,0" />
                             <TextBlock Text="{Binding MaxDamage}" />
@@ -115,9 +119,17 @@
                         <RowDefinition Height="79*" />
                         <RowDefinition Height="60*" />
                     </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="234"></ColumnDefinition>
+                        <ColumnDefinition Width="50*"></ColumnDefinition>
+                        <ColumnDefinition Width="50*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
 
-                    <GroupBox x:Name="uiGroupBoxCombatList" Grid.Row="0" Margin="10,10,0,10" HorizontalAlignment="Left"
-                              Width="234">
+                    <Button x:Name="uiButtonParseLog" Content="Parse Log(s)" Margin="0,8,4,0"
+                            VerticalAlignment="Top" Height="26" HorizontalAlignment="Right" Width="105"
+                            Click="uiButtonParseLog_Click" />
+
+                    <GroupBox x:Name="uiGroupBoxCombatList" Grid.Row="0" Grid.Column="0" Margin="0,30,0,0">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Combat List" />
@@ -127,36 +139,121 @@
                             </StackPanel>
                         </GroupBox.Header>
                         <ListView x:Name="uiListCombatSelector" ItemsSource="{Binding Combats}"
-                                  ItemTemplate="{StaticResource combatListItemTemplate}"
-                                  HorizontalContentAlignment="Stretch" Margin="0" IsSynchronizedWithCurrentItem="True" />
+                                      ItemTemplate="{StaticResource combatListItemTemplate}"
+                                      IsSynchronizedWithCurrentItem="True" />
                     </GroupBox>
 
-                    <Button Grid.Row="0" x:Name="uiButtonParseLog" Content="Parse Log(s)" Margin="0,10,10,0"
-                            VerticalAlignment="Top" Height="26" HorizontalAlignment="Right" Width="105"
-                            Click="uiButtonParseLog_Click" />
-
-                    <GroupBox Grid.Row="0" x:Name="uiGroupBoxSelectedCombatDetails" Header="Selected Combat Details"
-                              Margin="249,10,141,10" Padding="4,0,4,4">
+                    <GroupBox Grid.Row="0" Grid.Column="1" x:Name="uiGroupBoxSelectedCombatDetails" Header="Selected Combat Details"
+                              Margin="0,0,4,0"
+                              Padding="4,0,4,4">
                         <Grid>
                             <ContentControl Content="{Binding Combats}"
                                             ContentTemplate="{StaticResource selectedCombatDetailsTemplate}" />
                         </Grid>
                     </GroupBox>
 
-                    <GridSplitter Grid.Row="1" Background="Gray" Height="2" Margin="10,0,10,0"
+                    <GridSplitter Grid.Row="0" Grid.Column="1" Background="Gray" Margin="0,4,0,4" Width="2"
+                                  Padding="4,0,4,0"
+                                  HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
+
+                    <GroupBox Grid.Row="0" Grid.Column="2" Header="Selected Combat Entity: Event Type Groups" Margin="4,0,0,0">
+                        <TreeView>
+                            <TreeViewItem Name="uiTreeviewItemEntityTypes" Header="Entity" 
+                                          ItemsSource="{Binding Path=SelectedEntityCombatEventTypeList}">
+                                <TreeViewItem.ItemTemplate>
+                                    <HierarchicalDataTemplate>
+                                        <TreeViewItem Header="{Binding Path=EventLabel}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="DPS=" />
+                                                <TextBlock Text="{Binding Path=Dps}" />
+
+                                                <TextBlock Text="MaxMagnitude=" Margin="10,0,0,0" />
+                                                <TextBlock Text="{Binding Path=MaxMagnitude}" />
+
+                                                <TextBlock Text="MaxMagnitudeBase=" Margin="10,0,0,0" />
+                                                <TextBlock Text="{Binding Path=MaxMagnitudeBase}" />
+                                            </StackPanel>
+                                            <DataGrid ItemsSource="{Binding Path=CombatEvents}" AutoGenerateColumns="False"
+                                                      CanUserReorderColumns="True" CanUserSortColumns="True"
+                                                      CanUserResizeColumns="True">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Timestamp" Binding="{Binding Path=Timestamp, Mode=OneTime}" IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="TargetLabel" Binding="{Binding Path=TargetLabel, Mode=OneTime}" IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="Type" Binding="{Binding Path=Type, Mode=OneTime}" IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="Flags" Binding="{Binding Path=Flags, Mode=OneTime}" IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="Magnitude" Binding="{Binding Path=Magnitude, Mode=OneTime}" IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="MagnitudeBase" Binding="{Binding Path=MagnitudeBase, Mode=OneTime}" IsReadOnly="True" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </TreeViewItem>
+                                    </HierarchicalDataTemplate>
+                                </TreeViewItem.ItemTemplate>
+                            </TreeViewItem>
+                            <TreeViewItem Name="uiTreeviewItemPetTypes" Header="Entity Pet" ItemsSource="{Binding Path=SelectedEntityPetCombatEventTypeList}">
+                                <TreeViewItem.ItemTemplate>
+                                    <HierarchicalDataTemplate>
+                                        <TreeViewItem Header="{Binding Path=SourceLabel}" ItemsSource="{Binding Path=CombatEventTypes}">
+                                            <TreeViewItem.ItemTemplate>
+                                                <HierarchicalDataTemplate>
+                                                    <TreeViewItem Header="{Binding Path=EventLabel}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="DPS=" />
+                                                            <TextBlock Text="{Binding Path=Dps}" />
+
+                                                            <TextBlock Text="MaxMagnitude=" Margin="10,0,0,0" />
+                                                            <TextBlock Text="{Binding Path=MaxMagnitude}" />
+
+                                                            <TextBlock Text="MaxMagnitudeBase=" Margin="10,0,0,0" />
+                                                            <TextBlock Text="{Binding Path=MaxMagnitudeBase}" />
+                                                        </StackPanel>
+                                                        <DataGrid ItemsSource="{Binding Path=CombatEvents}" AutoGenerateColumns="False"
+                                                                  CanUserReorderColumns="True" CanUserSortColumns="True"
+                                                                  CanUserResizeColumns="True">
+                                                            <DataGrid.Columns>
+                                                                <DataGridTextColumn Header="Timestamp" Binding="{Binding Path=Timestamp, Mode=OneTime}" IsReadOnly="True" />
+                                                                <DataGridTextColumn Header="TargetLabel" Binding="{Binding Path=TargetLabel, Mode=OneTime}" IsReadOnly="True" />
+                                                                <DataGridTextColumn Header="Type" Binding="{Binding Path=Type, Mode=OneTime}" IsReadOnly="True" />
+                                                                <DataGridTextColumn Header="Flags" Binding="{Binding Path=Flags, Mode=OneTime}" IsReadOnly="True" />
+                                                                <DataGridTextColumn Header="Magnitude" Binding="{Binding Path=Magnitude, Mode=OneTime}" IsReadOnly="True" />
+                                                                <DataGridTextColumn Header="MagnitudeBase" Binding="{Binding Path=MagnitudeBase, Mode=OneTime}" IsReadOnly="True" />
+                                                            </DataGrid.Columns>
+                                                        </DataGrid>
+                                                    </TreeViewItem>
+                                                </HierarchicalDataTemplate>
+                                            </TreeViewItem.ItemTemplate>
+                                            <!--<DataGrid ItemsSource="{Binding Path=CombatEventTypes}" AutoGenerateColumns="False"
+                                                      CanUserReorderColumns="True" CanUserSortColumns="True"
+                                                      CanUserResizeColumns="True">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="SourceLabel" Binding="{Binding Path=SourceLabel, Mode=OneTime}" IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="TargetLabel" Binding="{Binding Path=TargetLabel, Mode=OneTime}" IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="Type" Binding="{Binding Path=Type, Mode=OneTime}" IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="Flags" Binding="{Binding Path=Flags, Mode=OneTime}" IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="Magnitude" Binding="{Binding Path=Magnitude, Mode=OneTime}" IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="MagnitudeBase" Binding="{Binding Path=MagnitudeBase, Mode=OneTime}" IsReadOnly="True" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>-->
+                                        </TreeViewItem>
+                                    </HierarchicalDataTemplate>
+                                </TreeViewItem.ItemTemplate>
+                            </TreeViewItem>
+                        </TreeView>
+                    </GroupBox>
+
+                    <GridSplitter Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Background="Gray" Height="2" Margin="10,4,10,0"
                                   HorizontalAlignment="Stretch" VerticalAlignment="Top" />
 
-                    <GroupBox x:Name="uiGroupBoxSelectedCombatEntity" Grid.Row="1" Margin="10,10,10,10"
+                    <GroupBox x:Name="uiGroupBoxSelectedCombatEntity" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="10,10,10,10"
                               Padding="0,4,0,0">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Selected Combat Entity Events" />
+                                <TextBlock Text="Selected Combat Entity: All Events" />
                                 <TextBlock Text="(" Margin="4,0,0,0" />
-                                <TextBlock Text="{Binding SelectedCombatEventList.Count}" />
+                                <TextBlock Text="{Binding SelectedEntityCombatEventList.Count}" />
                                 <TextBlock Text=")" />
                             </StackPanel>
                         </GroupBox.Header>
-                        <DataGrid ItemsSource="{Binding SelectedCombatEventList}" AutoGenerateColumns="False"
+                        <DataGrid ItemsSource="{Binding SelectedEntityCombatEventList}" AutoGenerateColumns="False"
                                   CanUserReorderColumns="True" CanUserSortColumns="True"
                                   CanUserResizeColumns="True">
                             <DataGrid.Columns>

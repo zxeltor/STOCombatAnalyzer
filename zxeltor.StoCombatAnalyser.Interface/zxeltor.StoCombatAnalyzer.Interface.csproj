@@ -11,6 +11,7 @@
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>zxeltor.StoCombatAnalyzer.Interface_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <FileVersion>1.0.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -36,7 +36,11 @@ public class CombatLogManager : INotifyPropertyChanged
     /// <summary>
     ///     A list of <see cref="CombatEvent" /> for <see cref="SelectedCombat" />
     /// </summary>
-    public ObservableCollection<CombatEvent> SelectedCombatEventList { get; set; } = new();
+    public ObservableCollection<CombatEvent> SelectedEntityCombatEventList { get; set; } = new();
+
+    public ObservableCollection<CombatEventType> SelectedEntityCombatEventTypeList { get; set; } = new();
+
+    public ObservableCollection<CombatPetEventType> SelectedEntityPetCombatEventTypeList { get; set; } = new();
 
     /// <summary>
     ///     A list of <see cref="Combat" /> displayed in the main UI.
@@ -168,10 +172,21 @@ public class CombatLogManager : INotifyPropertyChanged
     ///     the UI.
     /// </summary>
     /// <param name="selectedCombatEventList">The data to populate our grid.</param>
-    public void SetSelectedCombatEventList(ObservableCollection<CombatEvent> selectedCombatEventList)
+    public void SetSelectedCombatEntity(CombatEntity combatEntity)
     {
-        this.SelectedCombatEventList = selectedCombatEventList;
-        this.OnPropertyChanged(nameof(this.SelectedCombatEventList));
+        //this.SelectedEntityCombatEventList.Clear();
+        //this.SelectedEntityCombatEventTypeList.Clear();
+        //this.SelectedEntityPetCombatEventTypeList.Clear();
+
+        this.SelectedEntityCombatEventList = combatEntity.CombatEventList;
+        this.SelectedEntityCombatEventTypeList =
+            new ObservableCollection<CombatEventType>(combatEntity.CombatEventTypeList_ForEntity);
+        this.SelectedEntityPetCombatEventTypeList =
+            new ObservableCollection<CombatPetEventType>(combatEntity.CombatEventTypeList_ForEntityPets);
+
+        this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventList));
+        this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeList));
+        this.OnPropertyChanged(nameof(this.SelectedEntityPetCombatEventTypeList));
     }
 
     protected void OnPropertyChanged([CallerMemberName] string name = null)
