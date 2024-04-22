@@ -4,7 +4,6 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-using System.Buffers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -47,12 +46,12 @@ public class Combat : INotifyPropertyChanged
             if (this.NonPlayerEntities.Count > 0)
                 minNonPlayer = this.NonPlayerEntities.Min(entity => entity.CombatStart);
 
-            if(minPlayer == minNonPlayer)
+            if (minPlayer == minNonPlayer)
                 return minPlayer;
-            
-            if(minNonPlayer < minPlayer)
+
+            if (minNonPlayer < minPlayer)
                 return minNonPlayer;
-            
+
             return minPlayer;
         }
     }
@@ -104,7 +103,7 @@ public class Combat : INotifyPropertyChanged
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
     /// </summary>
-    protected void OnPropertyChanged([CallerMemberName] string name = null)
+    protected void OnPropertyChanged([CallerMemberName] string? name = null)
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
@@ -130,7 +129,8 @@ public class Combat : INotifyPropertyChanged
         if (combatEvent.IsPlayerEntity)
         {
             // Insert the incoming event under an existing player combat entity, or create a new one if we need too.
-            var existingPlayer = this.PlayerEntities.FirstOrDefault(owner => owner.OwnerId.Equals(combatEvent.OwnerId));
+            var existingPlayer =
+                this.PlayerEntities.FirstOrDefault(owner => owner.OwnerInternal.Equals(combatEvent.OwnerInternal));
             if (existingPlayer == null)
             {
                 existingPlayer = new CombatEntity(combatEvent);
@@ -145,7 +145,7 @@ public class Combat : INotifyPropertyChanged
         {
             // Insert the incoming event under an existing non-player combat entity, or create a new one if we need too.
             var existingNonPlayer =
-                this.NonPlayerEntities.FirstOrDefault(owner => owner.OwnerId.Equals(combatEvent.OwnerId));
+                this.NonPlayerEntities.FirstOrDefault(owner => owner.OwnerInternal.Equals(combatEvent.OwnerInternal));
             if (existingNonPlayer == null)
             {
                 existingNonPlayer = new CombatEntity(combatEvent);

@@ -5,6 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 using System.Windows;
+using System.Windows.Controls;
 using log4net;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
@@ -48,12 +49,99 @@ public partial class MainWindow : Window
 
         // Set our window title using assembly information.
         this.Title = version == null
-            ? $"{AssemblyInfoHelper.GetApplicationNameFromAssemblyOrDefault()}"
-            : $"{AssemblyInfoHelper.GetApplicationNameFromAssemblyOrDefault()} v{version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
+            ? $"{AssemblyInfoHelper.GetApplicationNameFromAssemblyOrDefault()} Alpha"
+            : $"{AssemblyInfoHelper.GetApplicationNameFromAssemblyOrDefault()} v{version.Major}.{version.Minor}.{version.Build}.{version.Revision} Alpha";
 
         this.CombatLogManagerContext = new CombatLogManager();
         this.CombatLogManagerContext.StatusChange += this.combatLogManager_StatusChange;
         this.DataContext = this.CombatLogManagerContext;
+
+        this.ToggleDataGridColumnVisibility();
+    }
+
+    private void ToggleDataGridColumnVisibility()
+    {
+        this.uiDataGridAllEvents.Columns.ToList().ForEach(col =>
+        {
+            switch (col.Header)
+            {
+                case "Filename":
+                    col.Visibility = this.CombatLogManagerContext!.FilenameVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "LineNumber":
+                    col.Visibility = this.CombatLogManagerContext!.LineNumberVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "Timestamp":
+                    col.Visibility = this.CombatLogManagerContext!.TimestampVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "OwnerDisplay":
+                    col.Visibility = this.CombatLogManagerContext!.OwnerDisplayVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "OwnerInternal":
+                    col.Visibility = this.CombatLogManagerContext!.OwnerInternalVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "SourceDisplay":
+                    col.Visibility = this.CombatLogManagerContext!.SourceDisplayVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "SourceInternal":
+                    col.Visibility = this.CombatLogManagerContext!.SourceInternalVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "TargetDisplay":
+                    col.Visibility = this.CombatLogManagerContext!.TargetDisplayVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "TargetInternal":
+                    col.Visibility = this.CombatLogManagerContext!.TargetInternalVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "EventDisplay":
+                    col.Visibility = this.CombatLogManagerContext!.EventDisplayVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "EventInternal":
+                    col.Visibility = this.CombatLogManagerContext!.EventInternalVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "Type":
+                    col.Visibility = this.CombatLogManagerContext!.TypeVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "Flags":
+                    col.Visibility = this.CombatLogManagerContext!.FlagsVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "Magnitude":
+                    col.Visibility = this.CombatLogManagerContext!.MagnitudeVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "MagnitudeBase":
+                    col.Visibility = this.CombatLogManagerContext!.MagnitudeBaseVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+            }
+        });
     }
 
     /// <summary>
@@ -80,8 +168,29 @@ public partial class MainWindow : Window
 
     private void uiTreeViewCombatEntityList_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
-        if (!(e.NewValue is CombatEntity combatEntity)) return;
-            
-        this.CombatLogManagerContext?.SetSelectedCombatEntity(combatEntity);
+        if (e.NewValue is CombatEntity combatEntity)
+        {
+            this.CombatLogManagerContext?.SetSelectedCombatEntity(combatEntity);
+
+            var plotData = combatEntity.CombatEventList.OrderBy(ev => ev.Timestamp)
+                .Select(ev => new { Mag = Math.Abs(ev.Magnitude) / 1000, ev.Timestamp }).ToList();
+
+            this.uiScottPlotEntity.Plot.Clear();
+            this.uiScottPlotEntity.Plot.Add.Scatter(plotData.Select(pd => pd.Timestamp).ToArray(),
+                plotData.Select(pd => pd.Mag).ToArray());
+            // tell the plot to display dates on the bottom axis
+            this.uiScottPlotEntity.Plot.Axes.DateTimeTicksBottom();
+            this.uiScottPlotEntity.Refresh();
+        }
+    }
+
+    private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
+    {
+        if (e.Source is CheckBox checkBox) this.ToggleDataGridColumnVisibility();
+    }
+
+    private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
+    {
+        if (e.Source is CheckBox checkBox) this.ToggleDataGridColumnVisibility();
     }
 }

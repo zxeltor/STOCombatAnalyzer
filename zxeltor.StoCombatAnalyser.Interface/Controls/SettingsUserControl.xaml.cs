@@ -149,7 +149,7 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         this.MaxNumberOfCombatsToDisplay = Settings.Default.MaxNumberOfCombatsToDisplay;
         this.HowLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombat;
     }
-
+    
     /// <summary>
     ///     The base STO combat log folder.
     /// </summary>

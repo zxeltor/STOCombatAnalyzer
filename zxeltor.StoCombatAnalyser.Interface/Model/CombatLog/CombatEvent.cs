@@ -6,9 +6,6 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-
-using zxeltor.StoCombatAnalyzer.Interface.Properties;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
@@ -104,7 +101,7 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     ///         This was entry 1 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string OwnerId { get; private set; }
+    public string OwnerInternal { get; private set; }
 
     /// <summary>
     ///     Display name of source(only appears if Pet/Gravity Well etc)
@@ -113,7 +110,7 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     ///         This was entry 2 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string SourceLabel { get; private set; }
+    public string SourceDisplay { get; private set; }
 
     /// <summary>
     ///     Internal name of source
@@ -122,7 +119,7 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     ///         This was entry 3 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string SourceId { get; private set; }
+    public string SourceInternal { get; private set; }
 
     /// <summary>
     ///     Display name of target
@@ -131,7 +128,7 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     ///         This was entry 4 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string TargetLabel { get; private set; }
+    public string TargetDisplay { get; private set; }
 
     /// <summary>
     ///     Internal name of target
@@ -140,7 +137,7 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     ///         This was entry 5 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string TargetId { get; private set; }
+    public string TargetInternal { get; private set; }
 
     /// <summary>
     ///     Display name of event
@@ -149,7 +146,7 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     ///         This was entry 6 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string EventLabel { get; private set; }
+    public string EventDisplay { get; private set; }
 
     /// <summary>
     ///     Internal name of event
@@ -158,7 +155,7 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     ///         This was entry 7 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string EventId { get; private set; }
+    public string EventInternal { get; private set; }
 
     /// <summary>
     ///     Type (Shield or Plasma/Antiproton etc)
@@ -249,13 +246,13 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
             throw new Exception($"Failed to parse {nameof(this.Timestamp)} from Line.");
 
         this.OwnerDisplay = timeAndOwnerLabelArray[7];
-        this.OwnerId = combatLogEntryDataArray[1];
-        this.SourceLabel = combatLogEntryDataArray[2];
-        this.SourceId = combatLogEntryDataArray[3];
-        this.TargetLabel = combatLogEntryDataArray[4];
-        this.TargetId = combatLogEntryDataArray[5];
-        this.EventLabel = combatLogEntryDataArray[6];
-        this.EventId = combatLogEntryDataArray[7];
+        this.OwnerInternal = combatLogEntryDataArray[1];
+        this.SourceDisplay = combatLogEntryDataArray[2];
+        this.SourceInternal = combatLogEntryDataArray[3];
+        this.TargetDisplay = combatLogEntryDataArray[4];
+        this.TargetInternal = combatLogEntryDataArray[5];
+        this.EventDisplay = combatLogEntryDataArray[6];
+        this.EventInternal = combatLogEntryDataArray[7];
         this.Type = combatLogEntryDataArray[8];
         this.Flags = combatLogEntryDataArray[9];
 
@@ -271,18 +268,18 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
         this.OriginalHashCode = this.GetHashCode();
 
         // If no owner is specified, we assume the target is the owner, and assign the target as the owner.
-        if (string.IsNullOrWhiteSpace(this.OwnerId))
+        if (string.IsNullOrWhiteSpace(this.OwnerInternal))
         {
             // Prepend the astrix as an extra label to identify this wierd event.
-            this.OwnerDisplay = $"(*){this.TargetLabel}";
-            this.OwnerId = this.TargetId;
+            this.OwnerDisplay = $"(*){this.TargetDisplay}";
+            this.OwnerInternal = this.TargetInternal;
             this.IsOwnerModified = true;
         }
 
-        if (!string.IsNullOrWhiteSpace(this.SourceLabel) && !this.SourceLabel.Equals("*"))
+        if (!string.IsNullOrWhiteSpace(this.SourceDisplay) && !this.SourceDisplay.Equals("*"))
             this.IsPetEvent = true;
 
-        if (this.OwnerId.StartsWith("P["))
+        if (this.OwnerInternal.StartsWith("P["))
             this.IsPlayerEntity = true;
     }
 
@@ -319,13 +316,13 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     //        throw new Exception($"Failed to parse {nameof(this.Timestamp)} from Line.");
 
     //    this.OwnerDisplay = logRegexMatch.Groups["OwnerDisplay"].Value;
-    //    this.OwnerId = logRegexMatch.Groups["OwnerId"].Value;
-    //    this.SourceLabel = logRegexMatch.Groups["SourceLabel"].Value;
-    //    this.SourceId = logRegexMatch.Groups["SourceId"].Value;
-    //    this.TargetLabel = logRegexMatch.Groups["TargetLabel"].Value;
-    //    this.TargetId = logRegexMatch.Groups["TargetId"].Value;
-    //    this.EventLabel = logRegexMatch.Groups["EventLabel"].Value;
-    //    this.EventId = logRegexMatch.Groups["EventId"].Value;
+    //    this.OwnerInternal = logRegexMatch.Groups["OwnerInternal"].Value;
+    //    this.SourceDisplay = logRegexMatch.Groups["SourceDisplay"].Value;
+    //    this.SourceInternal = logRegexMatch.Groups["SourceInternal"].Value;
+    //    this.TargetDisplay = logRegexMatch.Groups["TargetDisplay"].Value;
+    //    this.TargetInternal = logRegexMatch.Groups["TargetInternal"].Value;
+    //    this.EventDisplay = logRegexMatch.Groups["EventDisplay"].Value;
+    //    this.EventInternal = logRegexMatch.Groups["EventInternal"].Value;
     //    this.Type = logRegexMatch.Groups["Type"].Value;
     //    this.Flags = logRegexMatch.Groups["Flags"].Value;
 
@@ -340,59 +337,40 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
 
     //    this.OriginalHashCode = this.GetHashCode();
 
-    //    if (string.IsNullOrWhiteSpace(this.OwnerId))
+    //    if (string.IsNullOrWhiteSpace(this.OwnerInternal))
     //    {
-    //        this.OwnerDisplay = this.TargetLabel;
-    //        this.OwnerId = this.TargetId;
+    //        this.OwnerDisplay = this.TargetDisplay;
+    //        this.OwnerInternal = this.TargetInternal;
     //        this.IsOwnerModified = true;
     //    }
 
-    //    if (!string.IsNullOrWhiteSpace(this.SourceLabel) && !this.SourceLabel.Equals("*"))
+    //    if (!string.IsNullOrWhiteSpace(this.SourceDisplay) && !this.SourceDisplay.Equals("*"))
     //        this.IsPetEvent = true;
 
-    //    if (this.OwnerId.StartsWith("P["))
+    //    if (this.OwnerInternal.StartsWith("P["))
     //        this.IsPlayerEntity = true;
     //}
 
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
     /// </summary>
-    protected void OnPropertyChanged([CallerMemberName] string name = null)
+    protected void OnPropertyChanged([CallerMemberName] string? name = null)
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    }
-
-    /// <summary>
-    ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
-    /// </summary>
-    private void OnNewCombatEventAdded()
-    {
-        this.OnPropertyChanged(nameof(this.Timestamp));
-        this.OnPropertyChanged(nameof(this.OwnerDisplay));
-        this.OnPropertyChanged(nameof(this.OwnerId));
-        this.OnPropertyChanged(nameof(this.SourceLabel));
-        this.OnPropertyChanged(nameof(this.SourceId));
-        this.OnPropertyChanged(nameof(this.TargetLabel));
-        this.OnPropertyChanged(nameof(this.TargetId));
-        this.OnPropertyChanged(nameof(this.EventLabel));
-        this.OnPropertyChanged(nameof(this.EventId));
-        this.OnPropertyChanged(nameof(this.Type));
-        this.OnPropertyChanged(nameof(this.Flags));
-        this.OnPropertyChanged(nameof(this.Magnitude));
-        this.OnPropertyChanged(nameof(this.MagnitudeBase));
     }
 
     /// <inheritdoc />
     public override string ToString()
     {
         return
-            $"Timestamp={this.Timestamp:s}, Owner={this.OwnerId}, Target={this.TargetId}, {this.EventId}, {this.Type}";
+            $"Timestamp={this.Timestamp:s}, Owner={this.OwnerInternal}, Target={this.TargetInternal}, {this.EventInternal}, {this.Type}";
     }
 
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return HashCode.Combine(this.Timestamp, this.OwnerId, this.SourceId, this.TargetId, this.EventId, this.Type,
+        return HashCode.Combine(this.Timestamp, this.OwnerInternal, this.SourceInternal, this.TargetInternal,
+            this.EventInternal, this.Type,
             this.Flags, this.Magnitude);
     }
 }

@@ -27,6 +27,111 @@ public class CombatLogManager : INotifyPropertyChanged
     public delegate void StatusChangeEventHandler(object sender, CombatManagerStatusEventArgs e);
 
     private static readonly ILog _log = LogManager.GetLogger(typeof(CombatLogManager));
+    private bool _eventDisplay = true;
+    private bool _eventInternal;
+    private bool _filenameEnabled;
+    private bool _flags = true;
+    private bool _lineNumber;
+    private bool _magnitude = true;
+    private bool _magnitudeBase = true;
+    private bool _ownerDisplay;
+    private bool _ownerInternal;
+    private bool _sourceDisplay;
+    private bool _sourceInternal;
+    private bool _targetDisplay = true;
+    private bool _targetInternal;
+    private bool _timestamp = true;
+    private bool _type = true;
+
+    public bool FilenameVisible
+    {
+        get => this._filenameEnabled;
+        set => this.SetField(ref this._filenameEnabled, value);
+    }
+
+    public bool LineNumberVisible
+    {
+        get => this._lineNumber;
+        set => this.SetField(ref this._lineNumber, value);
+    }
+
+    public bool TimestampVisible
+    {
+        get => this._timestamp;
+        set => this.SetField(ref this._timestamp, value);
+    }
+
+    public bool OwnerDisplayVisible
+    {
+        get => this._ownerDisplay;
+        set => this.SetField(ref this._ownerDisplay, value);
+    }
+
+    public bool OwnerInternalVisible
+    {
+        get => this._ownerInternal;
+        set => this.SetField(ref this._ownerInternal, value);
+    }
+
+    public bool SourceDisplayVisible
+    {
+        get => this._sourceDisplay;
+        set => this.SetField(ref this._sourceDisplay, value);
+    }
+
+    public bool SourceInternalVisible
+    {
+        get => this._sourceInternal;
+        set => this.SetField(ref this._sourceInternal, value);
+    }
+
+    public bool TargetDisplayVisible
+    {
+        get => this._targetDisplay;
+        set => this.SetField(ref this._targetDisplay, value);
+    }
+
+    public bool TargetInternalVisible
+    {
+        get => this._targetInternal;
+        set => this.SetField(ref this._targetInternal, value);
+    }
+
+    public bool EventDisplayVisible
+    {
+        get => this._eventDisplay;
+        set => this.SetField(ref this._eventDisplay, value);
+    }
+
+    public bool EventInternalVisible
+    {
+        get => this._eventInternal;
+        set => this.SetField(ref this._eventInternal, value);
+    }
+
+    public bool TypeVisible
+    {
+        get => this._type;
+        set => this.SetField(ref this._type, value);
+    }
+
+    public bool FlagsVisible
+    {
+        get => this._flags;
+        set => this.SetField(ref this._flags, value);
+    }
+
+    public bool MagnitudeVisible
+    {
+        get => this._magnitude;
+        set => this.SetField(ref this._magnitude, value);
+    }
+
+    public bool MagnitudeBaseVisible
+    {
+        get => this._magnitudeBase;
+        set => this.SetField(ref this._magnitudeBase, value);
+    }
 
     /// <summary>
     ///     The currently selected Combat instance from <see cref="Combats" />
@@ -49,7 +154,18 @@ public class CombatLogManager : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public event StatusChangeEventHandler StatusChange;
+    /// <summary>
+    ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
+    /// </summary>
+    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        field = value;
+        this.OnPropertyChanged(propertyName);
+        return true;
+    }
+
+    public event StatusChangeEventHandler? StatusChange;
 
     /// <summary>
     ///     Parse a group of STO combat logs, and construct a <see cref="Combat" /> entity hierarchy.
@@ -72,7 +188,7 @@ public class CombatLogManager : INotifyPropertyChanged
             // A search pattern to select log files in the base folder.
             // This uses standard wildcard conventions, so multiple files can be selected.
             var combatLogFilePattern = Settings.Default.CombatLogPathFilePattern;
-            
+
             try
             {
                 // If our configured log folder isn't found, alert the user to do something about it.
@@ -97,11 +213,11 @@ public class CombatLogManager : INotifyPropertyChanged
             {
                 var errorMessageString =
                     $"Failed to get log files using pattern=\"{combatLogPath}\" and path=\"{combatLogFilePattern}\"";
-                this.AddToLogAndLogSummaryInUi(errorMessageString, exception: ex, isError: true);
+                this.AddToLogAndLogSummaryInUi(errorMessageString, ex, true);
 
                 MessageBox.Show(Application.Current.MainWindow,
                     errorMessageString, "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                
+
                 return;
             }
         }
@@ -171,25 +287,21 @@ public class CombatLogManager : INotifyPropertyChanged
     ///     Populate our <see cref="CombatEvent" /> grid in the UI, using a <see cref="CombatEntity" /> selected by the user in
     ///     the UI.
     /// </summary>
-    /// <param name="selectedCombatEventList">The data to populate our grid.</param>
+    /// <param name="combatEntity">The data to populate our grid.</param>
     public void SetSelectedCombatEntity(CombatEntity combatEntity)
     {
-        //this.SelectedEntityCombatEventList.Clear();
-        //this.SelectedEntityCombatEventTypeList.Clear();
-        //this.SelectedEntityPetCombatEventTypeList.Clear();
-
         this.SelectedEntityCombatEventList = combatEntity.CombatEventList;
         this.SelectedEntityCombatEventTypeList =
-            new ObservableCollection<CombatEventType>(combatEntity.CombatEventTypeList_ForEntity);
+            new ObservableCollection<CombatEventType>(combatEntity.CombatEventTypeListForEntity);
         this.SelectedEntityPetCombatEventTypeList =
-            new ObservableCollection<CombatPetEventType>(combatEntity.CombatEventTypeList_ForEntityPets);
+            new ObservableCollection<CombatPetEventType>(combatEntity.CombatEventTypeListForEntityPets);
 
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventList));
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeList));
         this.OnPropertyChanged(nameof(this.SelectedEntityPetCombatEventTypeList));
     }
 
-    protected void OnPropertyChanged([CallerMemberName] string name = null)
+    protected void OnPropertyChanged([CallerMemberName] string? name = null)
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }

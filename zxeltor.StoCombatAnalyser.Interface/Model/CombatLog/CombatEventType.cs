@@ -10,14 +10,13 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
 public class CombatEventType
 {
-    public CombatEventType( //string sourceId,
-        string sourceLabel, string eventId, string eventLabel,
+    public CombatEventType(
+        string sourceDisplay, string eventInternal, string eventDisplay,
         List<CombatEvent> combatEventList)
     {
-        //this.SourceId = sourceId;
-        this.SourceLabel = sourceLabel;
-        this.EventId = eventId;
-        this.EventLabel = eventLabel;
+        this.SourceDisplay = sourceDisplay;
+        this.EventInternal = eventInternal;
+        this.EventDisplay = eventDisplay;
 
         if (combatEventList.Any())
             this.CombatEvents.AddRange(combatEventList);
@@ -25,17 +24,15 @@ public class CombatEventType
 
     public CombatEventType(CombatEvent combatEvent)
     {
-        //this.SourceId = combatEvent.SourceId;
-        this.SourceLabel = combatEvent.SourceLabel;
-        this.EventId = combatEvent.EventId;
-        this.EventLabel = combatEvent.EventLabel;
+        this.SourceDisplay = combatEvent.SourceDisplay;
+        this.EventInternal = combatEvent.EventInternal;
+        this.EventDisplay = combatEvent.EventDisplay;
         this.CombatEvents.Add(combatEvent);
     }
 
-    //public string SourceId { get; set; }
-    public string SourceLabel { get; set; }
-    public string EventId { get; set; }
-    public string EventLabel { get; set; }
+    public string SourceDisplay { get; set; }
+    public string EventInternal { get; set; }
+    public string EventDisplay { get; set; }
     public List<CombatEvent> CombatEvents { get; set; } = new();
 
     public string Dps => (this.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude)) /
@@ -49,6 +46,6 @@ public class CombatEventType
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"{this.SourceLabel}|{this.EventId}|{this.EventLabel}|Events={this.CombatEvents.Count}";
+        return $"{this.SourceDisplay}|{this.EventInternal}|{this.EventDisplay}|Events={this.CombatEvents.Count}";
     }
 }

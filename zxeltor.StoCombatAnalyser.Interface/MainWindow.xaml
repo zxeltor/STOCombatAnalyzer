@@ -5,6 +5,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:classes="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes"
     xmlns:controls="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Controls"
+    xmlns:scottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
     x:Class="zxeltor.StoCombatAnalyzer.Interface.MainWindow"
     d:DataContext="{d:DesignInstance Type={x:Type classes:CombatLogManager}}"
     mc:Ignorable="d"
@@ -42,7 +43,7 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="GameId=" />
-                            <TextBlock Text="{Binding OwnerId}" />
+                            <TextBlock Text="{Binding OwnerInternal}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Active=" />
@@ -78,7 +79,9 @@
                             <TextBlock Text="Started: " />
                             <TextBlock
                                 Text="{Binding CombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
-                            <TextBlock Text="Ended: " Margin="8,0,0,0" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <TextBlock Text="Ended: " />
                             <TextBlock
                                 Text="{Binding CombatEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
                         </StackPanel>
@@ -116,35 +119,53 @@
             <TabItem x:Name="uiTabLogAnalyzer" Header="Log File Analyzer">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="79*" />
                         <RowDefinition Height="60*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="234"></ColumnDefinition>
-                        <ColumnDefinition Width="50*"></ColumnDefinition>
-                        <ColumnDefinition Width="50*"></ColumnDefinition>
+                        <ColumnDefinition Width="25*"></ColumnDefinition>
+                        <ColumnDefinition Width="30*"></ColumnDefinition>
+                        <ColumnDefinition Width="33*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="uiButtonParseLog" Content="Parse Log(s)" Margin="0,8,4,0"
-                            VerticalAlignment="Top" Height="26" HorizontalAlignment="Right" Width="105"
-                            Click="uiButtonParseLog_Click" />
+                    <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
+                        <Button x:Name="uiButtonParseLog" Content="Parse Log(s)" 
+                                Width="80" Height="24" Margin="10,0,0,0"
+                                Click="uiButtonParseLog_Click" />
+                        <TextBlock Text="Combat List" VerticalAlignment="Center"
+                                   Margin="10,0,0,0"/>
+                        <TextBlock Text=" (" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Path=Combats.Count}" VerticalAlignment="Center" />
+                        <TextBlock Text="):" VerticalAlignment="Center" />
+                        <ComboBox Name="uiComboBoxCombats" Text="Help" ItemsSource="{Binding Combats}" IsSynchronizedWithCurrentItem="True" 
+                                  Width="350" Height="36" Margin="4,0,0,0">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Vertical">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Start=" />
+                                            <TextBlock Text="{Binding Path=CombatStart}" />
+                                            <TextBlock Text="Duration=" Margin="10,0,0,0" />
+                                            <TextBlock Text="{Binding Path=Duration}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Players=" />
+                                            <TextBlock Text="{Binding Path=PlayerEntities.Count}" />
+                                            <TextBlock Text="NonPlayers=" Margin="10,0,0,0" />
+                                            <TextBlock Text="{Binding Path=NonPlayerEntities.Count}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
 
-                    <GroupBox x:Name="uiGroupBoxCombatList" Grid.Row="0" Grid.Column="0" Margin="0,30,0,0">
-                        <GroupBox.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Combat List" />
-                                <TextBlock Text="(" Margin="4,0,0,0" />
-                                <TextBlock Text="{Binding Combats.Count}" />
-                                <TextBlock Text=")" />
-                            </StackPanel>
-                        </GroupBox.Header>
-                        <ListView x:Name="uiListCombatSelector" ItemsSource="{Binding Combats}"
-                                      ItemTemplate="{StaticResource combatListItemTemplate}"
-                                      IsSynchronizedWithCurrentItem="True" />
-                    </GroupBox>
+                    <GridSplitter Grid.Row="1" Grid.Column="0" Background="Gray" Margin="0,8,-4,4" Width="2"
+                                  Padding="4,0,4,0"
+                                  HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
 
-                    <GroupBox Grid.Row="0" Grid.Column="1" x:Name="uiGroupBoxSelectedCombatDetails" Header="Selected Combat Details"
-                              Margin="0,0,4,0"
+                    <GroupBox Grid.Row="1" Grid.Column="0" x:Name="uiGroupBoxSelectedCombatDetails" Header="Selected Combat Details"
                               Padding="4,0,4,4">
                         <Grid>
                             <ContentControl Content="{Binding Combats}"
@@ -152,17 +173,17 @@
                         </Grid>
                     </GroupBox>
 
-                    <GridSplitter Grid.Row="0" Grid.Column="1" Background="Gray" Margin="0,4,0,4" Width="2"
+                    <GridSplitter Grid.Row="1" Grid.Column="1" Background="Gray" Margin="0,8,-4,4" Width="2"
                                   Padding="4,0,4,0"
                                   HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
 
-                    <GroupBox Grid.Row="0" Grid.Column="2" Header="Selected Combat Entity: Event Type Groups" Margin="4,0,0,0">
+                    <GroupBox Grid.Row="1" Grid.Column="1" Header="Selected Combat Entity: Event Type Groups" Margin="4,0,0,0">
                         <TreeView>
                             <TreeViewItem Name="uiTreeviewItemEntityTypes" Header="Entity" 
                                           ItemsSource="{Binding Path=SelectedEntityCombatEventTypeList}">
                                 <TreeViewItem.ItemTemplate>
                                     <HierarchicalDataTemplate>
-                                        <TreeViewItem Header="{Binding Path=EventLabel}">
+                                        <TreeViewItem Header="{Binding Path=EventDisplay}">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="DPS=" />
                                                 <TextBlock Text="{Binding Path=Dps}" />
@@ -178,7 +199,7 @@
                                                       CanUserResizeColumns="True">
                                                 <DataGrid.Columns>
                                                     <DataGridTextColumn Header="Timestamp" Binding="{Binding Path=Timestamp, Mode=OneTime}" IsReadOnly="True" />
-                                                    <DataGridTextColumn Header="TargetLabel" Binding="{Binding Path=TargetLabel, Mode=OneTime}" IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="TargetDisplay" Binding="{Binding Path=TargetDisplay, Mode=OneTime}" IsReadOnly="True" />
                                                     <DataGridTextColumn Header="Type" Binding="{Binding Path=Type, Mode=OneTime}" IsReadOnly="True" />
                                                     <DataGridTextColumn Header="Flags" Binding="{Binding Path=Flags, Mode=OneTime}" IsReadOnly="True" />
                                                     <DataGridTextColumn Header="Magnitude" Binding="{Binding Path=Magnitude, Mode=OneTime}" IsReadOnly="True" />
@@ -192,10 +213,10 @@
                             <TreeViewItem Name="uiTreeviewItemPetTypes" Header="Entity Pet" ItemsSource="{Binding Path=SelectedEntityPetCombatEventTypeList}">
                                 <TreeViewItem.ItemTemplate>
                                     <HierarchicalDataTemplate>
-                                        <TreeViewItem Header="{Binding Path=SourceLabel}" ItemsSource="{Binding Path=CombatEventTypes}">
+                                        <TreeViewItem Header="{Binding Path=SourceDisplay}" ItemsSource="{Binding Path=CombatEventTypes}">
                                             <TreeViewItem.ItemTemplate>
                                                 <HierarchicalDataTemplate>
-                                                    <TreeViewItem Header="{Binding Path=EventLabel}">
+                                                    <TreeViewItem Header="{Binding Path=EventDisplay}">
                                                         <StackPanel Orientation="Horizontal">
                                                             <TextBlock Text="DPS=" />
                                                             <TextBlock Text="{Binding Path=Dps}" />
@@ -211,7 +232,7 @@
                                                                   CanUserResizeColumns="True">
                                                             <DataGrid.Columns>
                                                                 <DataGridTextColumn Header="Timestamp" Binding="{Binding Path=Timestamp, Mode=OneTime}" IsReadOnly="True" />
-                                                                <DataGridTextColumn Header="TargetLabel" Binding="{Binding Path=TargetLabel, Mode=OneTime}" IsReadOnly="True" />
+                                                                <DataGridTextColumn Header="TargetDisplay" Binding="{Binding Path=TargetDisplay, Mode=OneTime}" IsReadOnly="True" />
                                                                 <DataGridTextColumn Header="Type" Binding="{Binding Path=Type, Mode=OneTime}" IsReadOnly="True" />
                                                                 <DataGridTextColumn Header="Flags" Binding="{Binding Path=Flags, Mode=OneTime}" IsReadOnly="True" />
                                                                 <DataGridTextColumn Header="Magnitude" Binding="{Binding Path=Magnitude, Mode=OneTime}" IsReadOnly="True" />
@@ -240,10 +261,10 @@
                         </TreeView>
                     </GroupBox>
 
-                    <GridSplitter Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Background="Gray" Height="2" Margin="10,4,10,0"
+                    <GridSplitter Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Background="Gray" Height="2" Margin="10,4,10,0"
                                   HorizontalAlignment="Stretch" VerticalAlignment="Top" />
 
-                    <GroupBox x:Name="uiGroupBoxSelectedCombatEntity" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="10,10,10,10"
+                    <GroupBox x:Name="uiGroupBoxSelectedCombatEntity" Grid.Row="1" Grid.Column="2" Margin="10,0,0,0"
                               Padding="0,4,0,0">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
@@ -253,32 +274,71 @@
                                 <TextBlock Text=")" />
                             </StackPanel>
                         </GroupBox.Header>
-                        <DataGrid ItemsSource="{Binding SelectedEntityCombatEventList}" AutoGenerateColumns="False"
+                        <DataGrid Name="uiDataGridAllEvents" ItemsSource="{Binding SelectedEntityCombatEventList}" AutoGenerateColumns="False"
                                   CanUserReorderColumns="True" CanUserSortColumns="True"
                                   CanUserResizeColumns="True">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <StackPanel Orientation="Vertical">
+                                        <TextBlock Text="Select Columns:"></TextBlock>
+                                        <CheckBox Content="Filename" IsChecked="{Binding Path=FilenameVisible, Mode=TwoWay}" 
+                                                  Tag="Filename" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="LineNumber" IsChecked="{Binding Path=LineNumberVisible, Mode=TwoWay}" 
+                                                  Tag="LineNumber" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="Timestamp" IsChecked="{Binding Path=TimestampVisible, Mode=TwoWay}" 
+                                                  Tag="Timestamp" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="OwnerDisplay" IsChecked="{Binding Path=OwnerDisplayVisible, Mode=TwoWay}" 
+                                                  Tag="OwnerDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="OwnerInternal" IsChecked="{Binding Path=OwnerInternalVisible, Mode=TwoWay}" 
+                                                  Tag="OwnerInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="SourceDisplay" IsChecked="{Binding Path=SourceDisplayVisible, Mode=TwoWay}" 
+                                                  Tag="SourceDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="SourceInternal" IsChecked="{Binding Path=SourceInternalVisible, Mode=TwoWay}" 
+                                                  Tag="SourceInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="TargetDisplay" IsChecked="{Binding Path=TargetDisplayVisible, Mode=TwoWay}" 
+                                                  Tag="TargetDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="TargetInternal" IsChecked="{Binding Path=TargetInternalVisible, Mode=TwoWay}" 
+                                                  Tag="TargetInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="EventDisplay" IsChecked="{Binding Path=EventDisplayVisible, Mode=TwoWay}" 
+                                                  Tag="EventDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="EventInternal" IsChecked="{Binding Path=EventInternalVisible, Mode=TwoWay}" 
+                                                  Tag="EventInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="Type" IsChecked="{Binding Path=TypeVisible, Mode=TwoWay}" 
+                                                  Tag="Type" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="Flags" IsChecked="{Binding Path=FlagsVisible, Mode=TwoWay}" 
+                                                  Tag="Flags" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="Magnitude" IsChecked="{Binding Path=MagnitudeVisible, Mode=TwoWay}" 
+                                                  Tag="Magnitude" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        <CheckBox Content="MagnitudeBase" IsChecked="{Binding Path=MagnitudeBaseVisible, Mode=TwoWay}" 
+                                                  Tag="MagnitudeBase" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                    </StackPanel>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="FileName"
+                                <DataGridTextColumn Header="Filename"
                                                     Binding="{Binding OriginalFileName, Mode=OneTime}"
                                                     IsReadOnly="True" />
                                 <DataGridTextColumn Header="LineNumber"
                                                     Binding="{Binding OriginalFileLineNumber, Mode=OneTime}"
                                                     IsReadOnly="True" />
-                                <DataGridTextColumn Header="IsModified"
-                                                    Binding="{Binding IsOwnerModified, Mode=OneTime}" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Timestamp"
                                                     Binding="{Binding Timestamp, Converter={StaticResource dateTimeToExtendedDateStringConverter}, Mode=OneTime}"
                                                     IsReadOnly="True" />
-                                <DataGridTextColumn Header="SourceLabel" Binding="{Binding SourceLabel, Mode=OneTime}"
+                                <DataGridTextColumn Header="OwnerDisplay" Binding="{Binding OwnerDisplay, Mode=OneTime}"
                                                     IsReadOnly="True" />
-                                <DataGridTextColumn Header="SourceId" Binding="{Binding SourceId, Mode=OneTime}"
+                                <DataGridTextColumn Header="OwnerInternal" Binding="{Binding OwnerInternal, Mode=OneTime}"
                                                     IsReadOnly="True" />
-                                <DataGridTextColumn Header="TargetLabel" Binding="{Binding TargetLabel, Mode=OneTime}"
+                                <DataGridTextColumn Header="SourceDisplay" Binding="{Binding SourceDisplay, Mode=OneTime}"
                                                     IsReadOnly="True" />
-                                <DataGridTextColumn Header="TargetId" Binding="{Binding TargetId, Mode=OneTime}"
+                                <DataGridTextColumn Header="SourceInternal" Binding="{Binding SourceInternal, Mode=OneTime}"
                                                     IsReadOnly="True" />
-                                <DataGridTextColumn Header="EventLabel" Binding="{Binding EventLabel, Mode=OneTime}"
+                                <DataGridTextColumn Header="TargetDisplay" Binding="{Binding TargetDisplay, Mode=OneTime}"
                                                     IsReadOnly="True" />
-                                <DataGridTextColumn Header="EventId" Binding="{Binding EventId, Mode=OneTime}"
+                                <DataGridTextColumn Header="TargetInternal" Binding="{Binding TargetInternal, Mode=OneTime}"
+                                                    IsReadOnly="True" />
+                                <DataGridTextColumn Header="EventDisplay" Binding="{Binding EventDisplay, Mode=OneTime}"
+                                                    IsReadOnly="True" />
+                                <DataGridTextColumn Header="EventInternal" Binding="{Binding EventInternal, Mode=OneTime}"
                                                     IsReadOnly="True" />
                                 <DataGridTextColumn Header="Type" Binding="{Binding Type, Mode=OneTime}"
                                                     IsReadOnly="True" />
@@ -287,11 +347,17 @@
                                 <DataGridTextColumn Header="Magnitude" Binding="{Binding Magnitude, Mode=OneTime}"
                                                     IsReadOnly="True" />
                                 <DataGridTextColumn Header="MagnitudeBase"
-                                                    Binding="{Binding MagnitudeBase, Mode=OneTime}" IsReadOnly="True" />
+                                                    Binding="{Binding MagnitudeBase, Mode=OneTime}" 
+                                                    IsReadOnly="True" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </GroupBox>
 
+                    <GroupBox Name="uiGridBoxEntity" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Header="Selected Combat Entity: Plot">
+                        <scottPlot:WpfPlot Name="uiScottPlotEntity">
+
+                        </scottPlot:WpfPlot>
+                    </GroupBox>
                 </Grid>
             </TabItem>
             <TabItem Header="Settings">

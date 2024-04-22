@@ -8,16 +8,13 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
 public class CombatPetEventType
 {
-    public CombatPetEventType(//string sourceId,
-                              string sourceLabel, List<CombatEventType> combatEventTypeList)
+    public CombatPetEventType(string sourceDisplay, List<CombatEventType> combatEventTypeList)
     {
-        //this.SourceId = sourceId;
-        this.SourceLabel = sourceLabel;
+        this.SourceDisplay = sourceDisplay;
 
         if (combatEventTypeList.Any()) this.CombatEventTypes.AddRange(combatEventTypeList);
     }
 
-    //public string SourceId { get; set; }
-    public string SourceLabel { get; set; }
+    public string SourceDisplay { get; set; }
     public List<CombatEventType> CombatEventTypes { get; set; } = new();
 }

@@ -23,18 +23,22 @@ public class CombatEntity : INotifyPropertyChanged
     public CombatEntity(CombatEvent combatEvent)
     {
         // The owner columns of the combat event are what identify a combat entity.
-        this.OwnerId = combatEvent.OwnerId;
+        this.OwnerInternal = combatEvent.OwnerInternal;
         this.OwnerDisplay = combatEvent.OwnerDisplay;
 
         this.AddCombatEvent(combatEvent);
     }
 
-    public List<CombatEventType> CombatEventTypeList_ForEntity
+    /// <summary>
+    ///     Get a list of event types specific to the Player or Non-Player
+    /// </summary>
+    public List<CombatEventType> CombatEventTypeListForEntity
     {
         get
         {
-            var myEvents = this.CombatEventList.Where(ev => ev.SourceId.Equals("*"))
-                .GroupBy(ev => new { ev.EventId, ev.EventLabel, ev.SourceLabel })
+            var myEvents = this.CombatEventList.Where(ev => ev.SourceInternal.Equals("*"))
+                .GroupBy(ev => new
+                    { EventId = ev.EventInternal, EventLabel = ev.EventDisplay, SourceLabel = ev.SourceDisplay })
                 .OrderBy(evg => evg.Key.EventLabel)
                 .Select(evg => new CombatEventType(evg.Key.SourceLabel, evg.Key.EventId,
                     evg.Key.EventLabel, evg.ToList())).ToList();
@@ -43,17 +47,21 @@ public class CombatEntity : INotifyPropertyChanged
         }
     }
 
-    public List<CombatPetEventType> CombatEventTypeList_ForEntityPets
+    /// <summary>
+    ///     Get a list of event types specific to the Player or Non-Player Pets
+    /// </summary>
+    public List<CombatPetEventType> CombatEventTypeListForEntityPets
     {
         get
         {
-            var myEvents = this.CombatEventList.Where(ev => !ev.SourceId.Equals("*"))
-                .GroupBy(ev => new { ev.EventId, ev.EventLabel, ev.SourceLabel })
+            var myEvents = this.CombatEventList.Where(ev => !ev.SourceInternal.Equals("*"))
+                .GroupBy(ev => new
+                    { EventId = ev.EventInternal, EventLabel = ev.EventDisplay, SourceLabel = ev.SourceDisplay })
                 .OrderBy(evg => evg.Key.EventLabel)
                 .Select(evg => new CombatEventType(evg.Key.SourceLabel, evg.Key.EventId,
                     evg.Key.EventLabel, evg.ToList())).ToList();
 
-            var petEvents = myEvents.GroupBy(evt => new { evt.SourceLabel }).Select(evtg =>
+            var petEvents = myEvents.GroupBy(evt => new { SourceLabel = evt.SourceDisplay }).Select(evtg =>
                 new CombatPetEventType(evtg.Key.SourceLabel, evtg.ToList())).ToList();
 
             return petEvents;
@@ -74,13 +82,15 @@ public class CombatEntity : INotifyPropertyChanged
     ///     Used to establish the start time for this combat entity.
     ///     <para>The first timestamp from our <see cref="CombatEvent" /> collections, based on an ordered list.</para>
     /// </summary>
-    public DateTime CombatStart => this.CombatEventList.Count == 0 ? DateTime.MinValue : this.CombatEventList.First().Timestamp;
+    public DateTime CombatStart =>
+        this.CombatEventList.Count == 0 ? DateTime.MinValue : this.CombatEventList.First().Timestamp;
 
     /// <summary>
     ///     Used to establish the end time for this combat entity.
     ///     <para>The last timestamp from our <see cref="CombatEvent" /> collections, based on ann ordered list.</para>
     /// </summary>
-    public DateTime CombatEnd => this.CombatEventList.Count == 0 ? DateTime.MinValue : this.CombatEventList.Last().Timestamp;
+    public DateTime CombatEnd =>
+        this.CombatEventList.Count == 0 ? DateTime.MinValue : this.CombatEventList.Last().Timestamp;
 
     /// <summary>
     ///     A humanized string base on combat duration. (<see cref="CombatEnd" /> - <see cref="CombatStart" />)
@@ -99,7 +109,8 @@ public class CombatEntity : INotifyPropertyChanged
     public string DPS => this.CombatEventList.Count == 0
         ? "0"
         : (this.CombatEventList.Sum(dam => Math.Abs(dam.Magnitude)) /
-           ((this.CombatEventList.Max(ev => ev.Timestamp) - this.CombatEventList.Min(ev => ev.Timestamp)).TotalSeconds + .001)).ToMetric(null, 3);
+           ((this.CombatEventList.Max(ev => ev.Timestamp) - this.CombatEventList.Min(ev => ev.Timestamp)).TotalSeconds +
+            .001)).ToMetric(null, 3);
 
     /// <summary>
     ///     A rudimentary calculation for max damage for this entity, and probably incorrect.
@@ -111,7 +122,7 @@ public class CombatEntity : INotifyPropertyChanged
     /// <summary>
     ///     The ID for our entity
     /// </summary>
-    public string OwnerId { get; set; }
+    public string OwnerInternal { get; set; }
 
     /// <summary>
     ///     A label for our entity
@@ -122,7 +133,7 @@ public class CombatEntity : INotifyPropertyChanged
     ///     If true this entity is a Player. If false the entity is a Non-Player.
     /// </summary>
     public bool IsPlayer =>
-        string.IsNullOrWhiteSpace(this.OwnerId) ? false : this.OwnerId.StartsWith("P[") ? true : false;
+        !string.IsNullOrWhiteSpace(this.OwnerInternal) && (this.OwnerInternal.StartsWith("P[") ? true : false);
 
     /// <summary>
     ///     A list of combat events for this entity.
@@ -139,25 +150,6 @@ public class CombatEntity : INotifyPropertyChanged
     protected void OnPropertyChanged([CallerMemberName] string name = null)
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    }
-
-    /// <summary>
-    ///     We call this in an effort to update the binding in the UI, so it updates with the new data.
-    /// </summary>
-    private void OnNewCombatEventAdded()
-    {
-        this.OnPropertyChanged(nameof(this.CombatStartTimeString));
-        this.OnPropertyChanged(nameof(this.CombatEndTimeString));
-        this.OnPropertyChanged(nameof(this.CombatStart));
-        this.OnPropertyChanged(nameof(this.CombatEnd));
-        this.OnPropertyChanged(nameof(this.Duration));
-        this.OnPropertyChanged(nameof(this.Kills));
-        this.OnPropertyChanged(nameof(this.DPS));
-        this.OnPropertyChanged(nameof(this.MaxDamage));
-        this.OnPropertyChanged(nameof(this.OwnerId));
-        this.OnPropertyChanged(nameof(this.OwnerDisplay));
-        this.OnPropertyChanged(nameof(this.IsPlayer));
-        this.OnPropertyChanged(nameof(this.CombatEventList));
     }
 
     /// <summary>
