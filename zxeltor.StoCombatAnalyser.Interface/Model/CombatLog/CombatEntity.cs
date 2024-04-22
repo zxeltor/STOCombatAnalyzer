@@ -69,33 +69,33 @@ public class CombatEntity : INotifyPropertyChanged
     }
 
     /// <summary>
-    ///     A string representation of <see cref="CombatStart" /> which includes milliseconds.
+    ///     A string representation of <see cref="EntityStart" /> which includes milliseconds.
     /// </summary>
-    public string CombatStartTimeString => $"{this.CombatStart:hh:mm:ss.fff tt}";
+    public string EntityStartTimeString => $"{this.EntityStart:hh:mm:ss.fff tt}";
 
     /// <summary>
-    ///     A string representation of <see cref="CombatEnd" /> which includes milliseconds.
+    ///     A string representation of <see cref="EntityEnd" /> which includes milliseconds.
     /// </summary>
-    public string CombatEndTimeString => $"{this.CombatEnd:hh:mm:ss.fff tt}";
+    public string EntityEndTimeString => $"{this.EntityEnd:hh:mm:ss.fff tt}";
 
     /// <summary>
     ///     Used to establish the start time for this combat entity.
     ///     <para>The first timestamp from our <see cref="CombatEvent" /> collections, based on an ordered list.</para>
     /// </summary>
-    public DateTime CombatStart =>
+    public DateTime EntityStart =>
         this.CombatEventList.Count == 0 ? DateTime.MinValue : this.CombatEventList.First().Timestamp;
 
     /// <summary>
     ///     Used to establish the end time for this combat entity.
     ///     <para>The last timestamp from our <see cref="CombatEvent" /> collections, based on ann ordered list.</para>
     /// </summary>
-    public DateTime CombatEnd =>
+    public DateTime EntityEnd =>
         this.CombatEventList.Count == 0 ? DateTime.MinValue : this.CombatEventList.Last().Timestamp;
 
     /// <summary>
-    ///     A humanized string base on combat duration. (<see cref="CombatEnd" /> - <see cref="CombatStart" />)
+    ///     A humanized string base on combat duration. (<see cref="EntityEnd" /> - <see cref="EntityStart" />)
     /// </summary>
-    public string Duration => (this.CombatEnd - this.CombatStart).Humanize(3, maxUnit: TimeUnit.Minute);
+    public string Duration => (this.EntityEnd - this.EntityStart).Humanize(3, maxUnit: TimeUnit.Minute);
 
     /// <summary>
     ///     Get a number of kills for this entity.
@@ -165,6 +165,6 @@ public class CombatEntity : INotifyPropertyChanged
     public override string ToString()
     {
         return
-            $"Owner={this.OwnerDisplay}, Player={this.IsPlayer}, Kills={this.Kills}, Duration={(this.CombatEnd - this.CombatStart).Humanize()}, Start={this.CombatStart}, End={this.CombatEnd}";
+            $"Owner={this.OwnerDisplay}, Player={this.IsPlayer}, Kills={this.Kills}, Duration={(this.EntityEnd - this.EntityStart).Humanize()}, Start={this.EntityStart}, End={this.EntityEnd}";
     }
 }

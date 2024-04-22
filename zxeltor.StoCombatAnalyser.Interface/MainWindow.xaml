@@ -4,6 +4,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:classes="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes"
+    xmlns:modelcombatlog="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog"
     xmlns:controls="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Controls"
     xmlns:scottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
     x:Class="zxeltor.StoCombatAnalyzer.Interface.MainWindow"
@@ -14,7 +15,7 @@
         <Grid.Resources>
             <classes:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
             <classes:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
-            <DataTemplate x:Key="combatListItemTemplate">
+            <DataTemplate x:Key="combatListItemTemplate" DataType="{x:Type modelcombatlog:Combat}">
                 <Border BorderBrush="Black" BorderThickness="2" Padding="4" Margin="0">
                     <StackPanel Margin="0">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -34,7 +35,7 @@
                     </StackPanel>
                 </Border>
             </DataTemplate>
-            <DataTemplate x:Key="combatEntityItemTemplate">
+            <DataTemplate x:Key="combatEntityItemTemplate" DataType="{x:Type modelcombatlog:CombatEntity}">
                 <Border BorderBrush="Black" BorderThickness="2" Padding="4" Margin="0">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
@@ -52,10 +53,10 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Start=" />
                             <TextBlock
-                                Text="{Binding CombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
+                                Text="{Binding EntityStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
                             <TextBlock Text="End=" Margin="8,0,0,0" />
                             <TextBlock
-                                Text="{Binding CombatEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
+                                Text="{Binding EntityEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Combat Events=" />
@@ -72,7 +73,7 @@
                     </StackPanel>
                 </Border>
             </DataTemplate>
-            <DataTemplate x:Key="selectedCombatDetailsTemplate">
+            <DataTemplate x:Key="selectedCombatDetailsTemplate" DataType="{x:Type modelcombatlog:Combat}">
                 <Grid>
                     <StackPanel Margin="0,0,0,0" Height="50" VerticalAlignment="Top">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -124,8 +125,8 @@
                         <RowDefinition Height="60*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="25*"></ColumnDefinition>
-                        <ColumnDefinition Width="30*"></ColumnDefinition>
+                        <ColumnDefinition Width="33*"></ColumnDefinition>
+                        <ColumnDefinition Width="33*"></ColumnDefinition>
                         <ColumnDefinition Width="33*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
 
@@ -177,7 +178,7 @@
                                   Padding="4,0,4,0"
                                   HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
 
-                    <GroupBox Grid.Row="1" Grid.Column="1" Header="Selected Combat Entity: Event Type Groups" Margin="4,0,0,0">
+                    <GroupBox Grid.Row="1" Grid.Column="1" Header="Selected Combat Entity: Event Types Breakdown" Margin="4,0,0,0">
                         <TreeView>
                             <TreeViewItem Name="uiTreeviewItemEntityTypes" Header="Entity" 
                                           ItemsSource="{Binding Path=SelectedEntityCombatEventTypeList}">
