@@ -125,9 +125,9 @@
                         <RowDefinition Height="60*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="33*"></ColumnDefinition>
-                        <ColumnDefinition Width="33*"></ColumnDefinition>
-                        <ColumnDefinition Width="33*"></ColumnDefinition>
+                        <ColumnDefinition Width="400"></ColumnDefinition>
+                        <ColumnDefinition Width="45*"></ColumnDefinition>
+                        <ColumnDefinition Width="55*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
@@ -155,6 +155,8 @@
                                             <TextBlock Text="{Binding Path=PlayerEntities.Count}" />
                                             <TextBlock Text="NonPlayers=" Margin="10,0,0,0" />
                                             <TextBlock Text="{Binding Path=NonPlayerEntities.Count}" />
+                                            <TextBlock Text="TotalEvents=" Margin="10,0,0,0" />
+                                            <TextBlock Text="{Binding Path=EventsCount}" />
                                         </StackPanel>
                                     </StackPanel>
                                 </DataTemplate>
@@ -243,18 +245,6 @@
                                                     </TreeViewItem>
                                                 </HierarchicalDataTemplate>
                                             </TreeViewItem.ItemTemplate>
-                                            <!--<DataGrid ItemsSource="{Binding Path=CombatEventTypes}" AutoGenerateColumns="False"
-                                                      CanUserReorderColumns="True" CanUserSortColumns="True"
-                                                      CanUserResizeColumns="True">
-                                                <DataGrid.Columns>
-                                                    <DataGridTextColumn Header="SourceLabel" Binding="{Binding Path=SourceLabel, Mode=OneTime}" IsReadOnly="True" />
-                                                    <DataGridTextColumn Header="TargetLabel" Binding="{Binding Path=TargetLabel, Mode=OneTime}" IsReadOnly="True" />
-                                                    <DataGridTextColumn Header="Type" Binding="{Binding Path=Type, Mode=OneTime}" IsReadOnly="True" />
-                                                    <DataGridTextColumn Header="Flags" Binding="{Binding Path=Flags, Mode=OneTime}" IsReadOnly="True" />
-                                                    <DataGridTextColumn Header="Magnitude" Binding="{Binding Path=Magnitude, Mode=OneTime}" IsReadOnly="True" />
-                                                    <DataGridTextColumn Header="MagnitudeBase" Binding="{Binding Path=MagnitudeBase, Mode=OneTime}" IsReadOnly="True" />
-                                                </DataGrid.Columns>
-                                            </DataGrid>-->
                                         </TreeViewItem>
                                     </HierarchicalDataTemplate>
                                 </TreeViewItem.ItemTemplate>
