@@ -108,7 +108,9 @@
                     </StackPanel>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">How long to keep combat log files in days, before purging them. Note: If only one combat log exists, it won't be purged regardless of how old it is.</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            Enable combat log folder purge at application startup. Note: If only one combat log exists, it won't be purged regardless of how old it is.
+                        </TextBlock>
                     </StackPanel>
                 </Grid>
             </ListBoxItem>
@@ -127,7 +129,7 @@
                     </StackPanel>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">How long to keep logs in days, before they are purged. PurgeCombatLogs needs to be enabled for this feature.</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">How long to keep combat logs in days, before they are purged.</TextBlock>
                     </StackPanel>
                 </Grid>
             </ListBoxItem>

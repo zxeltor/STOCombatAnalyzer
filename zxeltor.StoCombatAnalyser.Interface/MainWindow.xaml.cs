@@ -162,6 +162,12 @@ public partial class MainWindow : Window
     private void uiButtonParseLog_Click(object sender, RoutedEventArgs e)
     {
         CombatLogManagerContext?.GetCombatLogEntriesFromLogFiles();
+        this.SetPlot();
+    }
+
+    private void ClearLogSummary(object sender, RoutedEventArgs e)
+    {
+        this.uiTextBoxLog.Clear();
     }
 
     private void SendMessageToLogBoxInUi(string logEntryString)
@@ -186,6 +192,7 @@ public partial class MainWindow : Window
     private void SetPlot()
     {
         this.uiScottPlotEntity.Plot.Clear();
+        this.uiScottPlotEntity.Refresh();
 
         if (CombatLogManagerContext?.SelectedCombatEntity == null)
             return;
@@ -214,56 +221,6 @@ public partial class MainWindow : Window
             plot.Color = Color.FromHex("7e00ff");
             plot.Label = "MagnitudeBase";
         }
-
-        this.uiScottPlotEntity.Plot.Legend.Font.Size = 24;
-        this.uiScottPlotEntity.Plot.ShowLegend();
-
-        // tell the plot to display dates on the bottom axis
-        this.uiScottPlotEntity.Plot.Axes.DateTimeTicksBottom();
-        this.uiScottPlotEntity.Refresh();
-    }
-
-    private void SetPlot(object selectedItem)
-    {
-        this.uiScottPlotEntity.Plot.Clear();
-
-        if (CombatLogManagerContext?.SelectedCombatEntity == null)
-            return;
-
-        if (CombatLogManagerContext.IsDisplayPlotMagnitude)
-        {
-            if (selectedItem is CombatEventType combatEventType)
-            {
-                this.uiTextBlockSelectedEntityPlotType.Text = combatEventType.EventDisplay;
-                var plotDataMagnitude = combatEventType.CombatEvents
-                    .OrderBy(ev => ev.Timestamp)
-                    .Select(ev => new { Mag = Math.Abs(ev.Magnitude) / 1000, ev.Timestamp }).ToList();
-                var plot = this.uiScottPlotEntity.Plot.Add.Scatter(
-                    plotDataMagnitude.Select(pd => pd.Timestamp).ToArray(),
-                    plotDataMagnitude.Select(pd => pd.Mag).ToArray());
-                plot.MarkerSize = 15;
-                plot.Label = "Magnitude";
-                plot.Color = Color.FromHex("ff0000");
-            }
-            else if (selectedItem is CombatPetEventType combatPetEventType)
-            {
-            }
-        }
-
-        if (CombatLogManagerContext.IsDisplayPlotMagnitudeBase)
-            if (selectedItem is CombatEventType combatEventType)
-            {
-                this.uiTextBlockSelectedEntityPlotType.Text = combatEventType.EventDisplay;
-                var plotDataMagnitudeBase = combatEventType.CombatEvents
-                    .OrderBy(ev => ev.Timestamp)
-                    .Select(ev => new { Mag = Math.Abs(ev.MagnitudeBase) / 1000, ev.Timestamp }).ToList();
-                var plot = this.uiScottPlotEntity.Plot.Add.Scatter(
-                    plotDataMagnitudeBase.Select(pd => pd.Timestamp).ToArray(),
-                    plotDataMagnitudeBase.Select(pd => pd.Mag).ToArray());
-                plot.MarkerSize = 15;
-                plot.Color = Color.FromHex("7e00ff");
-                plot.Label = "MagnitudeBase";
-            }
 
         this.uiScottPlotEntity.Plot.Legend.Font.Size = 24;
         this.uiScottPlotEntity.Plot.ShowLegend();
