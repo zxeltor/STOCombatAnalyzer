@@ -31,6 +31,9 @@ public class CombatLogManager : INotifyPropertyChanged
     private bool _eventInternal;
     private bool _filenameEnabled;
     private bool _flags = true;
+
+    private bool _isPlotDisplayMagnitude = true;
+    private bool _isPlotDisplayMagnitudeBase;
     private bool _lineNumber;
     private bool _magnitude = true;
     private bool _magnitudeBase = true;
@@ -43,94 +46,157 @@ public class CombatLogManager : INotifyPropertyChanged
     private bool _timestamp = true;
     private bool _type = true;
 
+    /// <summary>
+    ///     Set the FileName column as visible in the main data grid.
+    /// </summary>
     public bool FilenameVisible
     {
         get => this._filenameEnabled;
         set => this.SetField(ref this._filenameEnabled, value);
     }
 
+    /// <summary>
+    ///     Set the LineNumber column as visible in the main data grid.
+    /// </summary>
     public bool LineNumberVisible
     {
         get => this._lineNumber;
         set => this.SetField(ref this._lineNumber, value);
     }
 
+    /// <summary>
+    ///     Set the Timestamp column as visible in the main data grid.
+    /// </summary>
     public bool TimestampVisible
     {
         get => this._timestamp;
         set => this.SetField(ref this._timestamp, value);
     }
 
+    /// <summary>
+    ///     Set the OwnerDisplay column as visible in the main data grid.
+    /// </summary>
     public bool OwnerDisplayVisible
     {
         get => this._ownerDisplay;
         set => this.SetField(ref this._ownerDisplay, value);
     }
 
+    /// <summary>
+    ///     Set the OwnerInternal column as visible in the main data grid.
+    /// </summary>
     public bool OwnerInternalVisible
     {
         get => this._ownerInternal;
         set => this.SetField(ref this._ownerInternal, value);
     }
 
+    /// <summary>
+    ///     Set the SourceDisplay column as visible in the main data grid.
+    /// </summary>
     public bool SourceDisplayVisible
     {
         get => this._sourceDisplay;
         set => this.SetField(ref this._sourceDisplay, value);
     }
 
+    /// <summary>
+    ///     Set the SourceInternal column as visible in the main data grid.
+    /// </summary>
     public bool SourceInternalVisible
     {
         get => this._sourceInternal;
         set => this.SetField(ref this._sourceInternal, value);
     }
 
+    /// <summary>
+    ///     Set the TargetDisplay column as visible in the main data grid.
+    /// </summary>
     public bool TargetDisplayVisible
     {
         get => this._targetDisplay;
         set => this.SetField(ref this._targetDisplay, value);
     }
 
+    /// <summary>
+    ///     Set the TargetInternal column as visible in the main data grid.
+    /// </summary>
     public bool TargetInternalVisible
     {
         get => this._targetInternal;
         set => this.SetField(ref this._targetInternal, value);
     }
 
+    /// <summary>
+    ///     Set the EventDisplay column as visible in the main data grid.
+    /// </summary>
     public bool EventDisplayVisible
     {
         get => this._eventDisplay;
         set => this.SetField(ref this._eventDisplay, value);
     }
 
+    /// <summary>
+    ///     Set the EventInternal column as visible in the main data grid.
+    /// </summary>
     public bool EventInternalVisible
     {
         get => this._eventInternal;
         set => this.SetField(ref this._eventInternal, value);
     }
 
+    /// <summary>
+    ///     Set the Type column as visible in the main data grid.
+    /// </summary>
     public bool TypeVisible
     {
         get => this._type;
         set => this.SetField(ref this._type, value);
     }
 
+    /// <summary>
+    ///     Set the Flags column as visible in the main data grid.
+    /// </summary>
     public bool FlagsVisible
     {
         get => this._flags;
         set => this.SetField(ref this._flags, value);
     }
 
+    /// <summary>
+    ///     Set the Magnitude column as visible in the main data grid.
+    /// </summary>
     public bool MagnitudeVisible
     {
         get => this._magnitude;
         set => this.SetField(ref this._magnitude, value);
     }
 
+    /// <summary>
+    ///     Set the MagnitudeBase column as visible in the main data grid.
+    /// </summary>
     public bool MagnitudeBaseVisible
     {
         get => this._magnitudeBase;
         set => this.SetField(ref this._magnitudeBase, value);
+    }
+
+    /// <summary>
+    ///     Display Magnitude in the main Plot control
+    /// </summary>
+    public bool IsDisplayPlotMagnitude
+    {
+        get => this._isPlotDisplayMagnitude;
+        set => this.SetField(ref this._isPlotDisplayMagnitude, value);
+    }
+
+    /// <summary>
+    ///     Display BaseMagnitude in the main Plot control
+    /// </summary>
+    public bool IsDisplayPlotMagnitudeBase
+    {
+        get => this._isPlotDisplayMagnitudeBase;
+        set => this.SetField(ref this._isPlotDisplayMagnitudeBase, value);
     }
 
     /// <summary>
@@ -139,13 +205,18 @@ public class CombatLogManager : INotifyPropertyChanged
     public Combat? SelectedCombat { get; set; }
 
     /// <summary>
+    ///     The currently selected combat entity in the main ui
+    /// </summary>
+    public CombatEntity? SelectedCombatEntity { get; set; }
+
+    /// <summary>
     ///     A list of <see cref="CombatEvent" /> for <see cref="SelectedCombat" />
     /// </summary>
-    public ObservableCollection<CombatEvent> SelectedEntityCombatEventList { get; set; } = new();
+    public ObservableCollection<CombatEvent>? SelectedEntityCombatEventList { get; set; } = new();
 
-    public ObservableCollection<CombatEventType> SelectedEntityCombatEventTypeList { get; set; } = new();
+    public ObservableCollection<CombatEventType>? SelectedEntityCombatEventTypeList { get; set; } = new();
 
-    public ObservableCollection<CombatPetEventType> SelectedEntityPetCombatEventTypeList { get; set; } = new();
+    public ObservableCollection<CombatPetEventType>? SelectedEntityPetCombatEventTypeList { get; set; } = new();
 
     /// <summary>
     ///     A list of <see cref="Combat" /> displayed in the main UI.
@@ -153,6 +224,54 @@ public class CombatLogManager : INotifyPropertyChanged
     public ObservableCollection<Combat> Combats { get; set; } = new();
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    ///     Purge the sto combat logs folder.
+    ///     <para>Note: If there's only one log found, it won't be purged.</para>
+    /// </summary>
+    public void PurgeCombatLogFolder()
+    {
+        try
+        {
+            if (!Directory.Exists(Settings.Default.CombatLogPath))
+            {
+                DetailsDialog.Show(Application.Current.MainWindow,
+                    "Can't purge the combat log folder. The folder doesn't exist. Fix CombatLogPath in settings.",
+                    "Error");
+                return;
+            }
+
+            var combatLogInfoList = Directory
+                .GetFiles(Settings.Default.CombatLogPath, Settings.Default.CombatLogPathFilePattern,
+                    SearchOption.TopDirectoryOnly).Select(file => new FileInfo(file)).ToList();
+
+            if (!combatLogInfoList.Any() || combatLogInfoList.Count == 1) return;
+
+            var filesPurged = new List<string>();
+
+            combatLogInfoList.ForEach(fileInfo =>
+            {
+                if (fileInfo.IsReadOnly) return;
+
+                if (DateTime.Now - fileInfo.LastWriteTime >
+                    TimeSpan.FromDays(Settings.Default.HowLongToKeepLogs))
+                {
+                    File.Delete(fileInfo.FullName);
+                    filesPurged.Add(fileInfo.Name);
+                }
+            });
+
+            if (filesPurged.Any())
+                DetailsDialog.Show(Application.Current.MainWindow, "The following combat logs were purged.",
+                    "Combat log purge", detailsBoxList: filesPurged, detailsBoxCaption: "Files purged:");
+        }
+        catch (Exception e)
+        {
+            DetailsDialog.Show(Application.Current.MainWindow,
+                $"Failed to purge combat logs folder. Reason={e.Message}", "Error");
+            _log.Error("Failed to purge combat logs folder.", e);
+        }
+    }
 
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
@@ -288,14 +407,26 @@ public class CombatLogManager : INotifyPropertyChanged
     ///     the UI.
     /// </summary>
     /// <param name="combatEntity">The data to populate our grid.</param>
-    public void SetSelectedCombatEntity(CombatEntity combatEntity)
+    public void SetSelectedCombatEntity(CombatEntity? combatEntity)
     {
-        this.SelectedEntityCombatEventList = combatEntity.CombatEventList;
-        this.SelectedEntityCombatEventTypeList =
-            new ObservableCollection<CombatEventType>(combatEntity.CombatEventTypeListForEntity);
-        this.SelectedEntityPetCombatEventTypeList =
-            new ObservableCollection<CombatPetEventType>(combatEntity.CombatEventTypeListForEntityPets);
+        if (combatEntity == null)
+        {
+            this.SelectedCombatEntity = null;
+            this.SelectedEntityCombatEventList = null;
+            this.SelectedEntityCombatEventTypeList = null;
+            this.SelectedEntityPetCombatEventTypeList = null;
+        }
+        else
+        {
+            this.SelectedCombatEntity = combatEntity;
+            this.SelectedEntityCombatEventList = combatEntity.CombatEventList;
+            this.SelectedEntityCombatEventTypeList =
+                new ObservableCollection<CombatEventType>(combatEntity.CombatEventTypeListForEntity);
+            this.SelectedEntityPetCombatEventTypeList =
+                new ObservableCollection<CombatPetEventType>(combatEntity.CombatEventTypeListForEntityPets);
+        }
 
+        this.OnPropertyChanged(nameof(this.SelectedCombatEntity));
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventList));
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeList));
         this.OnPropertyChanged(nameof(this.SelectedEntityPetCombatEventTypeList));
@@ -348,7 +479,8 @@ public class CombatLogManager : INotifyPropertyChanged
             }
             // We check our current combat event, with the last entry in our current combat instance. If they're more than
             // 90 seconds apart, we use the new combat event to create a new combat instance.
-            else if (combatEvent.Timestamp - latestCombat.CombatEnd > TimeSpan.FromSeconds(Settings.Default.HowLongBeforeNewCombat))
+            else if (combatEvent.Timestamp - latestCombat.CombatEnd >
+                     TimeSpan.FromSeconds(Settings.Default.HowLongBeforeNewCombat))
             {
                 latestCombat = new Combat(combatEvent);
                 combatList.Add(latestCombat);

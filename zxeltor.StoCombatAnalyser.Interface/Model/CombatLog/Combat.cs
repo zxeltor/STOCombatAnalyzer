@@ -31,6 +31,11 @@ public class Combat : INotifyPropertyChanged
     }
 
     /// <summary>
+    ///     A total number of events for Player and NonPlayer entities.
+    /// </summary>
+    public int EventsCount => this.PlayerEntities.Sum(en => en.CombatEventList.Count) + this.NonPlayerEntities.Sum(en => en.CombatEventList.Count);
+
+    /// <summary>
     ///     Used to establish the start time for this combat instance.
     ///     <para>The first timestamp from our <see cref="CombatEntity" /> collections, based on an ordered list.</para>
     /// </summary>

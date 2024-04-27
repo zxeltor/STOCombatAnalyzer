@@ -1,4 +1,4 @@
-# Star Trek Online Combat Analyzer ![Latest application version](https://img.shields.io/badge/alpha-v1.1.1.0-blue)
+# Star Trek Online Combat Analyzer ![Latest application version](https://img.shields.io/badge/alpha-v1.0.0.0-blue)
 
 #### Revision History and Updates
 For more information please visit the [WIKI](https://github.com/zxeltor/STOCombatAnalyzer/wiki)
@@ -32,6 +32,9 @@ After you have a successful build, do the following to get started using the app
     - This search pattern supports wildcards so more then one file can be selected.
   - **MaxNumberOfCombatsToDisplay** You can set the number of combat instances to display in the UI after you parse the logs.
     - If you set this to 0 or less, it will display all combat instances
+  - **PurgeCombatLogs** Enable combat log folder purge at application startup.
+    - Note: If only one combat log exists, it won't be purged regardless of how old it is.
+  - **HowLongToKeepLogs** How long to keep logs in days, before they are purged.
 
 ![Settings Tab](zxeltor.StoCombatAnalyser.Interface/Images/StoCombatAnalyzerScreenShot_Settings.jpg)
 - Switch to the Log File Analyzer tab:
