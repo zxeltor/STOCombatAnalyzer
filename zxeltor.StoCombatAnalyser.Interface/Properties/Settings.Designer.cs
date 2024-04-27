@@ -70,5 +70,29 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
                 this["HowLongBeforeNewCombat"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PurgeCombatLogs {
+            get {
+                return ((bool)(this["PurgeCombatLogs"]));
+            }
+            set {
+                this["PurgeCombatLogs"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("7")]
+        public long HowLongToKeepLogs {
+            get {
+                return ((long)(this["HowLongToKeepLogs"]));
+            }
+            set {
+                this["HowLongToKeepLogs"] = value;
+            }
+        }
     }
 }

@@ -9,7 +9,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <ListBox Margin="0,0,0,0" Padding="2,2,2,2" HorizontalContentAlignment="Stretch">
-            <ListBoxItem BorderThickness="2" BorderBrush="Black"  HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+            <ListBoxItem Tag="CombatLogPath" BorderThickness="2" BorderBrush="Black"  HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -32,7 +32,7 @@
                     </StackPanel>
                 </Grid>
             </ListBoxItem>
-            <ListBoxItem BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+            <ListBoxItem Tag="CombatLogPathFilePattern" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"></RowDefinition>
@@ -45,11 +45,12 @@
                     </StackPanel>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
                         <TextBlock>Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">A file pattern used to select one or more combat log files from the log folder. This search pattern supports wildcards so one or more files can be selected.</TextBlock>
+                        <TextBlock TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Height="Auto"
+                            Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">A file pattern used to select one or more combat log files from the log folder. This search pattern supports wildcards so one or more files can be selected.</TextBlock>
                     </StackPanel>
                 </Grid>
             </ListBoxItem>
-            <ListBoxItem BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+            <ListBoxItem Tag="MaxNumberOfCombatsToDisplay" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"></RowDefinition>
@@ -58,10 +59,10 @@
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <TextBlock Text="Name:" />
                         <TextBlock Text="MaxNumberOfCombatsToDisplay" Margin="4,0,10,0"/>
-                        <TextBox Name="uiTextBoxMaxNumberOfCombatsToDisplay"
-                                 Text="{Binding Path=MaxNumberOfCombatsToDisplay, Mode=OneWay}" Margin="0,0,10,0" MinWidth="100" />
-                        <Button Name="uiButtonMaxNumberOfCombatsToDisplay" Content="set"
-                                Click="UiButtonMaxNumberOfCombatsToDisplay_OnClick" Width="40"/>
+                        <TextBox Name="uiTextBoxMaxNumberOfCombatsToDisplay" Text="{Binding Path=MaxNumberOfCombatsToDisplay, Mode=OneWay}" 
+                                 Margin="0,0,10,0" MinWidth="100"/>
+                        <!--<Button Name="uiButtonMaxNumberOfCombatsToDisplay" Content="set"
+                                Click="UiButtonMaxNumberOfCombatsToDisplay_OnClick" Width="40"/>-->
                     </StackPanel>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
                         <TextBlock>Description:</TextBlock>
@@ -69,7 +70,7 @@
                     </StackPanel>
                 </Grid>
             </ListBoxItem>
-            <ListBoxItem BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+            <ListBoxItem Tag="HowLongBeforeNewCombat" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"></RowDefinition>
@@ -78,14 +79,55 @@
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <TextBlock Text="Name:" />
                         <TextBlock Text="HowLongBeforeNewCombat" Margin="4,0,10,0"/>
-                        <TextBox Name="uiTextBoxHowLongBeforeNewCombat"
-                                 Text="{Binding Path=HowLongBeforeNewCombat, Mode=OneWay}" Margin="0,0,10,0" MinWidth="100" />
-                        <Button Name="uiButtonHowLongBeforeNewCombat" Content="set"
-                                Click="UiButtonHowLongBeforeNewCombat_OnClick" Width="40"/>
+                        <TextBox Name="uiTextBoxHowLongBeforeNewCombat" Text="{Binding Path=HowLongBeforeNewCombat, Mode=OneWay}" 
+                                 Margin="0,0,10,0" MinWidth="100" />
+                        <!--<Button Name="uiButtonHowLongBeforeNewCombat" Content="set"
+                                Click="UiButtonHowLongBeforeNewCombat_OnClick" Width="40"/>-->
                     </StackPanel>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
                         <TextBlock>Description:</TextBlock>
                         <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">How long to wait in seconds between attacks before an event is considered part of a new combat instance. If less than equal to 1, set the parameter to 10 seconds.</TextBlock>
+                    </StackPanel>
+                </Grid>
+            </ListBoxItem>
+            <ListBoxItem Tag="PurgeCombatLogs" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        <TextBlock Text="PurgeCombatLogs" Margin="4,0,10,0" 
+                                   VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        <CheckBox Content="Enable purge at startup" IsChecked="{Binding Path=PurgeCombatLogs, Mode=TwoWay}" Margin="8,0,0,0" 
+                                  VerticalAlignment="Center" HorizontalAlignment="Center" />
+                        <Button Name="uiButtonPurgeLogsNow" Content="Purge Now" Margin="20,0,0,0" Padding="4,0,4,0" 
+                                VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Click="ButtonBase_OnClick" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">How long to keep combat log files in days, before purging them. Note: If only one combat log exists, it won't be purged regardless of how old it is.</TextBlock>
+                    </StackPanel>
+                </Grid>
+            </ListBoxItem>
+            <ListBoxItem Tag="HowLongToKeepLogs" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="HowLongToKeepLogs" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBox Name="uiTextBoxHowLongToKeepLogs" Text="{Binding Path=HowLongToKeepLogs, Mode=OneWay}" 
+                                 Margin="0,0,10,0" MinWidth="100" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="days" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">How long to keep logs in days, before they are purged. PurgeCombatLogs needs to be enabled for this feature.</TextBlock>
                     </StackPanel>
                 </Grid>
             </ListBoxItem>

@@ -129,6 +129,7 @@ public class CombatEntity : INotifyPropertyChanged
     /// </summary>
     public string OwnerDisplay { get; set; }
 
+
     /// <summary>
     ///     If true this entity is a Player. If false the entity is a Non-Player.
     /// </summary>
@@ -144,6 +145,17 @@ public class CombatEntity : INotifyPropertyChanged
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
     /// </summary>
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
+    /// </summary>
+    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        field = value;
+        this.OnPropertyChanged(propertyName);
+        return true;
+    }
 
     // Create the OnPropertyChanged method to raise the event
     // The calling member's name will be used as the parameter.

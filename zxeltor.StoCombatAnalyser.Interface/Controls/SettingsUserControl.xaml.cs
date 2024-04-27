@@ -25,9 +25,30 @@ public partial class SettingsUserControl : UserControl
         this.InitializeComponent();
 
         this.DataContext = this.MyPrivateContext = new SettingsUserControlBindingContext();
+
+        this.Loaded += this.OnLoaded;
+        this.Unloaded += this.OnUnloaded;
     }
 
     private SettingsUserControlBindingContext MyPrivateContext { get; }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        this.Unloaded -= this.OnUnloaded;
+
+        this.uiTextBoxMaxNumberOfCombatsToDisplay.TextChanged -= this.TextBoxBase_OnTextChanged;
+        this.uiTextBoxHowLongBeforeNewCombat.TextChanged -= this.TextBoxBase_OnTextChanged;
+        this.uiTextBoxHowLongToKeepLogs.TextChanged -= this.TextBoxBase_OnTextChanged;
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        this.Loaded -= this.OnLoaded;
+
+        this.uiTextBoxMaxNumberOfCombatsToDisplay.TextChanged += this.TextBoxBase_OnTextChanged;
+        this.uiTextBoxHowLongBeforeNewCombat.TextChanged += this.TextBoxBase_OnTextChanged;
+        this.uiTextBoxHowLongToKeepLogs.TextChanged += this.TextBoxBase_OnTextChanged;
+    }
 
     /// <summary>
     ///     Opens a folder dialog letting the user select a logging folder.
@@ -52,23 +73,35 @@ public partial class SettingsUserControl : UserControl
     ///     Do some additional validation on the field, before the setting is saved.
     /// </summary>
     /// <remarks>ToddDo: Revisit later. Probably a better way to do validation as part of the databind.</remarks>
-    private void UiButtonMaxNumberOfCombatsToDisplay_OnClick(object sender, RoutedEventArgs e)
+    private void UpdateMaxNumberOfCombatsToDisplay()
     {
         if (int.TryParse(this.uiTextBoxMaxNumberOfCombatsToDisplay.Text, out var parseResult))
         {
             if (parseResult < 0) parseResult = 0;
 
             this.MyPrivateContext.MaxNumberOfCombatsToDisplay = parseResult;
-
-            MessageBox.Show(Application.Current.MainWindow!, "The field has successfully updated.",
-                "Information", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         else
         {
             this.MyPrivateContext.MaxNumberOfCombatsToDisplay = 0;
+        }
+    }
 
-            MessageBox.Show(Application.Current.MainWindow!, "This field only supports numeric values.",
-                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+    /// <summary>
+    ///     Do some additional validation on the field, before the setting is saved.
+    /// </summary>
+    /// <remarks>ToddDo: Revisit later. Probably a better way to do validation as part of the databind.</remarks>
+    private void UpdateHowLongToKeepLogs()
+    {
+        if (int.TryParse(this.uiTextBoxHowLongToKeepLogs.Text, out var parseResult))
+        {
+            if (parseResult < 1) parseResult = 1;
+
+            this.MyPrivateContext.HowLongToKeepLogs = parseResult;
+        }
+        else
+        {
+            this.MyPrivateContext.HowLongToKeepLogs = 1;
         }
     }
 
@@ -111,24 +144,43 @@ public partial class SettingsUserControl : UserControl
     ///     Do some additional validation on the field, before the setting is saved.
     /// </summary>
     /// <remarks>ToddDo: Revisit later. Probably a better way to do validation as part of the databind.</remarks>
-    private void UiButtonHowLongBeforeNewCombat_OnClick(object sender, RoutedEventArgs e)
+    private void UpdateHowLongBeforeNewCombat()
     {
         if (int.TryParse(this.uiTextBoxHowLongBeforeNewCombat.Text, out var parseResult))
         {
-            if (parseResult < 1) parseResult = 10;
+            if (parseResult < 1) parseResult = 1;
 
             this.MyPrivateContext.HowLongBeforeNewCombat = parseResult;
-
-            MessageBox.Show(Application.Current.MainWindow!, "The field has successfully updated.",
-                "Information", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         else
         {
-            this.MyPrivateContext.HowLongBeforeNewCombat = 10;
-
-            MessageBox.Show(Application.Current.MainWindow!, "This field only supports numeric values.",
-                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            this.MyPrivateContext.HowLongBeforeNewCombat = 1;
         }
+    }
+
+    /// <summary>
+    ///     A generic on text change handler
+    /// </summary>
+    private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (!(sender is TextBox textBox)) return;
+
+        if (textBox.Name.Equals(nameof(this.uiTextBoxMaxNumberOfCombatsToDisplay)))
+            this.UpdateMaxNumberOfCombatsToDisplay();
+        else if (textBox.Name.Equals(nameof(this.uiTextBoxHowLongBeforeNewCombat)))
+            this.UpdateHowLongBeforeNewCombat();
+        else if (textBox.Name.Equals(nameof(this.uiTextBoxHowLongToKeepLogs))) this.UpdateHowLongToKeepLogs();
+    }
+
+    /// <summary>
+    ///     A generic on click event
+    /// </summary>
+    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (!(sender is Button button)) return;
+
+        if (button.Name.Equals(nameof(this.uiButtonPurgeLogsNow)))
+            MainWindow.CombatLogManagerContext?.PurgeCombatLogFolder();
     }
 }
 
@@ -137,19 +189,42 @@ public partial class SettingsUserControl : UserControl
 /// </summary>
 internal class SettingsUserControlBindingContext : INotifyPropertyChanged
 {
-    private string? _combatLogPath;
-    private string? _combatLogPathFilePattern;
-    private int _howLongBeforeNewCombat;
-    private int _maxNumberOfCombatsToDisplay;
+    private string? _combatLogPath = Settings.Default.CombatLogPath;
+    private string? _combatLogPathFilePattern = Settings.Default.CombatLogPathFilePattern;
+    private int _howLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombat;
+    private long _howLongToKeepLogs = Settings.Default.HowLongToKeepLogs;
+    private int _maxNumberOfCombatsToDisplay = Settings.Default.MaxNumberOfCombatsToDisplay;
+    private bool _purgeCombatLogs = Settings.Default.PurgeCombatLogs;
 
-    public SettingsUserControlBindingContext()
+    /// <summary>
+    ///     Enable combat log folder purge at application startup.
+    /// </summary>
+    public bool PurgeCombatLogs
     {
-        this.CombatLogPath = Settings.Default.CombatLogPath;
-        this.CombatLogPathFilePattern = Settings.Default.CombatLogPathFilePattern;
-        this.MaxNumberOfCombatsToDisplay = Settings.Default.MaxNumberOfCombatsToDisplay;
-        this.HowLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombat;
+        get => this._purgeCombatLogs = Settings.Default.PurgeCombatLogs;
+        set
+        {
+            Settings.Default.PurgeCombatLogs = value;
+            Settings.Default.Save();
+            this.SetField(ref this._purgeCombatLogs, value);
+        }
     }
-    
+
+    /// <summary>
+    ///     How long to keep combat logs since they were last written too.
+    ///     <para>If only one log exists, it won't be deleted.</para>
+    /// </summary>
+    public long HowLongToKeepLogs
+    {
+        get => this._howLongToKeepLogs = Settings.Default.HowLongToKeepLogs;
+        set
+        {
+            Settings.Default.HowLongToKeepLogs = value;
+            Settings.Default.Save();
+            this.SetField(ref this._howLongToKeepLogs, value);
+        }
+    }
+
     /// <summary>
     ///     The base STO combat log folder.
     /// </summary>
@@ -193,6 +268,9 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    ///     The max number of combat entities to display in the main UI
+    /// </summary>
     public int MaxNumberOfCombatsToDisplay
     {
         get => this._maxNumberOfCombatsToDisplay = Settings.Default.MaxNumberOfCombatsToDisplay;
