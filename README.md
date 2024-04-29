@@ -1,4 +1,4 @@
-# Star Trek Online Combat Analyzer ![Latest application version](https://img.shields.io/badge/alpha-v1.0.0.0-blue)
+# Star Trek Online Combat Analyzer ![Latest application version](https://img.shields.io/badge/alpha-v0.0.0-blue)
 
 #### Revision History and Updates
 For more information please visit the [WIKI](https://github.com/zxeltor/STOCombatAnalyzer/wiki)
