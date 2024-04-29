@@ -5,7 +5,7 @@ For more information please visit the [WIKI](https://github.com/zxeltor/STOComba
 
 * [Overview](#overview)
 * [Building](#building)
-* [Release and package installer](#release-and-package-installer)
+* [Release Info](#release-info)
 * [Quick Start](#quick-start)
 * [Disclaimer](#disclaimer)
 
@@ -17,7 +17,7 @@ The source in this repo is wrapped up in a Visual Studio 2022 solution. You shou
 
 You could also run the dotnet cli build and run commands from inside the zxeltor.StoCombatAnalyser.Interface project folder as well.
 
-## Release Info and Download
+## Release Info
 See the [wiki](https://github.com/zxeltor/STOCombatAnalyzer/wiki) for more details.
 
 ## Quick Start
