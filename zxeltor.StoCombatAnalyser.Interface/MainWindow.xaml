@@ -180,9 +180,9 @@
                                   Padding="4,0,4,0"
                                   HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
 
-                    <GroupBox Grid.Row="1" Grid.Column="2" Header="Selected Combat Entity: Breakdown" Margin="4,0,0,0">
+                    <GroupBox Grid.Row="1" Grid.Column="2" Header="Selected Entity: Events Breakdown" Margin="4,0,0,0">
                         <TreeView Name="uiSelectedCombatEntityEventType">
-                            <TreeViewItem Name="uiTreeviewItemEntityTypes" Header="Entity" 
+                            <TreeViewItem Name="uiTreeviewItemEntityTypes" Header="Events by: Entity" 
                                           ItemsSource="{Binding Path=SelectedEntityCombatEventTypeList}">
                                 <TreeViewItem.ItemTemplate>
                                     <HierarchicalDataTemplate>
@@ -225,7 +225,7 @@
                                     </HierarchicalDataTemplate>
                                 </TreeViewItem.ItemTemplate>
                             </TreeViewItem>
-                            <TreeViewItem Name="uiTreeviewItemPetTypes" Header="Entity Pet" ItemsSource="{Binding Path=SelectedEntityPetCombatEventTypeList}">
+                            <TreeViewItem Name="uiTreeviewItemPetTypes" Header="Events by: Entity Pets" ItemsSource="{Binding Path=SelectedEntityPetCombatEventTypeList}">
                                 <TreeViewItem.ItemTemplate>
                                     <HierarchicalDataTemplate>
                                         <TreeViewItem Header="{Binding Path=SourceDisplay}" ItemsSource="{Binding Path=CombatEventTypes}">
@@ -271,7 +271,7 @@
                               Padding="0,4,0,0">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Selected Combat Entity: All Events" />
+                                <TextBlock Text="Selected Entity: All Events" />
                                 <TextBlock Text="(" Margin="4,0,0,0" />
                                 <TextBlock Text="{Binding SelectedEntityCombatEventList.Count}" />
                                 <TextBlock Text=")" />
@@ -356,33 +356,46 @@
                         </DataGrid>
                     </GroupBox>
 
-                    <GroupBox Name="uiGridBoxEntity" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,8,0,0">
-                        <GroupBox.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Selected Combat Entity:" />
-                                <TextBlock Name="uiTextBlockSelectedEntityPlotType" Text="Plot" Margin="8,0,0,0"/>
-                            </StackPanel>
-                        </GroupBox.Header>
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"></RowDefinition>
-                                <RowDefinition Height="90*"></RowDefinition>
-                            </Grid.RowDefinitions>
-                            <StackPanel Orientation="Horizontal" Grid.Row="0">
-                                <CheckBox x:Name="uiCheckboxPlotDisplayMagnitude" Content="abs(Magnitude)k" Margin="8,0,0,0" 
-                                          IsChecked="{Binding Path=IsDisplayPlotMagnitude, Mode=TwoWay}"
-                                          Tag="PlotDisplayMagnitude"
-                                          Checked="UiCheckboxPlotDisplay_OnCheckedOrUnChecked"
-                                          Unchecked="UiCheckboxPlotDisplay_OnCheckedOrUnChecked" />
-                                <CheckBox x:Name="uiCheckboxPlotDisplayMagnitudeBase" Content="abs(MagnitudeBase)k" Margin="8,0,0,0"
-                                          IsChecked="{Binding Path=IsDisplayPlotMagnitudeBase, Mode=TwoWay}"
-                                          Tag="PlotDisplayMagnitudeBase"
-                                          Checked="UiCheckboxPlotDisplay_OnCheckedOrUnChecked"
-                                          Unchecked="UiCheckboxPlotDisplay_OnCheckedOrUnChecked" />
-                            </StackPanel>
-                            <scottPlot:WpfPlot Name="uiScottPlotEntity" Grid.Row="1" />
-                        </Grid>
-                    </GroupBox>
+                    <Grid Grid.Row="2" Grid.Column="0" ColumnSpan="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60*" />
+                            <ColumnDefinition Width="40*" />
+                        </Grid.ColumnDefinitions>
+                        <GroupBox Name="uiGridBoxEntity" Grid.Column="0" Margin="0,8,0,0">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Selected Entity:" />
+                                    <TextBlock Name="uiTextBlockSelectedEntityPlotType" Text="Magnitude Plot" Margin="8,0,0,0"/>
+                                    <CheckBox x:Name="uiCheckboxPlotDisplayMagnitude" Content="abs(Magnitude)k" Margin="8,0,0,0" 
+                                              IsChecked="{Binding Path=IsDisplayPlotMagnitude, Mode=TwoWay}"
+                                              Tag="PlotDisplayMagnitude"
+                                              Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
+                                              Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
+                                    <CheckBox x:Name="uiCheckboxPlotDisplayMagnitudeBase" Content="abs(MagnitudeBase)k" Margin="8,0,0,0"
+                                              IsChecked="{Binding Path=IsDisplayPlotMagnitudeBase, Mode=TwoWay}"
+                                              Tag="PlotDisplayMagnitudeBase"
+                                              Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
+                                              Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <Grid>
+                                <scottPlot:WpfPlot Name="uiScottPlotEntityScatter" />
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox Grid.Column="1" Margin="0,8,0,0">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Selected Entity: Events Breakdown"></TextBlock>
+                                    <CheckBox Name="uiCheckBoxDisplayLegendOnPieChart" IsChecked="True" Content="Legend" Margin="8,0,0,0"
+                                              Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
+                                              Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <scottPlot:WpfPlot Name="uiScottPlotEntityPieChartEntity" />
+                        </GroupBox>
+                        
+                    </Grid>
                 </Grid>
             </TabItem>
             <TabItem Header="Settings">
