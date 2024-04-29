@@ -225,29 +225,38 @@ public class CombatLogManager : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    ///// <summary>
+    /////     Purge the sto combat logs folder.
+    /////     <para>Note: If there's only one log found, it won't be purged.</para>
+    ///// </summary>
+
     /// <summary>
     ///     Purge the sto combat logs folder.
     ///     <para>Note: If there's only one log found, it won't be purged.</para>
     /// </summary>
-    public void PurgeCombatLogFolder()
+    /// <param name="filesPurged">A list of files purged.</param>
+    /// <returns>True if successful. False otherwise</returns>
+    public static bool TryPurgeCombatLogFolder(out List<string> filesPurged, out string errorResponse)
     {
+        filesPurged = new List<string>();
+        errorResponse = string.Empty;
+
         try
         {
             if (!Directory.Exists(Settings.Default.CombatLogPath))
             {
-                DetailsDialog.Show(Application.Current.MainWindow,
-                    "Can't purge the combat log folder. The folder doesn't exist. Fix CombatLogPath in settings.",
-                    "Error");
-                return;
+                errorResponse = "Can't purge the combat logs. The folder doesn't exist. Check CombatLogPath in settings.";
+                _log.Error($"Can't purge the combat logs. The folder doesn't exist. \"{Settings.Default.CombatLogPath}\"");
+                return false;
             }
 
             var combatLogInfoList = Directory
                 .GetFiles(Settings.Default.CombatLogPath, Settings.Default.CombatLogPathFilePattern,
                     SearchOption.TopDirectoryOnly).Select(file => new FileInfo(file)).ToList();
 
-            if (!combatLogInfoList.Any() || combatLogInfoList.Count == 1) return;
+            if (!combatLogInfoList.Any() || combatLogInfoList.Count == 1) return false;
 
-            var filesPurged = new List<string>();
+            var tmpFilesPurged = new List<string>();
 
             combatLogInfoList.ForEach(fileInfo =>
             {
@@ -257,20 +266,21 @@ public class CombatLogManager : INotifyPropertyChanged
                     TimeSpan.FromDays(Settings.Default.HowLongToKeepLogs))
                 {
                     File.Delete(fileInfo.FullName);
-                    filesPurged.Add(fileInfo.Name);
+                    tmpFilesPurged.Add(fileInfo.Name);
                 }
             });
 
-            if (filesPurged.Any())
-                DetailsDialog.Show(Application.Current.MainWindow, "The following combat logs were purged.",
-                    "Combat log purge", detailsBoxList: filesPurged, detailsBoxCaption: "Files purged:");
+            filesPurged.AddRange(tmpFilesPurged);
+
+            return true;
         }
         catch (Exception e)
         {
-            DetailsDialog.Show(Application.Current.MainWindow,
-                $"Failed to purge combat logs folder. Reason={e.Message}", "Error");
+            errorResponse = $"Can't purge the combat logs. Reason={e.Message}";
             _log.Error("Failed to purge combat logs folder.", e);
         }
+
+        return false;
     }
 
     /// <summary>

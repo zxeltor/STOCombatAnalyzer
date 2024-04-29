@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
 
@@ -180,7 +181,25 @@ public partial class SettingsUserControl : UserControl
         if (!(sender is Button button)) return;
 
         if (button.Name.Equals(nameof(this.uiButtonPurgeLogsNow)))
-            MainWindow.CombatLogManagerContext?.PurgeCombatLogFolder();
+        {
+            if (CombatLogManager.TryPurgeCombatLogFolder(out var filesPurged, out var errorReason))
+            {
+                if (filesPurged.Any())
+                    DetailsDialog.Show(Application.Current.MainWindow, "Combat logs were purged.",
+                        "Combat log purge", detailsBoxCaption: "File(s) purged", detailsBoxList: filesPurged);
+                else
+                    DetailsDialog.Show(Application.Current.MainWindow, "No combat logs available to purge.",
+                        "Combat log purge");
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(errorReason))
+                    DetailsDialog.Show(Application.Current.MainWindow, errorReason, "Combat log purge error");
+                else
+                    DetailsDialog.Show(Application.Current.MainWindow, "Failed to purge combat logs.",
+                        "Combat log purge error");
+            }
+        }
     }
 }
 
