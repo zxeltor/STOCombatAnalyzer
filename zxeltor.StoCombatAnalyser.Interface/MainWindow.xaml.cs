@@ -6,8 +6,12 @@
 
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using Humanizer;
+
 using log4net;
 using ScottPlot;
+using ScottPlot.Plottables;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
@@ -79,33 +83,6 @@ public partial class MainWindow : Window
         }
     }
 
-    //private void UiScottPlotEntityPieChartEntityOnMouseMove(object sender, MouseEventArgs e)
-    //{
-    //    //var positPoint = e.GetPosition(uiScottPlotEntityPieChartEntity);
-
-    //    //// determine where the mouse is and get the nearest point
-    //    //Pixel mousePixel = new(positPoint.X, positPoint.Y);
-    //    //Coordinates mouseLocation = uiScottPlotEntityPieChartEntity.Plot.GetCoordinates(mousePixel);
-    //    //DataPoint nearest = uiScottPlotEntityPieChartEntit  Data.GetNearest(mouseLocation, formsPlot1.Plot.LastRender);
-
-    //    //// place the crosshair over the highlighted point
-    //    //if (nearest.IsReal)
-    //    //{
-    //    //    MyCrosshair.IsVisible = true;
-    //    //    MyCrosshair.Position = nearest.Coordinates;
-    //    //    formsPlot1.Refresh();
-    //    //    Text = $"Selected Index={nearest.Index}, X={nearest.X:0.##}, Y={nearest.Y:0.##}";
-    //    //}
-
-    //    //// hide the crosshair when no point is selected
-    //    //if (!nearest.IsReal && MyCrosshair.IsVisible)
-    //    //{
-    //    //    MyCrosshair.IsVisible = false;
-    //    //    formsPlot1.Refresh();
-    //    //    Text = $"No point selected";
-    //    //}
-    //}
-
     /// <summary>
     ///     Setup which columns are displayed in the main data grid.
     /// </summary>
@@ -116,77 +93,77 @@ public partial class MainWindow : Window
             switch (col.Header)
             {
                 case "Filename":
-                    col.Visibility = CombatLogManagerContext!.FilenameVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.FilenameVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "LineNumber":
-                    col.Visibility = CombatLogManagerContext!.LineNumberVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.LineNumberVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "Timestamp":
-                    col.Visibility = CombatLogManagerContext!.TimestampVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.TimestampVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "OwnerDisplay":
-                    col.Visibility = CombatLogManagerContext!.OwnerDisplayVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.OwnerDisplayVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "OwnerInternal":
-                    col.Visibility = CombatLogManagerContext!.OwnerInternalVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.OwnerInternalVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "SourceDisplay":
-                    col.Visibility = CombatLogManagerContext!.SourceDisplayVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.SourceDisplayVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "SourceInternal":
-                    col.Visibility = CombatLogManagerContext!.SourceInternalVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.SourceInternalVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "TargetDisplay":
-                    col.Visibility = CombatLogManagerContext!.TargetDisplayVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.TargetDisplayVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "TargetInternal":
-                    col.Visibility = CombatLogManagerContext!.TargetInternalVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.TargetInternalVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "EventDisplay":
-                    col.Visibility = CombatLogManagerContext!.EventDisplayVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.EventDisplayVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "EventInternal":
-                    col.Visibility = CombatLogManagerContext!.EventInternalVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.EventInternalVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "Type":
-                    col.Visibility = CombatLogManagerContext!.TypeVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.TypeVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "Flags":
-                    col.Visibility = CombatLogManagerContext!.FlagsVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.FlagsVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "Magnitude":
-                    col.Visibility = CombatLogManagerContext!.MagnitudeVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.MagnitudeVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "MagnitudeBase":
-                    col.Visibility = CombatLogManagerContext!.MagnitudeBaseVisible
+                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.MagnitudeBaseVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
@@ -249,34 +226,39 @@ public partial class MainWindow : Window
 
         if (combatEntity != null && combatEntity.CombatEventList.Any())
         {
-            if (CombatLogManagerContext is { IsDisplayPlotMagnitude: true })
+            if (CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitude: true })
             {
                 var plotDataMagnitude = combatEntity.CombatEventList
                     .OrderBy(ev => ev.Timestamp)
                     .Select(ev => new { Mag = Math.Abs(ev.Magnitude) / 1000, ev.Timestamp }).ToList();
+
                 var plot = this.uiScottPlotEntityScatter.Plot.Add.Scatter(
                     plotDataMagnitude.Select(pd => pd.Timestamp).ToArray(),
                     plotDataMagnitude.Select(pd => pd.Mag).ToArray());
+
                 plot.MarkerSize = 15;
                 plot.Label = "Magnitude";
                 plot.Color = Color.FromHex("ff0000");
             }
 
-            if (CombatLogManagerContext is { IsDisplayPlotMagnitudeBase: true })
+            if (CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitudeBase: true })
             {
                 var plotDataMagnitudeBase = combatEntity.CombatEventList
                     .OrderBy(ev => ev.Timestamp)
                     .Select(ev => new { Mag = Math.Abs(ev.MagnitudeBase) / 1000, ev.Timestamp }).ToList();
+
                 var plot = this.uiScottPlotEntityScatter.Plot.Add.Scatter(
                     plotDataMagnitudeBase.Select(pd => pd.Timestamp).ToArray(),
                     plotDataMagnitudeBase.Select(pd => pd.Mag).ToArray());
+
                 plot.MarkerSize = 15;
                 plot.Color = Color.FromHex("7e00ff");
                 plot.Label = "MagnitudeBase";
             }
         }
 
-        this.uiScottPlotEntityScatter.Plot.Legend.Font.Size = 24;
+        //this.uiScottPlotEntityScatter.Plot.Legend.Font.Size = 24;
+        this.uiScottPlotEntityScatter.Plot.Legend.FontSize = 24;
 
         if (combatEntity != null && combatEntity.CombatEventList.Any())
             this.uiScottPlotEntityScatter.Plot.ShowLegend();
@@ -297,37 +279,80 @@ public partial class MainWindow : Window
 
         var pieSlices = new List<PieSlice>();
 
-        var combatEvents = CombatLogManagerContext?.SelectedEntityCombatEventTypeList;
-        if (combatEvents != null && combatEvents.Any())
+        if (this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked != null &&
+            this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked.Value)
         {
-            var colorCounter = 0;
-            var colorArray = Colors.Rainbow(combatEvents.Count).ToList();
-
-            combatEvents.ToList().ForEach(evt =>
+            var combatPetEvents = CombatLogManagerContext?.SelectedEntityPetCombatEventTypeList;
+            if (combatPetEvents != null && combatPetEvents.Any())
             {
-                pieSlices.Add(new PieSlice
+                var colorCounter = 0;
+                var colorArray = Colors.Rainbow(combatPetEvents.Count).ToList();
+
+                combatPetEvents.ToList().ForEach(petevt =>
                 {
-                    Value = evt.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude)),
-                    FillColor = colorArray[colorCounter++],
-                    Label = evt.EventDisplay
-                });
-            });
-        }
+                    var sumOfMagnitude =
+                        petevt.CombatEventTypes.Sum(evt => evt.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude)));
 
-        var combatPetEvents = CombatLogManagerContext?.SelectedEntityPetCombatEventTypeList;
-        if (combatPetEvents != null && combatPetEvents.Any())
-            pieSlices.Add(new PieSlice
+                    if (sumOfMagnitude == 0) return;
+
+                    pieSlices.Add(new PieSlice
+                    {
+                        Value = sumOfMagnitude,
+                        FillColor = colorArray[colorCounter++],
+                        Label = petevt.SourceDisplay
+                    });
+                });
+            }
+        }
+        else
+        {
+            var combatEvents = CombatLogManagerContext?.SelectedEntityCombatEventTypeList;
+            if (combatEvents != null && combatEvents.Any())
             {
-                Value = combatPetEvents.Sum(petevt =>
-                    petevt.CombatEventTypes.Sum(evt => evt.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude)))),
-                FillColor = Color.FromHex("000000"),
-                Label = "Pets"
-            });
+                var colorCounter = 0;
+                var colorArray = Colors.Rainbow(combatEvents.Count).ToList();
+
+                combatEvents.ToList().ForEach(evt =>
+                {
+                    var sumOfMagnitude =
+                        evt.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude));
+
+                    if (sumOfMagnitude == 0) return;
+
+                    pieSlices.Add(new PieSlice
+                    {
+                        Value = sumOfMagnitude,
+                        FillColor = colorArray[colorCounter++],
+                        Label = evt.EventDisplay
+                    });
+                });
+            }
+
+            var combatPetEvents = CombatLogManagerContext?.SelectedEntityPetCombatEventTypeList;
+            if (combatPetEvents != null && combatPetEvents.Any())
+            {
+                var sumOfMagnitude = combatPetEvents.Sum(petevt =>
+                    petevt.CombatEventTypes.Sum(evt => evt.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude))));
+
+                if (sumOfMagnitude != 0)
+                    pieSlices.Add(new PieSlice
+                    {
+                        Value = sumOfMagnitude,
+                        FillColor = Color.FromHex("000000"),
+                        Label = "Pets"
+                    });
+            }
+        }
 
         if (pieSlices.Any())
         {
             var pie = this.uiScottPlotEntityPieChartEntity.Plot.Add.Pie(pieSlices);
-            pie.ExplodeFraction = .3;
+            pie.ExplodeFraction = .15;
+
+            this.uiScottPlotEntityPieChartEntity.Plot.Legend.FontSize = 18f;
+
+            var upperCenterAnnotation = this.uiScottPlotEntityPieChartEntity.Plot.Add.Annotation($"Total Damage Done: {pieSlices.Sum(pieSlice => pieSlice.Value).ToMetric(null, 3)}", Alignment.UpperCenter);
+            upperCenterAnnotation.LabelFontSize = 18f;
 
             if (this.uiCheckBoxDisplayLegendOnPieChart.IsChecked != null &&
                 this.uiCheckBoxDisplayLegendOnPieChart.IsChecked.Value)
@@ -344,7 +369,7 @@ public partial class MainWindow : Window
 
         this.uiScottPlotEntityPieChartEntity.Refresh();
     }
-
+    
     private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
     {
         if (e.Source is CheckBox) this.ToggleDataGridColumnVisibility();

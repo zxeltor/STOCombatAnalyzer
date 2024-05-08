@@ -15,6 +15,10 @@
         <Grid.Resources>
             <classes:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
             <classes:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
+            <classes:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
+            <Brush x:Key="colorDps">Red</Brush>
+            <Brush x:Key="colorTotal">Green</Brush>
+            <Brush x:Key="colorMax">Purple</Brush>
             <DataTemplate x:Key="combatListItemTemplate" DataType="{x:Type modelcombatlog:Combat}">
                 <Border BorderBrush="Black" BorderThickness="2" Padding="4" Margin="0">
                     <StackPanel Margin="0">
@@ -24,7 +28,7 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <TextBlock Text="Duration: " />
-                            <TextBlock Text="{Binding Duration}" />
+                            <TextBlock Text="{Binding CombatDuration}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <TextBlock Text="Players: " />
@@ -48,27 +52,32 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Active=" />
-                            <TextBlock Text="{Binding Duration}" />
+                            <TextBlock Text="{Binding EntityCombatDuration}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Start=" />
                             <TextBlock
-                                Text="{Binding EntityStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
+                                Text="{Binding EntityCombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
                             <TextBlock Text="End=" Margin="8,0,0,0" />
                             <TextBlock
-                                Text="{Binding EntityEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
+                                Text="{Binding EntityCombatEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Combat Events=" />
                             <TextBlock Text="{Binding CombatEventList.Count}" />
                             <TextBlock Text="Kills=" Margin="8,0,0,0" />
-                            <TextBlock Text="{Binding Kills}" />
+                            <TextBlock Text="{Binding EntityCombatKills}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="DPS=" />
-                            <TextBlock Text="{Binding DPS}" />
-                            <TextBlock Text="Max Damage=" Margin="8,0,0,0" />
-                            <TextBlock Text="{Binding MaxDamage}" />
+                            <TextBlock Text="DPS(" Foreground="{StaticResource colorDps}" />
+                            <TextBlock Text="{Binding EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorDps}" />
+                            <TextBlock Text=")" Foreground="{StaticResource colorDps}" />
+                            <TextBlock Text="Total(" Margin="8,0,0,0" Foreground="{StaticResource colorTotal}" />
+                            <TextBlock Text="{Binding EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorTotal}" />
+                            <TextBlock Text=")" Foreground="{StaticResource colorTotal}" />
+                            <TextBlock Text="Max(" Margin="8,0,0,0" Foreground="{StaticResource colorMax}" />
+                            <TextBlock Text="{Binding EntityMaxMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorMax}" />
+                            <TextBlock Text=")" Foreground="{StaticResource colorMax}" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -88,7 +97,7 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <TextBlock Text="Duration: " />
-                            <TextBlock Text="{Binding Duration}" />
+                            <TextBlock Text="{Binding CombatDuration}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <TextBlock Text="Combat Entities:" />
@@ -126,8 +135,8 @@
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="400"></ColumnDefinition>
-                        <ColumnDefinition Width="60*"></ColumnDefinition>
-                        <ColumnDefinition Width="40*"></ColumnDefinition>
+                        <ColumnDefinition Width="50*"></ColumnDefinition>
+                        <ColumnDefinition Width="50*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
@@ -148,7 +157,7 @@
                                             <TextBlock Text="Start=" />
                                             <TextBlock Text="{Binding Path=CombatStart}" />
                                             <TextBlock Text="Duration=" Margin="10,0,0,0" />
-                                            <TextBlock Text="{Binding Path=Duration}" />
+                                            <TextBlock Text="{Binding Path=CombatDuration}" />
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Players=" />
@@ -164,7 +173,7 @@
                         </ComboBox>
                     </StackPanel>
 
-                    <GridSplitter Grid.Row="1" Grid.Column="0" Background="Gray" Margin="0,8,-4,4" Width="2"
+                    <GridSplitter Grid.Row="1" Grid.Column="0" Background="Gray" Margin="0,8,-6,4" Width="2"
                                   Padding="4,0,4,0"
                                   HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
 
@@ -176,39 +185,50 @@
                         </Grid>
                     </GroupBox>
 
-                    <GridSplitter Grid.Row="1" Grid.Column="1" Background="Gray" Margin="0,8,4,4" Width="2"
+                    <GridSplitter Grid.Row="1" Grid.Column="1" Background="Gray" Margin="0,8,-4,4" Width="2"
                                   Padding="4,0,4,0"
                                   HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
 
-                    <GroupBox Grid.Row="1" Grid.Column="2" Header="Selected Entity: Events Breakdown" Margin="4,0,0,0">
+                    <GroupBox Grid.Row="1" Grid.Column="2" Margin="4,0,0,0">
+                        <GroupBox.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock>Selected Entity: Events Breakdown</TextBlock>
+                            </StackPanel>
+                        </GroupBox.Header>
                         <TreeView Name="uiSelectedCombatEntityEventType">
-                            <TreeViewItem Name="uiTreeviewItemEntityTypes" Header="Events by: Entity" 
+                            <TreeViewItem Name="uiTreeviewItemEntityTypes"
                                           ItemsSource="{Binding Path=SelectedEntityCombatEventTypeList}">
+                                <TreeViewItem.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock>Events by: Entity</TextBlock>
+                                        <!--<TextBlock Text="DPS(" Margin="8,0,0,0" Foreground="{StaticResource colorDps}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombatEntityTypeMaxDamage}" Foreground="{StaticResource colorDps}" />-->
+                                        <!--<TextBlock Text=")" Foreground="{StaticResource colorDps}" />-->
+                                        <TextBlock Text="TOTAL(" Margin="8,0,0,0" Foreground="{StaticResource colorTotal}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombatEntityEventTypeTotalDamage, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorTotal}" />
+                                        <TextBlock Text=")" Foreground="{StaticResource colorTotal}"/>
+                                        <TextBlock Text="MAX(" Margin="8,0,0,0" Foreground="{StaticResource colorMax}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombatEntityEventTypeMaxDamage, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorMax}" />
+                                        <TextBlock Text=")" Foreground="{StaticResource colorMax}" />
+                                    </StackPanel>
+                                </TreeViewItem.Header>
                                 <TreeViewItem.ItemTemplate>
                                     <HierarchicalDataTemplate>
                                         <TreeViewItem>
                                             <TreeViewItem.Header>
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="{Binding Path=EventDisplay}" />
-                                                    <TextBlock Text="DPS(" Margin="8,0,0,0" Foreground="Red" />
-                                                    <TextBlock Text="{Binding Path=Dps}" Foreground="Red" />
-                                                    <TextBlock Text=")" Foreground="Red" />
-                                                    <TextBlock Text="MAX(" Margin="8,0,0,0" Foreground="Purple" />
-                                                    <TextBlock Text="{Binding Path=MaxMagnitude}" Foreground="Purple" />
-                                                    <TextBlock Text=")" Foreground="Purple" />
-
+                                                    <TextBlock Text="DPS(" Margin="8,0,0,0" Foreground="{StaticResource colorDps}" />
+                                                    <TextBlock Text="{Binding Path=Dps, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorDps}" />
+                                                    <TextBlock Text=")" Foreground="{StaticResource colorDps}" />
+                                                    <TextBlock Text="TOTAL(" Margin="8,0,0,0" Foreground="{StaticResource colorTotal}" />
+                                                    <TextBlock Text="{Binding Path=TotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorTotal}" />
+                                                    <TextBlock Text=")" Foreground="{StaticResource colorTotal}"/>
+                                                    <TextBlock Text="MAX(" Margin="8,0,0,0" Foreground="{StaticResource colorMax}" />
+                                                    <TextBlock Text="{Binding Path=MaxMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorMax}" />
+                                                    <TextBlock Text=")" Foreground="{StaticResource colorMax}" />
                                                 </StackPanel>
                                             </TreeViewItem.Header>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="DPS=" />
-                                                <TextBlock Text="{Binding Path=Dps}" />
-
-                                                <TextBlock Text="MaxMagnitude=" Margin="10,0,0,0" />
-                                                <TextBlock Text="{Binding Path=MaxMagnitude}" />
-
-                                                <TextBlock Text="MaxMagnitudeBase=" Margin="10,0,0,0" />
-                                                <TextBlock Text="{Binding Path=MaxMagnitudeBase}" />
-                                            </StackPanel>
                                             <DataGrid ItemsSource="{Binding Path=CombatEvents}" AutoGenerateColumns="False"
                                                       CanUserReorderColumns="True" CanUserSortColumns="True"
                                                       CanUserResizeColumns="True">
@@ -225,7 +245,21 @@
                                     </HierarchicalDataTemplate>
                                 </TreeViewItem.ItemTemplate>
                             </TreeViewItem>
-                            <TreeViewItem Name="uiTreeviewItemPetTypes" Header="Events by: Entity Pets" ItemsSource="{Binding Path=SelectedEntityPetCombatEventTypeList}">
+                            <TreeViewItem Name="uiTreeviewItemPetTypes" ItemsSource="{Binding Path=SelectedEntityPetCombatEventTypeList}">
+                                <TreeViewItem.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock>Events by: Entity Pets</TextBlock>
+                                        <!--<TextBlock Text="DPS(" Margin="8,0,0,0" Foreground="{StaticResource colorDps}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombatEntityDps}" Foreground="{StaticResource colorDps}" />-->
+                                        <!--<TextBlock Text=")" Foreground="{StaticResource colorDps}" />-->
+                                        <TextBlock Text="TOTAL(" Margin="8,0,0,0" Foreground="{StaticResource colorTotal}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombatEntityPetEventTypeTotalDamage, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorTotal}" />
+                                        <TextBlock Text=")" Foreground="{StaticResource colorTotal}"/>
+                                        <TextBlock Text="MAX(" Margin="8,0,0,0" Foreground="{StaticResource colorMax}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombatEntityPetEventTypeMaxDamage, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorMax}" />
+                                        <TextBlock Text=")" Foreground="{StaticResource colorMax}" />
+                                    </StackPanel>
+                                </TreeViewItem.Header>
                                 <TreeViewItem.ItemTemplate>
                                     <HierarchicalDataTemplate>
                                         <TreeViewItem Header="{Binding Path=SourceDisplay}" ItemsSource="{Binding Path=CombatEventTypes}">
@@ -236,7 +270,7 @@
                                                             <TextBlock Text="DPS=" />
                                                             <TextBlock Text="{Binding Path=Dps}" />
 
-                                                            <TextBlock Text="MaxMagnitude=" Margin="10,0,0,0" />
+                                                            <TextBlock Text="EntityMaxMagnitude=" Margin="10,0,0,0" />
                                                             <TextBlock Text="{Binding Path=MaxMagnitude}" />
 
                                                             <TextBlock Text="MaxMagnitudeBase=" Margin="10,0,0,0" />
@@ -284,35 +318,35 @@
                                 <ContextMenu>
                                     <StackPanel Orientation="Vertical">
                                         <TextBlock Text="Select Columns:"></TextBlock>
-                                        <CheckBox Content="Filename" IsChecked="{Binding Path=FilenameVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="Filename" IsChecked="{Binding Path=MainCombatEventGridContext.FilenameVisible, Mode=TwoWay}" 
                                                   Tag="Filename" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="LineNumber" IsChecked="{Binding Path=LineNumberVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="LineNumber" IsChecked="{Binding Path=MainCombatEventGridContext.LineNumberVisible, Mode=TwoWay}" 
                                                   Tag="LineNumber" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="Timestamp" IsChecked="{Binding Path=TimestampVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="Timestamp" IsChecked="{Binding Path=MainCombatEventGridContext.TimestampVisible, Mode=TwoWay}" 
                                                   Tag="Timestamp" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="OwnerDisplay" IsChecked="{Binding Path=OwnerDisplayVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="OwnerDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.OwnerDisplayVisible, Mode=TwoWay}" 
                                                   Tag="OwnerDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="OwnerInternal" IsChecked="{Binding Path=OwnerInternalVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="OwnerInternal" IsChecked="{Binding Path=MainCombatEventGridContext.OwnerInternalVisible, Mode=TwoWay}" 
                                                   Tag="OwnerInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="SourceDisplay" IsChecked="{Binding Path=SourceDisplayVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="SourceDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.SourceDisplayVisible, Mode=TwoWay}" 
                                                   Tag="SourceDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="SourceInternal" IsChecked="{Binding Path=SourceInternalVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="SourceInternal" IsChecked="{Binding Path=MainCombatEventGridContext.SourceInternalVisible, Mode=TwoWay}" 
                                                   Tag="SourceInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="TargetDisplay" IsChecked="{Binding Path=TargetDisplayVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="TargetDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.TargetDisplayVisible, Mode=TwoWay}" 
                                                   Tag="TargetDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="TargetInternal" IsChecked="{Binding Path=TargetInternalVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="TargetInternal" IsChecked="{Binding Path=MainCombatEventGridContext.TargetInternalVisible, Mode=TwoWay}" 
                                                   Tag="TargetInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="EventDisplay" IsChecked="{Binding Path=EventDisplayVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="EventDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.EventDisplayVisible, Mode=TwoWay}" 
                                                   Tag="EventDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="EventInternal" IsChecked="{Binding Path=EventInternalVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="EventInternal" IsChecked="{Binding Path=MainCombatEventGridContext.EventInternalVisible, Mode=TwoWay}" 
                                                   Tag="EventInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="Type" IsChecked="{Binding Path=TypeVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="Type" IsChecked="{Binding Path=MainCombatEventGridContext.TypeVisible, Mode=TwoWay}" 
                                                   Tag="Type" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="Flags" IsChecked="{Binding Path=FlagsVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="Flags" IsChecked="{Binding Path=MainCombatEventGridContext.FlagsVisible, Mode=TwoWay}" 
                                                   Tag="Flags" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="Magnitude" IsChecked="{Binding Path=MagnitudeVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="Magnitude" IsChecked="{Binding Path=MainCombatEventGridContext.MagnitudeVisible, Mode=TwoWay}" 
                                                   Tag="Magnitude" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="MagnitudeBase" IsChecked="{Binding Path=MagnitudeBaseVisible, Mode=TwoWay}" 
+                                        <CheckBox Content="MagnitudeBase" IsChecked="{Binding Path=MainCombatEventGridContext.MagnitudeBaseVisible, Mode=TwoWay}" 
                                                   Tag="MagnitudeBase" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
                                     </StackPanel>
                                 </ContextMenu>
@@ -358,8 +392,8 @@
 
                     <Grid Grid.Row="2" Grid.Column="0" ColumnSpan="3">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="60*" />
-                            <ColumnDefinition Width="40*" />
+                            <ColumnDefinition Width="50*" />
+                            <ColumnDefinition Width="50*" />
                         </Grid.ColumnDefinitions>
                         <GroupBox Name="uiGridBoxEntity" Grid.Column="0" Margin="0,8,0,0">
                             <GroupBox.Header>
@@ -367,12 +401,12 @@
                                     <TextBlock Text="Selected Entity:" />
                                     <TextBlock Name="uiTextBlockSelectedEntityPlotType" Text="Magnitude Plot" Margin="8,0,0,0"/>
                                     <CheckBox x:Name="uiCheckboxPlotDisplayMagnitude" Content="abs(Magnitude)k" Margin="8,0,0,0" 
-                                              IsChecked="{Binding Path=IsDisplayPlotMagnitude, Mode=TwoWay}"
+                                              IsChecked="{Binding Path=MainCombatEventGridContext.IsDisplayPlotMagnitude, Mode=TwoWay}"
                                               Tag="PlotDisplayMagnitude"
                                               Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
                                               Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
                                     <CheckBox x:Name="uiCheckboxPlotDisplayMagnitudeBase" Content="abs(MagnitudeBase)k" Margin="8,0,0,0"
-                                              IsChecked="{Binding Path=IsDisplayPlotMagnitudeBase, Mode=TwoWay}"
+                                              IsChecked="{Binding Path=MainCombatEventGridContext.IsDisplayPlotMagnitudeBase, Mode=TwoWay}"
                                               Tag="PlotDisplayMagnitudeBase"
                                               Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
                                               Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
@@ -388,6 +422,9 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Selected Entity: Events Breakdown"></TextBlock>
                                     <CheckBox Name="uiCheckBoxDisplayLegendOnPieChart" IsChecked="True" Content="Legend" Margin="8,0,0,0"
+                                              Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
+                                              Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
+                                    <CheckBox Name="uiCheckBoxDisplayPetsOnlyOnPieChart" IsChecked="False" Content="Pets Only" Margin="8,0,0,0"
                                               Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
                                               Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
                                 </StackPanel>
