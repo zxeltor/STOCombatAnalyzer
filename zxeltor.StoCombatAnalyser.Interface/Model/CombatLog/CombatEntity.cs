@@ -26,7 +26,11 @@ public class CombatEntity : INotifyPropertyChanged
         this.OwnerInternal = combatEvent.OwnerInternal;
         this.OwnerDisplay = combatEvent.OwnerDisplay;
 
-        this.AddCombatEvent(combatEvent);
+        this.IsPlayer = !string.IsNullOrWhiteSpace(this.OwnerInternal) &&
+                        (this.OwnerInternal.StartsWith("P[") ? true : false);
+
+        //this.AddCombatEvent(combatEvent);
+        this.CombatEventList.Add(combatEvent);
     }
 
     /// <summary>
@@ -36,7 +40,7 @@ public class CombatEntity : INotifyPropertyChanged
     {
         get
         {
-            var myEvents = this.CombatEventList.Where(ev => ev.SourceInternal.Equals("*"))
+            var myEvents = this.CombatEventList.Where(ev => !ev.IsPetEvent)
                 .GroupBy(ev => new
                     { EventId = ev.EventInternal, EventLabel = ev.EventDisplay, SourceLabel = ev.SourceDisplay })
                 .OrderBy(evg => evg.Key.EventLabel)
@@ -54,7 +58,7 @@ public class CombatEntity : INotifyPropertyChanged
     {
         get
         {
-            var myEvents = this.CombatEventList.Where(ev => !ev.SourceInternal.Equals("*"))
+            var myEvents = this.CombatEventList.Where(ev => ev.IsPetEvent)
                 .GroupBy(ev => new
                     { EventId = ev.EventInternal, EventLabel = ev.EventDisplay, SourceLabel = ev.SourceDisplay })
                 .OrderBy(evg => evg.Key.EventLabel)
@@ -68,78 +72,81 @@ public class CombatEntity : INotifyPropertyChanged
         }
     }
 
-    /// <summary>
-    ///     A string representation of <see cref="EntityStart" /> which includes milliseconds.
-    /// </summary>
-    public string EntityStartTimeString => $"{this.EntityStart:hh:mm:ss.fff tt}";
+    ///// <summary>
+    /////     A string representation of <see cref="EntityCombatStart" /> which includes milliseconds.
+    ///// </summary>
+    //public string EntityStartTimeString => $"{this.EntityCombatStart:hh:mm:ss.fff tt}";
 
-    /// <summary>
-    ///     A string representation of <see cref="EntityEnd" /> which includes milliseconds.
-    /// </summary>
-    public string EntityEndTimeString => $"{this.EntityEnd:hh:mm:ss.fff tt}";
+    ///// <summary>
+    /////     A string representation of <see cref="EntityCombatEnd" /> which includes milliseconds.
+    ///// </summary>
+    //public string EntityEndTimeString => $"{this.EntityCombatEnd:hh:mm:ss.fff tt}";
 
     /// <summary>
     ///     Used to establish the start time for this combat entity.
     ///     <para>The first timestamp from our <see cref="CombatEvent" /> collections, based on an ordered list.</para>
     /// </summary>
-    public DateTime EntityStart =>
+    public DateTime EntityCombatStart =>
         this.CombatEventList.Count == 0 ? DateTime.MinValue : this.CombatEventList.First().Timestamp;
 
     /// <summary>
     ///     Used to establish the end time for this combat entity.
     ///     <para>The last timestamp from our <see cref="CombatEvent" /> collections, based on ann ordered list.</para>
     /// </summary>
-    public DateTime EntityEnd =>
+    public DateTime EntityCombatEnd =>
         this.CombatEventList.Count == 0 ? DateTime.MinValue : this.CombatEventList.Last().Timestamp;
 
     /// <summary>
-    ///     A humanized string base on combat duration. (<see cref="EntityEnd" /> - <see cref="EntityStart" />)
+    ///     A humanized string base on combat duration. (<see cref="EntityCombatEnd" /> - <see cref="EntityCombatStart" />)
     /// </summary>
-    public string Duration => (this.EntityEnd - this.EntityStart).Humanize(3, maxUnit: TimeUnit.Minute);
+    public string EntityCombatDuration =>
+        (this.EntityCombatEnd - this.EntityCombatStart).Humanize(3, maxUnit: TimeUnit.Minute);
 
     /// <summary>
     ///     Get a number of kills for this entity.
     /// </summary>
-    public int Kills =>
+    public int EntityCombatKills =>
         this.CombatEventList.Count(dam => dam.Flags.Contains("kill", StringComparison.CurrentCultureIgnoreCase));
 
     /// <summary>
-    ///     A rudimentary calculation for this entities DPS, and probably incorrect.
+    ///     A rudimentary calculation for these entities EntityMagnitudePerSecond, and probably incorrect.
     /// </summary>
-    public string DPS => this.CombatEventList.Count == 0
-        ? "0"
+    public double EntityMagnitudePerSecond => this.CombatEventList.Count == 0
+        ? 0
         : (this.CombatEventList.Sum(dam => Math.Abs(dam.Magnitude)) /
-           ((this.CombatEventList.Max(ev => ev.Timestamp) - this.CombatEventList.Min(ev => ev.Timestamp)).TotalSeconds +
-            .001)).ToMetric(null, 3);
+           ((this.CombatEventList.Max(ev => ev.Timestamp) - this.CombatEventList.Min(ev => ev.Timestamp)).TotalSeconds + .001));
 
     /// <summary>
     ///     A rudimentary calculation for max damage for this entity, and probably incorrect.
     /// </summary>
-    public string MaxDamage => this.CombatEventList.Count == 0
-        ? "0"
-        : this.CombatEventList.Max(dam => Math.Abs(dam.Magnitude)).ToMetric(null, 3);
+    public double EntityMaxMagnitude => this.CombatEventList.Count == 0
+        ? 0
+        : this.CombatEventList.Max(dam => Math.Abs(dam.Magnitude));
+
+    public double EntityTotalMagnitude => this.CombatEventList.Count == 0
+        ? 0
+        : this.CombatEventList.Sum(dam => Math.Abs(dam.Magnitude));
 
     /// <summary>
     ///     The ID for our entity
     /// </summary>
-    public string OwnerInternal { get; set; }
+    public string OwnerInternal { get; }
 
     /// <summary>
     ///     A label for our entity
     /// </summary>
-    public string OwnerDisplay { get; set; }
+    public string OwnerDisplay { get; }
 
 
     /// <summary>
     ///     If true this entity is a Player. If false the entity is a Non-Player.
     /// </summary>
-    public bool IsPlayer =>
-        !string.IsNullOrWhiteSpace(this.OwnerInternal) && (this.OwnerInternal.StartsWith("P[") ? true : false);
+    public bool IsPlayer { get; }
 
     /// <summary>
     ///     A list of combat events for this entity.
     /// </summary>
-    public ObservableCollection<CombatEvent> CombatEventList { get; set; } = new();
+    public ObservableCollection<CombatEvent> CombatEventList { get; } = new();
 
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
@@ -164,19 +171,19 @@ public class CombatEntity : INotifyPropertyChanged
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
-    /// <summary>
-    ///     Add a combat event to this entity.
-    /// </summary>
-    /// <param name="combatEvent">The combat event.</param>
-    public void AddCombatEvent(CombatEvent combatEvent)
-    {
-        this.CombatEventList.Add(combatEvent);
-    }
+    ///// <summary>
+    /////     Add a combat event to this entity.
+    ///// </summary>
+    ///// <param name="combatEvent">The combat event.</param>
+    //public void AddCombatEvent(CombatEvent combatEvent)
+    //{
+    //    this.CombatEventList.Add(combatEvent);
+    //}
 
     /// <inheritdoc />
     public override string ToString()
     {
         return
-            $"Owner={this.OwnerDisplay}, Player={this.IsPlayer}, Kills={this.Kills}, Duration={(this.EntityEnd - this.EntityStart).Humanize()}, Start={this.EntityStart}, End={this.EntityEnd}";
+            $"Owner={this.OwnerDisplay}, Player={this.IsPlayer}, EntityCombatKills={this.EntityCombatKills}, EntityCombatDuration={(this.EntityCombatEnd - this.EntityCombatStart).Humanize()}, Start={this.EntityCombatStart}, End={this.EntityCombatEnd}";
     }
 }

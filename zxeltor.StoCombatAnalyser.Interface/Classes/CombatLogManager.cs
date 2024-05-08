@@ -26,178 +26,30 @@ public class CombatLogManager : INotifyPropertyChanged
     /// </summary>
     public delegate void StatusChangeEventHandler(object sender, CombatManagerStatusEventArgs e);
 
-    private static readonly ILog _log = LogManager.GetLogger(typeof(CombatLogManager));
-    private bool _eventDisplay = true;
-    private bool _eventInternal;
-    private bool _filenameEnabled;
-    private bool _flags = true;
+    private static readonly ILog Log = LogManager.GetLogger(typeof(CombatLogManager));
 
-    private bool _isPlotDisplayMagnitude = true;
-    private bool _isPlotDisplayMagnitudeBase;
-    private bool _lineNumber;
-    private bool _magnitude = true;
-    private bool _magnitudeBase = true;
-    private bool _ownerDisplay;
-    private bool _ownerInternal;
-    private bool _sourceDisplay;
-    private bool _sourceInternal;
-    private bool _targetDisplay = true;
-    private bool _targetInternal;
-    private bool _timestamp = true;
-    private bool _type = true;
+    //private bool _isPlotDisplayMagnitude = true;
+    //private bool _isPlotDisplayMagnitudeBase;
 
-    /// <summary>
-    ///     Set the FileName column as visible in the main data grid.
-    /// </summary>
-    public bool FilenameVisible
-    {
-        get => this._filenameEnabled;
-        set => this.SetField(ref this._filenameEnabled, value);
-    }
+    public CombatEventGridContext MainCombatEventGridContext { get; } = new();
 
-    /// <summary>
-    ///     Set the LineNumber column as visible in the main data grid.
-    /// </summary>
-    public bool LineNumberVisible
-    {
-        get => this._lineNumber;
-        set => this.SetField(ref this._lineNumber, value);
-    }
+    ///// <summary>
+    /////     Display Magnitude in the main Plot control
+    ///// </summary>
+    //public bool IsDisplayPlotMagnitude
+    //{
+    //    get => this._isPlotDisplayMagnitude;
+    //    set => this.SetField(ref this._isPlotDisplayMagnitude, value);
+    //}
 
-    /// <summary>
-    ///     Set the Timestamp column as visible in the main data grid.
-    /// </summary>
-    public bool TimestampVisible
-    {
-        get => this._timestamp;
-        set => this.SetField(ref this._timestamp, value);
-    }
-
-    /// <summary>
-    ///     Set the OwnerDisplay column as visible in the main data grid.
-    /// </summary>
-    public bool OwnerDisplayVisible
-    {
-        get => this._ownerDisplay;
-        set => this.SetField(ref this._ownerDisplay, value);
-    }
-
-    /// <summary>
-    ///     Set the OwnerInternal column as visible in the main data grid.
-    /// </summary>
-    public bool OwnerInternalVisible
-    {
-        get => this._ownerInternal;
-        set => this.SetField(ref this._ownerInternal, value);
-    }
-
-    /// <summary>
-    ///     Set the SourceDisplay column as visible in the main data grid.
-    /// </summary>
-    public bool SourceDisplayVisible
-    {
-        get => this._sourceDisplay;
-        set => this.SetField(ref this._sourceDisplay, value);
-    }
-
-    /// <summary>
-    ///     Set the SourceInternal column as visible in the main data grid.
-    /// </summary>
-    public bool SourceInternalVisible
-    {
-        get => this._sourceInternal;
-        set => this.SetField(ref this._sourceInternal, value);
-    }
-
-    /// <summary>
-    ///     Set the TargetDisplay column as visible in the main data grid.
-    /// </summary>
-    public bool TargetDisplayVisible
-    {
-        get => this._targetDisplay;
-        set => this.SetField(ref this._targetDisplay, value);
-    }
-
-    /// <summary>
-    ///     Set the TargetInternal column as visible in the main data grid.
-    /// </summary>
-    public bool TargetInternalVisible
-    {
-        get => this._targetInternal;
-        set => this.SetField(ref this._targetInternal, value);
-    }
-
-    /// <summary>
-    ///     Set the EventDisplay column as visible in the main data grid.
-    /// </summary>
-    public bool EventDisplayVisible
-    {
-        get => this._eventDisplay;
-        set => this.SetField(ref this._eventDisplay, value);
-    }
-
-    /// <summary>
-    ///     Set the EventInternal column as visible in the main data grid.
-    /// </summary>
-    public bool EventInternalVisible
-    {
-        get => this._eventInternal;
-        set => this.SetField(ref this._eventInternal, value);
-    }
-
-    /// <summary>
-    ///     Set the Type column as visible in the main data grid.
-    /// </summary>
-    public bool TypeVisible
-    {
-        get => this._type;
-        set => this.SetField(ref this._type, value);
-    }
-
-    /// <summary>
-    ///     Set the Flags column as visible in the main data grid.
-    /// </summary>
-    public bool FlagsVisible
-    {
-        get => this._flags;
-        set => this.SetField(ref this._flags, value);
-    }
-
-    /// <summary>
-    ///     Set the Magnitude column as visible in the main data grid.
-    /// </summary>
-    public bool MagnitudeVisible
-    {
-        get => this._magnitude;
-        set => this.SetField(ref this._magnitude, value);
-    }
-
-    /// <summary>
-    ///     Set the MagnitudeBase column as visible in the main data grid.
-    /// </summary>
-    public bool MagnitudeBaseVisible
-    {
-        get => this._magnitudeBase;
-        set => this.SetField(ref this._magnitudeBase, value);
-    }
-
-    /// <summary>
-    ///     Display Magnitude in the main Plot control
-    /// </summary>
-    public bool IsDisplayPlotMagnitude
-    {
-        get => this._isPlotDisplayMagnitude;
-        set => this.SetField(ref this._isPlotDisplayMagnitude, value);
-    }
-
-    /// <summary>
-    ///     Display BaseMagnitude in the main Plot control
-    /// </summary>
-    public bool IsDisplayPlotMagnitudeBase
-    {
-        get => this._isPlotDisplayMagnitudeBase;
-        set => this.SetField(ref this._isPlotDisplayMagnitudeBase, value);
-    }
+    ///// <summary>
+    /////     Display BaseMagnitude in the main Plot control
+    ///// </summary>
+    //public bool IsDisplayPlotMagnitudeBase
+    //{
+    //    get => this._isPlotDisplayMagnitudeBase;
+    //    set => this.SetField(ref this._isPlotDisplayMagnitudeBase, value);
+    //}
 
     /// <summary>
     ///     The currently selected Combat instance from <see cref="Combats" />
@@ -210,12 +62,76 @@ public class CombatLogManager : INotifyPropertyChanged
     public CombatEntity? SelectedCombatEntity { get; set; }
 
     /// <summary>
+    ///     Total damage for the selected event type
+    /// </summary>
+    public double? SelectedCombatEntityEventTypeTotalDamage
+    {
+        get
+        {
+            var selectedCombatEntity = this.SelectedCombatEntity;
+            return selectedCombatEntity is { CombatEventTypeListForEntity.Count: 0 }
+                ? 0
+                : this.SelectedCombatEntity?.CombatEventTypeListForEntity.Sum(ev => ev.TotalMagnitude);
+        }
+    }
+
+    /// <summary>
+    ///     Max damage for the selected event type
+    /// </summary>
+    public double? SelectedCombatEntityEventTypeMaxDamage
+    {
+        get
+        {
+            var selectedCombatEntity = this.SelectedCombatEntity;
+            return selectedCombatEntity is { CombatEventTypeListForEntity.Count: 0 }
+                ? 0
+                : this.SelectedCombatEntity?.CombatEventTypeListForEntity.Max(ev => ev.MaxMagnitude);
+        }
+    }
+
+    /// <summary>
+    ///     Total damage for the selected pet event type
+    /// </summary>
+    public double? SelectedCombatEntityPetEventTypeTotalDamage
+    {
+        get
+        {
+            var selectedCombatEntity = this.SelectedCombatEntity;
+            return selectedCombatEntity is { CombatEventTypeListForEntityPets.Count: 0 }
+                ? 0
+                : this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Sum(ev =>
+                    ev.CombatEventTypes.Sum(evt => evt.TotalMagnitude));
+        }
+    }
+
+    /// <summary>
+    ///     Max damage for the selected pet event type
+    /// </summary>
+    public double? SelectedCombatEntityPetEventTypeMaxDamage
+    {
+        get
+        {
+            var selectedCombatEntity = this.SelectedCombatEntity;
+            return selectedCombatEntity is { CombatEventTypeListForEntityPets.Count: 0 }
+                ? 0
+                : this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Max(ev =>
+                    ev.CombatEventTypes.Max(evt => evt.MaxMagnitude));
+        }
+    }
+
+    /// <summary>
     ///     A list of <see cref="CombatEvent" /> for <see cref="SelectedCombat" />
     /// </summary>
     public ObservableCollection<CombatEvent>? SelectedEntityCombatEventList { get; set; } = new();
 
+    /// <summary>
+    ///     A list of <see cref="CombatEventType" /> for the Selected CombatEntity
+    /// </summary>
     public ObservableCollection<CombatEventType>? SelectedEntityCombatEventTypeList { get; set; } = new();
 
+    /// <summary>
+    ///     A list of Pet <see cref="CombatEventType" /> for the Selected CombatEntity
+    /// </summary>
     public ObservableCollection<CombatPetEventType>? SelectedEntityPetCombatEventTypeList { get; set; } = new();
 
     /// <summary>
@@ -225,28 +141,26 @@ public class CombatLogManager : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    ///// <summary>
-    /////     Purge the sto combat logs folder.
-    /////     <para>Note: If there's only one log found, it won't be purged.</para>
-    ///// </summary>
-
     /// <summary>
     ///     Purge the sto combat logs folder.
     ///     <para>Note: If there's only one log found, it won't be purged.</para>
     /// </summary>
     /// <param name="filesPurged">A list of files purged.</param>
+    /// <param name="errorResponse">An error to report back to the UI.</param>
     /// <returns>True if successful. False otherwise</returns>
     public static bool TryPurgeCombatLogFolder(out List<string> filesPurged, out string errorResponse)
     {
-        filesPurged = new List<string>();
+        filesPurged = [];
         errorResponse = string.Empty;
 
         try
         {
             if (!Directory.Exists(Settings.Default.CombatLogPath))
             {
-                errorResponse = "Can't purge the combat logs. The folder doesn't exist. Check CombatLogPath in settings.";
-                _log.Error($"Can't purge the combat logs. The folder doesn't exist. \"{Settings.Default.CombatLogPath}\"");
+                errorResponse =
+                    "Can't purge the combat logs. The folder doesn't exist. Check CombatLogPath in settings.";
+                Log.Error(
+                    $"Can't purge the combat logs. The folder doesn't exist. \"{Settings.Default.CombatLogPath}\"");
                 return false;
             }
 
@@ -262,12 +176,11 @@ public class CombatLogManager : INotifyPropertyChanged
             {
                 if (fileInfo.IsReadOnly) return;
 
-                if (DateTime.Now - fileInfo.LastWriteTime >
-                    TimeSpan.FromDays(Settings.Default.HowLongToKeepLogs))
-                {
-                    File.Delete(fileInfo.FullName);
-                    tmpFilesPurged.Add(fileInfo.Name);
-                }
+                if (DateTime.Now - fileInfo.LastWriteTime <=
+                    TimeSpan.FromDays(Settings.Default.HowLongToKeepLogs)) return;
+
+                File.Delete(fileInfo.FullName);
+                tmpFilesPurged.Add(fileInfo.Name);
             });
 
             filesPurged.AddRange(tmpFilesPurged);
@@ -277,7 +190,7 @@ public class CombatLogManager : INotifyPropertyChanged
         catch (Exception e)
         {
             errorResponse = $"Can't purge the combat logs. Reason={e.Message}";
-            _log.Error("Failed to purge combat logs folder.", e);
+            Log.Error("Failed to purge combat logs folder.", e);
         }
 
         return false;
@@ -327,9 +240,14 @@ public class CombatLogManager : INotifyPropertyChanged
                         $"The selected log folder doesn't exist: {combatLogPath}. Go to settings and set CombatLogPath to a valid folder.",
                         isError: true);
 
-                    MessageBox.Show(Application.Current.MainWindow,
-                        $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set CombatLogPath to a valid folder.",
-                        "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (Application.Current.MainWindow != null)
+                        MessageBox.Show(Application.Current.MainWindow,
+                            $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set CombatLogPath to a valid folder.",
+                            "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    else
+                        MessageBox.Show(
+                            $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set CombatLogPath to a valid folder.",
+                            "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
                     return;
                 }
@@ -344,15 +262,18 @@ public class CombatLogManager : INotifyPropertyChanged
                     $"Failed to get log files using pattern=\"{combatLogPath}\" and path=\"{combatLogFilePattern}\"";
                 this.AddToLogAndLogSummaryInUi(errorMessageString, ex, true);
 
-                MessageBox.Show(Application.Current.MainWindow,
-                    errorMessageString, "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (Application.Current.MainWindow != null)
+                    MessageBox.Show(Application.Current.MainWindow,
+                        errorMessageString, "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                else
+                    MessageBox.Show(errorMessageString, "Folder Select Error", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
 
                 return;
             }
         }
 
         // Loop through each log file found in our log folder.
-        var fileLineCounter = 0;
         filesToParse.ForEach(fileEntry =>
         {
             try
@@ -362,7 +283,7 @@ public class CombatLogManager : INotifyPropertyChanged
                     this.AddToLogAndLogSummaryInUi($"Parsing log: {Path.GetFileName(fileEntry)}");
 
                     fileParsedResults.Add(fileEntry, new FileParseResults(fileEntry));
-                    fileLineCounter = 0;
+                    var fileLineCounter = 0;
 
                     while (sr.ReadLine() is { } fileLine)
                     {
@@ -405,8 +326,12 @@ public class CombatLogManager : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            MessageBox.Show(Application.Current.MainWindow, "Failed to parse combat logs.", "Error",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            if (Application.Current.MainWindow != null)
+                MessageBox.Show(Application.Current.MainWindow, "Failed to parse combat logs.", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            else
+                MessageBox.Show("Failed to parse combat logs.", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
 
             this.AddToLogAndLogSummaryInUi("Failed to parse log file(s).", ex, true);
         }
@@ -437,6 +362,10 @@ public class CombatLogManager : INotifyPropertyChanged
         }
 
         this.OnPropertyChanged(nameof(this.SelectedCombatEntity));
+        this.OnPropertyChanged(nameof(this.SelectedCombatEntityEventTypeTotalDamage));
+        this.OnPropertyChanged(nameof(this.SelectedCombatEntityEventTypeMaxDamage));
+        this.OnPropertyChanged(nameof(this.SelectedCombatEntityPetEventTypeTotalDamage));
+        this.OnPropertyChanged(nameof(this.SelectedCombatEntityPetEventTypeMaxDamage));
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventList));
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeList));
         this.OnPropertyChanged(nameof(this.SelectedEntityPetCombatEventTypeList));
@@ -458,9 +387,9 @@ public class CombatLogManager : INotifyPropertyChanged
         this.StatusChange?.Invoke(this, new CombatManagerStatusEventArgs(message, isError));
 
         if (isError)
-            _log.Error(message, exception);
+            Log.Error(message, exception);
         else
-            _log.Info(message, exception);
+            Log.Info(message, exception);
     }
 
     /// <summary>

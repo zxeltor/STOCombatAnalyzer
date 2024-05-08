@@ -33,7 +33,8 @@ public class Combat : INotifyPropertyChanged
     /// <summary>
     ///     A total number of events for Player and NonPlayer entities.
     /// </summary>
-    public int EventsCount => this.PlayerEntities.Sum(en => en.CombatEventList.Count) + this.NonPlayerEntities.Sum(en => en.CombatEventList.Count);
+    public int EventsCount => this.PlayerEntities.Sum(en => en.CombatEventList.Count) +
+                              this.NonPlayerEntities.Sum(en => en.CombatEventList.Count);
 
     /// <summary>
     ///     Used to establish the start time for this combat instance.
@@ -46,9 +47,9 @@ public class Combat : INotifyPropertyChanged
             var results = new List<DateTime>(2);
 
             if (this.PlayerEntities.Count > 0)
-                results.Add(this.PlayerEntities.Min(entity => entity.EntityStart));
+                results.Add(this.PlayerEntities.Min(entity => entity.EntityCombatStart));
             if (this.NonPlayerEntities.Count > 0)
-                results.Add(this.NonPlayerEntities.Min(entity => entity.EntityStart));
+                results.Add(this.NonPlayerEntities.Min(entity => entity.EntityCombatStart));
 
             return results.Any() ? results.Min() : DateTime.MinValue;
         }
@@ -65,9 +66,9 @@ public class Combat : INotifyPropertyChanged
             var results = new List<DateTime>(2);
 
             if (this.PlayerEntities.Count > 0)
-                results.Add(this.PlayerEntities.Max(entity => entity.EntityEnd));
+                results.Add(this.PlayerEntities.Max(entity => entity.EntityCombatEnd));
             if (this.NonPlayerEntities.Count > 0)
-                results.Add(this.NonPlayerEntities.Max(entity => entity.EntityEnd));
+                results.Add(this.NonPlayerEntities.Max(entity => entity.EntityCombatEnd));
 
             return results.Any() ? results.Max() : DateTime.MaxValue;
         }
@@ -76,7 +77,7 @@ public class Combat : INotifyPropertyChanged
     /// <summary>
     ///     A humanized string base on combat duration. (<see cref="CombatEnd" /> - <see cref="CombatStart" />)
     /// </summary>
-    public string Duration => (this.CombatEnd - this.CombatStart).Humanize(3, maxUnit: TimeUnit.Minute);
+    public string CombatDuration => (this.CombatEnd - this.CombatStart).Humanize(3, maxUnit: TimeUnit.Minute);
 
     /// <summary>
     ///     A list of player <see cref="CombatEntity" /> objects.
@@ -106,7 +107,7 @@ public class Combat : INotifyPropertyChanged
     {
         this.OnPropertyChanged(nameof(this.CombatStart));
         this.OnPropertyChanged(nameof(this.CombatEnd));
-        this.OnPropertyChanged(nameof(this.Duration));
+        this.OnPropertyChanged(nameof(this.CombatDuration));
         this.OnPropertyChanged(nameof(this.PlayerEntities));
         this.OnPropertyChanged(nameof(this.NonPlayerEntities));
     }
@@ -129,7 +130,7 @@ public class Combat : INotifyPropertyChanged
             }
             else
             {
-                existingPlayer.AddCombatEvent(combatEvent);
+                existingPlayer.CombatEventList.Add(combatEvent);
             }
         }
         else
@@ -144,7 +145,7 @@ public class Combat : INotifyPropertyChanged
             }
             else
             {
-                existingNonPlayer.AddCombatEvent(combatEvent);
+                existingNonPlayer.CombatEventList.Add(combatEvent);
             }
         }
 
@@ -156,6 +157,6 @@ public class Combat : INotifyPropertyChanged
     public override string ToString()
     {
         return
-            $"Duration={(this.CombatEnd - this.CombatStart).Humanize()}, Start={this.CombatStart}, End={this.CombatEnd}";
+            $"EntityCombatDuration={(this.CombatEnd - this.CombatStart).Humanize()}, Start={this.CombatStart}, End={this.CombatEnd}";
     }
 }

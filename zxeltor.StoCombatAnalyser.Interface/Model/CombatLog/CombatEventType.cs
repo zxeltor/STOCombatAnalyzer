@@ -35,13 +35,15 @@ public class CombatEventType
     public string EventDisplay { get; set; }
     public List<CombatEvent> CombatEvents { get; set; } = new();
 
-    public string Dps => (this.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude)) /
+    public double Dps => (this.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude)) /
                           ((this.CombatEvents.Max(ev => ev.Timestamp) - this.CombatEvents.Min(ev => ev.Timestamp))
-                              .TotalSeconds + .001)).ToMetric(null, 3);
+                              .TotalSeconds + .001));
 
-    public string MaxMagnitude => this.CombatEvents.Max(ev => Math.Abs(ev.Magnitude)).ToMetric(null, 3);
+    public double TotalMagnitude => this.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude));
 
-    public string MaxMagnitudeBase => this.CombatEvents.Max(ev => Math.Abs(ev.MagnitudeBase)).ToMetric(null, 3);
+    public double MaxMagnitude => this.CombatEvents.Max(ev => Math.Abs(ev.Magnitude));
+
+    public double MaxMagnitudeBase => this.CombatEvents.Max(ev => Math.Abs(ev.MagnitudeBase));
 
     /// <inheritdoc />
     public override string ToString()
