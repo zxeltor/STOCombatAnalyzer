@@ -4,6 +4,7 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -228,32 +229,50 @@ public partial class MainWindow : Window
         {
             if (CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitude: true })
             {
-                var plotDataMagnitude = combatEntity.CombatEventList
+                var magnitudeDataList = combatEntity.CombatEventList
                     .OrderBy(ev => ev.Timestamp)
                     .Select(ev => new { Mag = Math.Abs(ev.Magnitude) / 1000, ev.Timestamp }).ToList();
 
                 var plot = this.uiScottPlotEntityScatter.Plot.Add.Scatter(
-                    plotDataMagnitude.Select(pd => pd.Timestamp).ToArray(),
-                    plotDataMagnitude.Select(pd => pd.Mag).ToArray());
-
+                    magnitudeDataList.Select(pd => pd.Timestamp).ToArray(),
+                    magnitudeDataList.Select(pd => pd.Mag).ToArray());
+                
                 plot.MarkerSize = 15;
-                plot.Label = "Magnitude";
+                plot.LegendText = "Magnitude";
                 plot.Color = Color.FromHex("ff0000");
+
+                magnitudeDataList.ForEach(mag =>
+                {
+                    var text = this.uiScottPlotEntityScatter.Plot.Add.Text(mag.Mag.ToString(CultureInfo.CurrentCulture), mag.Timestamp.ToOADate(), mag.Mag);
+                    text.LabelFontSize = 18f;
+                    text.OffsetX = 1f;
+                    text.OffsetY = 1f;
+                    text.LabelFontColor = Color.FromHex("ff0000");
+                });
             }
 
             if (CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitudeBase: true })
             {
-                var plotDataMagnitudeBase = combatEntity.CombatEventList
+                var magnitudeBaseDataList = combatEntity.CombatEventList
                     .OrderBy(ev => ev.Timestamp)
                     .Select(ev => new { Mag = Math.Abs(ev.MagnitudeBase) / 1000, ev.Timestamp }).ToList();
 
                 var plot = this.uiScottPlotEntityScatter.Plot.Add.Scatter(
-                    plotDataMagnitudeBase.Select(pd => pd.Timestamp).ToArray(),
-                    plotDataMagnitudeBase.Select(pd => pd.Mag).ToArray());
+                    magnitudeBaseDataList.Select(pd => pd.Timestamp).ToArray(),
+                    magnitudeBaseDataList.Select(pd => pd.Mag).ToArray());
 
                 plot.MarkerSize = 15;
                 plot.Color = Color.FromHex("7e00ff");
-                plot.Label = "MagnitudeBase";
+                plot.LegendText = "MagnitudeBase";
+
+                magnitudeBaseDataList.ForEach(mag =>
+                {
+                    var text = this.uiScottPlotEntityScatter.Plot.Add.Text(mag.Mag.ToString(CultureInfo.CurrentCulture), mag.Timestamp.ToOADate(), mag.Mag);
+                    text.LabelFontSize = 18f;
+                    text.OffsetX = 1f;
+                    text.OffsetY = 1f;
+                    text.LabelFontColor = Color.FromHex("7e00ff");
+                });
             }
         }
 
