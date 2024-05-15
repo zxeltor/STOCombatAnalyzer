@@ -59,10 +59,8 @@
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <TextBlock Text="Name:" />
                         <TextBlock Text="MaxNumberOfCombatsToDisplay" Margin="4,0,10,0"/>
-                        <TextBox Name="uiTextBoxMaxNumberOfCombatsToDisplay" Text="{Binding Path=MaxNumberOfCombatsToDisplay, Mode=OneWay}" 
-                                 Margin="0,0,10,0" MinWidth="100"/>
-                        <!--<Button Name="uiButtonMaxNumberOfCombatsToDisplay" Content="set"
-                                Click="UiButtonMaxNumberOfCombatsToDisplay_OnClick" Width="40"/>-->
+                        <TextBox Name="uiTextBoxMaxNumberOfCombatsToDisplay" Text="{Binding Path=MaxNumberOfCombatsToDisplay, Mode=OneTime}" 
+                                 Margin="0,0,10,0" MinWidth="100" TextChanged="TextBoxBase_OnTextChanged"/>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
                         <TextBlock>Description:</TextBlock>
@@ -79,10 +77,8 @@
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <TextBlock Text="Name:" />
                         <TextBlock Text="HowLongBeforeNewCombat" Margin="4,0,10,0"/>
-                        <TextBox Name="uiTextBoxHowLongBeforeNewCombat" Text="{Binding Path=HowLongBeforeNewCombat, Mode=OneWay}" 
-                                 Margin="0,0,10,0" MinWidth="100" />
-                        <!--<Button Name="uiButtonHowLongBeforeNewCombat" Content="set"
-                                Click="UiButtonHowLongBeforeNewCombat_OnClick" Width="40"/>-->
+                        <TextBox Name="uiTextBoxHowLongBeforeNewCombat" Text="{Binding Path=HowLongBeforeNewCombat, Mode=OneTime}" 
+                                 Margin="0,0,10,0" MinWidth="100" TextChanged="TextBoxBase_OnTextChanged" />
                     </StackPanel>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
                         <TextBlock>Description:</TextBlock>
@@ -123,8 +119,9 @@
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         <TextBlock Text="HowLongToKeepLogs" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <TextBox Name="uiTextBoxHowLongToKeepLogs" Text="{Binding Path=HowLongToKeepLogs, Mode=OneWay}" 
-                                 Margin="0,0,10,0" MinWidth="100" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBox Name="uiTextBoxHowLongToKeepLogs" Text="{Binding Path=HowLongToKeepLogs, Mode=OneTime}" 
+                                 Margin="0,0,10,0" MinWidth="100" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                 TextChanged="TextBoxBase_OnTextChanged"/>
                         <TextBlock Text="days" />
                     </StackPanel>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">

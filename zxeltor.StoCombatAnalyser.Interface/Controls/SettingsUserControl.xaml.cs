@@ -78,12 +78,17 @@ public partial class SettingsUserControl : UserControl
     {
         if (int.TryParse(this.uiTextBoxMaxNumberOfCombatsToDisplay.Text, out var parseResult))
         {
-            if (parseResult < 0) parseResult = 0;
+            if (parseResult < 0)
+            {
+                this.uiTextBoxMaxNumberOfCombatsToDisplay.Text = "0";
+                parseResult = 0;
+            }
 
             this.MyPrivateContext.MaxNumberOfCombatsToDisplay = parseResult;
         }
         else
         {
+            this.uiTextBoxMaxNumberOfCombatsToDisplay.Text = "0";
             this.MyPrivateContext.MaxNumberOfCombatsToDisplay = 0;
         }
     }
@@ -96,12 +101,17 @@ public partial class SettingsUserControl : UserControl
     {
         if (int.TryParse(this.uiTextBoxHowLongToKeepLogs.Text, out var parseResult))
         {
-            if (parseResult < 1) parseResult = 1;
+            if (parseResult < 1)
+            {
+                this.uiTextBoxHowLongToKeepLogs.Text = "1";
+                parseResult = 1;
+            }
 
             this.MyPrivateContext.HowLongToKeepLogs = parseResult;
         }
         else
         {
+            this.uiTextBoxHowLongToKeepLogs.Text = "1";
             this.MyPrivateContext.HowLongToKeepLogs = 1;
         }
     }
@@ -149,12 +159,17 @@ public partial class SettingsUserControl : UserControl
     {
         if (int.TryParse(this.uiTextBoxHowLongBeforeNewCombat.Text, out var parseResult))
         {
-            if (parseResult < 1) parseResult = 1;
+            if (parseResult < 1)
+            {
+                this.uiTextBoxHowLongBeforeNewCombat.Text = "1";
+                parseResult = 1;
+            }
 
             this.MyPrivateContext.HowLongBeforeNewCombat = parseResult;
         }
         else
         {
+            this.uiTextBoxHowLongBeforeNewCombat.Text = "1";
             this.MyPrivateContext.HowLongBeforeNewCombat = 1;
         }
     }
