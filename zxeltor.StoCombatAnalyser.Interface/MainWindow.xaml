@@ -114,10 +114,10 @@
                     <GroupBox Header="Combat Entity List" Margin="0,65,0,0">
                         <TreeView x:Name="uiTreeViewCombatEntityList"
                                   SelectedItemChanged="uiTreeViewCombatEntityList_SelectedItemChanged">
-                            <TreeViewItem Header="Players" ItemsSource="{Binding PlayerEntities}"
+                            <TreeViewItem Header="Players" ItemsSource="{Binding PlayerEntitiesOrderByName}"
                                           ItemTemplate="{StaticResource combatEntityItemTemplate}"
-                                          HorizontalContentAlignment="Stretch" />
-                            <TreeViewItem Header="NonPlayers" ItemsSource="{Binding NonPlayerEntities}"
+                                          HorizontalContentAlignment="Stretch" IsExpanded="True" />
+                            <TreeViewItem Header="NonPlayers" ItemsSource="{Binding NonPlayerEntitiesOrderByName}"
                                           ItemTemplate="{StaticResource combatEntityItemTemplate}"
                                           HorizontalContentAlignment="Stretch" />
                         </TreeView>
@@ -134,7 +134,7 @@
                         <RowDefinition Height="60*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="400"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
                         <ColumnDefinition Width="50*"></ColumnDefinition>
                         <ColumnDefinition Width="50*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
@@ -173,31 +173,35 @@
                         </ComboBox>
                     </StackPanel>
 
-                    <GridSplitter Grid.Row="1" Grid.Column="0" Background="Gray" Margin="0,8,-6,4" Width="2"
-                                  Padding="4,0,4,0"
+                    <GridSplitter Grid.Row="1" Grid.Column="0" Background="Gray" 
+                                  Width="2"
+                                  Margin="0,12,0,4" 
+                                  Padding="0,0,0,0"
                                   HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
 
                     <GroupBox Grid.Row="1" Grid.Column="0" x:Name="uiGroupBoxSelectedCombatDetails" Header="Selected Combat Details"
-                              Padding="4,0,4,4">
+                              Margin="4,4,4,4" Padding="4,4,4,4">
                         <Grid>
                             <ContentControl Content="{Binding Combats}"
                                             ContentTemplate="{StaticResource selectedCombatDetailsTemplate}" />
                         </Grid>
                     </GroupBox>
 
-                    <GridSplitter Grid.Row="1" Grid.Column="1" Background="Gray" Margin="0,8,-4,4" Width="2"
-                                  Padding="4,0,4,0"
+                    <GridSplitter Grid.Row="1" Grid.Column="1" Background="Gray" 
+                                  Width="2"
+                                  Margin="0,12,0,4" 
+                                  Padding="0,0,0,0"
                                   HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
 
-                    <GroupBox Grid.Row="1" Grid.Column="2" Margin="4,0,0,0">
+                    <GroupBox Grid.Row="1" Grid.Column="2" Margin="4,4,4,4" Padding="4,4,4,4">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock>Selected Entity: Events Breakdown</TextBlock>
+                                <TextBlock>Selected Entity: Event Breakdown Details</TextBlock>
                             </StackPanel>
                         </GroupBox.Header>
                         <TreeView Name="uiSelectedCombatEntityEventType">
                             <TreeViewItem Name="uiTreeviewItemEntityTypes"
-                                          ItemsSource="{Binding Path=SelectedEntityCombatEventTypeList}">
+                                          ItemsSource="{Binding Path=SelectedEntityCombatEventTypeList}" IsExpanded="True">
                                 <TreeViewItem.Header>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock>Events by: Entity</TextBlock>
@@ -245,7 +249,7 @@
                                     </HierarchicalDataTemplate>
                                 </TreeViewItem.ItemTemplate>
                             </TreeViewItem>
-                            <TreeViewItem Name="uiTreeviewItemPetTypes" ItemsSource="{Binding Path=SelectedEntityPetCombatEventTypeList}">
+                            <TreeViewItem Name="uiTreeviewItemPetTypes" ItemsSource="{Binding Path=SelectedEntityPetCombatEventTypeList}" IsExpanded="True">
                                 <TreeViewItem.Header>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock>Events by: Entity Pets</TextBlock>
@@ -262,20 +266,38 @@
                                 </TreeViewItem.Header>
                                 <TreeViewItem.ItemTemplate>
                                     <HierarchicalDataTemplate>
-                                        <TreeViewItem Header="{Binding Path=SourceDisplay}" ItemsSource="{Binding Path=CombatEventTypes}">
+                                        <TreeViewItem ItemsSource="{Binding Path=CombatEventTypes}">
+                                            <TreeViewItem.Header>
+                                                <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Path=SourceDisplay}" />
+                                                <!--<TextBlock Text="DPS(" Margin="8,0,0,0" Foreground="{StaticResource colorDps}" />-->
+                                                <!--<TextBlock Text="{Binding Path=Dps, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorDps}" />
+                                                <TextBlock Text=")" Foreground="{StaticResource colorDps}" />-->
+                                                <TextBlock Text="TOTAL(" Margin="8,0,0,0" Foreground="{StaticResource colorTotal}" />
+                                                <TextBlock Text="{Binding Path=TotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorTotal}" />
+                                                <TextBlock Text=")" Foreground="{StaticResource colorTotal}"/>
+                                                <TextBlock Text="MAX(" Margin="8,0,0,0" Foreground="{StaticResource colorMax}" />
+                                                <TextBlock Text="{Binding Path=MaxMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorMax}" />
+                                                <TextBlock Text=")" Foreground="{StaticResource colorMax}" />
+                                                </StackPanel>
+                                            </TreeViewItem.Header>
                                             <TreeViewItem.ItemTemplate>
                                                 <HierarchicalDataTemplate>
-                                                    <TreeViewItem Header="{Binding Path=EventDisplay}">
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="DPS=" />
-                                                            <TextBlock Text="{Binding Path=Dps}" />
-
-                                                            <TextBlock Text="EntityMaxMagnitude=" Margin="10,0,0,0" />
-                                                            <TextBlock Text="{Binding Path=MaxMagnitude}" />
-
-                                                            <TextBlock Text="MaxMagnitudeBase=" Margin="10,0,0,0" />
-                                                            <TextBlock Text="{Binding Path=MaxMagnitudeBase}" />
-                                                        </StackPanel>
+                                                    <TreeViewItem>
+                                                        <TreeViewItem.Header>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="{Binding Path=EventDisplay}" />
+                                                                <TextBlock Text="DPS(" Margin="8,0,0,0" Foreground="{StaticResource colorDps}" />
+                                                                <TextBlock Text="{Binding Path=Dps, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorDps}" />
+                                                                <TextBlock Text=")" Foreground="{StaticResource colorDps}" />
+                                                                <TextBlock Text="TOTAL(" Margin="8,0,0,0" Foreground="{StaticResource colorTotal}" />
+                                                                <TextBlock Text="{Binding Path=TotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorTotal}" />
+                                                                <TextBlock Text=")" Foreground="{StaticResource colorTotal}"/>
+                                                                <TextBlock Text="MAX(" Margin="8,0,0,0" Foreground="{StaticResource colorMax}" />
+                                                                <TextBlock Text="{Binding Path=MaxMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorMax}" />
+                                                                <TextBlock Text=")" Foreground="{StaticResource colorMax}" />
+                                                            </StackPanel>
+                                                        </TreeViewItem.Header>
                                                         <DataGrid ItemsSource="{Binding Path=CombatEvents}" AutoGenerateColumns="False"
                                                                   CanUserReorderColumns="True" CanUserSortColumns="True"
                                                                   CanUserResizeColumns="True">
@@ -298,96 +320,21 @@
                         </TreeView>
                     </GroupBox>
 
-                    <GridSplitter Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Background="Gray" Height="2" Margin="10,4,10,0"
+                    <GridSplitter Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Background="Gray" Height="2" Margin="10,2,10,0"
                                   HorizontalAlignment="Stretch" VerticalAlignment="Top" />
 
-                    <GroupBox x:Name="uiGroupBoxSelectedCombatEntity" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0"
-                              Padding="0,4,0,0">
+                    <GroupBox Grid.Row="1" Grid.Column="1" Margin="4,4,4,4" Padding="4,4,4,4">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Selected Entity: All Events" />
-                                <TextBlock Text="(" Margin="4,0,0,0" />
-                                <TextBlock Text="{Binding SelectedEntityCombatEventList.Count}" />
-                                <TextBlock Text=")" />
+                                <TextBlock Text="Selected Entity: Events Breakdown"></TextBlock>
+                                <CheckBox Name="uiCheckBoxDisplayPetsOnlyOnPieChart" IsChecked="False" Content="Pets Only" Margin="8,0,0,0"
+                                          Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
+                                          Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
+                                <Button Name="uiButtonResetBarPlot" Content="Reset Pan/Zoom" Margin="16,0,0,0" Padding="4,0,4,0"
+                                        Click="UiButtonResetPlot_OnClick"/>
                             </StackPanel>
                         </GroupBox.Header>
-                        <DataGrid Name="uiDataGridAllEvents" ItemsSource="{Binding SelectedEntityCombatEventList}" AutoGenerateColumns="False"
-                                  CanUserReorderColumns="True" CanUserSortColumns="True"
-                                  CanUserResizeColumns="True">
-                            <DataGrid.ContextMenu>
-                                <ContextMenu>
-                                    <StackPanel Orientation="Vertical">
-                                        <TextBlock Text="Select Columns:"></TextBlock>
-                                        <CheckBox Content="Filename" IsChecked="{Binding Path=MainCombatEventGridContext.FilenameVisible, Mode=TwoWay}" 
-                                                  Tag="Filename" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="LineNumber" IsChecked="{Binding Path=MainCombatEventGridContext.LineNumberVisible, Mode=TwoWay}" 
-                                                  Tag="LineNumber" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="Timestamp" IsChecked="{Binding Path=MainCombatEventGridContext.TimestampVisible, Mode=TwoWay}" 
-                                                  Tag="Timestamp" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="OwnerDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.OwnerDisplayVisible, Mode=TwoWay}" 
-                                                  Tag="OwnerDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="OwnerInternal" IsChecked="{Binding Path=MainCombatEventGridContext.OwnerInternalVisible, Mode=TwoWay}" 
-                                                  Tag="OwnerInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="SourceDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.SourceDisplayVisible, Mode=TwoWay}" 
-                                                  Tag="SourceDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="SourceInternal" IsChecked="{Binding Path=MainCombatEventGridContext.SourceInternalVisible, Mode=TwoWay}" 
-                                                  Tag="SourceInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="TargetDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.TargetDisplayVisible, Mode=TwoWay}" 
-                                                  Tag="TargetDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="TargetInternal" IsChecked="{Binding Path=MainCombatEventGridContext.TargetInternalVisible, Mode=TwoWay}" 
-                                                  Tag="TargetInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="EventDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.EventDisplayVisible, Mode=TwoWay}" 
-                                                  Tag="EventDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="EventInternal" IsChecked="{Binding Path=MainCombatEventGridContext.EventInternalVisible, Mode=TwoWay}" 
-                                                  Tag="EventInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="Type" IsChecked="{Binding Path=MainCombatEventGridContext.TypeVisible, Mode=TwoWay}" 
-                                                  Tag="Type" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="Flags" IsChecked="{Binding Path=MainCombatEventGridContext.FlagsVisible, Mode=TwoWay}" 
-                                                  Tag="Flags" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="Magnitude" IsChecked="{Binding Path=MainCombatEventGridContext.MagnitudeVisible, Mode=TwoWay}" 
-                                                  Tag="Magnitude" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                        <CheckBox Content="MagnitudeBase" IsChecked="{Binding Path=MainCombatEventGridContext.MagnitudeBaseVisible, Mode=TwoWay}" 
-                                                  Tag="MagnitudeBase" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                    </StackPanel>
-                                </ContextMenu>
-                            </DataGrid.ContextMenu>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Filename"
-                                                    Binding="{Binding OriginalFileName, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="LineNumber"
-                                                    Binding="{Binding OriginalFileLineNumber, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="Timestamp"
-                                                    Binding="{Binding Timestamp, Converter={StaticResource dateTimeToExtendedDateStringConverter}, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="OwnerDisplay" Binding="{Binding OwnerDisplay, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="OwnerInternal" Binding="{Binding OwnerInternal, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="SourceDisplay" Binding="{Binding SourceDisplay, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="SourceInternal" Binding="{Binding SourceInternal, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="TargetDisplay" Binding="{Binding TargetDisplay, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="TargetInternal" Binding="{Binding TargetInternal, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="EventDisplay" Binding="{Binding EventDisplay, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="EventInternal" Binding="{Binding EventInternal, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="Type" Binding="{Binding Type, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="Flags" Binding="{Binding Flags, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="Magnitude" Binding="{Binding Magnitude, Mode=OneTime}"
-                                                    IsReadOnly="True" />
-                                <DataGridTextColumn Header="MagnitudeBase"
-                                                    Binding="{Binding MagnitudeBase, Mode=OneTime}" 
-                                                    IsReadOnly="True" />
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        <scottPlot:WpfPlot Name="uiScottBarChartEntityEventTypes" />
                     </GroupBox>
 
                     <Grid Grid.Row="2" Grid.Column="0" ColumnSpan="3">
@@ -395,43 +342,135 @@
                             <ColumnDefinition Width="50*" />
                             <ColumnDefinition Width="50*" />
                         </Grid.ColumnDefinitions>
-                        <GroupBox Name="uiGridBoxEntity" Grid.Column="0" Margin="0,8,0,0">
+                        <GroupBox x:Name="uiGroupBoxSelectedCombatEntity" Grid.Column="0" Margin="4,4,4,4"
+                                  Padding="4,4,4,4">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Selected Entity: '" />
+                                    <TextBlock Text="{Binding Path=EventTypeDisplayFilter}" />
+                                    <TextBlock Text="' Events (" />
+                                    <TextBlock Text="{Binding Path=FilteredSelectedEntityCombatEventList.Count}" />
+                                    <TextBlock Text=")" />
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <DataGrid Name="uiDataGridAllEvents" ItemsSource="{Binding FilteredSelectedEntityCombatEventList}" AutoGenerateColumns="False"
+                                      CanUserReorderColumns="True" CanUserSortColumns="True"
+                                      CanUserResizeColumns="True" SelectionChanged="UiDataGridAllEvents_OnSelectionChanged">
+                                <DataGrid.ContextMenu>
+                                    <ContextMenu>
+                                        <StackPanel Orientation="Vertical">
+                                            <TextBlock Text="Select Columns:"></TextBlock>
+                                            <CheckBox Content="Filename" IsChecked="{Binding Path=MainCombatEventGridContext.FilenameVisible, Mode=TwoWay}" 
+                                                      Tag="Filename" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="LineNumber" IsChecked="{Binding Path=MainCombatEventGridContext.LineNumberVisible, Mode=TwoWay}" 
+                                                      Tag="LineNumber" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="Timestamp" IsChecked="{Binding Path=MainCombatEventGridContext.TimestampVisible, Mode=TwoWay}" 
+                                                      Tag="Timestamp" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="OwnerDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.OwnerDisplayVisible, Mode=TwoWay}" 
+                                                      Tag="OwnerDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="OwnerInternal" IsChecked="{Binding Path=MainCombatEventGridContext.OwnerInternalVisible, Mode=TwoWay}" 
+                                                      Tag="OwnerInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="SourceDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.SourceDisplayVisible, Mode=TwoWay}" 
+                                                      Tag="SourceDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="SourceInternal" IsChecked="{Binding Path=MainCombatEventGridContext.SourceInternalVisible, Mode=TwoWay}" 
+                                                      Tag="SourceInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="TargetDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.TargetDisplayVisible, Mode=TwoWay}" 
+                                                      Tag="TargetDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="TargetInternal" IsChecked="{Binding Path=MainCombatEventGridContext.TargetInternalVisible, Mode=TwoWay}" 
+                                                      Tag="TargetInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="EventDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.EventDisplayVisible, Mode=TwoWay}" 
+                                                      Tag="EventDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="EventInternal" IsChecked="{Binding Path=MainCombatEventGridContext.EventInternalVisible, Mode=TwoWay}" 
+                                                      Tag="EventInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="Type" IsChecked="{Binding Path=MainCombatEventGridContext.TypeVisible, Mode=TwoWay}" 
+                                                      Tag="Type" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="Flags" IsChecked="{Binding Path=MainCombatEventGridContext.FlagsVisible, Mode=TwoWay}" 
+                                                      Tag="Flags" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="Magnitude" IsChecked="{Binding Path=MainCombatEventGridContext.MagnitudeVisible, Mode=TwoWay}" 
+                                                      Tag="Magnitude" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                            <CheckBox Content="MagnitudeBase" IsChecked="{Binding Path=MainCombatEventGridContext.MagnitudeBaseVisible, Mode=TwoWay}" 
+                                                      Tag="MagnitudeBase" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                        </StackPanel>
+                                    </ContextMenu>
+                                </DataGrid.ContextMenu>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Filename"
+                                                        Binding="{Binding OriginalFileName, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="LineNumber"
+                                                        Binding="{Binding OriginalFileLineNumber, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Timestamp"
+                                                        Binding="{Binding Timestamp, Converter={StaticResource dateTimeToExtendedDateStringConverter}, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="OwnerDisplay" Binding="{Binding OwnerDisplay, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="OwnerInternal" Binding="{Binding OwnerInternal, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="SourceDisplay" Binding="{Binding SourceDisplay, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="SourceInternal" Binding="{Binding SourceInternal, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="TargetDisplay" Binding="{Binding TargetDisplay, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="TargetInternal" Binding="{Binding TargetInternal, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="EventDisplay" Binding="{Binding EventDisplay, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="EventInternal" Binding="{Binding EventInternal, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Type" Binding="{Binding Type, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Flags" Binding="{Binding Flags, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Magnitude" Binding="{Binding Magnitude, Mode=OneTime}"
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="MagnitudeBase"
+                                                        Binding="{Binding MagnitudeBase, Mode=OneTime}" 
+                                                        IsReadOnly="True" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </GroupBox>
+
+                        <GridSplitter Grid.Column="0" Background="Gray" 
+                                      Width="2"
+                                      Margin="0,12,0,4" 
+                                      Padding="0,0,0,0"
+                                      HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
+
+                        <GroupBox Name="uiGridBoxEntity" Grid.Column="1" Margin="4,4,4,4" Padding="4,4,4,4">
                             <GroupBox.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Selected Entity:" />
-                                    <TextBlock Name="uiTextBlockSelectedEntityPlotType" Text="Magnitude Plot" Margin="8,0,0,0"/>
-                                    <CheckBox x:Name="uiCheckboxPlotDisplayMagnitude" Content="abs(Magnitude)k" Margin="8,0,0,0" 
-                                              IsChecked="{Binding Path=MainCombatEventGridContext.IsDisplayPlotMagnitude, Mode=TwoWay}"
-                                              Tag="PlotDisplayMagnitude"
-                                              Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
-                                              Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
-                                    <CheckBox x:Name="uiCheckboxPlotDisplayMagnitudeBase" Content="abs(MagnitudeBase)k" Margin="8,0,0,0"
-                                              IsChecked="{Binding Path=MainCombatEventGridContext.IsDisplayPlotMagnitudeBase, Mode=TwoWay}"
-                                              Tag="PlotDisplayMagnitudeBase"
-                                              Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
-                                              Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
+                                    <StackPanel Orientation="Vertical">
+                                        <CheckBox x:Name="uiCheckboxPlotDisplayMagnitude" Content="Display Magnitude" Margin="8,0,0,0" 
+                                                  IsChecked="{Binding Path=MainCombatEventGridContext.IsDisplayPlotMagnitude, Mode=TwoWay}"
+                                                  Tag="PlotDisplayMagnitude"
+                                                  Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
+                                                  Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
+                                        <CheckBox x:Name="uiCheckboxPlotDisplayMagnitudeBase" Content="Display MagnitudeBase" Margin="8,0,0,0"
+                                                  IsChecked="{Binding Path=MainCombatEventGridContext.IsDisplayPlotMagnitudeBase, Mode=TwoWay}"
+                                                  Tag="PlotDisplayMagnitudeBase"
+                                                  Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
+                                                  Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
+                                    </StackPanel>
+                                   
+                                    <TextBlock Text="Event Filter:" Margin="16,0,0,0"/>
+                                    <ComboBox  Name="uiComboBoxSelectEventType" Margin="8,0,0,0" 
+                                               ItemsSource="{Binding Path=SelectedEntityCombatEventTypeListDisplayedFilterOptions}" 
+                                               SelectedItem="{Binding Path=EventTypeDisplayFilter}"
+                                               SelectionChanged="UiComboBoxSelectEventType_OnSelectionChanged"/>
+
+                                    <Button Name="uiButtonResetScatterPlot" Content="Reset Pan/Zoom" Margin="16,0,0,0"
+                                            Click="UiButtonResetPlot_OnClick"/>
+                                    
                                 </StackPanel>
                             </GroupBox.Header>
                             <Grid>
-                                <scottPlot:WpfPlot Name="uiScottPlotEntityScatter" />
+                                <scottPlot:WpfPlot Name="uiScottScatterPlotEntityEvents" />
                             </Grid>
                         </GroupBox>
-
-                        <GroupBox Grid.Column="1" Margin="0,8,0,0">
-                            <GroupBox.Header>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Selected Entity: Events Breakdown"></TextBlock>
-                                    <CheckBox Name="uiCheckBoxDisplayLegendOnPieChart" IsChecked="True" Content="Legend" Margin="8,0,0,0"
-                                              Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
-                                              Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
-                                    <CheckBox Name="uiCheckBoxDisplayPetsOnlyOnPieChart" IsChecked="False" Content="Pets Only" Margin="8,0,0,0"
-                                              Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
-                                              Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
-                                </StackPanel>
-                            </GroupBox.Header>
-                            <scottPlot:WpfPlot Name="uiScottPlotEntityPieChartEntity" />
-                        </GroupBox>
-                        
+                      
                     </Grid>
                 </Grid>
             </TabItem>
