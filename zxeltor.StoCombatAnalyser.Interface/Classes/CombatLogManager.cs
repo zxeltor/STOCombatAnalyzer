@@ -28,28 +28,9 @@ public class CombatLogManager : INotifyPropertyChanged
 
     private static readonly ILog Log = LogManager.GetLogger(typeof(CombatLogManager));
 
-    //private bool _isPlotDisplayMagnitude = true;
-    //private bool _isPlotDisplayMagnitudeBase;
+    private string _eventTypeDisplayFilter = "ALL";
 
     public CombatEventGridContext MainCombatEventGridContext { get; } = new();
-
-    ///// <summary>
-    /////     Display Magnitude in the main Plot control
-    ///// </summary>
-    //public bool IsDisplayPlotMagnitude
-    //{
-    //    get => this._isPlotDisplayMagnitude;
-    //    set => this.SetField(ref this._isPlotDisplayMagnitude, value);
-    //}
-
-    ///// <summary>
-    /////     Display BaseMagnitude in the main Plot control
-    ///// </summary>
-    //public bool IsDisplayPlotMagnitudeBase
-    //{
-    //    get => this._isPlotDisplayMagnitudeBase;
-    //    set => this.SetField(ref this._isPlotDisplayMagnitudeBase, value);
-    //}
 
     /// <summary>
     ///     The currently selected Combat instance from <see cref="Combats" />
@@ -124,6 +105,52 @@ public class CombatLogManager : INotifyPropertyChanged
     /// </summary>
     public ObservableCollection<CombatEvent>? SelectedEntityCombatEventList { get; set; } = new();
 
+    public ObservableCollection<CombatEvent>? FilteredSelectedEntityCombatEventList
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(this.EventTypeDisplayFilter) || this.EventTypeDisplayFilter.Equals("ALL"))
+                return this.SelectedEntityCombatEventList;
+            if (this.EventTypeDisplayFilter.Equals("PETS ONLY"))
+                return new ObservableCollection<CombatEvent>(
+                    this.SelectedEntityCombatEventList?.Where(evt => evt.IsPetEvent) ?? Array.Empty<CombatEvent>());
+            return new ObservableCollection<CombatEvent>(
+                this.SelectedEntityCombatEventList?.Where(evt =>
+                    evt.EventDisplay.Equals(this.EventTypeDisplayFilter, StringComparison.CurrentCultureIgnoreCase)) ??
+                Array.Empty<CombatEvent>());
+        }
+    }
+
+    public ObservableCollection<string> SelectedEntityCombatEventTypeListDisplayedFilterOptions
+    {
+        get
+        {
+            var resultCollection = new ObservableCollection<string>
+            {
+                "ALL",
+                "PETS ONLY"
+            };
+
+            if (this.SelectedEntityCombatEventTypeList != null)
+                this.SelectedEntityCombatEventTypeList.ToList().ForEach(evt => resultCollection.Add(evt.EventDisplay));
+
+            return resultCollection;
+        }
+    }
+
+    /// <summary>
+    ///     The filter string for the 
+    /// </summary>
+    public string EventTypeDisplayFilter
+    {
+        get => this._eventTypeDisplayFilter;
+        set
+        {
+            this.SetField(ref this._eventTypeDisplayFilter, string.IsNullOrWhiteSpace(value) ? "ALL" : value);
+            this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
+        }
+    }
+
     /// <summary>
     ///     A list of <see cref="CombatEventType" /> for the Selected CombatEntity
     /// </summary>
@@ -140,6 +167,17 @@ public class CombatLogManager : INotifyPropertyChanged
     public ObservableCollection<Combat> Combats { get; set; } = new();
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    /// Used to set combat event type filter used by the main grid and the scatter plot.
+    /// </summary>
+    /// <param name="filter">The event type to filter on, or ALL.</param>
+    //public void ApplyCombatEventTypeFilter(string? filter = null)
+    //{
+    //    this.EventTypeDisplayFilter = filter ?? "ALL";
+
+    //    this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
+    //}
 
     /// <summary>
     ///     Purge the sto combat logs folder.
@@ -361,6 +399,8 @@ public class CombatLogManager : INotifyPropertyChanged
                 new ObservableCollection<CombatPetEventType>(combatEntity.CombatEventTypeListForEntityPets);
         }
 
+        this.EventTypeDisplayFilter = "ALL";
+
         this.OnPropertyChanged(nameof(this.SelectedCombatEntity));
         this.OnPropertyChanged(nameof(this.SelectedCombatEntityEventTypeTotalDamage));
         this.OnPropertyChanged(nameof(this.SelectedCombatEntityEventTypeMaxDamage));
@@ -368,6 +408,8 @@ public class CombatLogManager : INotifyPropertyChanged
         this.OnPropertyChanged(nameof(this.SelectedCombatEntityPetEventTypeMaxDamage));
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventList));
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeList));
+        this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeListDisplayedFilterOptions));
+        this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
         this.OnPropertyChanged(nameof(this.SelectedEntityPetCombatEventTypeList));
     }
 

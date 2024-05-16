@@ -8,7 +8,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Humanizer;
-
 using log4net;
 using ScottPlot;
 using ScottPlot.Plottables;
@@ -64,22 +63,19 @@ public partial class MainWindow : Window
 
         this.ToggleDataGridColumnVisibility();
 
-        if (Settings.Default.PurgeCombatLogs)
+        if (!Settings.Default.PurgeCombatLogs) return;
+
+        if (CombatLogManager.TryPurgeCombatLogFolder(out var filesPurged, out var errorReason))
         {
-            if (CombatLogManager.TryPurgeCombatLogFolder(out var filesPurged, out var errorReason))
-            {
-                if (filesPurged.Any())
-                    DetailsDialog.Show(Application.Current.MainWindow, "The combat logs were automatically purged.",
-                        "Combat log purge", detailsBoxCaption: "File(s) purged", detailsBoxList: filesPurged);
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(errorReason))
-                    DetailsDialog.Show(Application.Current.MainWindow, errorReason, "Combat log purge error");
-                else
-                    DetailsDialog.Show(Application.Current.MainWindow, "Automatic combat log purge failed.",
-                        "Combat log purge error");
-            }
+            if (filesPurged.Count > 0)
+                DetailsDialog.Show(Application.Current.MainWindow, "The combat logs were automatically purged.",
+                    "Combat log purge", detailsBoxCaption: "File(s) purged", detailsBoxList: filesPurged);
+        }
+        else
+        {
+            DetailsDialog.Show(Application.Current.MainWindow,
+                string.IsNullOrWhiteSpace(errorReason) ? errorReason : "Automatic combat log purge failed.",
+                "Combat log purge error");
         }
     }
 
@@ -195,7 +191,7 @@ public partial class MainWindow : Window
         this.Dispatcher.BeginInvoke(new Action(() =>
         {
             this.uiTextBoxLog.Text =
-                $"{this.uiTextBoxLog.Text}{DateTime.Now:s}|{logEntryString}{Environment.NewLine}";
+                $"{DateTime.Now:s}|{logEntryString}{Environment.NewLine}{this.uiTextBoxLog.Text}";
         }));
     }
 
@@ -209,75 +205,163 @@ public partial class MainWindow : Window
         this.SetPlots();
     }
 
+    /// <summary>
+    ///     Set up the plots in the UI.
+    /// </summary>
     private void SetPlots()
     {
         this.SetScatterPlot();
-        this.SetPieChartForEntity();
+        this.SetBarChartForEntity();
     }
 
+    /// <summary>
+    ///     Set up the main scatter plot.
+    /// </summary>
     private void SetScatterPlot()
     {
-        if (this.uiScottPlotEntityScatter == null) return;
+        if (this.uiScottScatterPlotEntityEvents == null) return;
 
-        this.uiScottPlotEntityScatter.Plot.Clear();
-        this.uiScottPlotEntityScatter.Refresh();
+        this.uiScottScatterPlotEntityEvents.Plot.Clear();
+        this.uiScottScatterPlotEntityEvents.Refresh();
+
+        var filteredCombatEventList = CombatLogManagerContext?.FilteredSelectedEntityCombatEventList;
+
+        if (filteredCombatEventList != null && filteredCombatEventList.Count > 0)
+        {
+            if (CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitudeBase: true })
+            {
+                var magnitudeBaseDataList = filteredCombatEventList
+                    .OrderBy(ev => ev.Timestamp)
+                    .Select(ev => new { Mag = ev.MagnitudeBase, DateTimeDouble = ev.Timestamp.ToOADate() })
+                    .ToList();
+
+                var signal = this.uiScottScatterPlotEntityEvents.Plot.Add.ScatterPoints(
+                    magnitudeBaseDataList.Select(pd => pd.DateTimeDouble).ToArray(),
+                    magnitudeBaseDataList.Select(pd => pd.Mag).ToArray());
+
+                signal.MarkerSize = 25;
+                signal.Color = Color.FromHex("7e00ff");
+                signal.LegendText = "MagnitudeBase";
+            }
+
+            if (CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitude: true })
+            {
+                var magnitudeDataList = filteredCombatEventList
+                    .OrderBy(ev => ev.Timestamp)
+                    .Select(ev => new { Mag = ev.Magnitude, DateTimeDouble = ev.Timestamp.ToOADate() }).ToList();
+
+                var signal = this.uiScottScatterPlotEntityEvents.Plot.Add.ScatterPoints(
+                    magnitudeDataList.Select(pd => pd.DateTimeDouble).ToArray(),
+                    magnitudeDataList.Select(pd => pd.Mag).ToArray());
+
+                signal.MarkerSize = 15;
+                signal.LegendText = "Magnitude";
+                signal.Color = Color.FromHex("00bdff");
+            }
+        }
+
+        this.uiScottScatterPlotEntityEvents.Plot.Legend.FontSize = 24;
+
+        if (filteredCombatEventList != null && filteredCombatEventList.Count > 0)
+        {
+            this.uiScottScatterPlotEntityEvents.Plot.ShowLegend();
+            this.uiScottScatterPlotEntityEvents.MouseLeftButtonDown -=
+                this.UiScottScatterPlotEntityEventsOnMouseLeftButtonDown;
+            this.uiScottScatterPlotEntityEvents.MouseLeftButtonDown +=
+                this.UiScottScatterPlotEntityEventsOnMouseLeftButtonDown;
+        }
+        else
+        {
+            this.uiScottScatterPlotEntityEvents.Plot.HideLegend();
+            this.uiScottScatterPlotEntityEvents.MouseLeftButtonDown -=
+                this.UiScottScatterPlotEntityEventsOnMouseLeftButtonDown;
+        }
+
+        // tell the plot to display dates on the bottom axis
+        this.uiScottScatterPlotEntityEvents.Plot.Axes.DateTimeTicksBottom();
+        this.uiScottScatterPlotEntityEvents.Plot.Axes.Bottom.TickLabelStyle.FontSize = 18;
+        this.uiScottScatterPlotEntityEvents.Plot.Axes.Left.TickLabelStyle.FontSize = 18;
+        this.uiScottScatterPlotEntityEvents.Plot.Axes.AutoScale();
+        this.uiScottScatterPlotEntityEvents.Refresh();
+    }
+
+    private void UiScottScatterPlotEntityEventsOnMouseLeftButtonDown(object sender, MouseEventArgs e)
+    {
+        var plotPlottableList = this.uiScottScatterPlotEntityEvents.Plot.PlottableList;
+        if (plotPlottableList.Count == 0)
+            return;
+
+        var mousePixel = this.uiScottScatterPlotEntityEvents.GetCurrentPlotPixelPosition();
+        var mouseLocation = this.uiScottScatterPlotEntityEvents.Plot.GetCoordinates(mousePixel);
+
+        var scatterPlots = plotPlottableList.OfType<Scatter>().ToList();
+
+        scatterPlots.ForEach(plot =>
+        {
+            var nearest = plot.Data.GetNearest(mouseLocation, this.uiScottScatterPlotEntityEvents.Plot.LastRender);
+            if (nearest.IsReal)
+            {
+                CombatEvent selectedEvent;
+
+                if (plot.LegendText.Equals("magnitudebase", StringComparison.CurrentCultureIgnoreCase))
+                    selectedEvent = CombatLogManagerContext?.SelectedCombatEntity?.CombatEventList.FirstOrDefault(
+                        ev =>
+                            ev.Timestamp.ToOADate() == nearest.X && ev.MagnitudeBase == nearest.Y);
+                else
+                    selectedEvent = CombatLogManagerContext?.SelectedCombatEntity?.CombatEventList.FirstOrDefault(
+                        ev =>
+                            ev.Timestamp.ToOADate() == nearest.X && ev.Magnitude == nearest.Y);
+
+                if (selectedEvent != null)
+                {
+                    this.uiDataGridAllEvents.SelectedItem = null;
+                    this.uiDataGridAllEvents.SelectedItem = selectedEvent;
+                    this.uiDataGridAllEvents.ScrollIntoView(selectedEvent);
+                    this.uiDataGridAllEvents.Focus();
+                }
+            }
+        });
+    }
+
+    private void SetScatterPlotMarkers(CombatEvent? combatEvent = null)
+    {
+        if (this.uiScottScatterPlotEntityEvents == null) return;
+
+        this.uiScottScatterPlotEntityEvents.Plot.Remove<Marker>();
+
+        if (combatEvent == null) return;
 
         var combatEntity = CombatLogManagerContext?.SelectedCombatEntity;
 
         if (combatEntity != null && combatEntity.CombatEventList.Any())
         {
-            if (CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitude: true })
-            {
-                var plotDataMagnitude = combatEntity.CombatEventList
-                    .OrderBy(ev => ev.Timestamp)
-                    .Select(ev => new { Mag = Math.Abs(ev.Magnitude) / 1000, ev.Timestamp }).ToList();
-
-                var plot = this.uiScottPlotEntityScatter.Plot.Add.Scatter(
-                    plotDataMagnitude.Select(pd => pd.Timestamp).ToArray(),
-                    plotDataMagnitude.Select(pd => pd.Mag).ToArray());
-
-                plot.MarkerSize = 15;
-                plot.Label = "Magnitude";
-                plot.Color = Color.FromHex("ff0000");
-            }
-
             if (CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitudeBase: true })
             {
-                var plotDataMagnitudeBase = combatEntity.CombatEventList
-                    .OrderBy(ev => ev.Timestamp)
-                    .Select(ev => new { Mag = Math.Abs(ev.MagnitudeBase) / 1000, ev.Timestamp }).ToList();
+                var marker = this.uiScottScatterPlotEntityEvents.Plot.Add.Marker(combatEvent.Timestamp.ToOADate(),
+                    combatEvent.MagnitudeBase, MarkerShape.OpenTriangleDown, 40, Color.FromHex("ff0000"));
+                marker.MarkerLineWidth = 4;
+            }
 
-                var plot = this.uiScottPlotEntityScatter.Plot.Add.Scatter(
-                    plotDataMagnitudeBase.Select(pd => pd.Timestamp).ToArray(),
-                    plotDataMagnitudeBase.Select(pd => pd.Mag).ToArray());
-
-                plot.MarkerSize = 15;
-                plot.Color = Color.FromHex("7e00ff");
-                plot.Label = "MagnitudeBase";
+            if (CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitude: true })
+            {
+                var marker = this.uiScottScatterPlotEntityEvents.Plot.Add.Marker(combatEvent.Timestamp.ToOADate(),
+                    combatEvent.Magnitude, MarkerShape.OpenTriangleDown, 30, Color.FromHex("ff0000"));
+                marker.MarkerLineWidth = 4;
             }
         }
 
-        //this.uiScottPlotEntityScatter.Plot.Legend.Font.Size = 24;
-        this.uiScottPlotEntityScatter.Plot.Legend.FontSize = 24;
-
-        if (combatEntity != null && combatEntity.CombatEventList.Any())
-            this.uiScottPlotEntityScatter.Plot.ShowLegend();
-        else
-            this.uiScottPlotEntityScatter.Plot.HideLegend();
-
-        // tell the plot to display dates on the bottom axis
-        this.uiScottPlotEntityScatter.Plot.Axes.DateTimeTicksBottom();
-        this.uiScottPlotEntityScatter.Refresh();
+        this.uiScottScatterPlotEntityEvents.Refresh();
     }
 
-    private void SetPieChartForEntity()
+    private void SetBarChartForEntity()
     {
-        if (this.uiScottPlotEntityPieChartEntity == null) return;
+        if (this.uiScottBarChartEntityEventTypes == null) return;
 
-        this.uiScottPlotEntityPieChartEntity.Plot.Clear();
-        this.uiScottPlotEntityPieChartEntity.Refresh();
+        this.uiScottBarChartEntityEventTypes.Plot.Clear();
+        this.uiScottBarChartEntityEventTypes.Refresh();
 
-        var pieSlices = new List<PieSlice>();
+        var positionCounter = 0;
+        var bars = new List<Bar>();
 
         if (this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked != null &&
             this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked.Value)
@@ -295,11 +379,12 @@ public partial class MainWindow : Window
 
                     if (sumOfMagnitude == 0) return;
 
-                    pieSlices.Add(new PieSlice
+                    bars.Add(new Bar
                     {
+                        Position = positionCounter--,
                         Value = sumOfMagnitude,
                         FillColor = colorArray[colorCounter++],
-                        Label = petevt.SourceDisplay
+                        Label = $"{petevt.SourceDisplay} ({sumOfMagnitude.ToMetric(null, 3)})"
                     });
                 });
             }
@@ -319,57 +404,51 @@ public partial class MainWindow : Window
 
                     if (sumOfMagnitude == 0) return;
 
-                    pieSlices.Add(new PieSlice
+                    bars.Add(new Bar
                     {
+                        Position = positionCounter--,
                         Value = sumOfMagnitude,
                         FillColor = colorArray[colorCounter++],
-                        Label = evt.EventDisplay
+                        Label = $"{evt.EventDisplay} ({sumOfMagnitude.ToMetric(null, 3)})"
                     });
                 });
             }
 
             var combatPetEvents = CombatLogManagerContext?.SelectedEntityPetCombatEventTypeList;
-            if (combatPetEvents != null && combatPetEvents.Any())
+            if (combatPetEvents != null && combatPetEvents.Count > 0)
             {
                 var sumOfMagnitude = combatPetEvents.Sum(petevt =>
                     petevt.CombatEventTypes.Sum(evt => evt.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude))));
 
                 if (sumOfMagnitude != 0)
-                    pieSlices.Add(new PieSlice
+                    bars.Add(new Bar
                     {
+                        Position = positionCounter--,
                         Value = sumOfMagnitude,
                         FillColor = Color.FromHex("000000"),
-                        Label = "Pets"
+                        Label = $"Pets ({sumOfMagnitude.ToMetric(null, 3)})"
                     });
             }
         }
 
-        if (pieSlices.Any())
+        if (bars.Count > 0)
         {
-            var pie = this.uiScottPlotEntityPieChartEntity.Plot.Add.Pie(pieSlices);
-            pie.ExplodeFraction = .15;
+            var pie = this.uiScottBarChartEntityEventTypes.Plot.Add.Bars(bars.ToArray());
+            pie.Horizontal = true;
+            pie.ValueLabelStyle.Bold = true;
+            pie.ValueLabelStyle.FontSize = 18;
+            this.uiScottBarChartEntityEventTypes.Plot.Axes.Margins(0, right: 0.3);
 
-            this.uiScottPlotEntityPieChartEntity.Plot.Legend.FontSize = 18f;
-
-            var upperCenterAnnotation = this.uiScottPlotEntityPieChartEntity.Plot.Add.Annotation($"Total Damage Done: {pieSlices.Sum(pieSlice => pieSlice.Value).ToMetric(null, 3)}", Alignment.UpperCenter);
+            var upperCenterAnnotation = this.uiScottBarChartEntityEventTypes.Plot.Add.Annotation(
+                $"Total Damage Done: {bars.Sum(pieSlice => pieSlice.Value).ToMetric(null, 3)}", Alignment.UpperCenter);
             upperCenterAnnotation.LabelFontSize = 18f;
 
-            if (this.uiCheckBoxDisplayLegendOnPieChart.IsChecked != null &&
-                this.uiCheckBoxDisplayLegendOnPieChart.IsChecked.Value)
-                this.uiScottPlotEntityPieChartEntity.Plot.ShowLegend();
-            else
-                this.uiScottPlotEntityPieChartEntity.Plot.HideLegend();
-
-            this.uiScottPlotEntityPieChartEntity.Plot.Axes.AutoScale();
-        }
-        else
-        {
-            this.uiScottPlotEntityPieChartEntity.Plot.HideLegend();
+            this.uiScottBarChartEntityEventTypes.Plot.Axes.AutoScale();
         }
 
-        this.uiScottPlotEntityPieChartEntity.Refresh();
+        this.uiScottBarChartEntityEventTypes.Refresh();
     }
-    
+
     private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
     {
         if (e.Source is CheckBox) this.ToggleDataGridColumnVisibility();
@@ -382,7 +461,36 @@ public partial class MainWindow : Window
 
     private void UiCheckbox_OnCheckedOrUnCheckedForPlots(object sender, RoutedEventArgs e)
     {
-        if (e.Source is CheckBox checkBox)
+        if (e.Source is CheckBox)
             this.SetPlots();
+    }
+
+    private void UiDataGridAllEvents_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (this.uiDataGridAllEvents.SelectedItem is CombatEvent combatEvent) this.SetScatterPlotMarkers(combatEvent);
+    }
+
+    private void UiComboBoxSelectEventType_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (this.uiComboBoxSelectEventType.Items.Count > 0)
+            if (this.uiComboBoxSelectEventType.SelectedItem is string)
+                this.SetScatterPlot();
+    }
+
+    private void UiButtonResetPlot_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button plotButton)
+        {
+            if (plotButton.Name.Equals(nameof(this.uiButtonResetBarPlot)))
+            {
+                this.uiScottBarChartEntityEventTypes.Plot.Axes.AutoScale();
+                this.uiScottBarChartEntityEventTypes.Refresh();
+            }
+            else
+            {
+                this.uiScottScatterPlotEntityEvents.Plot.Axes.AutoScale();
+                this.uiScottScatterPlotEntityEvents.Refresh();
+            }
+        }
     }
 }

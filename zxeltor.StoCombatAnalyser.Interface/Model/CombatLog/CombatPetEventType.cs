@@ -15,6 +15,12 @@ public class CombatPetEventType
         if (combatEventTypeList.Any()) this.CombatEventTypes.AddRange(combatEventTypeList);
     }
 
+    public double TotalMagnitude => this.CombatEventTypes.Sum(ev => ev.TotalMagnitude);
+
+    public double MaxMagnitude => this.CombatEventTypes.Max(ev => ev.MaxMagnitude);
+
+    public double MaxMagnitudeBase => this.CombatEventTypes.Max(ev => ev.MaxMagnitudeBase);
+
     public string SourceDisplay { get; set; }
     public List<CombatEventType> CombatEventTypes { get; set; } = new();
 }

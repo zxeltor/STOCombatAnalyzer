@@ -84,10 +84,14 @@ public class Combat : INotifyPropertyChanged
     /// </summary>
     public ObservableCollection<CombatEntity> PlayerEntities { get; } = new();
 
+    public ObservableCollection<CombatEntity> PlayerEntitiesOrderByName => new(this.PlayerEntities.OrderBy(ent => ent.OwnerDisplay));
+
     /// <summary>
     ///     A list of non-player <see cref="CombatEntity" /> objects.
     /// </summary>
     public ObservableCollection<CombatEntity> NonPlayerEntities { get; } = new();
+
+    public ObservableCollection<CombatEntity> NonPlayerEntitiesOrderByName => new(this.NonPlayerEntities.OrderBy(ent => ent.OwnerDisplay));
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -110,6 +114,8 @@ public class Combat : INotifyPropertyChanged
         this.OnPropertyChanged(nameof(this.CombatDuration));
         this.OnPropertyChanged(nameof(this.PlayerEntities));
         this.OnPropertyChanged(nameof(this.NonPlayerEntities));
+        this.OnPropertyChanged(nameof(this.PlayerEntitiesOrderByName));
+        this.OnPropertyChanged(nameof(this.NonPlayerEntitiesOrderByName));
     }
 
     /// <summary>

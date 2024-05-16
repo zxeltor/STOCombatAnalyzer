@@ -4,8 +4,6 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-using Humanizer;
-
 namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
 public class CombatEventType
@@ -35,9 +33,9 @@ public class CombatEventType
     public string EventDisplay { get; set; }
     public List<CombatEvent> CombatEvents { get; set; } = new();
 
-    public double Dps => (this.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude)) /
-                          ((this.CombatEvents.Max(ev => ev.Timestamp) - this.CombatEvents.Min(ev => ev.Timestamp))
-                              .TotalSeconds + .001));
+    public double Dps => this.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude)) /
+                         ((this.CombatEvents.Max(ev => ev.Timestamp) - this.CombatEvents.Min(ev => ev.Timestamp))
+                             .TotalSeconds + .001);
 
     public double TotalMagnitude => this.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude));
 
