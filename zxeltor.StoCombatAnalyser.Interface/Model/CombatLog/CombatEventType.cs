@@ -16,7 +16,7 @@ public class CombatEventType
         this.EventInternal = eventInternal;
         this.EventDisplay = eventDisplay;
 
-        if (combatEventList.Any())
+        if (combatEventList.Count > 0)
             this.CombatEvents.AddRange(combatEventList);
     }
 
@@ -31,6 +31,7 @@ public class CombatEventType
     public string SourceDisplay { get; set; }
     public string EventInternal { get; set; }
     public string EventDisplay { get; set; }
+
     public List<CombatEvent> CombatEvents { get; set; } = new();
 
     public double Dps => this.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude)) /

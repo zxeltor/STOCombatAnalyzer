@@ -134,9 +134,9 @@
                         <RowDefinition Height="60*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="50*"></ColumnDefinition>
-                        <ColumnDefinition Width="50*"></ColumnDefinition>
+                        <ColumnDefinition Width="30*"></ColumnDefinition>
+                        <ColumnDefinition Width="70*"></ColumnDefinition>
+                        <!--<ColumnDefinition Width="30*"></ColumnDefinition>-->
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
@@ -187,13 +187,13 @@
                         </Grid>
                     </GroupBox>
 
-                    <GridSplitter Grid.Row="1" Grid.Column="1" Background="Gray" 
+                    <!--<GridSplitter Grid.Row="1" Grid.Column="1" Background="Gray" 
                                   Width="2"
                                   Margin="0,12,0,4" 
                                   Padding="0,0,0,0"
-                                  HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
+                                  HorizontalAlignment="Right"  VerticalAlignment="Stretch" />-->
 
-                    <GroupBox Grid.Row="1" Grid.Column="2" Margin="4,4,4,4" Padding="4,4,4,4">
+                    <!--<GroupBox Grid.Row="1" Grid.Column="2" Margin="4,4,4,4" Padding="4,4,4,4">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock>Selected Entity: Event Breakdown Details</TextBlock>
@@ -205,9 +205,6 @@
                                 <TreeViewItem.Header>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock>Events by: Entity</TextBlock>
-                                        <!--<TextBlock Text="DPS(" Margin="8,0,0,0" Foreground="{StaticResource colorDps}" />
-                                        <TextBlock Text="{Binding Path=SelectedCombatEntityTypeMaxDamage}" Foreground="{StaticResource colorDps}" />-->
-                                        <!--<TextBlock Text=")" Foreground="{StaticResource colorDps}" />-->
                                         <TextBlock Text="TOTAL(" Margin="8,0,0,0" Foreground="{StaticResource colorTotal}" />
                                         <TextBlock Text="{Binding Path=SelectedCombatEntityEventTypeTotalDamage, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorTotal}" />
                                         <TextBlock Text=")" Foreground="{StaticResource colorTotal}"/>
@@ -233,18 +230,6 @@
                                                     <TextBlock Text=")" Foreground="{StaticResource colorMax}" />
                                                 </StackPanel>
                                             </TreeViewItem.Header>
-                                            <DataGrid ItemsSource="{Binding Path=CombatEvents}" AutoGenerateColumns="False"
-                                                      CanUserReorderColumns="True" CanUserSortColumns="True"
-                                                      CanUserResizeColumns="True">
-                                                <DataGrid.Columns>
-                                                    <DataGridTextColumn Header="Timestamp" Binding="{Binding Path=Timestamp, Mode=OneTime, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" IsReadOnly="True" />
-                                                    <DataGridTextColumn Header="TargetDisplay" Binding="{Binding Path=TargetDisplay, Mode=OneTime}" IsReadOnly="True" />
-                                                    <DataGridTextColumn Header="Type" Binding="{Binding Path=Type, Mode=OneTime}" IsReadOnly="True" />
-                                                    <DataGridTextColumn Header="Flags" Binding="{Binding Path=Flags, Mode=OneTime}" IsReadOnly="True" />
-                                                    <DataGridTextColumn Header="Magnitude" Binding="{Binding Path=Magnitude, Mode=OneTime}" IsReadOnly="True" />
-                                                    <DataGridTextColumn Header="MagnitudeBase" Binding="{Binding Path=MagnitudeBase, Mode=OneTime}" IsReadOnly="True" />
-                                                </DataGrid.Columns>
-                                            </DataGrid>
                                         </TreeViewItem>
                                     </HierarchicalDataTemplate>
                                 </TreeViewItem.ItemTemplate>
@@ -253,9 +238,6 @@
                                 <TreeViewItem.Header>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock>Events by: Entity Pets</TextBlock>
-                                        <!--<TextBlock Text="DPS(" Margin="8,0,0,0" Foreground="{StaticResource colorDps}" />
-                                        <TextBlock Text="{Binding Path=SelectedCombatEntityDps}" Foreground="{StaticResource colorDps}" />-->
-                                        <!--<TextBlock Text=")" Foreground="{StaticResource colorDps}" />-->
                                         <TextBlock Text="TOTAL(" Margin="8,0,0,0" Foreground="{StaticResource colorTotal}" />
                                         <TextBlock Text="{Binding Path=SelectedCombatEntityPetEventTypeTotalDamage, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorTotal}" />
                                         <TextBlock Text=")" Foreground="{StaticResource colorTotal}"/>
@@ -270,9 +252,6 @@
                                             <TreeViewItem.Header>
                                                 <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding Path=SourceDisplay}" />
-                                                <!--<TextBlock Text="DPS(" Margin="8,0,0,0" Foreground="{StaticResource colorDps}" />-->
-                                                <!--<TextBlock Text="{Binding Path=Dps, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorDps}" />
-                                                <TextBlock Text=")" Foreground="{StaticResource colorDps}" />-->
                                                 <TextBlock Text="TOTAL(" Margin="8,0,0,0" Foreground="{StaticResource colorTotal}" />
                                                 <TextBlock Text="{Binding Path=TotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorTotal}" />
                                                 <TextBlock Text=")" Foreground="{StaticResource colorTotal}"/>
@@ -298,18 +277,6 @@
                                                                 <TextBlock Text=")" Foreground="{StaticResource colorMax}" />
                                                             </StackPanel>
                                                         </TreeViewItem.Header>
-                                                        <DataGrid ItemsSource="{Binding Path=CombatEvents}" AutoGenerateColumns="False"
-                                                                  CanUserReorderColumns="True" CanUserSortColumns="True"
-                                                                  CanUserResizeColumns="True">
-                                                            <DataGrid.Columns>
-                                                                <DataGridTextColumn Header="Timestamp" Binding="{Binding Path=Timestamp, Mode=OneTime, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" IsReadOnly="True" />
-                                                                <DataGridTextColumn Header="TargetDisplay" Binding="{Binding Path=TargetDisplay, Mode=OneTime}" IsReadOnly="True" />
-                                                                <DataGridTextColumn Header="Type" Binding="{Binding Path=Type, Mode=OneTime}" IsReadOnly="True" />
-                                                                <DataGridTextColumn Header="Flags" Binding="{Binding Path=Flags, Mode=OneTime}" IsReadOnly="True" />
-                                                                <DataGridTextColumn Header="Magnitude" Binding="{Binding Path=Magnitude, Mode=OneTime}" IsReadOnly="True" />
-                                                                <DataGridTextColumn Header="MagnitudeBase" Binding="{Binding Path=MagnitudeBase, Mode=OneTime}" IsReadOnly="True" />
-                                                            </DataGrid.Columns>
-                                                        </DataGrid>
                                                     </TreeViewItem>
                                                 </HierarchicalDataTemplate>
                                             </TreeViewItem.ItemTemplate>
@@ -318,7 +285,7 @@
                                 </TreeViewItem.ItemTemplate>
                             </TreeViewItem>
                         </TreeView>
-                    </GroupBox>
+                    </GroupBox>-->
 
                     <GridSplitter Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Background="Gray" Height="2" Margin="10,2,10,0"
                                   HorizontalAlignment="Stretch" VerticalAlignment="Top" />
