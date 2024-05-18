@@ -4,6 +4,7 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -202,6 +203,7 @@ public partial class MainWindow : Window
         else
             CombatLogManagerContext?.SetSelectedCombatEntity(null);
 
+        this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked = false;
         this.SetPlots();
     }
 
@@ -235,7 +237,7 @@ public partial class MainWindow : Window
                     .Select(ev => new { Mag = ev.MagnitudeBase, DateTimeDouble = ev.Timestamp.ToOADate() })
                     .ToList();
 
-                var signal = this.uiScottScatterPlotEntityEvents.Plot.Add.ScatterPoints(
+                var signal = this.uiScottScatterPlotEntityEvents.Plot.Add.SignalXY(
                     magnitudeBaseDataList.Select(pd => pd.DateTimeDouble).ToArray(),
                     magnitudeBaseDataList.Select(pd => pd.Mag).ToArray());
 
@@ -250,7 +252,7 @@ public partial class MainWindow : Window
                     .OrderBy(ev => ev.Timestamp)
                     .Select(ev => new { Mag = ev.Magnitude, DateTimeDouble = ev.Timestamp.ToOADate() }).ToList();
 
-                var signal = this.uiScottScatterPlotEntityEvents.Plot.Add.ScatterPoints(
+                var signal = this.uiScottScatterPlotEntityEvents.Plot.Add.SignalXY(
                     magnitudeDataList.Select(pd => pd.DateTimeDouble).ToArray(),
                     magnitudeDataList.Select(pd => pd.Mag).ToArray());
 
@@ -269,6 +271,53 @@ public partial class MainWindow : Window
                 this.UiScottScatterPlotEntityEventsOnMouseLeftButtonDown;
             this.uiScottScatterPlotEntityEvents.MouseLeftButtonDown +=
                 this.UiScottScatterPlotEntityEventsOnMouseLeftButtonDown;
+
+            var dps = 0d;
+            var total = 0d;
+            var max = 0d;
+
+            if (CombatLogManagerContext.EventTypeDisplayFilter.Equals("ALL"))
+            {
+                dps = CombatLogManagerContext.SelectedCombatEntity.EntityMagnitudePerSecond;
+                total = CombatLogManagerContext.SelectedCombatEntity.EntityTotalMagnitude;
+                max = CombatLogManagerContext.SelectedCombatEntity.EntityMaxMagnitude;
+            }
+            else if (CombatLogManagerContext.EventTypeDisplayFilter.Equals("ALL PETS"))
+            {
+                dps = CombatLogManagerContext.SelectedCombatEntity.PetsMagnitudePerSecond;
+                total = CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude;
+                max = CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude;
+            }
+            else if (CombatLogManagerContext.EventTypeDisplayFilter.StartsWith("PET(", StringComparison.CurrentCultureIgnoreCase))
+            {
+                CombatLogManagerContext.SelectedEntityPetCombatEventTypeList.ToList().ForEach(petevt => {
+                    petevt.CombatEventTypes.ForEach(evt =>
+                    {
+                        if (CombatLogManagerContext.EventTypeDisplayFilter.Equals(petevt.GetUiLabelForEventDisplay(evt.EventDisplay)))
+                        {
+                            dps = evt.Dps;
+                            total = evt.TotalMagnitude;
+                            max = evt.MaxMagnitude;
+                        }
+                    });
+                });
+            }
+            else
+            {
+                var combatEventType = CombatLogManagerContext.SelectedEntityCombatEventTypeList.FirstOrDefault(evt =>
+                    evt.EventDisplay.Equals(CombatLogManagerContext.EventTypeDisplayFilter));
+                
+                dps = combatEventType.Dps;
+                total = combatEventType.TotalMagnitude;
+                max = combatEventType.MaxMagnitude;
+            }
+
+            var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
+                $"DPS({dps.ToMetric(null,3)}) Total({total.ToMetric(null, 3)}) Max({max.ToMetric(null, 3)})",
+                Alignment.UpperCenter);
+
+            annotation.LabelFontSize = 18f;
+            annotation.LabelBold = true;
         }
         else
         {
@@ -294,7 +343,7 @@ public partial class MainWindow : Window
         var mousePixel = this.uiScottScatterPlotEntityEvents.GetCurrentPlotPixelPosition();
         var mouseLocation = this.uiScottScatterPlotEntityEvents.Plot.GetCoordinates(mousePixel);
 
-        var scatterPlots = plotPlottableList.OfType<Scatter>().ToList();
+        var scatterPlots = plotPlottableList.OfType<SignalXY>().ToList();
 
         scatterPlots.ForEach(plot =>
         {
@@ -367,24 +416,25 @@ public partial class MainWindow : Window
             this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked.Value)
         {
             var combatPetEvents = CombatLogManagerContext?.SelectedEntityPetCombatEventTypeList;
-            if (combatPetEvents != null && combatPetEvents.Any())
+            if (combatPetEvents != null && combatPetEvents.Count != 0)
             {
                 var colorCounter = 0;
-                var colorArray = Colors.Rainbow(combatPetEvents.Count).ToList();
+                var colorArray = Colors.Rainbow(combatPetEvents.Sum(petevt => petevt.CombatEventTypes.Count)).ToList();
 
                 combatPetEvents.ToList().ForEach(petevt =>
                 {
-                    var sumOfMagnitude =
-                        petevt.CombatEventTypes.Sum(evt => evt.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude)));
-
-                    if (sumOfMagnitude == 0) return;
-
-                    bars.Add(new Bar
+                    petevt.CombatEventTypes.ForEach(evt =>
                     {
-                        Position = positionCounter--,
-                        Value = sumOfMagnitude,
-                        FillColor = colorArray[colorCounter++],
-                        Label = $"{petevt.SourceDisplay} ({sumOfMagnitude.ToMetric(null, 3)})"
+                        if (evt.TotalMagnitude == 0) return;
+
+                        bars.Add(new Bar
+                        {
+                            Position = positionCounter--,
+                            Value = evt.TotalMagnitude,
+                            FillColor = colorArray[colorCounter++],
+                            Label = $"{petevt.GetUiLabelForEventDisplay(evt.EventDisplay)} ({evt.TotalMagnitude.ToMetric(null, 3)})",
+                            CenterLabel = true
+                        });
                     });
                 });
             }
@@ -426,7 +476,7 @@ public partial class MainWindow : Window
                         Position = positionCounter--,
                         Value = sumOfMagnitude,
                         FillColor = Color.FromHex("000000"),
-                        Label = $"Pets ({sumOfMagnitude.ToMetric(null, 3)})"
+                        Label = $"ALL PETS ({sumOfMagnitude.ToMetric(null, 3)})"
                     });
             }
         }
@@ -440,13 +490,61 @@ public partial class MainWindow : Window
             this.uiScottBarChartEntityEventTypes.Plot.Axes.Margins(0, right: 0.3);
 
             var upperCenterAnnotation = this.uiScottBarChartEntityEventTypes.Plot.Add.Annotation(
-                $"Total Damage Done: {bars.Sum(pieSlice => pieSlice.Value).ToMetric(null, 3)}", Alignment.UpperCenter);
+                $"Total({bars.Sum(pieSlice => pieSlice.Value).ToMetric(null, 3)})", Alignment.UpperCenter);
             upperCenterAnnotation.LabelFontSize = 18f;
+            upperCenterAnnotation.LabelBold = true;
 
             this.uiScottBarChartEntityEventTypes.Plot.Axes.AutoScale();
+
+            this.uiScottBarChartEntityEventTypes.MouseLeftButtonDown -= this.UiScottBarChartEntityEventTypes_MouseLeftButtonDown;
+            this.uiScottBarChartEntityEventTypes.MouseLeftButtonDown += this.UiScottBarChartEntityEventTypes_MouseLeftButtonDown;
+        }
+        else
+        {
+            this.uiScottBarChartEntityEventTypes.MouseLeftButtonDown -= this.UiScottBarChartEntityEventTypes_MouseLeftButtonDown;
         }
 
         this.uiScottBarChartEntityEventTypes.Refresh();
+    }
+
+    private void UiScottBarChartEntityEventTypes_MouseLeftButtonDown(object sender, MouseEventArgs e)
+    {
+        var plotPlottableList = this.uiScottBarChartEntityEventTypes.Plot.PlottableList;
+        if (plotPlottableList.Count == 0)
+            return;
+
+        var mousePixel = this.uiScottBarChartEntityEventTypes.GetCurrentPlotPixelPosition();
+        var mouseLocation = this.uiScottBarChartEntityEventTypes.Plot.GetCoordinates(mousePixel);
+
+        var barPlots = plotPlottableList.OfType<BarPlot>().ToList();
+
+        barPlots.ForEach(plot =>
+        {
+            plot.Bars.ToList().ForEach(bar =>
+            {
+                var maxY = bar.Position + (bar.Size / 2);
+                var minY = bar.Position - (bar.Size / 2);
+
+                if (mouseLocation.Y >= minY && mouseLocation.Y <= maxY)
+                {
+                    if (bar.Label.StartsWith("ALL PETS ("))
+                    {
+                        CombatLogManagerContext!.EventTypeDisplayFilter = "ALL PETS";
+                        return;
+                    }
+
+                    var eventType = CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => bar.Label.StartsWith(eventType));
+                    if (!string.IsNullOrWhiteSpace(eventType))
+                    {
+                        CombatLogManagerContext!.EventTypeDisplayFilter = eventType;
+                        return;
+                    }
+                        
+                    CombatLogManagerContext!.EventTypeDisplayFilter = "ALL";
+                    return;
+                }
+            });
+        });
     }
 
     private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)

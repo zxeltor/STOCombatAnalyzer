@@ -109,11 +109,35 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         get
         {
+            // Return a list of all player events, with pet events grouped together.
             if (string.IsNullOrWhiteSpace(this.EventTypeDisplayFilter) || this.EventTypeDisplayFilter.Equals("ALL"))
                 return this.SelectedEntityCombatEventList;
-            if (this.EventTypeDisplayFilter.Equals("PETS ONLY"))
+
+            // Return a list of all Player Pet events
+            if (this.EventTypeDisplayFilter.Equals("ALL PETS"))
                 return new ObservableCollection<CombatEvent>(
                     this.SelectedEntityCombatEventList?.Where(evt => evt.IsPetEvent) ?? Array.Empty<CombatEvent>());
+
+            // Return a list of events specific to a Pet
+            if (this.EventTypeDisplayFilter.StartsWith("PET(", StringComparison.CurrentCultureIgnoreCase))
+            {
+                if(this.SelectedEntityPetCombatEventTypeList == null || this.SelectedEntityPetCombatEventTypeList.Count == 0)
+                    return new ObservableCollection<CombatEvent>();
+
+                var petEvtList = new List<CombatEvent>();
+
+                this.SelectedEntityPetCombatEventTypeList.ToList().ForEach(petevt => {
+                    petevt.CombatEventTypes.ForEach(evt =>
+                    {
+                        if (this.EventTypeDisplayFilter.Equals(petevt.GetUiLabelForEventDisplay(evt.EventDisplay)))
+                            petEvtList.AddRange(evt.CombatEvents);
+                    });
+                });
+
+                return new ObservableCollection<CombatEvent>(petEvtList);
+            }
+
+            // Return a list of events for a specfic non-pet event.
             return new ObservableCollection<CombatEvent>(
                 this.SelectedEntityCombatEventList?.Where(evt =>
                     evt.EventDisplay.Equals(this.EventTypeDisplayFilter, StringComparison.CurrentCultureIgnoreCase)) ??
@@ -127,12 +151,25 @@ public class CombatLogManager : INotifyPropertyChanged
         {
             var resultCollection = new ObservableCollection<string>
             {
-                "ALL",
-                "PETS ONLY"
+                "ALL", // Return all events
+                "ALL PETS" // Return player pet events.
             };
 
-            if (this.SelectedEntityCombatEventTypeList != null)
+            // Add player events to the list
+            if (this.SelectedEntityCombatEventTypeList != null && SelectedEntityCombatEventTypeList.Count > 0)
                 this.SelectedEntityCombatEventTypeList.ToList().ForEach(evt => resultCollection.Add(evt.EventDisplay));
+
+            // Add player pet events to the list
+            if (this.SelectedEntityPetCombatEventTypeList != null && SelectedEntityPetCombatEventTypeList.Count > 0)
+                this.SelectedEntityPetCombatEventTypeList.ToList().ForEach(pevt =>
+                {
+                    if (pevt.CombatEventTypes != null && pevt.CombatEventTypes.Count > 0)
+                    {
+                        pevt.CombatEventTypes.ToList().ForEach(evt => {
+                            resultCollection.Add(pevt.GetUiLabelForEventDisplay(evt.EventDisplay));
+                        });
+                    }
+                });
 
             return resultCollection;
         }

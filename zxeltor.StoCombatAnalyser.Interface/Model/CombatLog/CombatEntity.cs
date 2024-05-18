@@ -109,23 +109,72 @@ public class CombatEntity : INotifyPropertyChanged
         this.CombatEventList.Count(dam => dam.Flags.Contains("kill", StringComparison.CurrentCultureIgnoreCase));
 
     /// <summary>
-    ///     A rudimentary calculation for these entities EntityMagnitudePerSecond, and probably incorrect.
+    ///     A rudimentary calculation for player events EntityMagnitudePerSecond, and probably incorrect.
     /// </summary>
     public double EntityMagnitudePerSecond => this.CombatEventList.Count == 0
         ? 0
         : (this.CombatEventList.Sum(dam => Math.Abs(dam.Magnitude)) /
-           ((this.CombatEventList.Max(ev => ev.Timestamp) - this.CombatEventList.Min(ev => ev.Timestamp)).TotalSeconds + .001));
+           ((this.CombatEventList.Max(ev => ev.Timestamp) - this.CombatEventList.Min(ev => ev.Timestamp)).TotalSeconds +
+            .001));
 
     /// <summary>
-    ///     A rudimentary calculation for max damage for this entity, and probably incorrect.
+    ///     A rudimentary calculation for player pet events EntityMagnitudePerSecond, and probably incorrect.
+    /// </summary>
+    public double PetsMagnitudePerSecond 
+    {
+        get
+        {
+            var petEvents = this.CombatEventList.Where(ev => ev.IsPetEvent).ToList();
+
+            if(petEvents.Count == 0) return 0;
+
+            return (petEvents.Sum(dam => Math.Abs(dam.Magnitude)) / ((petEvents.Max(ev => ev.Timestamp) - petEvents.Min(ev => ev.Timestamp)).TotalSeconds + .001));
+        }
+    }
+
+    /// <summary>
+    ///     A rudimentary calculation for max damage for player events, and probably incorrect.
     /// </summary>
     public double EntityMaxMagnitude => this.CombatEventList.Count == 0
         ? 0
         : this.CombatEventList.Max(dam => Math.Abs(dam.Magnitude));
 
+    /// <summary>
+    ///     A rudimentary calculation for max damage for player pet events, and probably incorrect.
+    /// </summary>
+    public double PetsMaxMagnitude
+    {
+        get
+        {
+            var petEvents = this.CombatEventList.Where(ev => ev.IsPetEvent).ToList();
+
+            if (petEvents.Count == 0) return 0;
+
+            return petEvents.Max(dam => Math.Abs(dam.Magnitude));
+        }
+    }
+
+    /// <summary>
+    ///     A rudimentary calculation for total damage for player events, and probably incorrect.
+    /// </summary>
     public double EntityTotalMagnitude => this.CombatEventList.Count == 0
         ? 0
         : this.CombatEventList.Sum(dam => Math.Abs(dam.Magnitude));
+
+    /// <summary>
+    ///     A rudimentary calculation for total damage for player pet events, and probably incorrect.
+    /// </summary>
+    public double PetsTotalMagnitude
+    {
+        get
+        {
+            var petEvents = this.CombatEventList.Where(ev => ev.IsPetEvent).ToList();
+
+            if (petEvents.Count == 0) return 0;
+
+            return petEvents.Sum(dam => Math.Abs(dam.Magnitude));
+        }
+    }
 
     /// <summary>
     ///     The ID for our entity

@@ -12,7 +12,17 @@ public class CombatPetEventType
     {
         this.SourceDisplay = sourceDisplay;
 
-        if (combatEventTypeList.Any()) this.CombatEventTypes.AddRange(combatEventTypeList);
+        if (combatEventTypeList.Count != 0) this.CombatEventTypes.AddRange(combatEventTypeList);
+    }
+
+    /// <summary>
+    ///     A helper method used to construct a UI label for Pet event types
+    /// </summary>
+    /// <param name="eventDisplay">The event display type</param>
+    /// <returns>The construcred label.</returns>
+    public string GetUiLabelForEventDisplay(string eventDisplay)
+    {
+        return $"Pet({SourceDisplay}): {eventDisplay}";
     }
 
     public double TotalMagnitude => this.CombatEventTypes.Sum(ev => ev.TotalMagnitude);
