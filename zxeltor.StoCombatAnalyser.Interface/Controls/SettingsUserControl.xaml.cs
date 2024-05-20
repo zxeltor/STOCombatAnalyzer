@@ -5,10 +5,16 @@
 // LICENSE file in the root directory of this source tree.
 
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+
+using log4net;
+using log4net.Core;
+using log4net.Repository.Hierarchy;
+
 using Microsoft.Win32;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Helpers;
@@ -21,6 +27,8 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 /// </summary>
 public partial class SettingsUserControl : UserControl
 {
+    private readonly ILog _log = log4net.LogManager.GetLogger(typeof(SettingsUserControl));
+
     public SettingsUserControl()
     {
         this.InitializeComponent();
@@ -49,6 +57,8 @@ public partial class SettingsUserControl : UserControl
         this.uiTextBoxMaxNumberOfCombatsToDisplay.TextChanged += this.TextBoxBase_OnTextChanged;
         this.uiTextBoxHowLongBeforeNewCombat.TextChanged += this.TextBoxBase_OnTextChanged;
         this.uiTextBoxHowLongToKeepLogs.TextChanged += this.TextBoxBase_OnTextChanged;
+
+        SetLog4netLogLevelFromSettings();
     }
 
     /// <summary>
@@ -195,7 +205,7 @@ public partial class SettingsUserControl : UserControl
     {
         if (!(sender is Button button)) return;
 
-        if (button.Name.Equals(nameof(this.uiButtonPurgeLogsNow)))
+        if (button == uiButtonPurgeLogsNow)
         {
             if (CombatLogManager.TryPurgeCombatLogFolder(out var filesPurged, out var errorReason))
             {
@@ -215,6 +225,60 @@ public partial class SettingsUserControl : UserControl
                         "Combat log purge error");
             }
         }
+        else if (button == uiButtonOpenLogFile)
+        {
+            var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoCombatAnalyzer\\logs\\StoCombatAnalyzer.log");
+            if (!File.Exists(logPath))
+            {
+                MessageBox.Show($"Log file not found: {logPath}", "Eror", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            try
+            {
+                using (var openLogProcess = new Process())
+                {
+                    openLogProcess.StartInfo = new ProcessStartInfo()
+                    {
+                        FileName = logPath,
+                        UseShellExecute = true                        
+                    };
+
+                    openLogProcess.Start();
+                }
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = $"Failed to load log file: {logPath}";
+                _log.Error(errorMessage, ex );
+                MessageBox.Show(errorMessage, "Eror", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+        }
+    }
+
+    private void SetLog4netLogLevelFromSettings()
+    {
+        try
+        {
+            LogManager.GetAllRepositories().ToList().ForEach(repository => {
+                Hierarchy hier = (Hierarchy)repository;
+                hier.GetCurrentLoggers().ToList().ForEach(logger => {
+                    var tmpLogger = ((Logger)logger);
+                    tmpLogger.Level = Settings.Default.DebugLogging ? Level.Debug : Level.Warn;
+                });
+            });
+        }
+        catch (Exception e)
+        {
+            _log.Warn("Failed to set application log level", e);
+            MessageBox.Show("Failed to set application log level", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    private void uiCheckBoxEnableDebugLogging_Click(object sender, RoutedEventArgs e)
+    {
+        this.SetLog4netLogLevelFromSettings();
     }
 }
 
@@ -225,6 +289,7 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
 {
     private string? _combatLogPath = Settings.Default.CombatLogPath;
     private string? _combatLogPathFilePattern = Settings.Default.CombatLogPathFilePattern;
+    private bool _enableDebugLogging = Settings.Default.DebugLogging;
     private int _howLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombat;
     private long _howLongToKeepLogs = Settings.Default.HowLongToKeepLogs;
     private int _maxNumberOfCombatsToDisplay = Settings.Default.MaxNumberOfCombatsToDisplay;
@@ -284,6 +349,20 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
             Settings.Default.CombatLogPathFilePattern = value;
             Settings.Default.Save();
             this.SetField(ref this._combatLogPathFilePattern, value);
+        }
+    }
+
+    /// <summary>
+    ///     Enable debug log4net debug logging
+    /// </summary>
+    public bool EnableDebugLogging
+    {
+        get => this._enableDebugLogging = Settings.Default.DebugLogging;
+        set
+        {
+            Settings.Default.DebugLogging = value;
+            Settings.Default.Save();
+            this.SetField(ref this._enableDebugLogging, value);
         }
     }
 

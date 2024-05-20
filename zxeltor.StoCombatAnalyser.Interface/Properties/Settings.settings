@@ -20,5 +20,8 @@
     <Setting Name="HowLongToKeepLogs" Type="System.Int64" Scope="User">
       <Value Profile="(Default)">7</Value>
     </Setting>
+    <Setting Name="DebugLogging" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

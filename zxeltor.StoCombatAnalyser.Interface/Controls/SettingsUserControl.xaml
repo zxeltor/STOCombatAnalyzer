@@ -98,7 +98,7 @@
                                    VerticalAlignment="Center" HorizontalAlignment="Center" />
                         <CheckBox Content="Enable purge at startup" IsChecked="{Binding Path=PurgeCombatLogs, Mode=TwoWay}" Margin="8,0,0,0" 
                                   VerticalAlignment="Center" HorizontalAlignment="Center" />
-                        <Button Name="uiButtonPurgeLogsNow" Content="Purge Now" Margin="20,0,0,0" Padding="4,0,4,0" 
+                        <Button Name="uiButtonPurgeLogsNow" Tag="PurgeLogsNow" Content="Purge Now" Margin="20,0,0,0" Padding="4,0,4,0" 
                                 VerticalAlignment="Center" HorizontalAlignment="Center"
                                 Click="ButtonBase_OnClick" />
                     </StackPanel>
@@ -127,6 +127,26 @@
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
                         <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">How long to keep combat logs in days, before they are purged.</TextBlock>
+                    </StackPanel>
+                </Grid>
+            </ListBoxItem>
+            <ListBoxItem Tag="EnableDebugLogging" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="DebugLogging" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <CheckBox x:Name="uiCheckBoxEnableDebugLogging" Content="Enable" Margin="4,4,0,0"
+                                Click="uiCheckBoxEnableDebugLogging_Click" />
+                        <Button x:Name="uiButtonOpenLogFile" Content="Open Log File" Margin="20,0,0,0" Padding="4,0,4,0"
+                                Click="ButtonBase_OnClick" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">Enable debug logging for this application.</TextBlock>
                     </StackPanel>
                 </Grid>
             </ListBoxItem>
