@@ -410,20 +410,20 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Selected Entity:" />
                                     <StackPanel Orientation="Vertical">
-                                        <CheckBox x:Name="uiCheckboxPlotDisplayMagnitude" Content="Display Magnitude" Margin="8,0,0,0" 
+                                        <CheckBox x:Name="uiCheckboxPlotDisplayMagnitude" Content="Magnitude" Margin="8,0,0,0" 
                                                   IsChecked="{Binding Path=MainCombatEventGridContext.IsDisplayPlotMagnitude, Mode=TwoWay}"
                                                   Tag="PlotDisplayMagnitude"
                                                   Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
                                                   Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
-                                        <CheckBox x:Name="uiCheckboxPlotDisplayMagnitudeBase" Content="Display MagnitudeBase" Margin="8,0,0,0"
+                                        <CheckBox x:Name="uiCheckboxPlotDisplayMagnitudeBase" Content="MagnitudeBase" Margin="8,0,0,0"
                                                   IsChecked="{Binding Path=MainCombatEventGridContext.IsDisplayPlotMagnitudeBase, Mode=TwoWay}"
                                                   Tag="PlotDisplayMagnitudeBase"
                                                   Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
                                                   Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
                                     </StackPanel>
                                    
-                                    <TextBlock Text="Event Filter:" Margin="16,0,0,0"/>
-                                    <ComboBox Name="uiComboBoxSelectEventType" Margin="8,0,0,0"
+                                    <TextBlock Text="Filter:" Margin="16,0,0,0"/>
+                                    <ComboBox Name="uiComboBoxSelectEventType" Margin="8,0,0,0" MaxWidth="200"
                                                ItemsSource="{Binding Path=SelectedEntityCombatEventTypeListDisplayedFilterOptions}" 
                                                SelectedItem="{Binding Path=EventTypeDisplayFilter, Mode=TwoWay}"
                                                SelectionChanged="UiComboBoxSelectEventType_OnSelectionChanged">
@@ -431,7 +431,7 @@
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding Path=Label}" />
                                             </DataTemplate>
-                                        </ComboBox.ItemTemplate>
+                                        </ComboBox.ItemTemplate>                                        
                                     </ComboBox>
 
                                     <Button Name="uiButtonResetScatterPlot" Content="Reset Pan/Zoom" Margin="16,0,0,0"
