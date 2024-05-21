@@ -31,6 +31,11 @@ public partial class MainWindow : Window
     {
         this.InitializeComponent();
 
+#if DEBUG
+        this.Width = 1500;
+        this.Height = 900;
+#endif
+
         CombatLogManagerContext = new CombatLogManager();
         CombatLogManagerContext.StatusChange += this.combatLogManager_StatusChange;
         this.DataContext = CombatLogManagerContext;
