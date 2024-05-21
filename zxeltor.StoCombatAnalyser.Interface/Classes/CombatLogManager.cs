@@ -182,18 +182,11 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         get
         {
-            if (_eventTypeDisplayFilter == null)
-            {
-                this._eventTypeDisplayFilter = this.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(evt => evt.EventInternal.Equals("ALL"));
-            }
-
-            return this._eventTypeDisplayFilter;
+            return this._eventTypeDisplayFilter ?? new CombatEventTypeSelector("ALL");
         }
         set
         {
-            this.SetField(ref this._eventTypeDisplayFilter, value);
-            this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
-            this.OnPropertyChanged(nameof(this.EventTypeDisplayFilter));
+            this.SetField(ref this._eventTypeDisplayFilter, value ?? new CombatEventTypeSelector("ALL"));
         }
     }
 
@@ -213,17 +206,6 @@ public class CombatLogManager : INotifyPropertyChanged
     public ObservableCollection<Combat> Combats { get; set; } = new();
 
     public event PropertyChangedEventHandler? PropertyChanged;
-
-    /// <summary>
-    /// Used to set combat event type filter used by the main grid and the scatter plot.
-    /// </summary>
-    /// <param name="filter">The event type to filter on, or ALL.</param>
-    //public void ApplyCombatEventTypeFilter(string? filter = null)
-    //{
-    //    this.EventTypeDisplayFilter = filter ?? "ALL";
-
-    //    this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
-    //}
 
     /// <summary>
     ///     Purge the sto combat logs folder.
@@ -285,7 +267,7 @@ public class CombatLogManager : INotifyPropertyChanged
     /// </summary>
     protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        //if (EqualityComparer<T>.Default.Equals(field, value)) return false;
         field = value;
         this.OnPropertyChanged(propertyName);
         return true;
@@ -456,8 +438,8 @@ public class CombatLogManager : INotifyPropertyChanged
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeList));
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeListDisplayedFilterOptions));
         this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
-        this.OnPropertyChanged(nameof(this.SelectedEntityPetCombatEventTypeList));
         this.OnPropertyChanged(nameof(this.EventTypeDisplayFilter));
+        this.OnPropertyChanged(nameof(this.SelectedEntityPetCombatEventTypeList));
     }
 
     protected void OnPropertyChanged([CallerMemberName] string? name = null)
