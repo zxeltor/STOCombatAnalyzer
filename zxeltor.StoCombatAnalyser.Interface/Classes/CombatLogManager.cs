@@ -187,6 +187,7 @@ public class CombatLogManager : INotifyPropertyChanged
         set
         {
             this.SetField(ref this._eventTypeDisplayFilter, value ?? new CombatEventTypeSelector("ALL"));
+            this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
         }
     }
 
@@ -285,6 +286,8 @@ public class CombatLogManager : INotifyPropertyChanged
 
         // A list of objects used to track successful and unsuccessful file log parses.
         var fileParsedResults = new Dictionary<string, FileParseResults>();
+
+        Log.Debug("Parsing log files.");
 
         // If no files are provided, we attempt to get a list from our combat log folder.
         if (filesToParse == null)
@@ -386,9 +389,10 @@ public class CombatLogManager : INotifyPropertyChanged
 
             this.AddToLogAndLogSummaryInUi(completionMessage);
 
-            DetailsDialog.Show(Application.Current.MainWindow, completionMessage, "Success",
-                detailsBoxCaption: "Files parsed",
-                detailsBoxList: fileParsedResults.Select(file => file.Value.ToLog()).ToList());
+            if(Settings.Default.DebugLogging) 
+                DetailsDialog.Show(Application.Current.MainWindow, completionMessage, "Success",
+                    detailsBoxCaption: "Files parsed",
+                    detailsBoxList: fileParsedResults.Select(file => file.Value.ToLog()).ToList());
         }
         catch (Exception ex)
         {

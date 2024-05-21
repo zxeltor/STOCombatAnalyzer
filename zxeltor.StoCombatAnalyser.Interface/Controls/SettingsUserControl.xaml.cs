@@ -207,6 +207,8 @@ public partial class SettingsUserControl : UserControl
 
         if (button == uiButtonPurgeLogsNow)
         {
+            _log.Debug("Purging log files.");
+
             if (CombatLogManager.TryPurgeCombatLogFolder(out var filesPurged, out var errorReason))
             {
                 if (filesPurged.Any())

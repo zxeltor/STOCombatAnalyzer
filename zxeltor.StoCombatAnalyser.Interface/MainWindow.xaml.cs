@@ -73,7 +73,7 @@ public partial class MainWindow : Window
 
         if (CombatLogManager.TryPurgeCombatLogFolder(out var filesPurged, out var errorReason))
         {
-            if (filesPurged.Count > 0)
+            if (filesPurged.Count > 0 && Settings.Default.DebugLogging)
                 DetailsDialog.Show(Application.Current.MainWindow, "The combat logs were automatically purged.",
                     "Combat log purge", detailsBoxCaption: "File(s) purged", detailsBoxList: filesPurged);
         }
@@ -182,7 +182,7 @@ public partial class MainWindow : Window
     }
 
     private void uiButtonParseLog_Click(object sender, RoutedEventArgs e)
-    {
+    {        
         CombatLogManagerContext?.GetCombatLogEntriesFromLogFiles();
         this.SetPlots();
     }
@@ -577,7 +577,7 @@ public partial class MainWindow : Window
             });
         });
 
-        //SetPlots();
+        SetPlots();
     }
 
     private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)

@@ -140,7 +140,8 @@
                         <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         <TextBlock Text="DebugLogging" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         <CheckBox x:Name="uiCheckBoxEnableDebugLogging" Content="Enable" Margin="4,4,0,0"
-                                Click="uiCheckBoxEnableDebugLogging_Click" />
+                                  IsChecked="{Binding Path=EnableDebugLogging}"
+                                  Click="uiCheckBoxEnableDebugLogging_Click" />
                         <Button x:Name="uiButtonOpenLogFile" Content="Open Log File" Margin="20,0,0,0" Padding="4,0,4,0"
                                 Click="ButtonBase_OnClick" />
                     </StackPanel>
