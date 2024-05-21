@@ -28,7 +28,7 @@ public class CombatLogManager : INotifyPropertyChanged
 
     private static readonly ILog Log = LogManager.GetLogger(typeof(CombatLogManager));
 
-    private string _eventTypeDisplayFilter = "ALL";
+    private CombatEventTypeSelector _eventTypeDisplayFilter;
 
     public CombatEventGridContext MainCombatEventGridContext { get; } = new();
 
@@ -110,16 +110,16 @@ public class CombatLogManager : INotifyPropertyChanged
         get
         {
             // Return a list of all player events, with pet events grouped together.
-            if (string.IsNullOrWhiteSpace(this.EventTypeDisplayFilter) || this.EventTypeDisplayFilter.Equals("ALL"))
+            if (this.EventTypeDisplayFilter == null || this.EventTypeDisplayFilter.EventInternal.Equals("ALL"))
                 return this.SelectedEntityCombatEventList;
 
             // Return a list of all Player Pet events
-            if (this.EventTypeDisplayFilter.Equals("ALL PETS"))
+            if (this.EventTypeDisplayFilter.EventInternal.Equals("ALL PETS"))
                 return new ObservableCollection<CombatEvent>(
                     this.SelectedEntityCombatEventList?.Where(evt => evt.IsPetEvent) ?? Array.Empty<CombatEvent>());
 
             // Return a list of events specific to a Pet
-            if (this.EventTypeDisplayFilter.StartsWith("PET(", StringComparison.CurrentCultureIgnoreCase))
+            if (this.EventTypeDisplayFilter.EventInternal.StartsWith("PET(", StringComparison.CurrentCultureIgnoreCase))
             {
                 if(this.SelectedEntityPetCombatEventTypeList == null || this.SelectedEntityPetCombatEventTypeList.Count == 0)
                     return new ObservableCollection<CombatEvent>();
@@ -129,7 +129,7 @@ public class CombatLogManager : INotifyPropertyChanged
                 this.SelectedEntityPetCombatEventTypeList.ToList().ForEach(petevt => {
                     petevt.CombatEventTypes.ForEach(evt =>
                     {
-                        if (this.EventTypeDisplayFilter.Equals(petevt.GetUiLabelForEventDisplay(evt.EventDisplay)))
+                        if (this.EventTypeDisplayFilter.EventInternal.Equals(petevt.GetUiLabelForEventDisplay(evt.EventDisplay)))
                             petEvtList.AddRange(evt.CombatEvents);
                     });
                 });
@@ -140,24 +140,24 @@ public class CombatLogManager : INotifyPropertyChanged
             // Return a list of events for a specfic non-pet event.
             return new ObservableCollection<CombatEvent>(
                 this.SelectedEntityCombatEventList?.Where(evt =>
-                    evt.EventDisplay.Equals(this.EventTypeDisplayFilter, StringComparison.CurrentCultureIgnoreCase)) ??
+                    evt.EventInternal.Equals(this.EventTypeDisplayFilter.EventInternal, StringComparison.CurrentCultureIgnoreCase)) ??
                 Array.Empty<CombatEvent>());
         }
     }
 
-    public ObservableCollection<string> SelectedEntityCombatEventTypeListDisplayedFilterOptions
+    public ObservableCollection<CombatEventTypeSelector> SelectedEntityCombatEventTypeListDisplayedFilterOptions
     {
         get
         {
-            var resultCollection = new ObservableCollection<string>
+            var resultCollection = new ObservableCollection<CombatEventTypeSelector>
             {
-                "ALL", // Return all events
-                "ALL PETS" // Return player pet events.
+                new CombatEventTypeSelector("ALL"), // Return all events
+                new CombatEventTypeSelector("ALL PETS") // Return player pet events.
             };
 
             // Add player events to the list
             if (this.SelectedEntityCombatEventTypeList != null && SelectedEntityCombatEventTypeList.Count > 0)
-                this.SelectedEntityCombatEventTypeList.ToList().ForEach(evt => resultCollection.Add(evt.EventDisplay));
+                this.SelectedEntityCombatEventTypeList.ToList().ForEach(evt => resultCollection.Add(new CombatEventTypeSelector(evt.EventInternal, evt.EventDisplay)));
 
             // Add player pet events to the list
             if (this.SelectedEntityPetCombatEventTypeList != null && SelectedEntityPetCombatEventTypeList.Count > 0)
@@ -166,7 +166,7 @@ public class CombatLogManager : INotifyPropertyChanged
                     if (pevt.CombatEventTypes != null && pevt.CombatEventTypes.Count > 0)
                     {
                         pevt.CombatEventTypes.ToList().ForEach(evt => {
-                            resultCollection.Add(pevt.GetUiLabelForEventDisplay(evt.EventDisplay));
+                            resultCollection.Add(new CombatEventTypeSelector(pevt.GetUiLabelForEventDisplay(evt.EventDisplay)));
                         });
                     }
                 });
@@ -178,13 +178,15 @@ public class CombatLogManager : INotifyPropertyChanged
     /// <summary>
     ///     The filter string for the 
     /// </summary>
-    public string EventTypeDisplayFilter
+    public CombatEventTypeSelector EventTypeDisplayFilter
     {
-        get => this._eventTypeDisplayFilter;
+        get
+        {
+            return this._eventTypeDisplayFilter ?? new CombatEventTypeSelector("ALL");
+        }
         set
         {
-            this.SetField(ref this._eventTypeDisplayFilter, string.IsNullOrWhiteSpace(value) ? "ALL" : value);
-            this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
+            this.SetField(ref this._eventTypeDisplayFilter, value ?? new CombatEventTypeSelector("ALL"));
         }
     }
 
@@ -204,17 +206,6 @@ public class CombatLogManager : INotifyPropertyChanged
     public ObservableCollection<Combat> Combats { get; set; } = new();
 
     public event PropertyChangedEventHandler? PropertyChanged;
-
-    /// <summary>
-    /// Used to set combat event type filter used by the main grid and the scatter plot.
-    /// </summary>
-    /// <param name="filter">The event type to filter on, or ALL.</param>
-    //public void ApplyCombatEventTypeFilter(string? filter = null)
-    //{
-    //    this.EventTypeDisplayFilter = filter ?? "ALL";
-
-    //    this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
-    //}
 
     /// <summary>
     ///     Purge the sto combat logs folder.
@@ -276,7 +267,7 @@ public class CombatLogManager : INotifyPropertyChanged
     /// </summary>
     protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        //if (EqualityComparer<T>.Default.Equals(field, value)) return false;
         field = value;
         this.OnPropertyChanged(propertyName);
         return true;
@@ -436,7 +427,7 @@ public class CombatLogManager : INotifyPropertyChanged
                 new ObservableCollection<CombatPetEventType>(combatEntity.CombatEventTypeListForEntityPets);
         }
 
-        this.EventTypeDisplayFilter = "ALL";
+        this.EventTypeDisplayFilter = SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => eventType.EventInternal.Equals("ALL"));
 
         this.OnPropertyChanged(nameof(this.SelectedCombatEntity));
         this.OnPropertyChanged(nameof(this.SelectedCombatEntityEventTypeTotalDamage));
@@ -447,6 +438,7 @@ public class CombatLogManager : INotifyPropertyChanged
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeList));
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeListDisplayedFilterOptions));
         this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
+        this.OnPropertyChanged(nameof(this.EventTypeDisplayFilter));
         this.OnPropertyChanged(nameof(this.SelectedEntityPetCombatEventTypeList));
     }
 
