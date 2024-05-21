@@ -5,6 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Classes
@@ -14,7 +15,6 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Classes
         private string _eventInternal;
         private string _eventDisplay;
         private string _label;
-        public Guid InstanceID { get; private set; }
 
         public string EventInternal { get => this._eventInternal; set => SetField(ref this._eventInternal, value); }
         public string EventDisplay { get => this._eventDisplay; set => SetField(ref this._eventDisplay, value); }
@@ -22,7 +22,6 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Classes
 
         public CombatEventTypeSelector(string _eventInternal, string? _eventDisplay = null, string? _label = null)
         {
-            this.InstanceID = Guid.NewGuid();
             this.EventInternal = _eventInternal;
             this.EventDisplay = _eventDisplay ?? _eventInternal;
             this.Label = _label ?? _eventDisplay ?? _eventInternal;
@@ -45,7 +44,7 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Classes
 
         public override string ToString()
         {
-            return $"Id={InstanceID}, Internal={EventInternal}, Display={EventDisplay}";
+            return $"Internal={EventInternal}, Display={EventDisplay}";
         }
 
         public bool Equals(CombatEventTypeSelector? other)
