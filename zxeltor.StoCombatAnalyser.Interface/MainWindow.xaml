@@ -314,7 +314,7 @@
                             <GroupBox.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Selected Entity: '" />
-                                    <TextBlock Text="{Binding Path=EventTypeDisplayFilter}" />
+                                    <TextBlock Text="{Binding Path=EventTypeDisplayFilter.Label}" />
                                     <TextBlock Text="' Events (" />
                                     <TextBlock Text="{Binding Path=FilteredSelectedEntityCombatEventList.Count}" />
                                     <TextBlock Text=")" />
@@ -423,10 +423,16 @@
                                     </StackPanel>
                                    
                                     <TextBlock Text="Event Filter:" Margin="16,0,0,0"/>
-                                    <ComboBox  Name="uiComboBoxSelectEventType" Margin="8,0,0,0" 
+                                    <ComboBox Name="uiComboBoxSelectEventType" Margin="8,0,0,0"
                                                ItemsSource="{Binding Path=SelectedEntityCombatEventTypeListDisplayedFilterOptions}" 
-                                               SelectedItem="{Binding Path=EventTypeDisplayFilter}"
-                                               SelectionChanged="UiComboBoxSelectEventType_OnSelectionChanged"/>
+                                               SelectedItem="{Binding Path=EventTypeDisplayFilter, Mode=TwoWay}"
+                                               SelectionChanged="UiComboBoxSelectEventType_OnSelectionChanged">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Path=Label}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
 
                                     <Button Name="uiButtonResetScatterPlot" Content="Reset Pan/Zoom" Margin="16,0,0,0"
                                             Click="UiButtonResetPlot_OnClick"/>
