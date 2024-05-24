@@ -7,10 +7,13 @@ For more information please visit the [WIKI](https://github.com/zxeltor/STOComba
 * [Building](#building)
 * [Release Info](#release-info)
 * [Quick Start](#quick-start)
+* [Interface Breakdown](#interface-breakdown)
 * [Disclaimer](#disclaimer)
 
 ## Overview
 This is a PC application used to parse and analyze Star Trek Online combat logs. I became interested in trying out STO random elites, but I was curious if my Space DPS was up to snuff. After a little research, I found a reddit post which had a brief outline of the combat log, and the available fields. I figured doing a real-time DPS analyzer would be futile, until I could wrap my head around the combat log and it's fields.
+
+This app displays a breakdown of damage types, using calculations based on the absolute value of the magnitude field from the STO combat log file entries. Caluclations for DPS, Total Damage, and Max Damage are displayed. Information like resists and such aren't included.
 
 ## Building
 The source in this repo is wrapped up in a Visual Studio 2022 solution. You should be able to clone this repo localy, then build and run from inside of Visual Studio.
@@ -35,6 +38,7 @@ After you have a successful build, do the following to get started using the app
   - **PurgeCombatLogs** Enable combat log folder purge at application startup.
     - Note: If only one combat log exists, it won't be purged regardless of how old it is.
   - **HowLongToKeepLogs** How long to keep logs in days, before they are purged.
+  - **DebugLogging** Enables debug logging. This also enables/disables a few information dialogs in the UI.
 
 ![Settings Tab](zxeltor.StoCombatAnalyser.Interface/Images/StoCombatAnalyzerScreenShot_Settings.jpg)
 - Switch to the Log File Analyzer tab:
@@ -42,6 +46,31 @@ After you have a successful build, do the following to get started using the app
   - A dialog will appear and inform you of success, or failure. If a failure occurs, there should be details on what to do.
 
 ![Main UI](zxeltor.StoCombatAnalyser.Interface/Images/StoCombatAnalyzerScreenShot.jpg)
+
+## Interface Breakdown
+![Main UI](zxeltor.StoCombatAnalyser.Interface/Images/StoCombatAnalyzerScreenShotWHighlights.jpg)
+
+When you click the **Parse Log(s)** button, the application goes to the STO combat log folder and parses all available combat logs. The log entries are then organised into combat instances, which populates the **Combat List** dropdown list (circled in green).
+
+### Combat List (circled in green)
+When you select a combat instance from the **Combat List**, the **Selected Combat Details** section (circled in red) is populated with information on the seletced combat instance.
+Each combat instance has a list of events, which is broken down into Player and Non-Player entities.
+
+### Selected Combat Details (circled in red)
+When you select a Player or Non-Player entity, the rest of the UI updates with information concerning the damage the selected entity did during for the currently selected combat instance.
+
+### Selected Entity: Events Breakdown (circled in orange)
+This barchart gives you a breakdown of damage types the Player or Non-Player entity did. If you select the **Pets Only** checkboox, the bar chart will switch to displaying a breakdown of damage types used by the Player or Non-Player entity pets.
+
+When you click on one of the bars, the **Selected Entity: Data Grid** (circled in yellow) and **Selected Entity: Scatter Plot** (circled in blue) update with data for the selected damage type.
+
+### Selected Entity: Data Grid (circled in yellow)
+This data grid displays the raw data from the STO combat logs related to the currently selected Player or Non-Player damage type. If you selected an entry in the grid, it will highlight a marker on the scatter plot (circled in blue).
+
+### Selected Entity: Scatter Plot (circled in blue)
+This scatter plot displays the currently selected Player or Non-Player damage type over time. When you select a marker on the scatter splot, it will highlight an entry in the data grid (circled in yellow).
+
+If you select another damage type from the **Filter** dropdown, the scatter plot and data grid (circled in yellow), will switch to displaying data for that damage type.
 
 ## Disclaimer
 This software and any related documentation is provided “as is” without warranty of any kind, either express or implied, including, without limitation, the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. Licensee accepts any and all risk arising out of use or performance of Software
