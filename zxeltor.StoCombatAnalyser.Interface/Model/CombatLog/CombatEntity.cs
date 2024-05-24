@@ -40,12 +40,12 @@ public class CombatEntity : INotifyPropertyChanged
     {
         get
         {
+            if (!this.CombatEventList.Any(ev => !ev.IsPetEvent)) return new List<CombatEventType>();
+
             var myEvents = this.CombatEventList.Where(ev => !ev.IsPetEvent)
-                .GroupBy(ev => new
-                    { EventId = ev.EventInternal, EventLabel = ev.EventDisplay, SourceLabel = ev.SourceDisplay })
-                .OrderBy(evg => evg.Key.EventLabel)
-                .Select(evg => new CombatEventType(evg.Key.SourceLabel, evg.Key.EventId,
-                    evg.Key.EventLabel, evg.ToList())).ToList();
+                .GroupBy(ev => new { ev.EventInternal, ev.EventDisplay })
+                .OrderBy(evg => evg.Key.EventDisplay)
+                .Select(evg => new CombatEventType(evg.ToList())).ToList();
 
             return myEvents;
         }
@@ -58,15 +58,16 @@ public class CombatEntity : INotifyPropertyChanged
     {
         get
         {
-            var myEvents = this.CombatEventList.Where(ev => ev.IsPetEvent)
-                .GroupBy(ev => new
-                    { EventId = ev.EventInternal, EventLabel = ev.EventDisplay, SourceLabel = ev.SourceDisplay })
-                .OrderBy(evg => evg.Key.EventLabel)
-                .Select(evg => new CombatEventType(evg.Key.SourceLabel, evg.Key.EventId,
-                    evg.Key.EventLabel, evg.ToList())).ToList();
+            if (!this.CombatEventList.Any(ev => ev.IsPetEvent)) return new List<CombatPetEventType>();
 
-            var petEvents = myEvents.GroupBy(evt => new { SourceLabel = evt.SourceDisplay }).Select(evtg =>
-                new CombatPetEventType(evtg.Key.SourceLabel, evtg.ToList())).ToList();
+            var myEvents = this.CombatEventList.Where(ev => ev.IsPetEvent)
+                .GroupBy(ev => new { ev.SourceInternal, ev.EventInternal, ev.EventDisplay })
+                .OrderBy(evg => evg.Key.EventDisplay)
+                .Select(evg => new CombatEventType(evg.ToList())).ToList();
+
+            var petEvents = myEvents.GroupBy(evt => new { evt.SourceInternal, evt.SourceDisplay, evt.EventInternal })
+                .Select(evtGrp =>
+                    new CombatPetEventType(evtGrp.ToList())).ToList();
 
             return petEvents;
         }
@@ -113,22 +114,23 @@ public class CombatEntity : INotifyPropertyChanged
     /// </summary>
     public double EntityMagnitudePerSecond => this.CombatEventList.Count == 0
         ? 0
-        : (this.CombatEventList.Sum(dam => Math.Abs(dam.Magnitude)) /
-           ((this.CombatEventList.Max(ev => ev.Timestamp) - this.CombatEventList.Min(ev => ev.Timestamp)).TotalSeconds +
-            .001));
+        : this.CombatEventList.Sum(dam => Math.Abs(dam.Magnitude)) /
+          ((this.CombatEventList.Max(ev => ev.Timestamp) - this.CombatEventList.Min(ev => ev.Timestamp)).TotalSeconds +
+           .001);
 
     /// <summary>
     ///     A rudimentary calculation for player pet events EntityMagnitudePerSecond, and probably incorrect.
     /// </summary>
-    public double PetsMagnitudePerSecond 
+    public double PetsMagnitudePerSecond
     {
         get
         {
             var petEvents = this.CombatEventList.Where(ev => ev.IsPetEvent).ToList();
 
-            if(petEvents.Count == 0) return 0;
+            if (petEvents.Count == 0) return 0;
 
-            return (petEvents.Sum(dam => Math.Abs(dam.Magnitude)) / ((petEvents.Max(ev => ev.Timestamp) - petEvents.Min(ev => ev.Timestamp)).TotalSeconds + .001));
+            return petEvents.Sum(dam => Math.Abs(dam.Magnitude)) /
+                   ((petEvents.Max(ev => ev.Timestamp) - petEvents.Min(ev => ev.Timestamp)).TotalSeconds + .001);
         }
     }
 

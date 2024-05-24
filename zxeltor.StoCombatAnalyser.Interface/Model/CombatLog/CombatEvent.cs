@@ -276,7 +276,7 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
             this.IsOwnerModified = true;
         }
 
-        if (!string.IsNullOrWhiteSpace(this.SourceDisplay) && !this.SourceDisplay.Equals("*"))
+        if (!string.IsNullOrWhiteSpace(this.SourceDisplay))
             this.IsPetEvent = true;
 
         if (this.OwnerInternal.StartsWith("P["))
@@ -321,8 +321,8 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     //    this.SourceInternal = logRegexMatch.Groups["SourceInternal"].Value;
     //    this.TargetDisplay = logRegexMatch.Groups["TargetDisplay"].Value;
     //    this.TargetInternal = logRegexMatch.Groups["TargetInternal"].Value;
-    //    this.EventDisplay = logRegexMatch.Groups["EventDisplay"].Value;
-    //    this.EventInternal = logRegexMatch.Groups["EventInternal"].Value;
+    //    this.EventTypeLabel = logRegexMatch.Groups["EventTypeLabel"].Value;
+    //    this.EventTypeId = logRegexMatch.Groups["EventTypeId"].Value;
     //    this.Type = logRegexMatch.Groups["Type"].Value;
     //    this.Flags = logRegexMatch.Groups["Flags"].Value;
 

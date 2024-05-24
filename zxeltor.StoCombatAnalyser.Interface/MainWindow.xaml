@@ -314,7 +314,7 @@
                             <GroupBox.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Selected Entity: '" />
-                                    <TextBlock Text="{Binding Path=EventTypeDisplayFilter.Label}" />
+                                    <TextBlock Text="{Binding Path=EventTypeDisplayFilter.EventTypeLabel}" />
                                     <TextBlock Text="' Events (" />
                                     <TextBlock Text="{Binding Path=FilteredSelectedEntityCombatEventList.Count}" />
                                     <TextBlock Text=")" />
@@ -429,7 +429,7 @@
                                                SelectionChanged="UiComboBoxSelectEventType_OnSelectionChanged">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate>
-                                                <TextBlock Text="{Binding Path=Label}" />
+                                                <TextBlock Text="{Binding Path=EventTypeLabel}" />
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>                                        
                                     </ComboBox>

@@ -4,33 +4,39 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using Humanizer;
+
 namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
 public class CombatPetEventType
 {
-    public CombatPetEventType(string sourceDisplay, List<CombatEventType> combatEventTypeList)
+    public CombatPetEventType(List<CombatEventType> combatEventTypeList)
     {
-        this.SourceDisplay = sourceDisplay;
+        if (combatEventTypeList == null) throw new NullReferenceException(nameof(combatEventTypeList));
+        if (combatEventTypeList.Count == 0)
+            throw new ArgumentException("Empty collection", nameof(combatEventTypeList));
 
-        if (combatEventTypeList.Count != 0) this.CombatEventTypes.AddRange(combatEventTypeList);
+        this.CombatEventTypes = combatEventTypeList;
+
+        var firstCombatEventType = combatEventTypeList[0];
+
+        this.TotalMagnitude = this.CombatEventTypes.Sum(ev => ev.TotalMagnitude);
+        this.MaxMagnitude = this.CombatEventTypes.Max(ev => ev.MaxMagnitude);
+        this.MaxMagnitudeBase = this.CombatEventTypes.Max(ev => ev.MaxMagnitudeBase);
+
+        this.PetId = firstCombatEventType.SourceInternal;
+        this.PetLabel = firstCombatEventType.SourceDisplay;
     }
 
-    /// <summary>
-    ///     A helper method used to construct a UI label for Pet event types
-    /// </summary>
-    /// <param name="eventDisplay">The event display type</param>
-    /// <returns>The construcred label.</returns>
-    public string GetUiLabelForEventDisplay(string eventDisplay)
-    {
-        return $"Pet({SourceDisplay}): {eventDisplay}";
-    }
+    public double TotalMagnitude { get; }
 
-    public double TotalMagnitude => this.CombatEventTypes.Sum(ev => ev.TotalMagnitude);
+    public double MaxMagnitude { get; }
 
-    public double MaxMagnitude => this.CombatEventTypes.Max(ev => ev.MaxMagnitude);
+    public double MaxMagnitudeBase { get; }
 
-    public double MaxMagnitudeBase => this.CombatEventTypes.Max(ev => ev.MaxMagnitudeBase);
+    public List<CombatEventType> CombatEventTypes { get; }
 
-    public string SourceDisplay { get; set; }
-    public List<CombatEventType> CombatEventTypes { get; set; } = new();
+    public string PetId { get; }
+
+    public string PetLabel { get; }
 }

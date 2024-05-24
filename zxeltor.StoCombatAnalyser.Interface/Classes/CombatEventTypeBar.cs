@@ -16,14 +16,6 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Classes
         /// <summary>
         ///     The event source
         /// </summary>
-        public string SourceDisplay { get; set; }
-        /// <summary>
-        ///     The internal event id
-        /// </summary>
-        public string EventInternal { get; set; }
-        /// <summary>
-        ///     The event display label
-        /// </summary>
-        public string EventDisplay { get; set; }
+        public string EventTypeId { get; set; }
     }
 }
