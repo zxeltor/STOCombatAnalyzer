@@ -620,4 +620,29 @@ public partial class MainWindow : Window
             }
         }
     }
+
+    private void UiComboBoxCombats_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.AddedItems.Count > 0 && e.AddedItems[0] is Combat selectedCombat)
+        {
+            if (string.IsNullOrWhiteSpace(Settings.Default.MyCharacter))
+            {
+                uiTreeViewCombatEntityList_SelectedItemChanged(sender, new RoutedPropertyChangedEventArgs<object>(null, null));
+            }
+            else
+            {
+                var playerEntity = selectedCombat.PlayerEntities.FirstOrDefault(player => player.OwnerInternal.Contains(Settings.Default.MyCharacter));
+                if (playerEntity != null)
+                {
+                    uiTreeViewCombatEntityList_SelectedItemChanged(sender,
+                        new RoutedPropertyChangedEventArgs<object>(playerEntity, playerEntity));
+                    this.uiContentControlSelectedCombat.Focus();
+                }
+                else
+                {
+                    uiTreeViewCombatEntityList_SelectedItemChanged(sender, new RoutedPropertyChangedEventArgs<object>(null, null));
+                }
+            }
+        }
+    }
 }

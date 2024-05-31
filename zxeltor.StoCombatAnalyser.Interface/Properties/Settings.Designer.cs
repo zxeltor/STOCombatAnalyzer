@@ -106,5 +106,17 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
                 this["DebugLogging"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MyCharacter {
+            get {
+                return ((string)(this["MyCharacter"]));
+            }
+            set {
+                this["MyCharacter"] = value;
+            }
+        }
     }
 }

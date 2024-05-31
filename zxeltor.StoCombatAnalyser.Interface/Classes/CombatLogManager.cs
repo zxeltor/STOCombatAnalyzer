@@ -28,19 +28,32 @@ public class CombatLogManager : INotifyPropertyChanged
 
     private static readonly ILog Log = LogManager.GetLogger(typeof(CombatLogManager));
 
-    private CombatEventTypeSelector _eventTypeDisplayFilter;
+    private CombatEventTypeSelector _eventTypeDisplayFilter = new CombatEventTypeSelector("ALL");
+    private Combat? _selectedCombat;
+
+    private CombatEntity? _selectedCombatEntity;
 
     public CombatEventGridContext MainCombatEventGridContext { get; } = new();
 
     /// <summary>
     ///     The currently selected Combat instance from <see cref="Combats" />
     /// </summary>
-    public Combat? SelectedCombat { get; set; }
+    public Combat? SelectedCombat
+    {
+        get => this._selectedCombat;
+        set => this.SetField(ref this._selectedCombat, value);
+        //if(value != null && !string.IsNullOrWhiteSpace(Settings.Default.MyCharacter))
+        //    this.SelectPlayerFromCombatEntity();
+    }
 
     /// <summary>
     ///     The currently selected combat entity in the main ui
     /// </summary>
-    public CombatEntity? SelectedCombatEntity { get; set; }
+    public CombatEntity? SelectedCombatEntity
+    {
+        get => this._selectedCombatEntity;
+        set => this.SetField(ref this._selectedCombatEntity, value);
+    }
 
     /// <summary>
     ///     Total damage for the selected event type
@@ -142,7 +155,10 @@ public class CombatLogManager : INotifyPropertyChanged
             // Return a list of events for a specfic non-pet event.
             return new ObservableCollection<CombatEvent>(
                 this.SelectedEntityCombatEventList?.Where(evt => !evt.IsPetEvent &&
-                    evt.EventInternal.Equals(this.EventTypeDisplayFilter.EventTypeId, StringComparison.CurrentCultureIgnoreCase)) ?? Array.Empty<CombatEvent>());
+                                                                 evt.EventInternal.Equals(
+                                                                     this.EventTypeDisplayFilter.EventTypeId,
+                                                                     StringComparison.CurrentCultureIgnoreCase)) ??
+                Array.Empty<CombatEvent>());
         }
     }
 
@@ -208,6 +224,16 @@ public class CombatLogManager : INotifyPropertyChanged
     public ObservableCollection<Combat> Combats { get; set; } = new();
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    public void SelectPlayerFromCombatEntity(Combat? selectedCombat)
+    {
+        if (string.IsNullOrWhiteSpace(Settings.Default.MyCharacter) || selectedCombat == null) return;
+
+        var playerEntity =
+            selectedCombat.PlayerEntities.FirstOrDefault(player =>
+                player.OwnerInternal.Contains(Settings.Default.MyCharacter));
+        if (playerEntity != null) this.SetSelectedCombatEntity(playerEntity);
+    }
 
     /// <summary>
     ///     Purge the sto combat logs folder.

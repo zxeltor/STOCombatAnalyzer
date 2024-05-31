@@ -24,6 +24,9 @@ public class TypeToVisibilityConverter : IValueConverter
         if (value == null)
             return Visibility.Collapsed;
 
+        if(value is Int32 intResult)
+            return intResult > 0 ? Visibility.Visible : Visibility.Collapsed;
+
         if (value is string stringResult)
             return !string.IsNullOrWhiteSpace(stringResult) ? Visibility.Visible : Visibility.Collapsed;
 
