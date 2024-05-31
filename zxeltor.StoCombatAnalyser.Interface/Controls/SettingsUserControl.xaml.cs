@@ -296,6 +296,7 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
     private long _howLongToKeepLogs = Settings.Default.HowLongToKeepLogs;
     private int _maxNumberOfCombatsToDisplay = Settings.Default.MaxNumberOfCombatsToDisplay;
     private bool _purgeCombatLogs = Settings.Default.PurgeCombatLogs;
+    private string _myCharacter = Settings.Default.MyCharacter;
 
     /// <summary>
     ///     Enable combat log folder purge at application startup.
@@ -394,6 +395,20 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
             Settings.Default.MaxNumberOfCombatsToDisplay = value;
             Settings.Default.Save();
             this.SetField(ref this._maxNumberOfCombatsToDisplay, value);
+        }
+    }
+
+    /// <summary>
+    ///     An identifier used to recognize the players character in a combat instance.
+    /// </summary>
+    public string MyCharacter
+    {
+        get => this._myCharacter = Settings.Default.MyCharacter;
+        set
+        {
+            Settings.Default.MyCharacter = value;
+            Settings.Default.Save();
+            this.SetField(ref this._myCharacter, value);
         }
     }
 
