@@ -124,7 +124,7 @@
                                           HorizontalContentAlignment="Stretch" IsExpanded="True" />
                             <TreeViewItem Header="NonPlayers" ItemsSource="{Binding NonPlayerEntitiesOrderByName}"
                                           ItemTemplate="{StaticResource combatEntityItemTemplate}"
-                                          HorizontalContentAlignment="Stretch" />
+                                          HorizontalContentAlignment="Stretch" IsExpanded="True" />
                         </TreeView>
                     </GroupBox>
                 </Grid>
