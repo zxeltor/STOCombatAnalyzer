@@ -7,6 +7,7 @@
     xmlns:modelcombatlog="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog"
     xmlns:controls="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Controls"
     xmlns:scottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
+    xmlns:myProperties="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Properties"
     x:Class="zxeltor.StoCombatAnalyzer.Interface.MainWindow"
     d:DataContext="{d:DesignInstance Type={x:Type classes:CombatLogManager}}"
     mc:Ignorable="d"
@@ -114,7 +115,7 @@
                     <GroupBox Margin="0,65,0,0">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Combat Entity List" />
+                                <TextBlock Text="Entity List" />
                             </StackPanel>
                         </GroupBox.Header>
                         <TreeView x:Name="uiTreeViewCombatEntityList"
@@ -124,7 +125,7 @@
                                           HorizontalContentAlignment="Stretch" IsExpanded="True" />
                             <TreeViewItem Header="NonPlayers" ItemsSource="{Binding NonPlayerEntitiesOrderByName}"
                                           ItemTemplate="{StaticResource combatEntityItemTemplate}"
-                                          HorizontalContentAlignment="Stretch" IsExpanded="True" />
+                                          HorizontalContentAlignment="Stretch" IsExpanded="True"/>
                         </TreeView>
                     </GroupBox>
                 </Grid>
@@ -150,9 +151,10 @@
                                 Click="uiButtonParseLog_Click" />
                         <TextBlock Text="Combat List" VerticalAlignment="Center"
                                    Margin="10,0,0,0"/>
-                        <TextBlock Text=" (" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding Path=Combats.Count}" VerticalAlignment="Center" />
-                        <TextBlock Text="):" VerticalAlignment="Center" />
+                        <TextBlock Text=" (" VerticalAlignment="Center" Visibility="{Binding Path=Combats, Converter={StaticResource typeToVisibilityConverter}}" />
+                        <TextBlock Text="{Binding Path=Combats.Count}" VerticalAlignment="Center" 
+                                   Visibility="{Binding Path=Combats, Converter={StaticResource typeToVisibilityConverter}}" />
+                        <TextBlock Text="):" VerticalAlignment="Center" Visibility="{Binding Path=Combats, Converter={StaticResource typeToVisibilityConverter}}" />
                         <ComboBox Name="uiComboBoxCombats" Text="Help" ItemsSource="{Binding Path=Combats}" IsSynchronizedWithCurrentItem="True" 
                                   Width="350" Height="36" Margin="4,0,0,0" SelectedItem="{Binding Path=SelectedCombat}" SelectionChanged="UiComboBoxCombats_OnSelectionChanged">
                             <ComboBox.ItemTemplate>
@@ -176,6 +178,11 @@
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
+                        <TextBlock Margin="24,0,0,0" Text="Selected Entity:" VerticalAlignment="Center"
+                                   Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />
+                        <TextBlock Margin="4,0,0,0" Text="{Binding Path=SelectedCombatEntity.OwnerDisplay}" 
+                                   Foreground="CornflowerBlue" FontWeight="Bold" VerticalAlignment="Center"
+                                   Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />
                     </StackPanel>
 
                     <GridSplitter Grid.Row="1" Grid.Column="0" Background="Gray" 
@@ -184,8 +191,15 @@
                                   Padding="0,0,0,0"
                                   HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
 
-                    <GroupBox Grid.Row="1" Grid.Column="0" x:Name="uiGroupBoxSelectedCombatDetails" Header="Selected Combat Details"
+                    <GroupBox Grid.Row="1" Grid.Column="0" x:Name="uiGroupBoxSelectedCombatDetails"
                               Margin="4,4,4,4" Padding="4,4,4,4">
+                        <GroupBox.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Tag="combat_details" Source="Images/glyphicons-195-question-sign.png" Stretch="Fill" Height="16"
+                                    MouseLeftButtonUp="UIElement_OnMouseLeftButtonUp" />
+                                <TextBlock Text="Combat Details" Margin="8,0,0,0" />
+                            </StackPanel>
+                        </GroupBox.Header>
                         <Grid>
                             <ContentControl Name="uiContentControlSelectedCombat" Content="{Binding Combats}"
                                             ContentTemplate="{StaticResource selectedCombatDetailsTemplate}" />
@@ -298,18 +312,19 @@
                     <GroupBox Grid.Row="1" Grid.Column="1" Margin="4,4,4,4" Padding="4,4,4,4">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Selected Entity"></TextBlock>
-                                <TextBlock Text="(" Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" Margin="4,0,0,0"/>
+                                <Image Tag="combat_event_type_breakdown" Source="Images/glyphicons-195-question-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="UIElement_OnMouseLeftButtonUp" />
+                                <!--<TextBlock Text="Selected Entity" Margin="8,0,0,0" />-->
+                                <!--<TextBlock Text="(" Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" Margin="4,0,0,0"/>
                                 <TextBlock Text="{Binding Path=SelectedCombatEntity.OwnerDisplay}" Foreground="{StaticResource colorMax}"
                                            Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />
                                 <TextBlock Text=")" 
                                            Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />
-                                <TextBlock Text=":" />
-                                <TextBlock Text="Damage Type Breakdown" Margin="4,0,0,0" />
+                                <TextBlock Text=":" />-->
+                                <TextBlock Text="Event Type Breakdown" Margin="4,0,0,0" />
                                 <CheckBox Name="uiCheckBoxDisplayPetsOnlyOnPieChart" IsChecked="False" Content="Pets Only" Margin="8,0,0,0"
                                           Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
                                           Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
-                                <Button Name="uiButtonResetBarPlot" Content="Reset Pan/Zoom" Margin="16,0,0,0" Padding="4,0,4,0"
+                                <Button Name="uiButtonResetBarPlot" Content="Reset" Margin="16,0,0,0" Padding="4,0,4,0"
                                         Click="UiButtonResetPlot_OnClick"/>
                             </StackPanel>
                         </GroupBox.Header>
@@ -324,20 +339,26 @@
                         <GroupBox x:Name="uiGroupBoxSelectedCombatEntity" Grid.Column="0" Margin="4,4,4,4"
                                   Padding="4,4,4,4">
                             <GroupBox.Header>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Selected Entity" />
-                                    <TextBlock Text="(" Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" Margin="4,0,0,0"/>
-                                    <TextBlock Text="{Binding Path=SelectedCombatEntity.OwnerDisplay}" Foreground="{StaticResource colorMax}" 
-                                               Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />
-                                    <TextBlock Text=")" 
-                                               Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />
-                                    <TextBlock Text=":" />
-                                    <TextBlock Text="{Binding Path=EventTypeDisplayFilter.EventTypeLabel}" Margin="4,0,0,0"/>
-                                    <TextBlock Text="Events" Margin="4,0,0,0" />
-                                    <TextBlock Text="(" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" Margin="4,0,0,0"/>
-                                    <TextBlock Text="{Binding Path=FilteredSelectedEntityCombatEventList.Count}" />
-                                    <TextBlock Text=")" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" />
-                                </StackPanel>
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Tag="combat_events_datagrid" Source="Images/glyphicons-195-question-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="UIElement_OnMouseLeftButtonUp" />
+                                        <TextBlock Text="Event(s) DataGrid" Margin="8,0,0,0"/>
+                                        <!--<TextBlock Text="(" Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" Margin="4,0,0,0"/>
+                                        <TextBlock Text="{Binding Path=SelectedCombatEntity.OwnerDisplay}" Foreground="{StaticResource colorMax}" 
+                                                Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />
+                                        <TextBlock Text=")" 
+                                                Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />-->
+                                        <TextBlock Text=":" />
+                                        <TextBlock Text="'" Visibility="{Binding Path=EventTypeDisplayFilter.EventTypeLabel, Converter={StaticResource typeToVisibilityConverter}}" Margin="4,0,0,0"  />
+                                        <TextBlock Text="{Binding Path=EventTypeDisplayFilter.EventTypeLabel}" />
+                                        <TextBlock Text="'" Visibility="{Binding Path=EventTypeDisplayFilter.EventTypeLabel, Converter={StaticResource typeToVisibilityConverter}}" />
+                                        <!--<TextBlock Text="Events" Margin="4,0,0,0" />-->
+                                        <TextBlock Text="(" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" Margin="4,0,0,0"/>
+                                        <TextBlock Text="{Binding Path=FilteredSelectedEntityCombatEventList.Count}" />
+                                        <TextBlock Text=")" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" />
+                                        
+                                    </StackPanel>
+                                </Grid>
                             </GroupBox.Header>
                             <DataGrid Name="uiDataGridAllEvents" ItemsSource="{Binding FilteredSelectedEntityCombatEventList}" AutoGenerateColumns="False"
                                       CanUserReorderColumns="True" CanUserSortColumns="True"
@@ -427,15 +448,30 @@
                         <GroupBox Name="uiGridBoxEntity" Grid.Column="1" Margin="4,4,4,4" Padding="4,4,4,4">
                             <GroupBox.Header>
                                 <StackPanel Orientation="Horizontal">
-                                    <StackPanel Orientation="Vertical">
-                                        <TextBlock Text="Selected Entity:" />
-                                        <TextBlock Text="{Binding Path=SelectedCombatEntity.OwnerDisplay}" HorizontalAlignment="Center" Foreground="{StaticResource colorMax}"
-                                                   Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />
+                                    <Image Tag="combat_events_plot" Source="Images/glyphicons-195-question-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="UIElement_OnMouseLeftButtonUp" 
+                                           VerticalAlignment="Center"/>
+
+                                    <StackPanel Orientation="Vertical" Margin="8,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="Event(s) Magnitude Plot:" />
                                     </StackPanel>
-                                    <StackPanel Orientation="Vertical">
-                                        <CheckBox x:Name="uiCheckboxPlotDisplayMagnitude" Content="Magnitude" Margin="8,0,0,0" 
+
+                                    <ComboBox Name="uiComboBoxSelectEventType" Margin="8,0,0,0" MaxWidth="200"
+                                              ItemsSource="{Binding Path=SelectedEntityCombatEventTypeListDisplayedFilterOptions}" 
+                                              SelectedItem="{Binding Path=EventTypeDisplayFilter, Mode=TwoWay}"
+                                              SelectionChanged="UiComboBoxSelectEventType_OnSelectionChanged"
+                                              VerticalAlignment="Center">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Path=EventTypeLabel}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                        <CheckBox x:Name="uiCheckboxPlotDisplayMagnitude" Content="Display Magnitude" Margin="8,0,0,0" 
                                                   IsChecked="{Binding Path=MainCombatEventGridContext.IsDisplayPlotMagnitude, Mode=TwoWay}"
                                                   Tag="PlotDisplayMagnitude"
+                                                  Visibility="Collapsed"
                                                   Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
                                                   Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
                                         <CheckBox x:Name="uiCheckboxPlotDisplayMagnitudeBase" Content="MagnitudeBase" Margin="8,0,0,0"
@@ -445,20 +481,8 @@
                                                   Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
                                     </StackPanel>
                                    
-                                    <TextBlock Text="Filter:" Margin="16,0,0,0"/>
-                                    <ComboBox Name="uiComboBoxSelectEventType" Margin="8,0,0,0" MaxWidth="200"
-                                               ItemsSource="{Binding Path=SelectedEntityCombatEventTypeListDisplayedFilterOptions}" 
-                                               SelectedItem="{Binding Path=EventTypeDisplayFilter, Mode=TwoWay}"
-                                               SelectionChanged="UiComboBoxSelectEventType_OnSelectionChanged">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Path=EventTypeLabel}" />
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>                                        
-                                    </ComboBox>
-
-                                    <Button Name="uiButtonResetScatterPlot" Content="Reset Pan/Zoom" Margin="16,0,0,0"
-                                            Click="UiButtonResetPlot_OnClick"/>
+                                    <Button Name="uiButtonResetScatterPlot" Content="Reset" Margin="16,0,0,0"
+                                            Click="UiButtonResetPlot_OnClick" VerticalAlignment="Center"/>
                                     
                                 </StackPanel>
                             </GroupBox.Header>

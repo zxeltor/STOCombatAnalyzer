@@ -22,7 +22,7 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("zxeltor.StoCombatAnalyzer.Interface.Properties.Resources", typeof(Resources).Assembly);
@@ -51,12 +51,48 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This is used to examine a selected Combat from the Combat List dropdown. When a Player or NonPlayer entity is selected here, the rest of the controls in the UI update with information for the selected entity..
+        /// </summary>
+        public static string combat_details {
+            get {
+                return ResourceManager.GetString("combat_details", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This is a breakdown of event types for the selected combat entity. If you click on a particular bar, the DataGird and Magnitude Plot will update with more specific data for the selected event type..
+        /// </summary>
+        public static string combat_event_type_breakdown {
+            get {
+                return ResourceManager.GetString("combat_event_type_breakdown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This displays the raw STO combat log data for the selected event type. By default, not all data columns from the combat log are displayed. You can enable/disable the columns in the display by right clicking on the datagrid and interacting with the context menu that’s displayed. Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI..
+        /// </summary>
+        public static string combat_events_datagrid {
+            get {
+                return ResourceManager.GetString("combat_events_datagrid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This is a scatter plot of the Magnitude data vs. time for the selected event type. You can use the control to switch between the various groupings of event types. You can also display the MagnitudeBase data on the grid if selected. Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI..
+        /// </summary>
+        public static string combat_events_plot {
+            get {
+                return ResourceManager.GetString("combat_events_plot", resourceCulture);
             }
         }
     }

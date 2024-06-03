@@ -4,24 +4,21 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Application Message" Height="300" Width="500" MinHeight="240" MinWidth="300" WindowStyle="ToolWindow">
+        Title="Application Info" MaxWidth="400" MaxHeight="250" WindowStyle="ToolWindow">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="35*" MinHeight="35" />
+            <RowDefinition Height="25*" />
+            <RowDefinition Height="75*" />
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Name="uiTextBlockMessage" Margin="4,8,4,8" TextWrapping="Wrap" Text="TextBlock"
+        <TextBlock Grid.Row="0" Name="uiTextBlockHeader" TextWrapping="Wrap" Text="TextBlock" FontWeight="Bold"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <TextBlock Grid.Row="1" Name="uiTextBlockMessage" TextWrapping="Wrap" Text="TextBlock" Margin="20,0,20,0"
                    HorizontalAlignment="Center" VerticalAlignment="Top" />
 
-        <GroupBox Grid.Row="1" Name="uiGroupBoxDetails" Header="Message Details" Margin="4,0,4,0">
-            <TextBox Name="uiTextBoxDetails" Text="" VerticalScrollBarVisibility="Auto" BorderThickness="0"
-                     HorizontalScrollBarVisibility="Auto" IsReadOnly="True" TextWrapping="NoWrap" />
-        </GroupBox>
-
         <StackPanel Grid.Row="2" Orientation="Horizontal" FlowDirection="RightToLeft" Margin="5,0,5,5" Height="34">
-            <Button Name="uiButtonCancel" Content="Cancel" Height="26" Width="60" Margin="0,0,30,0" />
             <Button Name="uiButtonOk" Content="Ok" Height="26" Width="60" />
         </StackPanel>
 

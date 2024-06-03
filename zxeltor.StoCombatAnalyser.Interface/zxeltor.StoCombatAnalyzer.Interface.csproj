@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Images\glyphicons-195-question-sign.png" />
     <None Remove="Log4Net.config" />
     <None Remove="Log4Net.Development.config" />
     <None Remove="StoCombatAnalyzerSettings2.json" />
@@ -48,6 +49,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\glyphicons-195-question-sign.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Controls\ResponseDialog.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -62,7 +70,7 @@
 
   <ItemGroup>
     <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>

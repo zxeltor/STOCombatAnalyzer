@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Humanizer;
 using log4net;
 using ScottPlot;
@@ -17,6 +18,9 @@ using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
+using Color = ScottPlot.Color;
+using Colors = ScottPlot.Colors;
+using Image = System.Windows.Controls.Image;
 
 namespace zxeltor.StoCombatAnalyzer.Interface;
 
@@ -74,12 +78,12 @@ public partial class MainWindow : Window
         if (CombatLogManager.TryPurgeCombatLogFolder(out var filesPurged, out var errorReason))
         {
             if (filesPurged.Count > 0 && Settings.Default.DebugLogging)
-                DetailsDialog.Show(Application.Current.MainWindow, "The combat logs were automatically purged.",
+                ResponseDialog.Show(Application.Current.MainWindow, "The combat logs were automatically purged.",
                     "Combat log purge", detailsBoxCaption: "File(s) purged", detailsBoxList: filesPurged);
         }
         else
         {
-            DetailsDialog.Show(Application.Current.MainWindow,
+            ResponseDialog.Show(Application.Current.MainWindow,
                 string.IsNullOrWhiteSpace(errorReason) ? errorReason : "Automatic combat log purge failed.",
                 "Combat log purge error");
         }
@@ -542,6 +546,7 @@ public partial class MainWindow : Window
                 {
                     if (bar.Label.StartsWith("ALL PETS"))
                     {
+                        CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(bar.FillColor.A, bar.FillColor.G, bar.FillColor.B));
                         CombatLogManagerContext!.EventTypeDisplayFilter =
                             CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL PETS"));
                         return;
@@ -552,6 +557,7 @@ public partial class MainWindow : Window
                         var eventType = CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => combatEventTypeBar.EventTypeId.Equals(eventType.EventTypeId));
                         if (eventType != null)
                         {
+                            CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(combatEventTypeBar.FillColor.A, combatEventTypeBar.FillColor.G, combatEventTypeBar.FillColor.B)); //combatEventTypeBar.FillColor;
                             CombatLogManagerContext!.EventTypeDisplayFilter = eventType;
                             return;
                         }
@@ -561,11 +567,13 @@ public partial class MainWindow : Window
                         var eventType = CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => bar.Label.StartsWith(eventType.EventTypeLabel));
                         if (eventType != null)
                         {
+                            CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(bar.FillColor.A, bar.FillColor.G, bar.FillColor.B));
                             CombatLogManagerContext!.EventTypeDisplayFilter = eventType;
                             return;
                         }
                     }
-                        
+
+                    CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
                     CombatLogManagerContext!.EventTypeDisplayFilter = 
                         CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL"));
                     return;
@@ -643,6 +651,35 @@ public partial class MainWindow : Window
                     uiTreeViewCombatEntityList_SelectedItemChanged(sender, new RoutedPropertyChangedEventArgs<object>(null, null));
                 }
             }
+        }
+    }
+
+    private void UIElement_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        /*
+         * combat_details
+         * combat_event_type_breakdown
+         * combat_events_datagrid
+         * combat_events_plot
+         */
+
+        if (!(e.Source is Image image))
+            return;
+
+        switch (image.Tag)
+        {
+            case "combat_details":
+                DetailsDialog.ShowDialog(this, "Combat Details", Properties.Resources.combat_details);
+                break;
+            case "combat_event_type_breakdown":
+                DetailsDialog.ShowDialog(this, "Event Type Breakdown", Properties.Resources.combat_event_type_breakdown);
+                break;
+            case "combat_events_datagrid":
+                DetailsDialog.ShowDialog(this, "Event(s) DataGrid", Properties.Resources.combat_events_datagrid);
+                break;
+            case "combat_events_plot":
+                DetailsDialog.ShowDialog(this, "Event(s) Magnitude Plot", Properties.Resources.combat_events_plot);
+                break;
         }
     }
 }

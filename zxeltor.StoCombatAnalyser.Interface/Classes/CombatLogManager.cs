@@ -9,10 +9,12 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Media;
 using log4net;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
+using Color = ScottPlot.Color;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
 
@@ -192,6 +194,16 @@ public class CombatLogManager : INotifyPropertyChanged
                 });
 
             return resultCollection;
+        }
+    }
+
+    private SolidColorBrush _eventTypeColor;
+    public SolidColorBrush EventTypeColor
+    {
+        get => this._eventTypeColor;
+        set
+        {
+            this.SetField(ref this._eventTypeColor, value);
         }
     }
 
@@ -417,7 +429,7 @@ public class CombatLogManager : INotifyPropertyChanged
             this.AddToLogAndLogSummaryInUi(completionMessage);
 
             if (Settings.Default.DebugLogging)
-                DetailsDialog.Show(Application.Current.MainWindow, completionMessage, "Success",
+                ResponseDialog.Show(Application.Current.MainWindow, completionMessage, "Success",
                     detailsBoxCaption: "Files parsed",
                     detailsBoxList: fileParsedResults.Select(file => file.Value.ToLog()).ToList());
         }
