@@ -44,7 +44,7 @@ public class CombatEventType
             ? $"Pet({firstCombatEvent.SourceDisplay}) {firstCombatEvent.EventDisplay}"
             : firstCombatEvent.EventDisplay;
 
-        this.EventTypeLabelWithTotal = $"{this.EventTypeLabel} Total({this.TotalMagnitude.ToMetric(null, 3)})";
+        this.EventTypeLabelWithTotal = $"{this.EventTypeLabel}: Total({this.TotalMagnitude.ToMetric(null, 3)})";
     }
 
     public bool IsPetEventType { get; }

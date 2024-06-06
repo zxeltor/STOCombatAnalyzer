@@ -9,12 +9,10 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Media;
 using log4net;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
-using Color = ScottPlot.Color;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
 
@@ -30,7 +28,7 @@ public class CombatLogManager : INotifyPropertyChanged
 
     private static readonly ILog Log = LogManager.GetLogger(typeof(CombatLogManager));
 
-    private CombatEventTypeSelector _eventTypeDisplayFilter = new CombatEventTypeSelector("ALL");
+    private CombatEventTypeSelector _eventTypeDisplayFilter = new("ALL");
     private Combat? _selectedCombat;
 
     private CombatEntity? _selectedCombatEntity;
@@ -154,7 +152,7 @@ public class CombatLogManager : INotifyPropertyChanged
                 return new ObservableCollection<CombatEvent>(petEvtList);
             }
 
-            // Return a list of events for a specfic non-pet event.
+            // Return a list of events for a specific non-pet event.
             return new ObservableCollection<CombatEvent>(
                 this.SelectedEntityCombatEventList?.Where(evt => !evt.IsPetEvent &&
                                                                  evt.EventInternal.Equals(
@@ -194,16 +192,6 @@ public class CombatLogManager : INotifyPropertyChanged
                 });
 
             return resultCollection;
-        }
-    }
-
-    private SolidColorBrush _eventTypeColor;
-    public SolidColorBrush EventTypeColor
-    {
-        get => this._eventTypeColor;
-        set
-        {
-            this.SetField(ref this._eventTypeColor, value);
         }
     }
 

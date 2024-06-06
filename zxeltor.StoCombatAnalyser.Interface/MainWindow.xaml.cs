@@ -83,9 +83,8 @@ public partial class MainWindow : Window
         }
         else
         {
-            ResponseDialog.Show(Application.Current.MainWindow,
-                string.IsNullOrWhiteSpace(errorReason) ? errorReason : "Automatic combat log purge failed.",
-                "Combat log purge error");
+            if(!string.IsNullOrWhiteSpace(errorReason))
+                ResponseDialog.Show(Application.Current.MainWindow, errorReason, "Combat log purge error");
         }
     }
 
@@ -541,12 +540,14 @@ public partial class MainWindow : Window
             {
                 var maxY = bar.Position + (bar.Size / 2);
                 var minY = bar.Position - (bar.Size / 2);
+                var maxX = bar.Value;
+                var minX = 0;
 
-                if (mouseLocation.Y >= minY && mouseLocation.Y <= maxY)
+                if (mouseLocation.Y >= minY && mouseLocation.Y <= maxY && mouseLocation.X >= minX && mouseLocation.X <= maxX)
                 {
                     if (bar.Label.StartsWith("ALL PETS"))
                     {
-                        CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(bar.FillColor.A, bar.FillColor.G, bar.FillColor.B));
+                        //CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(bar.FillColor.A, bar.FillColor.G, bar.FillColor.B));
                         CombatLogManagerContext!.EventTypeDisplayFilter =
                             CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL PETS"));
                         return;
@@ -557,7 +558,7 @@ public partial class MainWindow : Window
                         var eventType = CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => combatEventTypeBar.EventTypeId.Equals(eventType.EventTypeId));
                         if (eventType != null)
                         {
-                            CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(combatEventTypeBar.FillColor.A, combatEventTypeBar.FillColor.G, combatEventTypeBar.FillColor.B)); //combatEventTypeBar.FillColor;
+                            //CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(combatEventTypeBar.FillColor.A, combatEventTypeBar.FillColor.G, combatEventTypeBar.FillColor.B)); //combatEventTypeBar.FillColor;
                             CombatLogManagerContext!.EventTypeDisplayFilter = eventType;
                             return;
                         }
@@ -567,13 +568,13 @@ public partial class MainWindow : Window
                         var eventType = CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => bar.Label.StartsWith(eventType.EventTypeLabel));
                         if (eventType != null)
                         {
-                            CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(bar.FillColor.A, bar.FillColor.G, bar.FillColor.B));
+                            //CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(bar.FillColor.A, bar.FillColor.G, bar.FillColor.B));
                             CombatLogManagerContext!.EventTypeDisplayFilter = eventType;
                             return;
                         }
                     }
 
-                    CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                    //CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
                     CombatLogManagerContext!.EventTypeDisplayFilter = 
                         CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL"));
                     return;

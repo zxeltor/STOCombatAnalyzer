@@ -220,11 +220,8 @@ public partial class SettingsUserControl : UserControl
             }
             else
             {
-                if (string.IsNullOrWhiteSpace(errorReason))
+                if (!string.IsNullOrWhiteSpace(errorReason))
                     ResponseDialog.Show(Application.Current.MainWindow, errorReason, "Combat log purge error");
-                else
-                    ResponseDialog.Show(Application.Current.MainWindow, "Failed to purge combat logs.",
-                        "Combat log purge error");
             }
         }
         else if (button == uiButtonOpenLogFile)
