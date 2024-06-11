@@ -79,7 +79,9 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This displays the raw STO combat log data for the selected event type. By default, not all data columns from the combat log are displayed. You can enable/disable the columns in the display by right clicking on the datagrid and interacting with the context menu that’s displayed. Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI..
+        ///   Looks up a localized string similar to This displays the raw STO combat log data for the selected event type. By default, not all data columns from the combat log are displayed. You can enable/disable the columns in the display by right clicking on the datagrid and interacting with the context menu that’s displayed.
+        ///
+        ///Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI..
         /// </summary>
         public static string combat_events_datagrid {
             get {
@@ -88,7 +90,9 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This is a scatter plot of the Magnitude data vs. time for the selected event type. You can use the control to switch between the various groupings of event types. You can also display the MagnitudeBase data on the grid if selected. Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI..
+        ///   Looks up a localized string similar to This is a scatter plot of the Magnitude data vs. time for the selected event type. You can use the control to switch between the various groupings of event types. You can also display the MagnitudeBase data on the grid if selected.
+        ///
+        ///Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI..
         /// </summary>
         public static string combat_events_plot {
             get {

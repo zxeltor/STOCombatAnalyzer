@@ -4,19 +4,21 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Application Info" MaxWidth="400" MaxHeight="250" WindowStyle="ToolWindow">
+        Title="Application Info" MaxWidth="450" SizeToContent="Height" WindowStyle="ToolWindow">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="25*" />
-            <RowDefinition Height="75*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Name="uiTextBlockHeader" TextWrapping="Wrap" Text="TextBlock" FontWeight="Bold"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Margin="10,10,10,10"
+                   />
 
-        <TextBlock Grid.Row="1" Name="uiTextBlockMessage" TextWrapping="Wrap" Text="TextBlock" Margin="20,0,20,0"
-                   HorizontalAlignment="Center" VerticalAlignment="Top" />
+        <TextBlock Grid.Row="1" Name="uiTextBlockMessage" TextWrapping="Wrap" Text="TextBlock" Margin="10,0,10,10"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" />
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" FlowDirection="RightToLeft" Margin="5,0,5,5" Height="34">
             <Button Name="uiButtonOk" Content="Ok" Height="26" Width="60" />

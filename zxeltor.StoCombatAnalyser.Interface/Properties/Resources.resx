@@ -121,10 +121,14 @@
     <value>This is used to examine a selected Combat from the Combat List dropdown. When a Player or NonPlayer entity is selected here, the rest of the controls in the UI update with information for the selected entity.</value>
   </data>
   <data name="combat_events_datagrid" xml:space="preserve">
-    <value>This displays the raw STO combat log data for the selected event type. By default, not all data columns from the combat log are displayed. You can enable/disable the columns in the display by right clicking on the datagrid and interacting with the context menu that’s displayed. Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI.</value>
+    <value>This displays the raw STO combat log data for the selected event type. By default, not all data columns from the combat log are displayed. You can enable/disable the columns in the display by right clicking on the datagrid and interacting with the context menu that’s displayed.
+
+Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI.</value>
   </data>
   <data name="combat_events_plot" xml:space="preserve">
-    <value>This is a scatter plot of the Magnitude data vs. time for the selected event type. You can use the control to switch between the various groupings of event types. You can also display the MagnitudeBase data on the grid if selected. Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI.</value>
+    <value>This is a scatter plot of the Magnitude data vs. time for the selected event type. You can use the control to switch between the various groupings of event types. You can also display the MagnitudeBase data on the grid if selected.
+
+Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI.</value>
   </data>
   <data name="combat_event_type_breakdown" xml:space="preserve">
     <value>This is a breakdown of event types for the selected combat entity. If you click on a particular bar, the DataGird and Magnitude Plot will update with more specific data for the selected event type.</value>
