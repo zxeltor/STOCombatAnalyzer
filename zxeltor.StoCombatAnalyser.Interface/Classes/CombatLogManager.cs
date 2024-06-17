@@ -394,7 +394,7 @@ public class CombatLogManager : INotifyPropertyChanged
                         {
                             fileParsedResults[fileEntry].FailedParses += 1;
                             this.AddToLogAndLogSummaryInUi(
-                                $"Failed to parse log file=\"{fileEntry}\", at line={fileLineCounter}. File line string={fileEntry}",
+                                $"Failed to parse log file=\"{fileEntry}\", at line={fileLineCounter}. File line string={fileLine}",
                                 ex, true);
                         }
                     }
