@@ -88,6 +88,34 @@
                     </StackPanel>
                 </Grid>
             </ListBoxItem>
+            <ListBoxItem Tag="HowFarBack" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Name:" />
+                        <TextBlock Text="HowFarBack" Margin="4,0,10,0"/>
+                        <!--<TextBox Name="uiTextBoxMaxNumberOfCombatsToDisplay" Text="{Binding Path=MaxNumberOfCombatsToDisplay, Mode=OneTime}" 
+                                 Margin="0,0,10,0" MinWidth="100" TextChanged="TextBoxBase_OnTextChanged"/>-->
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock>Days:</TextBlock>
+                            <ComboBox></ComboBox>
+                            <TextBlock Margin="8,0,0,0">Hours:</TextBlock>
+                            <ComboBox></ComboBox>
+                            <TextBlock Margin="8,0,0,0">Minutes:</TextBlock>
+                            <ComboBox></ComboBox>
+                            <TextBlock Margin="8,0,0,0">Seconds:</TextBlock>
+                            <ComboBox></ComboBox>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
+                        <TextBlock>Description:</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">The max number of combat instances to load and display. If set to zero, load them all.</TextBlock>
+                    </StackPanel>
+                </Grid>
+            </ListBoxItem>
             <ListBoxItem Tag="HowLongBeforeNewCombat" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
                 <Grid>
                     <Grid.RowDefinitions>

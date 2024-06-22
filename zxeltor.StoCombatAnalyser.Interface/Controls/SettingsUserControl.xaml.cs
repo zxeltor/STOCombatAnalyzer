@@ -295,6 +295,10 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
     private bool _purgeCombatLogs = Settings.Default.PurgeCombatLogs;
     private string _myCharacter = Settings.Default.MyCharacter;
 
+    public List<int> MinutesRange => Enumerable.Range(0, 30).ToList();
+    public List<int> HoursRange => Enumerable.Range(1, 23).ToList();
+    public List<int> DaysRange => Enumerable.Range(1, 90).ToList();
+
     /// <summary>
     ///     Enable combat log folder purge at application startup.
     /// </summary>
