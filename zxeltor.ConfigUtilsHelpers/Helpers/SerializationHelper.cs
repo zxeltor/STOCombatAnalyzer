@@ -29,9 +29,16 @@ public static class SerializationHelper
     ///     Serialize a chosen type to a JSON string.
     /// </summary>
     /// <param name="data">The data object to serialize.</param>
+    /// <param name="useJsonIndentation">
+    ///     If True, the JSON will be formatted with indents. False and the JSON will be a simple
+    ///     string.
+    /// </param>
     /// <returns>A JSON string representation of the data object.</returns>
-    public static string Serialize(object data)
+    public static string Serialize(object data, bool useJsonIndentation = false)
     {
+        if (useJsonIndentation)
+            return JsonConvert.SerializeObject(data, Formatting.Indented);
+
         return JsonConvert.SerializeObject(data);
     }
 
@@ -68,12 +75,20 @@ public static class SerializationHelper
     /// </summary>
     /// <param name="data">The data object to serialize.</param>
     /// <param name="output">A JSON string representation of the data object</param>
+    /// <param name="useJsonIndentation">
+    ///     If True, the JSON will be formatted with indents. False and the JSON will be a simple
+    ///     string.
+    /// </param>
     /// <returns>True if successful. False otherwise.</returns>
-    public static bool TrySerialize(object data, out string output)
+    public static bool TrySerialize(object data, out string output, bool useJsonIndentation = false)
     {
         try
         {
-            output = JsonConvert.SerializeObject(data);
+            if (useJsonIndentation)
+                output = JsonConvert.SerializeObject(data, Formatting.Indented);
+            else
+                output = JsonConvert.SerializeObject(data);
+
             return true;
         }
         catch
