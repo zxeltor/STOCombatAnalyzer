@@ -45,10 +45,10 @@ public static class AssemblyInfoHelper
     ///     Get assembly version from the entry assembly for the current application.
     /// </summary>
     /// <returns>The application version</returns>
-    public static Version? GetApplicationVersionFromAssembly()
+    public static Version GetApplicationVersionFromAssembly()
     {
         var assemblyVersion = Assembly.GetEntryAssembly()?.GetName().Version;
-        return assemblyVersion;
+        return assemblyVersion == null ? new Version() : assemblyVersion;
     }
 
     /// <summary>
