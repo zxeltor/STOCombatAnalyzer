@@ -79,7 +79,7 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This is a breakdown of event types for the selected combat entity. If you click on a particular bar, the DataGird and Magnitude Plot will update with more specific data for the selected event type..
+        ///   Looks up a localized string similar to This is a breakdown of event types for the selected combat entity. If you click on a particular bar, the DataGrid and Magnitude Plot will update with more specific data for the selected event type..
         /// </summary>
         public static string combat_event_type_breakdown {
             get {
