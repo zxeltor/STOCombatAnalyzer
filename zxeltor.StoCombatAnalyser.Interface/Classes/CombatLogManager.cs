@@ -216,17 +216,17 @@ public class CombatLogManager : INotifyPropertyChanged
 
             // Add player events to the list
             if (this.SelectedEntityCombatEventTypeList != null && this.SelectedEntityCombatEventTypeList.Count > 0)
-                this.SelectedEntityCombatEventTypeList.ToList().ForEach(evt =>
+                this.SelectedEntityCombatEventTypeList.OrderBy(evt => evt.EventTypeLabel).ToList().ForEach(evt =>
                     resultCollection.Add(new CombatEventTypeSelector(evt.EventTypeId, false, evt.EventTypeLabel,
                         evt.EventTypeLabelWithTotal)));
 
             // Add player pet events to the list
             if (this.SelectedEntityPetCombatEventTypeList != null &&
                 this.SelectedEntityPetCombatEventTypeList.Count > 0)
-                this.SelectedEntityPetCombatEventTypeList.ToList().ForEach(pevt =>
+                this.SelectedEntityPetCombatEventTypeList.OrderBy(evt => evt.PetLabel).ToList().ForEach(pevt =>
                 {
                     if (pevt.CombatEventTypes != null && pevt.CombatEventTypes.Count > 0)
-                        pevt.CombatEventTypes.ToList().ForEach(evt =>
+                        pevt.CombatEventTypes.OrderBy(evt => evt.EventTypeLabel).ToList().ForEach(evt =>
                         {
                             resultCollection.Add(new CombatEventTypeSelector(evt.EventTypeId, true,
                                 evt.EventTypeLabel, evt.EventTypeLabelWithTotal));
