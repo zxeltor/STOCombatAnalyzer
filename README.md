@@ -1,29 +1,32 @@
 # Star Trek Online Combat Analyzer [![GitHub release (latest by date)](https://img.shields.io/github/v/release/zxeltor/STOCombatAnalyzer)](https://github.com/zxeltor/STOCombatAnalyzer/releases/latest)
 
-#### Revision History and Updates
-For more information please visit the [WIKI](https://github.com/zxeltor/STOCombatAnalyzer/wiki)
-
 * [Overview](#overview)
 * [Building](#building)
-* [Release Info](#release-info)
+* [Download](#download)
 * [Quick Start](#quick-start)
 * [Interface Breakdown](#interface-breakdown)
 * [Map Detection](#map-detection)
 * [Disclaimer](#disclaimer)
 
+---
 ## Overview
 This is a PC application used to parse and analyze Star Trek Online combat logs. I became interested in trying out STO random elites, but I was curious if my Space DPS was up to snuff. After a little research, I found a reddit post which had a brief outline of the combat log, and the available fields. I figured doing a real-time DPS analyzer would be futile, until I could wrap my head around the combat log and it's fields.
 
 This app displays a breakdown of damage types, using calculations based on the absolute value of the magnitude field from the STO combat log file entries. Caluclations for DPS, Total Damage, and Max Damage are displayed. Information like resists and such aren't included.
 
+See the [wiki](https://github.com/zxeltor/STOCombatAnalyzer/wiki) for more details.
+
+---
 ## Building
 The source in this repo is wrapped up in a Visual Studio 2022 solution. You should be able to clone this repo localy, then build and run from inside of Visual Studio.
 
 You could also run the dotnet cli build and run commands from inside the zxeltor.StoCombatAnalyser.Interface project folder as well.
 
-## Release Info
+---
+## Download
 See the [wiki](https://github.com/zxeltor/STOCombatAnalyzer/wiki) for more details.
 
+---
 ## Quick Start
 After you have a successful build, do the following to get started using the application.
 
@@ -41,44 +44,42 @@ After you have a successful build, do the following to get started using the app
   - **HowLongToKeepLogs** How long to keep logs in days, before they are purged.
   - **DebugLogging** Enables debug logging. This also enables/disables a few information dialogs in the UI.
 
-![Settings Tab](zxeltor.StoCombatAnalyser.Interface/Images/StoCombatAnalyzerScreenShot_Settings.jpg)
 - Switch to the Log File Analyzer tab:
 - Click the **Parse Log(s)** button. If successful, you should see something similar to the following.
   - A dialog will appear and inform you of success, or failure. If a failure occurs, there should be details on what to do.
 
-![Main UI](zxeltor.StoCombatAnalyser.Interface/Images/StoCombatAnalyzerScreenShot.jpg)
-
+---
 ## Interface Breakdown
-![Main UI](zxeltor.StoCombatAnalyser.Interface/Images/StoCombatAnalyzerScreenShotWHighlights.jpg)
-
 When you click the **Parse Log(s)** button, the application goes to the STO combat log folder and parses all available combat logs. The log entries are then organised into combat instances, which populates the **Combat List** dropdown list (circled in green).
 
-### Combat List (circled in green)
+### Combat List
 When you select a combat instance from the **Combat List**, the **Selected Combat Details** section (circled in red) is populated with information on the seletced combat instance.
 Each combat instance has a list of events, which is broken down into Player and Non-Player entities.
 
-### Selected Combat Details (circled in red)
+### Combat Details
 When you select a Player or Non-Player entity, the rest of the UI updates with information concerning the damage the selected entity did during for the currently selected combat instance.
 
-### Selected Entity: Events Breakdown (circled in orange)
+### Event Type Breakdown
 This barchart gives you a breakdown of damage types the Player or Non-Player entity did. If you select the **Pets Only** checkboox, the bar chart will switch to displaying a breakdown of damage types used by the Player or Non-Player entity pets.
 
 When you click on one of the bars, the **Selected Entity: Data Grid** (circled in yellow) and **Selected Entity: Scatter Plot** (circled in blue) update with data for the selected damage type.
 
-### Selected Entity: Data Grid (circled in yellow)
+### Event(s) DataGrid
 This data grid displays the raw data from the STO combat logs related to the currently selected Player or Non-Player damage type. If you selected an entry in the grid, it will highlight a marker on the scatter plot (circled in blue).
 
-### Selected Entity: Scatter Plot (circled in blue)
+### Event(s) Magnitude Plot
 This scatter plot displays the currently selected Player or Non-Player damage type over time. When you select a marker on the scatter splot, it will highlight an entry in the data grid (circled in yellow).
 
 If you select another damage type from the **Filter** dropdown, the scatter plot and data grid (circled in yellow), will switch to displaying data for that damage type.
 
+---
 ## Map Detection
 This feature is used to determine what map was being played during a combat instance.
 
 ### Settings
 New map detection settings can be imported into the application from the Tools/Settings tab. This comes in handy as new maps and encounters are added to the game.
-The latest CombatMapDetectionSettings.json file can be found in the ![STOCombatAnalyzer.Settings](https://github.com/zxeltor/STOCombatAnalyzer.Settings) repo.
+
+**Note:** The latest CombatMapDetectionSettings.json file can be found in the ![STOCombatAnalyzer.Settings](https://github.com/zxeltor/STOCombatAnalyzer.Settings) repo.
 
 ### Issues
 - This feature is a bit complicated. There’s nothing in the STO combat log that points directly at a map or instance you're currently playing. Certain maps for TFOs and other special events will have unique entities, while others don’t.
@@ -86,6 +87,7 @@ The latest CombatMapDetectionSettings.json file can be found in the ![STOCombatA
 - If all else fails, it will mark the combat instance map as Undetermined.
   - A combat instance can in some cases be short, and not include any non-player entities to determine any map details.
 
+---
 ## Disclaimer
 This software and any related documentation is provided “as is” without warranty of any kind, either express or implied, including, without limitation, the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. Licensee accepts any and all risk arising out of use or performance of Software
 
