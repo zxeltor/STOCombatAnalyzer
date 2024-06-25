@@ -19,7 +19,6 @@ using zxeltor.StoCombatAnalyzer.Interface.Controls;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 using Color = ScottPlot.Color;
 using Colors = ScottPlot.Colors;
@@ -679,6 +678,11 @@ public partial class MainWindow : Window
                         new RoutedPropertyChangedEventArgs<object>(null, null));
                 }
             }
+        }
+        else if (e.RemovedItems.Count > 0)
+        {
+            this.uiTreeViewCombatEntityList_SelectedItemChanged(sender,
+                new RoutedPropertyChangedEventArgs<object>(null, null));
         }
     }
 
