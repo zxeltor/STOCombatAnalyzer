@@ -79,7 +79,7 @@ This feature is used to determine what map was being played during a combat inst
 ### Settings
 New map detection settings can be imported into the application from the Tools/Settings tab. This comes in handy as new maps and encounters are added to the game.
 
-**Note:** The latest CombatMapDetectionSettings.json file can be found in the ![STOCombatAnalyzer.Settings](https://github.com/zxeltor/STOCombatAnalyzer.Settings) repo.
+**Note:** The latest CombatMapDetectionSettings.json file can be found in the [STOCombatAnalyzer.Settings](https://github.com/zxeltor/STOCombatAnalyzer.Settings) repo.
 
 ### Issues
 - This feature is a bit complicated. There’s nothing in the STO combat log that points directly at a map or instance you're currently playing. Certain maps for TFOs and other special events will have unique entities, while others don’t.
