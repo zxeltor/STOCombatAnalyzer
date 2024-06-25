@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ApplicationName" xml:space="preserve">
+    <value>STO Combat Log Analyzer</value>
+  </data>
   <data name="combat_details" xml:space="preserve">
     <value>This is used to examine a selected Combat from the Combat List dropdown. When a Player or NonPlayer entity is selected here, the rest of the controls in the UI update with information for the selected entity.</value>
   </data>
@@ -132,5 +135,32 @@ Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate 
   </data>
   <data name="combat_event_type_breakdown" xml:space="preserve">
     <value>This is a breakdown of event types for the selected combat entity. If you click on a particular bar, the DataGird and Magnitude Plot will update with more specific data for the selected event type.</value>
+  </data>
+  <data name="export_combat_json" xml:space="preserve">
+    <value>Used to export the currently selected Combat entity to a JSON file. The JSON is primarily used for troubleshooting purposes.
+
+Note: A Combat entity needs to be selected in the "Log File Analyzer" tab for this to work.</value>
+  </data>
+  <data name="export_detection_json" xml:space="preserve">
+    <value>Export map detection settings to a JSON file.</value>
+  </data>
+  <data name="GithubMapDetectRepoUrl" xml:space="preserve">
+    <value>https://github.com/zxeltor/STOCombatAnalyzer.Settings</value>
+  </data>
+  <data name="GithubRepoUrl" xml:space="preserve">
+    <value>https://github.com/zxeltor/STOCombatAnalyzer</value>
+  </data>
+  <data name="GithubRepoWikiUrl" xml:space="preserve">
+    <value>https://github.com/zxeltor/STOCombatAnalyzer/wiki</value>
+  </data>
+  <data name="import_detection_json" xml:space="preserve">
+    <value>Import a new or modified CombatMapDetectionSettings.json file. These settings affect how a map is determined for a Combat entity.
+
+Note: The new settings won't be reflected in the interface until you run "Parse Log(s)".</value>
+  </data>
+  <data name="reset_detection_json" xml:space="preserve">
+    <value>Reset map detection settings to application default.
+
+Note: The new settings won't be reflected in the interface until you run "Parse Log(s)".</value>
   </data>
 </root>
