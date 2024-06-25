@@ -104,6 +104,11 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     public string OwnerInternal { get; private set; }
 
     /// <summary>
+    ///     The OwnerInternal id stripped of it's ID wrapper.
+    /// </summary>
+    public string OwnerInternalStripped { get; private set; }
+
+    /// <summary>
     ///     Display name of source(only appears if Pet/Gravity Well etc)
     ///     <para>
     ///         This was a field parsed directly from the original CSV log file entry.
@@ -138,6 +143,16 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     ///     </para>
     /// </summary>
     public string TargetInternal { get; private set; }
+
+    /// <summary>
+    ///     True if the target is a non-player. False otherwise.
+    /// </summary>
+    public bool IsTargetNonPlayer { get; private set; }
+
+    /// <summary>
+    ///     The TargetInternal id stripped of it's ID wrapper.
+    /// </summary>
+    public string TargetInternalStripped { get; private set; }
 
     /// <summary>
     ///     Display name of event
@@ -278,6 +293,25 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
 
         if (!string.IsNullOrWhiteSpace(this.SourceDisplay))
             this.IsPetEvent = true;
+
+        if (!this.IsPetEvent && OwnerInternal.StartsWith("C["))
+        {
+            var splitResult = OwnerInternal.Split(" ");
+            if (splitResult.Length == 2)
+            {
+                OwnerInternalStripped = splitResult[1].Replace("]", "");
+            }
+        }
+
+        if (!this.IsPetEvent && TargetInternal.StartsWith("C["))
+        {
+            var splitResult = TargetInternal.Split(" ");
+            if (splitResult.Length == 2)
+            {
+                IsTargetNonPlayer = true;
+                TargetInternalStripped = splitResult[1].Replace("]", "");
+            }
+        }
 
         if (this.OwnerInternal.StartsWith("P["))
             this.IsPlayerEntity = true;

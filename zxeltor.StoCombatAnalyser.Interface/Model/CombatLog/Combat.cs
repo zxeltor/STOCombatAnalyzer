@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Humanizer;
 using Humanizer.Localisation;
+using Newtonsoft.Json;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
@@ -80,10 +81,16 @@ public class Combat : INotifyPropertyChanged
     public string CombatDuration => (this.CombatEnd - this.CombatStart).Humanize(3, maxUnit: TimeUnit.Minute);
 
     /// <summary>
+    ///     The identity of the map related to this combat instance.
+    /// </summary>
+    public string? Map { get; set; }
+
+    /// <summary>
     ///     A list of player <see cref="CombatEntity" /> objects.
     /// </summary>
     public ObservableCollection<CombatEntity> PlayerEntities { get; } = new();
 
+    [JsonIgnore]
     public ObservableCollection<CombatEntity> PlayerEntitiesOrderByName => new(this.PlayerEntities.OrderBy(ent => ent.OwnerDisplay));
 
     /// <summary>
@@ -91,10 +98,53 @@ public class Combat : INotifyPropertyChanged
     /// </summary>
     public ObservableCollection<CombatEntity> NonPlayerEntities { get; } = new();
 
+    [JsonIgnore]
     public ObservableCollection<CombatEntity> NonPlayerEntitiesOrderByName => new(this.NonPlayerEntities.OrderBy(ent => ent.OwnerDisplay));
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    ///     A unique list of non-player ids used in map detection.
+    /// </summary>
+    public List<string> UniqueOrderedOwners
+    {
+        get
+        {
+            if (NonPlayerEntities == null || NonPlayerEntities.Count == 0)
+                return new List<string>();
+
+            var results = (
+                from entity in NonPlayerEntities
+                from eve in entity.CombatEventList
+                where eve.OwnerInternal.StartsWith("C[")
+                select eve.OwnerInternal.Split(" ")[1].Replace("]", "")
+            ).Distinct().OrderBy(res => res).ToList();
+
+            return results;
+        }
+    }
+
+    /// <summary>
+    ///     A unique list of non-player ids used in map detection.
+    /// </summary>
+    public List<string> UniqueOrderedTargets
+    {
+        get
+        {
+            if (PlayerEntities == null || PlayerEntities.Count == 0)
+                return new List<string>();
+
+            var results = (
+                from entity in PlayerEntities
+                from eve in entity.CombatEventList
+                where eve.TargetInternal.StartsWith("C[")
+                select eve.TargetInternal.Split(" ")[1].Replace("]", "")
+            ).Distinct().OrderBy(res => res).ToList();
+
+            return results;
+        }
+    }
 
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.

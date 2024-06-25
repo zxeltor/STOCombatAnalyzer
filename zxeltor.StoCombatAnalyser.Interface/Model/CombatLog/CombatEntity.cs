@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Humanizer;
 using Humanizer.Localisation;
+using Newtonsoft.Json;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
@@ -36,6 +37,7 @@ public class CombatEntity : INotifyPropertyChanged
     /// <summary>
     ///     Get a list of event types specific to the Player or Non-Player
     /// </summary>
+    [JsonIgnore]
     public List<CombatEventType> CombatEventTypeListForEntity
     {
         get
@@ -54,6 +56,7 @@ public class CombatEntity : INotifyPropertyChanged
     /// <summary>
     ///     Get a list of event types specific to the Player or Non-Player Pets
     /// </summary>
+    [JsonIgnore]
     public List<CombatPetEventType> CombatEventTypeListForEntityPets
     {
         get
@@ -73,15 +76,6 @@ public class CombatEntity : INotifyPropertyChanged
         }
     }
 
-    ///// <summary>
-    /////     A string representation of <see cref="EntityCombatStart" /> which includes milliseconds.
-    ///// </summary>
-    //public string EntityStartTimeString => $"{this.EntityCombatStart:hh:mm:ss.fff tt}";
-
-    ///// <summary>
-    /////     A string representation of <see cref="EntityCombatEnd" /> which includes milliseconds.
-    ///// </summary>
-    //public string EntityEndTimeString => $"{this.EntityCombatEnd:hh:mm:ss.fff tt}";
 
     /// <summary>
     ///     Used to establish the start time for this combat entity.
@@ -222,14 +216,7 @@ public class CombatEntity : INotifyPropertyChanged
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
-    ///// <summary>
-    /////     Add a combat event to this entity.
-    ///// </summary>
-    ///// <param name="combatEvent">The combat event.</param>
-    //public void AddCombatEvent(CombatEvent combatEvent)
-    //{
-    //    this.CombatEventList.Add(combatEvent);
-    //}
+
 
     /// <inheritdoc />
     public override string ToString()
