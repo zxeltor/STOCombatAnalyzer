@@ -12,7 +12,7 @@
     <AssemblyOriginatorKeyFile>zxeltor.StoCombatAnalyzer.Interface_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
     <FileVersion></FileVersion>
-    <AssemblyVersion></AssemblyVersion>
+    <AssemblyVersion>1.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Images\glyphicons-195-question-sign.png" />
+    <None Remove="CombatMapDetectionSettings.json" />
+    <None Remove="Images\glyphicons-152-new-window.png" />
+    <None Remove="Images\glyphicons-196-info-sign.png" />
+    <None Remove="Images\information-icon-6073.png" />
     <None Remove="Log4Net.config" />
     <None Remove="Log4Net.Development.config" />
     <None Remove="StoCombatAnalyzerSettings2.json" />
@@ -49,7 +52,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Images\glyphicons-195-question-sign.png" />
+    <Resource Include="Images\glyphicons-152-new-window.png" />
+    <Resource Include="Images\glyphicons-196-info-sign.png" />
+    <Resource Include="Images\information-icon-6073.png" />
   </ItemGroup>
 
   <ItemGroup>

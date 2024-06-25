@@ -4,20 +4,23 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using Humanizer;
 using log4net;
+using Microsoft.Win32;
 using ScottPlot;
 using ScottPlot.Plottables;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
+using zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 using Color = ScottPlot.Color;
 using Colors = ScottPlot.Colors;
 using Image = System.Windows.Controls.Image;
@@ -67,9 +70,9 @@ public partial class MainWindow : Window
         var version = AssemblyInfoHelper.GetApplicationVersionFromAssembly();
 
         // Set our window title using assembly information.
-        this.Title = version == null
-            ? $"{AssemblyInfoHelper.GetApplicationNameFromAssemblyOrDefault()} Alpha"
-            : $"{AssemblyInfoHelper.GetApplicationNameFromAssemblyOrDefault()} v{version.Major}.{version.Minor}.{version.Build}.{version.Revision} Alpha";
+        //this.Title = version == null
+        //    ? $"{AssemblyInfoHelper.GetApplicationNameFromAssemblyOrDefault()} Alpha"
+        //    : $"{AssemblyInfoHelper.GetApplicationNameFromAssemblyOrDefault()} v{version.Major}.{version.Minor}.{version.Build}.{version.Revision} Alpha";
 
         this.ToggleDataGridColumnVisibility();
 
@@ -83,7 +86,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            if(!string.IsNullOrWhiteSpace(errorReason))
+            if (!string.IsNullOrWhiteSpace(errorReason))
                 ResponseDialog.Show(Application.Current.MainWindow, errorReason, "Combat log purge error");
         }
     }
@@ -185,9 +188,15 @@ public partial class MainWindow : Window
     }
 
     private void uiButtonParseLog_Click(object sender, RoutedEventArgs e)
-    {        
+    {
         CombatLogManagerContext?.GetCombatLogEntriesFromLogFiles();
         this.SetPlots();
+
+        if (CombatLogManagerContext.Combats == null || CombatLogManagerContext.Combats.Count == 0)
+        {
+            var message = $"No combat data was returned.{Environment.NewLine}{Environment.NewLine}Confirm you have combat logging turned on in STO, and confirm the settings \"CombatLogPath\" and \"CombatLogPathFilePattern\" are correct.";
+            MessageBox.Show(this, message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     private void ClearLogSummary(object sender, RoutedEventArgs e)
@@ -274,7 +283,8 @@ public partial class MainWindow : Window
 
         this.uiScottScatterPlotEntityEvents.Plot.Legend.FontSize = 24;
 
-        if (filteredCombatEventList != null && filteredCombatEventList.Count > 0 && CombatLogManagerContext!.SelectedCombatEntity != null)
+        if (filteredCombatEventList != null && filteredCombatEventList.Count > 0 &&
+            CombatLogManagerContext!.SelectedCombatEntity != null)
         {
             this.uiScottScatterPlotEntityEvents.Plot.ShowLegend();
             this.uiScottScatterPlotEntityEvents.MouseLeftButtonDown -=
@@ -298,10 +308,13 @@ public partial class MainWindow : Window
                 total = CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude;
                 max = CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude;
             }
-            else if (CombatLogManagerContext.EventTypeDisplayFilter.EventTypeLabel.StartsWith("PET(", StringComparison.CurrentCultureIgnoreCase)
-                && CombatLogManagerContext.SelectedEntityPetCombatEventTypeList != null && CombatLogManagerContext.SelectedEntityPetCombatEventTypeList.Count > 0)
+            else if (CombatLogManagerContext.EventTypeDisplayFilter.EventTypeLabel.StartsWith("PET(",
+                         StringComparison.CurrentCultureIgnoreCase)
+                     && CombatLogManagerContext.SelectedEntityPetCombatEventTypeList != null &&
+                     CombatLogManagerContext.SelectedEntityPetCombatEventTypeList.Count > 0)
             {
-                CombatLogManagerContext.SelectedEntityPetCombatEventTypeList.ToList().ForEach(petevt => {
+                CombatLogManagerContext.SelectedEntityPetCombatEventTypeList.ToList().ForEach(petevt =>
+                {
                     petevt.CombatEventTypes.ForEach(evt =>
                     {
                         if (CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals(evt.EventTypeId))
@@ -327,7 +340,7 @@ public partial class MainWindow : Window
             }
 
             var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
-                $"DPS({dps.ToMetric(null,3)}) Total({total.ToMetric(null, 3)}) Max({max.ToMetric(null, 3)})",
+                $"DPS({dps.ToMetric(null, 3)}) Total({total.ToMetric(null, 3)}) Max({max.ToMetric(null, 3)})",
                 Alignment.UpperCenter);
 
             annotation.LabelFontSize = 18f;
@@ -475,7 +488,8 @@ public partial class MainWindow : Window
                         Position = positionCounter--,
                         Value = sumOfMagnitude,
                         FillColor = colorArray[colorCounter++],
-                        Label = evt.EventTypeLabelWithTotal  //$"{evt.EventTypeLabel}: Total({sumOfMagnitude.ToMetric(null, 3)})"
+                        Label = evt
+                            .EventTypeLabelWithTotal //$"{evt.EventTypeLabel}: Total({sumOfMagnitude.ToMetric(null, 3)})"
                     });
                 });
             }
@@ -512,12 +526,15 @@ public partial class MainWindow : Window
 
             this.uiScottBarChartEntityEventTypes.Plot.Axes.AutoScale();
 
-            this.uiScottBarChartEntityEventTypes.MouseLeftButtonDown -= this.UiScottBarChartEntityEventTypes_MouseLeftButtonDown;
-            this.uiScottBarChartEntityEventTypes.MouseLeftButtonDown += this.UiScottBarChartEntityEventTypes_MouseLeftButtonDown;
+            this.uiScottBarChartEntityEventTypes.MouseLeftButtonDown -=
+                this.UiScottBarChartEntityEventTypes_MouseLeftButtonDown;
+            this.uiScottBarChartEntityEventTypes.MouseLeftButtonDown +=
+                this.UiScottBarChartEntityEventTypes_MouseLeftButtonDown;
         }
         else
         {
-            this.uiScottBarChartEntityEventTypes.MouseLeftButtonDown -= this.UiScottBarChartEntityEventTypes_MouseLeftButtonDown;
+            this.uiScottBarChartEntityEventTypes.MouseLeftButtonDown -=
+                this.UiScottBarChartEntityEventTypes_MouseLeftButtonDown;
         }
 
         this.uiScottBarChartEntityEventTypes.Refresh();
@@ -538,24 +555,29 @@ public partial class MainWindow : Window
         {
             plot.Bars.ToList().ForEach(bar =>
             {
-                var maxY = bar.Position + (bar.Size / 2);
-                var minY = bar.Position - (bar.Size / 2);
+                var maxY = bar.Position + bar.Size / 2;
+                var minY = bar.Position - bar.Size / 2;
                 var maxX = bar.Value;
                 var minX = 0;
 
-                if (mouseLocation.Y >= minY && mouseLocation.Y <= maxY && mouseLocation.X >= minX && mouseLocation.X <= maxX)
+                if (mouseLocation.Y >= minY && mouseLocation.Y <= maxY && mouseLocation.X >= minX &&
+                    mouseLocation.X <= maxX)
                 {
                     if (bar.Label.StartsWith("ALL PETS"))
                     {
                         //CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(bar.FillColor.A, bar.FillColor.G, bar.FillColor.B));
                         CombatLogManagerContext!.EventTypeDisplayFilter =
-                            CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL PETS"));
+                            CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions
+                                .FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL PETS"));
                         return;
                     }
 
                     if (bar is CombatEventTypeBar combatEventTypeBar)
                     {
-                        var eventType = CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => combatEventTypeBar.EventTypeId.Equals(eventType.EventTypeId));
+                        var eventType =
+                            CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions
+                                .FirstOrDefault(eventType =>
+                                    combatEventTypeBar.EventTypeId.Equals(eventType.EventTypeId));
                         if (eventType != null)
                         {
                             //CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(combatEventTypeBar.FillColor.A, combatEventTypeBar.FillColor.G, combatEventTypeBar.FillColor.B)); //combatEventTypeBar.FillColor;
@@ -565,7 +587,9 @@ public partial class MainWindow : Window
                     }
                     else
                     {
-                        var eventType = CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => bar.Label.StartsWith(eventType.EventTypeLabel));
+                        var eventType =
+                            CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions
+                                .FirstOrDefault(eventType => bar.Label.StartsWith(eventType.EventTypeLabel));
                         if (eventType != null)
                         {
                             //CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(bar.FillColor.A, bar.FillColor.G, bar.FillColor.B));
@@ -575,14 +599,14 @@ public partial class MainWindow : Window
                     }
 
                     //CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
-                    CombatLogManagerContext!.EventTypeDisplayFilter = 
-                        CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL"));
-                    return;
+                    CombatLogManagerContext!.EventTypeDisplayFilter =
+                        CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(
+                            eventType => eventType.EventTypeId.Equals("ALL"));
                 }
             });
         });
 
-        SetPlots();
+        this.SetPlots();
     }
 
     private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
@@ -636,26 +660,29 @@ public partial class MainWindow : Window
         {
             if (string.IsNullOrWhiteSpace(Settings.Default.MyCharacter))
             {
-                uiTreeViewCombatEntityList_SelectedItemChanged(sender, new RoutedPropertyChangedEventArgs<object>(null, null));
+                this.uiTreeViewCombatEntityList_SelectedItemChanged(sender,
+                    new RoutedPropertyChangedEventArgs<object>(null, null));
             }
             else
             {
-                var playerEntity = selectedCombat.PlayerEntities.FirstOrDefault(player => player.OwnerInternal.Contains(Settings.Default.MyCharacter));
+                var playerEntity = selectedCombat.PlayerEntities.FirstOrDefault(player =>
+                    player.OwnerInternal.Contains(Settings.Default.MyCharacter));
                 if (playerEntity != null)
                 {
-                    uiTreeViewCombatEntityList_SelectedItemChanged(sender,
+                    this.uiTreeViewCombatEntityList_SelectedItemChanged(sender,
                         new RoutedPropertyChangedEventArgs<object>(playerEntity, playerEntity));
                     this.uiContentControlSelectedCombat.Focus();
                 }
                 else
                 {
-                    uiTreeViewCombatEntityList_SelectedItemChanged(sender, new RoutedPropertyChangedEventArgs<object>(null, null));
+                    this.uiTreeViewCombatEntityList_SelectedItemChanged(sender,
+                        new RoutedPropertyChangedEventArgs<object>(null, null));
                 }
             }
         }
     }
 
-    private void UIElement_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    private void DetailsImage_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         /*
          * combat_details
@@ -673,7 +700,8 @@ public partial class MainWindow : Window
                 DetailsDialog.ShowDialog(this, "Combat Details", Properties.Resources.combat_details);
                 break;
             case "combat_event_type_breakdown":
-                DetailsDialog.ShowDialog(this, "Event Type Breakdown", Properties.Resources.combat_event_type_breakdown);
+                DetailsDialog.ShowDialog(this, "Event Type Breakdown",
+                    Properties.Resources.combat_event_type_breakdown);
                 break;
             case "combat_events_datagrid":
                 DetailsDialog.ShowDialog(this, "Event(s) DataGrid", Properties.Resources.combat_events_datagrid);
@@ -681,6 +709,193 @@ public partial class MainWindow : Window
             case "combat_events_plot":
                 DetailsDialog.ShowDialog(this, "Event(s) Magnitude Plot", Properties.Resources.combat_events_plot);
                 break;
+            case "import_detection_json":
+                DetailsDialog.ShowDialog(this, "Import Map Detection Settings",
+                    Properties.Resources.import_detection_json);
+                break;
+            case "export_detection_json":
+                DetailsDialog.ShowDialog(this, "Export Map Detection Settings",
+                    Properties.Resources.export_detection_json);
+                break;
+            case "reset_detection_json":
+                DetailsDialog.ShowDialog(this, "Reset Map Detection Settings",
+                    Properties.Resources.reset_detection_json);
+                break;
+            case "export_combat_json":
+                DetailsDialog.ShowDialog(this, "Import Map Detection Settings",
+                    Properties.Resources.export_combat_json);
+                break;
         }
+    }
+
+    private void Browse_OnMouseLeftButtonUp(object sender, RoutedEventArgs e)
+    {
+        if (!(e.Source is Button button))
+            return;
+
+        var url = string.Empty;
+
+        try
+        {
+            switch (button.Tag)
+            {
+                case "GithubRepoUrl":
+                    url = Properties.Resources.GithubRepoUrl;
+                    UrlHelper.LaunchUrlInDefaultBrowser(url);
+                    break;
+                case "GithubRepoWikiUrl":
+                    url = Properties.Resources.GithubRepoWikiUrl;
+                    UrlHelper.LaunchUrlInDefaultBrowser(url);
+                    break;
+                case "GithubMapDetectRepoUrl":
+                    url = Properties.Resources.GithubMapDetectRepoUrl;
+                    UrlHelper.LaunchUrlInDefaultBrowser(url);
+                    break;
+            }
+        }
+        catch (Exception exception)
+        {
+            var errorMessage = $"Failed to open default browser for url={url}.";
+            Log.Error(errorMessage, exception);
+            MessageBox.Show(this, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void UiButtonImportMapEntities_OnClick(object sender, RoutedEventArgs e)
+    {
+        var openFile = new OpenFileDialog();
+        openFile.Filter = "MapEntities JSON|*.json";
+
+        var result = openFile.ShowDialog();
+
+        if (result == true)
+            try
+            {
+                using (var sr = new StreamReader(openFile.FileName))
+                {
+                    var jsonString = sr.ReadToEnd();
+                    var serializationResult = SerializationHelper.Deserialize<CombatMapDetectionSettings>(jsonString);
+
+                    if (serializationResult == null)
+                        throw new Exception("No map entries found in JSON");
+
+                    CombatLogManagerContext.CombatMapDetectionSettings = serializationResult;
+
+                    Settings.Default.UserCombatMapList = jsonString;
+                    Settings.Default.Save();
+                }
+
+                var successStorage =
+                    $"Successfully imported {CombatLogManagerContext?.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.";
+                Log.Info(successStorage);
+                MessageBox.Show(this, successStorage, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception exception)
+            {
+                var errorMessage = $"Failed to import MapEntities JSON. Reason={exception.Message}";
+                Log.Error(errorMessage, exception);
+                MessageBox.Show(this, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+    }
+
+    private void UiButtonExportCombat_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (CombatLogManagerContext?.SelectedCombat == null)
+        {
+            MessageBox.Show(this, "Need to select a Combat from the CombatList dropdown.", "Error", MessageBoxButton.OK,
+                MessageBoxImage.Exclamation);
+            return;
+        }
+
+        var saveFile = new SaveFileDialog();
+        saveFile.Filter = "Combat JSON|*.json";
+
+        var result = saveFile.ShowDialog();
+
+        if (result.HasValue && result.Value)
+            try
+            {
+                if (string.IsNullOrWhiteSpace(saveFile.FileName))
+                {
+                    MessageBox.Show(this, "You need to select a file name.", "Error", MessageBoxButton.OK,
+                        MessageBoxImage.Exclamation);
+                    return;
+                }
+
+                using (var sw = new StreamWriter(saveFile.FileName))
+                {
+                    var serializationResult =
+                        SerializationHelper.Serialize(CombatLogManagerContext.SelectedCombat, true);
+                    sw.Write(serializationResult);
+                    sw.Flush();
+                }
+
+                var successStorage = "Successfully exported Combat to JSON";
+                Log.Info(successStorage);
+                MessageBox.Show(this, successStorage, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception exception)
+            {
+                var errorMessage = $"Failed to export Combat to JSON. Reason={exception.Message}";
+                Log.Error(errorMessage, exception);
+                MessageBox.Show(this, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+    }
+
+    private void UiButtonResetMapEntities_OnClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Settings.Default.UserCombatMapList = null;
+            Settings.Default.Save();
+
+            CombatLogManagerContext.CombatMapDetectionSettings =
+                SerializationHelper.Deserialize<CombatMapDetectionSettings>(Settings.Default.DefaultCombatMapList);
+
+            MessageBox.Show(this, "Map detection settings have been set to application default.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception exception)
+        {
+            var error = "Failed to switch map detection setting to application default.";
+            Log.Error(error, exception);
+            MessageBox.Show(this, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void UiButtonExportMapEntities_OnClick(object sender, RoutedEventArgs e)
+    {
+        var saveFile = new SaveFileDialog();
+        saveFile.Filter = "MapDetectionSettings JSON|*.json";
+
+        var result = saveFile.ShowDialog();
+
+        if (result.HasValue && result.Value)
+            try
+            {
+                if (string.IsNullOrWhiteSpace(saveFile.FileName))
+                {
+                    MessageBox.Show(this, "You need to select a file name.", "Error", MessageBoxButton.OK,
+                        MessageBoxImage.Exclamation);
+                    return;
+                }
+
+                using (var sw = new StreamWriter(saveFile.FileName))
+                {
+                    var serializationResult =
+                        SerializationHelper.Serialize(CombatLogManagerContext.CombatMapDetectionSettings, true);
+                    sw.Write(serializationResult);
+                    sw.Flush();
+                }
+
+                var successStorage = "Successfully exported MapDetectionSettings to JSON";
+                Log.Info(successStorage);
+                MessageBox.Show(this, successStorage, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception exception)
+            {
+                var errorMessage = $"Failed to export MapDetectionSettings to JSON. Reason={exception.Message}";
+                Log.Error(errorMessage, exception);
+                MessageBox.Show(this, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
     }
 }

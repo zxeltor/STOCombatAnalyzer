@@ -11,12 +11,14 @@
     x:Class="zxeltor.StoCombatAnalyzer.Interface.MainWindow"
     d:DataContext="{d:DesignInstance Type={x:Type classes:CombatLogManager}}"
     mc:Ignorable="d"
-    Title="" Height="600" MinHeight="600" Width="1000" MinWidth="1000" WindowStartupLocation="CenterScreen">
+    Title="{Binding Path=MainWindowTitle}" Height="600" MinHeight="600" Width="1000" MinWidth="1000" WindowStartupLocation="CenterScreen">
     <Grid x:Name="uiGridMain">
         <Grid.Resources>
             <classes:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
             <classes:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
             <classes:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
+            <classes:MapNameStringConverter x:Key="mapNameStringConverter" />
+            <classes:MapNameColorConverter x:Key="mapNameColorConverter" />
             <Brush x:Key="colorDps">Red</Brush>
             <Brush x:Key="colorTotal">Green</Brush>
             <Brush x:Key="colorMax">Purple</Brush>
@@ -85,14 +87,12 @@
             </DataTemplate>
             <DataTemplate x:Key="selectedCombatDetailsTemplate" DataType="{x:Type modelcombatlog:Combat}">
                 <Grid>
-                    <StackPanel Margin="0,0,0,0" Height="50" VerticalAlignment="Top">
+                    <StackPanel Margin="0,0,0,0" Height="Auto" VerticalAlignment="Top">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <TextBlock Text="Started: " />
                             <TextBlock
                                 Text="{Binding CombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <TextBlock Text="Ended: " />
+                            <TextBlock Text="Ended: " Margin="8,0,0,0" />
                             <TextBlock
                                 Text="{Binding CombatEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
                         </StackPanel>
@@ -101,14 +101,19 @@
                             <TextBlock Text="{Binding CombatDuration}" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <TextBlock Text="Map: " />
+                            <TextBlock Text="{Binding Path=Map, Converter={StaticResource mapNameStringConverter}}" 
+                                       Foreground="{Binding Path=Map, Converter={StaticResource mapNameColorConverter}}" FontWeight="Bold" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <TextBlock Text="Combat Entities:" />
-                            <TextBlock Text="Players" Margin="8,0,0,0"
+                            <TextBlock Text="Players=" Margin="8,0,0,0"
                                        Visibility="{Binding PlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" />
-                            <TextBlock Text="{Binding PlayerEntities.Count}" Margin="2,0,0,0"
+                            <TextBlock Text="{Binding PlayerEntities.Count}" 
                                        Visibility="{Binding PlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" />
-                            <TextBlock Text="Non-Players" Margin="8,0,0,0"
+                            <TextBlock Text="Non-Players=" Margin="8,0,0,0"
                                        Visibility="{Binding NonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" />
-                            <TextBlock Text="{Binding NonPlayerEntities.Count}" Margin="2,0,0,0"
+                            <TextBlock Text="{Binding NonPlayerEntities.Count}" 
                                        Visibility="{Binding NonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" />
                         </StackPanel>
                     </StackPanel>
@@ -156,7 +161,7 @@
                                    Visibility="{Binding Path=Combats, Converter={StaticResource typeToVisibilityConverter}}" />
                         <TextBlock Text="):" VerticalAlignment="Center" Visibility="{Binding Path=Combats, Converter={StaticResource typeToVisibilityConverter}}" />
                         <ComboBox Name="uiComboBoxCombats" Text="Help" ItemsSource="{Binding Path=Combats}" IsSynchronizedWithCurrentItem="True" 
-                                  Width="350" Height="36" Margin="4,0,0,0" SelectedItem="{Binding Path=SelectedCombat}" SelectionChanged="UiComboBoxCombats_OnSelectionChanged">
+                                  Width="350" Height="54" Margin="4,0,0,0" SelectedItem="{Binding Path=SelectedCombat}" SelectionChanged="UiComboBoxCombats_OnSelectionChanged">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Vertical">
@@ -165,6 +170,11 @@
                                             <TextBlock Text="{Binding Path=CombatStart}" />
                                             <TextBlock Text="Duration=" Margin="10,0,0,0" />
                                             <TextBlock Text="{Binding Path=CombatDuration}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Map=" />
+                                            <TextBlock Text="{Binding Path=Map, Converter={StaticResource mapNameStringConverter}}" 
+                                                       Foreground="{Binding Path=Map, Converter={StaticResource mapNameColorConverter}}" FontWeight="Bold" />
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Players=" />
@@ -185,18 +195,22 @@
                                    Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />
                     </StackPanel>
 
+                    <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,0">
+
+                    </StackPanel>
+
                     <GridSplitter Grid.Row="1" Grid.Column="0" Background="Gray" 
-                                  Width="2"
-                                  Margin="0,12,0,4" 
-                                  Padding="0,0,0,0"
-                                  HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
+                                Width="2"
+                                Margin="0,12,0,4" 
+                                Padding="0,0,0,0"
+                                HorizontalAlignment="Right"  VerticalAlignment="Stretch" />
 
                     <GroupBox Grid.Row="1" Grid.Column="0" x:Name="uiGroupBoxSelectedCombatDetails"
                               Margin="4,4,4,4" Padding="4,4,4,4">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
-                                <Image Tag="combat_details" Source="Images/glyphicons-195-question-sign.png" Stretch="Fill" Height="16"
-                                    MouseLeftButtonUp="UIElement_OnMouseLeftButtonUp" />
+                                <Image Tag="combat_details" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16"
+                                    MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
                                 <TextBlock Text="Combat Details" Margin="8,0,0,0" />
                             </StackPanel>
                         </GroupBox.Header>
@@ -205,14 +219,14 @@
                                             ContentTemplate="{StaticResource selectedCombatDetailsTemplate}" />
                         </Grid>
                     </GroupBox>
-                   
+
                     <GridSplitter Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Background="Gray" Height="2" Margin="10,2,10,0"
                                   HorizontalAlignment="Stretch" VerticalAlignment="Top" />
 
                     <GroupBox Grid.Row="1" Grid.Column="1" Margin="4,4,4,4" Padding="4,4,4,4">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
-                                <Image Tag="combat_event_type_breakdown" Source="Images/glyphicons-195-question-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="UIElement_OnMouseLeftButtonUp" />
+                                <Image Tag="combat_event_type_breakdown" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
                                 <TextBlock Text="Event Type Breakdown" Margin="4,0,0,0" />
                                 <CheckBox Name="uiCheckBoxDisplayPetsOnlyOnPieChart" IsChecked="False" Content="Pets Only" Margin="8,0,0,0"
                                           Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
@@ -234,7 +248,7 @@
                             <GroupBox.Header>
                                 <Grid>
                                     <StackPanel Orientation="Horizontal">
-                                        <Image Tag="combat_events_datagrid" Source="Images/glyphicons-195-question-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="UIElement_OnMouseLeftButtonUp" />
+                                        <Image Tag="combat_events_datagrid" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
                                         <TextBlock Text="Event(s) DataGrid" Margin="8,0,0,0"/>
                                         <TextBlock Text=":" />
                                         <TextBlock Text="'" Visibility="{Binding Path=EventTypeDisplayFilter.EventTypeLabel, Converter={StaticResource typeToVisibilityConverter}}" Margin="4,0,0,0"  />
@@ -243,7 +257,7 @@
                                         <TextBlock Text="(" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" Margin="4,0,0,0"/>
                                         <TextBlock Text="{Binding Path=FilteredSelectedEntityCombatEventList.Count}" />
                                         <TextBlock Text=")" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" />
-                                        
+
                                     </StackPanel>
                                 </Grid>
                             </GroupBox.Header>
@@ -335,7 +349,7 @@
                         <GroupBox Name="uiGridBoxEntity" Grid.Column="1" Margin="4,4,4,4" Padding="4,4,4,4">
                             <GroupBox.Header>
                                 <StackPanel Orientation="Horizontal">
-                                    <Image Tag="combat_events_plot" Source="Images/glyphicons-195-question-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="UIElement_OnMouseLeftButtonUp" 
+                                    <Image Tag="combat_events_plot" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" 
                                            VerticalAlignment="Center"/>
 
                                     <StackPanel Orientation="Vertical" Margin="8,0,0,0" VerticalAlignment="Center">
@@ -367,36 +381,61 @@
                                                   Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
                                                   Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
                                     </StackPanel>
-                                   
+
                                     <Button Name="uiButtonResetScatterPlot" Content="Reset" Margin="16,0,0,0"
                                             Click="UiButtonResetPlot_OnClick" VerticalAlignment="Center"/>
-                                    
+
                                 </StackPanel>
                             </GroupBox.Header>
                             <Grid>
                                 <scottPlot:WpfPlot Name="uiScottScatterPlotEntityEvents" />
                             </Grid>
                         </GroupBox>
-                      
+
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Settings">
+
+            <TabItem Header="Tools/Settings">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="347*" />
-                        <RowDefinition Height="209*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="66*" />
                     </Grid.RowDefinitions>
                     <GridSplitter Background="Gray" Height="2" Margin="10,0,10,0" HorizontalAlignment="Stretch"
                                   VerticalAlignment="Top" Grid.Row="1" />
 
-                    <GroupBox Header="Log File Analyzer Settings" Grid.Row="0" Margin="10,10,10,10">
+                    <GroupBox Header="Tools" Grid.Row="0" Margin="10,10,10,10" Padding="10,10,10,10">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Tag="import_detection_json" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,0,0"
+                                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
+                            <Button Name="uiButtonImportMapEntities" Content="Import Map Detection Settings" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                                    Click="UiButtonImportMapEntities_OnClick"/>
+
+                            <Image Tag="export_detection_json" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="16,0,0,0"
+                                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
+                            <Button Name="uiButtonExportMapEntities" Content="Export Map Detection Settings" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                                    Click="UiButtonExportMapEntities_OnClick"/>
+
+                            <Image Tag="reset_detection_json" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="16,0,0,0"
+                                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
+                            <Button Name="uiButtonResetMapEntities" Content="Reset Map Detection Settings" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                                    Click="UiButtonResetMapEntities_OnClick"/>
+
+                            <Image Tag="export_combat_json" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="16,0,0,0"
+                                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
+                            <Button Name="uiButtonExportCombat" Content="Export Selected Combat" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                                    Click="UiButtonExportCombat_OnClick"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Settings" Grid.Row="1" Margin="10,10,10,10">
                         <Grid>
                             <controls:SettingsUserControl Margin="0,0,0,0" />
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox Grid.Row="1" Margin="10,10,10,10">
+                    <GroupBox Grid.Row="1" Margin="10,10,10,10" Visibility="Hidden">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock>Logging Summary</TextBlock>
@@ -408,6 +447,70 @@
                             <TextBox x:Name="uiTextBoxLog" Margin="4,4,4,4" BorderThickness="0"
                                             TextWrapping="NoWrap" Text="" HorizontalScrollBarVisibility="Auto"
                                             VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="About" Height="20" VerticalAlignment="Top">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <Image Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Height="256" Margin="10,10,10,10" VerticalAlignment="Top" Width="256" 
+                           Source="Images/information-icon-6073.png"/>
+
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center"  HorizontalAlignment="Center">
+                        <TextBlock Text="{x:Static myProperties:Resources.ApplicationName}" FontSize="40" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Version:" FontSize="16" FontWeight="Bold" />
+                            <TextBlock Text="{Binding Path=ApplicationVersionInfoString, Mode=OneTime}" FontSize="16" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                            <TextBlock Text="Map Detection Settings Version:" FontWeight="Bold" />
+                            <TextBlock Text="{Binding CombatMapDetectionSettings.JsonVersion}" Margin="8,0,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <GroupBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,10,10,10" Padding="10,10,10,10">
+                        <Grid HorizontalAlignment="Center" Margin="10,0,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Source Code:" FontWeight="Bold" HorizontalAlignment="Right" />
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{x:Static myProperties:Resources.GithubRepoUrl}" IsReadOnly="True" Margin="8,0,0,0" />
+                            <Button Tag="GithubRepoUrl" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" Height="20" Margin="8,0,0,0" Click="Browse_OnMouseLeftButtonUp">
+                                <Button.ToolTip>Attempt to open URL in default browser.</Button.ToolTip>
+                                <Image Source="Images/glyphicons-152-new-window.png" />
+                            </Button>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Wiki:" Margin="0,10,0,0" FontWeight="Bold" HorizontalAlignment="Right" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{x:Static myProperties:Resources.GithubRepoWikiUrl}" IsReadOnly="True" Margin="8,10,0,0" />
+                            <Button Tag="GithubRepoWikiUrl" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" Height="20" Margin="8,10,0,0" Click="Browse_OnMouseLeftButtonUp">
+                                <Button.ToolTip>Attempt to open URL in default browser.</Button.ToolTip>
+                                <Image Source="Images/glyphicons-152-new-window.png" />
+                            </Button>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Latest Map Detection Settings:" Margin="0,10,0,0" FontWeight="Bold" HorizontalAlignment="Right" />
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{x:Static myProperties:Resources.GithubMapDetectRepoUrl}" IsReadOnly="True" Margin="8,10,0,0" />
+                            <Button Tag="GithubMapDetectRepoUrl" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Left" Height="20" Margin="8,10,0,0" Click="Browse_OnMouseLeftButtonUp">
+                                <Button.ToolTip>Attempt to open URL in default browser.</Button.ToolTip>
+                                <Image Source="Images/glyphicons-152-new-window.png" />
+                            </Button>
                         </Grid>
                     </GroupBox>
                 </Grid>

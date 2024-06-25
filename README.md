@@ -1,4 +1,4 @@
-# Star Trek Online Combat Analyzer ![Latest application version](https://img.shields.io/badge/alpha-v1.0.0-blue)
+# Star Trek Online Combat Analyzer [![GitHub release (latest by date)](https://img.shields.io/github/v/release/zxeltor/STOCombatAnalyzer)](https://github.com/zxeltor/STOCombatAnalyzer/releases/latest)
 
 #### Revision History and Updates
 For more information please visit the [WIKI](https://github.com/zxeltor/STOCombatAnalyzer/wiki)
@@ -8,6 +8,7 @@ For more information please visit the [WIKI](https://github.com/zxeltor/STOComba
 * [Release Info](#release-info)
 * [Quick Start](#quick-start)
 * [Interface Breakdown](#interface-breakdown)
+* [Map Detection](#map-detection)
 * [Disclaimer](#disclaimer)
 
 ## Overview
@@ -71,6 +72,19 @@ This data grid displays the raw data from the STO combat logs related to the cur
 This scatter plot displays the currently selected Player or Non-Player damage type over time. When you select a marker on the scatter splot, it will highlight an entry in the data grid (circled in yellow).
 
 If you select another damage type from the **Filter** dropdown, the scatter plot and data grid (circled in yellow), will switch to displaying data for that damage type.
+
+## Map Detection
+This feature is used to determine what map was being played during a combat instance.
+
+### Settings
+New map detection settings can be imported into the application from the Tools/Settings tab. This comes in handy as new maps and encounters are added to the game.
+The latest CombatMapDetectionSettings.json file can be found in the ![STOCombatAnalyzer.Settings](https://github.com/zxeltor/STOCombatAnalyzer.Settings) repo.
+
+### Issues
+- This feature is a bit complicated. There’s nothing in the STO combat log that points directly at a map or instance you're currently playing. Certain maps for TFOs and other special events will have unique entities, while others don’t.
+- If a specific map can’t be determined, the logic will try to discern if it’s a Space or Ground based map, and will label the combat instance a generic name.
+- If all else fails, it will mark the combat instance map as Undetermined.
+  - A combat instance can in some cases be short, and not include any non-player entities to determine any map details.
 
 ## Disclaimer
 This software and any related documentation is provided “as is” without warranty of any kind, either express or implied, including, without limitation, the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. Licensee accepts any and all risk arising out of use or performance of Software
