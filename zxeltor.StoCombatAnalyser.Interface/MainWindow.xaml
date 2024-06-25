@@ -434,21 +434,6 @@
                             <controls:SettingsUserControl Margin="0,0,0,0" />
                         </Grid>
                     </GroupBox>
-
-                    <GroupBox Grid.Row="1" Margin="10,10,10,10" Visibility="Hidden">
-                        <GroupBox.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock>Logging Summary</TextBlock>
-                                <Button Content="Clear" Margin="8,0,0,0" Padding="4,0,4,0"
-                                        Click="ClearLogSummary"/>
-                            </StackPanel>
-                        </GroupBox.Header>
-                        <Grid Margin="0,0,0,0">
-                            <TextBox x:Name="uiTextBoxLog" Margin="4,4,4,4" BorderThickness="0"
-                                            TextWrapping="NoWrap" Text="" HorizontalScrollBarVisibility="Auto"
-                                            VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
-                        </Grid>
-                    </GroupBox>
                 </Grid>
             </TabItem>
 

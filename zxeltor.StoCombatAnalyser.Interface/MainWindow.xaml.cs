@@ -43,7 +43,6 @@ public partial class MainWindow : Window
 #endif
 
         CombatLogManagerContext = new CombatLogManager();
-        CombatLogManagerContext.StatusChange += this.combatLogManager_StatusChange;
         this.DataContext = CombatLogManagerContext;
 
         this.Loaded += this.OnLoaded;
@@ -55,8 +54,6 @@ public partial class MainWindow : Window
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
         this.Unloaded += this.OnUnloaded;
-
-        CombatLogManagerContext!.StatusChange -= this.combatLogManager_StatusChange;
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -67,11 +64,6 @@ public partial class MainWindow : Window
         LoggingHelper.ConfigureLog4NetLogging();
 
         var version = AssemblyInfoHelper.GetApplicationVersionFromAssembly();
-
-        // Set our window title using assembly information.
-        //this.Title = version == null
-        //    ? $"{AssemblyInfoHelper.GetApplicationNameFromAssemblyOrDefault()} Alpha"
-        //    : $"{AssemblyInfoHelper.GetApplicationNameFromAssemblyOrDefault()} v{version.Major}.{version.Minor}.{version.Build}.{version.Revision} Alpha";
 
         this.ToggleDataGridColumnVisibility();
 
@@ -178,14 +170,6 @@ public partial class MainWindow : Window
         });
     }
 
-    /// <summary>
-    ///     Monitor status messages from <see cref="CombatLogManager" />
-    /// </summary>
-    private void combatLogManager_StatusChange(object sender, CombatManagerStatusEventArgs e)
-    {
-        this.SendMessageToLogBoxInUi(e.StatusMessage);
-    }
-
     private void uiButtonParseLog_Click(object sender, RoutedEventArgs e)
     {
         CombatLogManagerContext?.GetCombatLogEntriesFromLogFiles();
@@ -196,20 +180,6 @@ public partial class MainWindow : Window
             var message = $"No combat data was returned.{Environment.NewLine}{Environment.NewLine}Confirm you have combat logging turned on in STO, and confirm the settings \"CombatLogPath\" and \"CombatLogPathFilePattern\" are correct.";
             MessageBox.Show(this, message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
-    }
-
-    private void ClearLogSummary(object sender, RoutedEventArgs e)
-    {
-        this.uiTextBoxLog.Clear();
-    }
-
-    private void SendMessageToLogBoxInUi(string logEntryString)
-    {
-        this.Dispatcher.BeginInvoke(new Action(() =>
-        {
-            this.uiTextBoxLog.Text =
-                $"{DateTime.Now:s}|{logEntryString}{Environment.NewLine}{this.uiTextBoxLog.Text}";
-        }));
     }
 
     private void uiTreeViewCombatEntityList_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
