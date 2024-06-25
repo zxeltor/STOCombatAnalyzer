@@ -10,8 +10,10 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using log4net;
+using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
+using zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
@@ -28,10 +30,41 @@ public class CombatLogManager : INotifyPropertyChanged
 
     private static readonly ILog Log = LogManager.GetLogger(typeof(CombatLogManager));
 
+    private CombatMapDetectionSettings _combatMapDetectionSettings = new();
+
     private CombatEventTypeSelector _eventTypeDisplayFilter = new("ALL");
     private Combat? _selectedCombat;
 
     private CombatEntity? _selectedCombatEntity;
+
+    public CombatLogManager()
+    {
+        // Pull our map detection settings from the config
+        if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatMapList) &&
+            SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(Settings.Default.UserCombatMapList,
+                out var combatMapSettingsUser))
+            this.CombatMapDetectionSettings = combatMapSettingsUser;
+        else if (!string.IsNullOrWhiteSpace(Settings.Default.DefaultCombatMapList) &&
+                 SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
+                     Settings.Default.DefaultCombatMapList, out var combatMapSettingsDefault))
+            this.CombatMapDetectionSettings = combatMapSettingsDefault;
+    }
+
+    /// <summary>
+    ///     The title for main UI.
+    /// </summary>
+    public string MainWindowTitle => $"{Resources.ApplicationName}: {this.ApplicationVersionInfoString}";
+
+    /// <summary>
+    ///     Assembly version string for the application.
+    /// </summary>
+    public string ApplicationVersionInfoString {
+        get
+        {
+            var version = AssemblyInfoHelper.GetApplicationVersionFromAssembly();
+            return $"{version.Major}.{version.Minor}.{version.Revision}";
+        }
+    } 
 
     public CombatEventGridContext MainCombatEventGridContext { get; } = new();
 
@@ -111,6 +144,15 @@ public class CombatLogManager : INotifyPropertyChanged
                 : this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Max(ev =>
                     ev.CombatEventTypes.Max(evt => evt.MaxMagnitude));
         }
+    }
+
+    /// <summary>
+    ///     Combat map detection settings.
+    /// </summary>
+    public CombatMapDetectionSettings CombatMapDetectionSettings
+    {
+        get => this._combatMapDetectionSettings;
+        set => this.SetField(ref this._combatMapDetectionSettings, value);
     }
 
     /// <summary>
@@ -544,6 +586,105 @@ public class CombatLogManager : INotifyPropertyChanged
         else
             combatList.OrderByDescending(com => com.CombatStart).ToList().ForEach(combat => this.Combats.Add(combat));
 
+        this.DetermineMapsForCombatList();
+
         this.OnPropertyChanged(nameof(this.Combats));
+    }
+
+    /// <summary>
+    ///     Make an effort to determine a map for each of our combat instances.
+    /// </summary>
+    private void DetermineMapsForCombatList()
+    {
+        // Go through each Combat object and determine its map
+        this.Combats.ToList().ForEach(combat =>
+        {
+            // Find a map based on a unique list TargetInternal Ids
+            combat.UniqueOrderedTargets.ForEach(target =>
+            {
+                var isException =
+                    this.CombatMapDetectionSettings.EntityExclusionList.FirstOrDefault(ent =>
+                        target.Contains(ent.Pattern));
+                if (isException != null) return;
+
+                var isMapException =
+                    (from map in this.CombatMapDetectionSettings.CombatMapEntityList
+                        from ent in map.MapEntityExclusions
+                        where target.Contains(ent.Pattern)
+                        select map).FirstOrDefault();
+                if (isMapException != null) return;
+
+                var mapFound =
+                    (from map in this.CombatMapDetectionSettings.CombatMapEntityList
+                        from ent in map.MapEntities
+                        where target.Contains(ent.Pattern)
+                        select map).FirstOrDefault();
+                if (mapFound != null) combat.Map = mapFound.Name;
+            });
+
+            // If no map has been found, find a map based on a unique list OwnerInternal Ids
+            if (string.IsNullOrWhiteSpace(combat.Map))
+                combat.UniqueOrderedOwners.ForEach(target =>
+                {
+                    var isException =
+                        this.CombatMapDetectionSettings.EntityExclusionList.FirstOrDefault(ent =>
+                            target.Contains(ent.Pattern));
+                    if (isException != null) return;
+
+                    var isMapException =
+                        (from map in this.CombatMapDetectionSettings.CombatMapEntityList
+                            from ent in map.MapEntityExclusions
+                            where target.Contains(ent.Pattern)
+                            select map).FirstOrDefault();
+                    if (isMapException != null) return;
+
+                    var mapFound =
+                        (from map in this.CombatMapDetectionSettings.CombatMapEntityList
+                            from ent in map.MapEntities
+                            where target.Contains(ent.Pattern)
+                            select map).FirstOrDefault();
+                    if (mapFound != null) combat.Map = mapFound.Name;
+                });
+
+            // If no map has been found, determine if the map is Space/Ground based on a unique list TargetInternal Ids, and assign a generic Space/Ground reference.
+            if (string.IsNullOrWhiteSpace(combat.Map))
+                combat.UniqueOrderedTargets.ForEach(target =>
+                {
+                    var mapGenericGroundFound =
+                        this.CombatMapDetectionSettings.GenericGroundMap.MapEntities.FirstOrDefault(entity =>
+                            target.Contains(entity.Pattern));
+                    if (mapGenericGroundFound != null)
+                    {
+                        combat.Map = this.CombatMapDetectionSettings.GenericGroundMap.Name;
+                        return;
+                    }
+
+                    var mapGenericSpaceFound =
+                        this.CombatMapDetectionSettings.GenericSpaceMap.MapEntities.FirstOrDefault(entity =>
+                            target.Contains(entity.Pattern));
+                    if (mapGenericSpaceFound != null)
+                        combat.Map = this.CombatMapDetectionSettings.GenericSpaceMap.Name;
+                });
+
+            // If no map has been found, determine if the map is Space/Ground based on a unique list OwnerInternal Ids, and assign a generic Space/Ground reference.
+            if (string.IsNullOrWhiteSpace(combat.Map))
+                combat.UniqueOrderedOwners.ForEach(target =>
+                {
+                    var mapGenericGroundFound =
+                        this.CombatMapDetectionSettings.GenericGroundMap.MapEntities.FirstOrDefault(entity =>
+                            target.Contains(entity.Pattern));
+                    if (mapGenericGroundFound != null)
+                    {
+                        combat.Map = this.CombatMapDetectionSettings.GenericGroundMap.Name;
+                        return;
+                    }
+
+                    var mapGenericSpaceFound =
+                        this.CombatMapDetectionSettings.GenericSpaceMap.MapEntities.FirstOrDefault(entity =>
+                            target.Contains(entity.Pattern));
+                    if (mapGenericSpaceFound != null)
+                        combat.Map = this.CombatMapDetectionSettings.GenericSpaceMap.Name;
+                });
+        });
     }
 }
