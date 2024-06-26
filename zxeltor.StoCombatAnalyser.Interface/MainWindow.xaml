@@ -220,7 +220,7 @@
                         </Grid>
                     </GroupBox>
 
-                    <GridSplitter Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Background="Gray" Height="2" Margin="10,2,10,0"
+                    <GridSplitter Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Background="Gray" Height="2" Margin="10,2,10,0"
                                   HorizontalAlignment="Stretch" VerticalAlignment="Top" />
 
                     <GroupBox Grid.Row="1" Grid.Column="1" Margin="4,4,4,4" Padding="4,4,4,4">
