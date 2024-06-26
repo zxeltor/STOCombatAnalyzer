@@ -240,5 +240,17 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
                 this["UserCombatMapList"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("48")]
+        public int HowFarBackForCombat {
+            get {
+                return ((int)(this["HowFarBackForCombat"]));
+            }
+            set {
+                this["HowFarBackForCombat"] = value;
+            }
+        }
     }
 }

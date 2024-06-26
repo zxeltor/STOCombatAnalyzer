@@ -174,12 +174,6 @@ public partial class MainWindow : Window
     {
         CombatLogManagerContext?.GetCombatLogEntriesFromLogFiles();
         this.SetPlots();
-
-        if (CombatLogManagerContext.Combats == null || CombatLogManagerContext.Combats.Count == 0)
-        {
-            var message = $"No combat data was returned.{Environment.NewLine}{Environment.NewLine}Confirm you have combat logging turned on in STO, and confirm the settings \"CombatLogPath\" and \"CombatLogPathFilePattern\" are correct.";
-            MessageBox.Show(this, message, "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-        }
     }
 
     private void uiTreeViewCombatEntityList_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)

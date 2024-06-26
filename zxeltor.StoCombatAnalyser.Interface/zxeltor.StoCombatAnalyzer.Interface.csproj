@@ -27,6 +27,7 @@
     <None Remove="CombatMapDetectionSettings.json" />
     <None Remove="Images\glyphicons-152-new-window.png" />
     <None Remove="Images\glyphicons-196-info-sign.png" />
+    <None Remove="Images\glyphicons-82-refresh.png" />
     <None Remove="Images\information-icon-6073.png" />
     <None Remove="Log4Net.config" />
     <None Remove="Log4Net.Development.config" />
@@ -54,6 +55,7 @@
   <ItemGroup>
     <Resource Include="Images\glyphicons-152-new-window.png" />
     <Resource Include="Images\glyphicons-196-info-sign.png" />
+    <Resource Include="Images\glyphicons-82-refresh.png" />
     <Resource Include="Images\information-icon-6073.png" />
   </ItemGroup>
 

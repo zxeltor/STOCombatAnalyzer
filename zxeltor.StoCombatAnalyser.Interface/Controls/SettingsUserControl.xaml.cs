@@ -45,7 +45,7 @@ public partial class SettingsUserControl : UserControl
     {
         this.Unloaded -= this.OnUnloaded;
 
-        this.uiTextBoxMaxNumberOfCombatsToDisplay.TextChanged -= this.TextBoxBase_OnTextChanged;
+        this.uiTextBoxHowFarBackForCombat.TextChanged -= this.TextBoxBase_OnTextChanged;
         this.uiTextBoxHowLongBeforeNewCombat.TextChanged -= this.TextBoxBase_OnTextChanged;
         this.uiTextBoxHowLongToKeepLogs.TextChanged -= this.TextBoxBase_OnTextChanged;
     }
@@ -54,7 +54,7 @@ public partial class SettingsUserControl : UserControl
     {
         this.Loaded -= this.OnLoaded;
 
-        this.uiTextBoxMaxNumberOfCombatsToDisplay.TextChanged += this.TextBoxBase_OnTextChanged;
+        this.uiTextBoxHowFarBackForCombat.TextChanged += this.TextBoxBase_OnTextChanged;
         this.uiTextBoxHowLongBeforeNewCombat.TextChanged += this.TextBoxBase_OnTextChanged;
         this.uiTextBoxHowLongToKeepLogs.TextChanged += this.TextBoxBase_OnTextChanged;
 
@@ -80,26 +80,22 @@ public partial class SettingsUserControl : UserControl
         if (dialogResult.HasValue && dialogResult.Value) this.MyPrivateContext.CombatLogPath = dialog.FolderName;
     }
 
-    /// <summary>
-    ///     Do some additional validation on the field, before the setting is saved.
-    /// </summary>
-    /// <remarks>ToddDo: Revisit later. Probably a better way to do validation as part of the databind.</remarks>
-    private void UpdateMaxNumberOfCombatsToDisplay()
+    private void UpdateHowFarBackForCombat()
     {
-        if (int.TryParse(this.uiTextBoxMaxNumberOfCombatsToDisplay.Text, out var parseResult))
+        if (int.TryParse(this.uiTextBoxHowFarBackForCombat.Text, out var parseResult))
         {
-            if (parseResult < 0)
+            if (parseResult < 1)
             {
-                this.uiTextBoxMaxNumberOfCombatsToDisplay.Text = "0";
-                parseResult = 0;
+                this.uiTextBoxHowFarBackForCombat.Text = "1";
+                parseResult = 1;
             }
 
-            this.MyPrivateContext.MaxNumberOfCombatsToDisplay = parseResult;
+            this.MyPrivateContext.HowFarBackForCombat = parseResult;
         }
         else
         {
-            this.uiTextBoxMaxNumberOfCombatsToDisplay.Text = "0";
-            this.MyPrivateContext.MaxNumberOfCombatsToDisplay = 0;
+            this.uiTextBoxHowFarBackForCombat.Text = "1";
+            this.MyPrivateContext.HowFarBackForCombat = 1;
         }
     }
 
@@ -191,8 +187,8 @@ public partial class SettingsUserControl : UserControl
     {
         if (!(sender is TextBox textBox)) return;
 
-        if (textBox.Name.Equals(nameof(this.uiTextBoxMaxNumberOfCombatsToDisplay)))
-            this.UpdateMaxNumberOfCombatsToDisplay();
+        if(textBox.Name.Equals(nameof(this.uiTextBoxHowFarBackForCombat)))
+            this.UpdateHowFarBackForCombat();
         else if (textBox.Name.Equals(nameof(this.uiTextBoxHowLongBeforeNewCombat)))
             this.UpdateHowLongBeforeNewCombat();
         else if (textBox.Name.Equals(nameof(this.uiTextBoxHowLongToKeepLogs))) this.UpdateHowLongToKeepLogs();
@@ -291,9 +287,9 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
     private bool _enableDebugLogging = Settings.Default.DebugLogging;
     private int _howLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombat;
     private long _howLongToKeepLogs = Settings.Default.HowLongToKeepLogs;
-    private int _maxNumberOfCombatsToDisplay = Settings.Default.MaxNumberOfCombatsToDisplay;
     private bool _purgeCombatLogs = Settings.Default.PurgeCombatLogs;
     private string _myCharacter = Settings.Default.MyCharacter;
+    private int _howFarBackForCombat = Settings.Default.HowFarBackForCombat;
 
     /// <summary>
     ///     Enable combat log folder purge at application startup.
@@ -381,17 +377,14 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         }
     }
 
-    /// <summary>
-    ///     The max number of combat entities to display in the main UI
-    /// </summary>
-    public int MaxNumberOfCombatsToDisplay
+    public int HowFarBackForCombat
     {
-        get => this._maxNumberOfCombatsToDisplay = Settings.Default.MaxNumberOfCombatsToDisplay;
+        get => this._howFarBackForCombat = Settings.Default.HowFarBackForCombat;
         set
         {
-            Settings.Default.MaxNumberOfCombatsToDisplay = value;
+            Settings.Default.HowFarBackForCombat = value;
             Settings.Default.Save();
-            this.SetField(ref this._maxNumberOfCombatsToDisplay, value);
+            this.SetField(ref this._howFarBackForCombat, value);
         }
     }
 

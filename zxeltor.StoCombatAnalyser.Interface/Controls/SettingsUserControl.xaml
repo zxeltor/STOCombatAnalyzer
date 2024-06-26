@@ -70,7 +70,7 @@
                     </StackPanel>
                 </Grid>
             </ListBoxItem>
-            <ListBoxItem Tag="MaxNumberOfCombatsToDisplay" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+            <ListBoxItem Tag="HowFarBackForCombat" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"></RowDefinition>
@@ -78,13 +78,13 @@
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <TextBlock Text="Name:" />
-                        <TextBlock Text="MaxNumberOfCombatsToDisplay" Margin="4,0,10,0"/>
-                        <TextBox Name="uiTextBoxMaxNumberOfCombatsToDisplay" Text="{Binding Path=MaxNumberOfCombatsToDisplay, Mode=OneTime}" 
+                        <TextBlock Text="HowFarBackForCombat" Margin="4,0,10,0"/>
+                        <TextBox Name="uiTextBoxHowFarBackForCombat" Text="{Binding Path=HowFarBackForCombat, Mode=OneTime}" 
                                  Margin="0,0,10,0" MinWidth="100" TextChanged="TextBoxBase_OnTextChanged"/>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
                         <TextBlock>Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">The max number of combat instances to load and display. If set to zero, load them all.</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">How far back in hours to pull combat log data.</TextBlock>
                     </StackPanel>
                 </Grid>
             </ListBoxItem>

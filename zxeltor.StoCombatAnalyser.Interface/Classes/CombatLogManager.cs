@@ -10,6 +10,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
+using Humanizer;
 using log4net;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
@@ -351,7 +352,7 @@ public class CombatLogManager : INotifyPropertyChanged
     ///     Parse a group of STO combat logs, and construct a <see cref="Combat" /> entity hierarchy.
     /// </summary>
     /// <param name="filesToParse">A list of combat logs to parse.</param>
-    public void GetCombatLogEntriesFromLogFiles(List<string>? filesToParse = null)
+    public void GetCombatLogEntriesFromLogFiles(List<FileInfo>? filesToParse = null)
     {
         var results = new LinkedList<CombatEvent>();
 
@@ -359,6 +360,9 @@ public class CombatLogManager : INotifyPropertyChanged
         var fileParsedResults = new Dictionary<string, FileParseResults>();
 
         Log.Debug("Parsing log files.");
+
+        var howFarBackInTime = TimeSpan.FromHours(Settings.Default.HowFarBackForCombat);
+        var dateTimeTest = DateTime.Now;
 
         // If no files are provided, we attempt to get a list from our combat log folder.
         if (filesToParse == null)
@@ -377,24 +381,39 @@ public class CombatLogManager : INotifyPropertyChanged
                 if (!Directory.Exists(combatLogPath))
                 {
                     this.AddToLogAndLogSummaryInUi(
-                        $"The selected log folder doesn't exist: {combatLogPath}. Go to settings and set CombatLogPath to a valid folder.",
+                        $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder.",
                         isError: true);
 
-                    if (Application.Current.MainWindow != null)
-                        MessageBox.Show(Application.Current.MainWindow,
-                            $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set CombatLogPath to a valid folder.",
-                            "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    else
-                        MessageBox.Show(
-                            $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set CombatLogPath to a valid folder.",
-                            "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(Application.Current.MainWindow,
+                        $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder.",
+                        "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
                     return;
                 }
 
                 // Get a list of 1 or more files, if any exist.
                 filesToParse = Directory.GetFiles(combatLogPath, combatLogFilePattern, SearchOption.TopDirectoryOnly)
+                    .ToList().Select(file => new FileInfo(file)).ToList();
+
+                if (filesToParse.Count == 0)
+                {
+                    MessageBox.Show(Application.Current.MainWindow,
+                        $"No combat log files we're found in the selected folder.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder, and check \"CombatLogPathFilePattern\".",
+                        "Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Filter out files based on LastWriteTime and howFarBack
+                filesToParse = filesToParse.Where(fileInfo => dateTimeTest - fileInfo.LastWriteTime <= howFarBackInTime)
                     .ToList();
+
+                if (filesToParse.Count == 0)
+                {
+                    MessageBox.Show(Application.Current.MainWindow,
+                        $"Combat log(s) were found, but they're too old.{Environment.NewLine}{Environment.NewLine}They fell outside the timespan defined by the \"HowFarBackForCombat\" setting.",
+                        "Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
             }
             catch (Exception ex)
             {
@@ -414,15 +433,16 @@ public class CombatLogManager : INotifyPropertyChanged
         }
 
         // Loop through each log file found in our log folder.
-        filesToParse.ForEach(fileEntry =>
+        filesToParse.ForEach(fileInfoEntry =>
         {
             try
             {
-                using (var sr = File.OpenText(fileEntry))
+                // Since we can read in multiple log files, let's filter out the ones which are too old.
+                using (var sr = File.OpenText(fileInfoEntry.FullName))
                 {
-                    this.AddToLogAndLogSummaryInUi($"Parsing log: {Path.GetFileName(fileEntry)}");
+                    this.AddToLogAndLogSummaryInUi($"Parsing log: {Path.GetFileName(fileInfoEntry.FullName)}");
 
-                    fileParsedResults.Add(fileEntry, new FileParseResults(fileEntry));
+                    fileParsedResults.Add(fileInfoEntry.FullName, new FileParseResults(fileInfoEntry.FullName));
                     var fileLineCounter = 0;
 
                     while (sr.ReadLine() is { } fileLine)
@@ -430,15 +450,20 @@ public class CombatLogManager : INotifyPropertyChanged
                         fileLineCounter++;
                         try
                         {
-                            var combatEvent = new CombatEvent(Path.GetFileName(fileEntry), fileLine, fileLineCounter);
-                            fileParsedResults[fileEntry].SuccessfulParses += 1;
+                            var combatEvent = new CombatEvent(Path.GetFileName(fileInfoEntry.FullName), fileLine,
+                                fileLineCounter);
+
+                            // Filter out combat events which are too old.
+                            if (dateTimeTest - combatEvent.Timestamp > howFarBackInTime) continue;
+
+                            fileParsedResults[fileInfoEntry.FullName].SuccessfulParses += 1;
                             results.AddLast(combatEvent);
                         }
                         catch (Exception ex)
                         {
-                            fileParsedResults[fileEntry].FailedParses += 1;
+                            fileParsedResults[fileInfoEntry.FullName].FailedParses += 1;
                             this.AddToLogAndLogSummaryInUi(
-                                $"Failed to parse log file=\"{fileEntry}\", at line={fileLineCounter}. File line string={fileEntry}",
+                                $"Failed to parse log file=\"{fileInfoEntry.FullName}\", at line={fileLineCounter}. File line string={fileLine}",
                                 ex, true);
                         }
                     }
@@ -446,9 +471,18 @@ public class CombatLogManager : INotifyPropertyChanged
             }
             catch (Exception ex)
             {
-                this.AddToLogAndLogSummaryInUi($"Failed while parsing log file=\"{fileEntry}\"", ex, true);
+                this.AddToLogAndLogSummaryInUi($"Failed while parsing log file=\"{fileInfoEntry.FullName}\"", ex, true);
             }
         });
+
+        // This should never be true, but let's play it safe.
+        if (results.Count == 0)
+        {
+            var message =
+                $"No combat data was returned.{Environment.NewLine}{Environment.NewLine}Combat log data was found, but it fell outside the timespan defined by the \"HowFarBackForCombat\" setting.";
+            MessageBox.Show(Application.Current.MainWindow, message, "Warning", MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
 
         try
         {
@@ -456,7 +490,7 @@ public class CombatLogManager : INotifyPropertyChanged
             this.AddCombatEvents(results.OrderBy(res => res.Timestamp).ToList());
 
             var completionMessage =
-                $"Successfully parsed \"{results.Count}\" events from \"{fileParsedResults.Keys.Count}\" files.";
+                $"Successfully parsed \"{results.Count}\" events from \"{fileParsedResults.Keys.Count}\" files for the past \"{howFarBackInTime.TotalHours}\" hours.";
 
             this.AddToLogAndLogSummaryInUi(completionMessage);
 
@@ -608,7 +642,9 @@ public class CombatLogManager : INotifyPropertyChanged
             {
                 if (Log.IsDebugEnabled)
                 {
-                    var logMessage = new StringBuilder($"MapDetection for CombatStart={combat.CombatStart}: UniqueMap({uniqueMap.Name})");
+                    var logMessage =
+                        new StringBuilder(
+                            $"MapDetection for CombatStart={combat.CombatStart}: UniqueMap({uniqueMap.Name})");
                     Log.Debug(logMessage);
                 }
 
@@ -623,8 +659,11 @@ public class CombatLogManager : INotifyPropertyChanged
                 {
                     var logMessage = new StringBuilder($"MapDetection for CombatStart={combat.CombatStart}: ");
 
-                    var mapList = this.CombatMapDetectionSettings.CombatMapEntityList.Where(map => map.CombatMatchCountForMap > 0).OrderByDescending(map => map.CombatMatchCountForMap).ToList();
-                    logMessage.Append(string.Join(',', mapList.Select(map => $"Map({map.Name},{map.CombatMatchCountForMap})")));
+                    var mapList = this.CombatMapDetectionSettings.CombatMapEntityList
+                        .Where(map => map.CombatMatchCountForMap > 0)
+                        .OrderByDescending(map => map.CombatMatchCountForMap).ToList();
+                    logMessage.Append(string.Join(',',
+                        mapList.Select(map => $"Map({map.Name},{map.CombatMatchCountForMap})")));
 
                     Log.Debug(logMessage);
                 }
@@ -642,9 +681,9 @@ public class CombatLogManager : INotifyPropertyChanged
                     var logMessage = new StringBuilder($"MapDetection for CombatStart={combat.CombatStart}: ");
 
                     logMessage.Append(
-                            $"GenericMap(Ground,{this.CombatMapDetectionSettings.GenericGroundMap.CombatMatchCountForMap}),");
+                        $"GenericMap(Ground,{this.CombatMapDetectionSettings.GenericGroundMap.CombatMatchCountForMap}),");
                     logMessage.Append(
-                            $"GenericMap(Space,{this.CombatMapDetectionSettings.GenericSpaceMap.CombatMatchCountForMap})");
+                        $"GenericMap(Space,{this.CombatMapDetectionSettings.GenericSpaceMap.CombatMatchCountForMap})");
 
                     Log.Debug(logMessage);
                 }
@@ -785,7 +824,7 @@ public class CombatLogManager : INotifyPropertyChanged
                     from ent in map.MapEntities
                     where target.Contains(ent.Pattern) && ent.IsUniqueToMap
                     select map).FirstOrDefault();
-            if (uniqueToMap != null) 
+            if (uniqueToMap != null)
                 mapResult = uniqueToMap;
         });
 
@@ -804,7 +843,7 @@ public class CombatLogManager : INotifyPropertyChanged
                     from ent in map.MapEntities
                     where target.Contains(ent.Pattern) && ent.IsUniqueToMap
                     select map).FirstOrDefault();
-            if (uniqueToMap != null) 
+            if (uniqueToMap != null)
                 mapResult = uniqueToMap;
         });
 
