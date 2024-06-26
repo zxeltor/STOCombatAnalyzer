@@ -696,7 +696,7 @@ public partial class MainWindow : Window
                     Properties.Resources.reset_detection_json);
                 break;
             case "export_combat_json":
-                DetailsDialog.ShowDialog(this, "Import Map Detection Settings",
+                DetailsDialog.ShowDialog(this, "Export Selected Combat Entity",
                     Properties.Resources.export_combat_json);
                 break;
         }
