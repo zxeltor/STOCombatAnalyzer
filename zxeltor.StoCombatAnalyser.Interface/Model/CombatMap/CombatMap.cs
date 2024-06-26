@@ -23,12 +23,18 @@ public class CombatMap : IEquatable<CombatMap>
     ///     The main list of map definitions. This collection is used first when trying to detect a map for a Combat entity
     /// </summary>
     [JsonRequired]
-    public List<CombatMapEntity> MapEntities { get; set; }
+    public List<CombatMapEntity> MapEntities { get; set; } = [];
 
     /// <summary>
     ///     This is used to filter out game entity ids from the map detect process.
     /// </summary>
     public List<CombatMapEntity> MapEntityExclusions { get; set; } = [];
+
+    /// <summary>
+    ///     Get the sum of entity matches for this map for the current combat entity
+    /// </summary>
+    /// <returns>The number of matches</returns>
+    public int CombatMatchCountForMap => this.MapEntities.Sum(map => map.CombatMatchCount);
 
     /// <inheritdoc />
     public bool Equals(CombatMap? other)
@@ -38,10 +44,18 @@ public class CombatMap : IEquatable<CombatMap>
         return this.Name == other.Name;
     }
 
+    /// <summary>
+    ///     Reset the match count for the current combat
+    /// </summary>
+    public void ResetCombatMatchCountForMap()
+    {
+        this.MapEntities.ForEach(ent => ent.CombatMatchCount = 0);
+    }
+
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"Name={this.Name}, Entities={this.MapEntities.Count}";
+        return $"Name={this.Name}, Entities={this.MapEntities.Count}, Matches={this.CombatMatchCountForMap}";
     }
 
     /// <inheritdoc />

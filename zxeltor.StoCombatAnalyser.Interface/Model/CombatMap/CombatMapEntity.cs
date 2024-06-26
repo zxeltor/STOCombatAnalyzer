@@ -18,16 +18,24 @@ public class CombatMapEntity
     /// </summary>
     [JsonRequired]
     [JsonProperty(Order = 1)]
-    public string Pattern
+    public string Pattern { get; set; }
+
+    /// <summary>
+    ///     True if this entity pattern is unique to this map.
+    /// </summary>
+    [JsonProperty(Order = 2)]
+    public bool IsUniqueToMap { get; set; } = false;
+
+    [JsonIgnore] public int CombatMatchCount { get; set; }
+
+    public void IncrementCombatMatchCount()
     {
-        get;
-        set;
-        //this.PatternRegex = new Regex(value, RegexOptions.Compiled);
+        CombatMatchCount++;
     }
 
     /// <inheritdoc />
     public override string ToString()
     {
-        return this.Pattern;
+        return $"Pattern={this.Pattern}, Count={this.CombatMatchCount}";
     }
 }

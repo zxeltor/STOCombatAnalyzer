@@ -20,10 +20,11 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
     [JsonProperty(Order = 1)]
     public List<string> Comments { get; } =
     [
-        "CombatMapEntityList: The main list of map definitions. This collection is used first when trying to detect a map for a Combat entity",
-        "EntityExclusionList: This is used to filter out game entity ids from the map detect process.",
+        "JsonVersion: Uses Semantic Versioning 2.0.0 (Major,Minor,Patch)",
         "GenericGroundMap: When a map isn't detected when checking CombatMapEntityList, we use this to determine if the Combat entity is on a ground based map.",
-        "GenericSpaceMap: When a map isn't detected when checking CombatMapEntityList, we use this to determine if the Combat entity is on a space based map."
+        "GenericSpaceMap: When a map isn't detected when checking CombatMapEntityList, we use this to determine if the Combat entity is on a space based map.",
+        "EntityExclusionList: This is used to filter out game entity ids from the map detect process.",
+        "CombatMapEntityList: The main list of map definitions. This collection is used first when trying to detect a map for a Combat entity."
     ];
 
     /// <summary>
@@ -69,6 +70,16 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    ///     Reset the match count for the current combat
+    /// </summary>
+    public void ResetCombatMatchCountForAllMaps()
+    {
+        this.CombatMapEntityList.ForEach(ent => ent.ResetCombatMatchCountForMap());
+        this.GenericGroundMap.ResetCombatMatchCountForMap();
+        this.GenericSpaceMap.ResetCombatMatchCountForMap();
+    }
 
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
