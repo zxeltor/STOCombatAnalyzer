@@ -10,7 +10,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
-using Humanizer;
 using log4net;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
@@ -35,6 +34,8 @@ public class CombatLogManager : INotifyPropertyChanged
     private CombatMapDetectionSettings _combatMapDetectionSettings = new();
 
     private CombatEventTypeSelector _eventTypeDisplayFilter = new("ALL");
+
+    private bool _isExecutingBackgroundProcess;
     private Combat? _selectedCombat;
 
     private CombatEntity? _selectedCombatEntity;
@@ -50,6 +51,15 @@ public class CombatLogManager : INotifyPropertyChanged
                  SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
                      Settings.Default.DefaultCombatMapList, out var combatMapSettingsDefault))
             this.CombatMapDetectionSettings = combatMapSettingsDefault;
+    }
+
+    /// <summary>
+    ///     A databind to disable the main UI while an expensive background process is running
+    /// </summary>
+    public bool IsExecutingBackgroundProcess
+    {
+        get => this._isExecutingBackgroundProcess;
+        set => this.SetField(ref this._isExecutingBackgroundProcess, value);
     }
 
     /// <summary>
@@ -494,10 +504,10 @@ public class CombatLogManager : INotifyPropertyChanged
 
             this.AddToLogAndLogSummaryInUi(completionMessage);
 
-            if (Settings.Default.DebugLogging)
-                ResponseDialog.Show(Application.Current.MainWindow, completionMessage, "Success",
-                    detailsBoxCaption: "Files parsed",
-                    detailsBoxList: fileParsedResults.Select(file => file.Value.ToLog()).ToList());
+            //if (Settings.Default.DebugLogging)
+            ResponseDialog.Show(Application.Current.MainWindow, completionMessage, "Success",
+                detailsBoxCaption: "Files parsed",
+                detailsBoxList: fileParsedResults.Select(file => file.Value.ToLog()).ToList());
         }
         catch (Exception ex)
         {

@@ -19,7 +19,6 @@ using zxeltor.StoCombatAnalyzer.Interface.Controls;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
-
 using Color = ScottPlot.Color;
 using Colors = ScottPlot.Colors;
 using Image = System.Windows.Controls.Image;
@@ -172,8 +171,41 @@ public partial class MainWindow : Window
 
     private void uiButtonParseLog_Click(object sender, RoutedEventArgs e)
     {
-        CombatLogManagerContext?.GetCombatLogEntriesFromLogFiles();
-        this.SetPlots();
+        e.Handled = true;
+
+        if (CombatLogManagerContext.IsExecutingBackgroundProcess)
+        {
+            e.Handled = true;
+            return;
+        }
+
+        CombatLogManagerContext.IsExecutingBackgroundProcess = true;
+
+        ProgressDialog? progressDialog = null;
+
+        try
+        {
+            progressDialog = new ProgressDialog(this, () => CombatLogManagerContext?.GetCombatLogEntriesFromLogFiles(), "Parsing combat log(s)");
+            var dialogResult = progressDialog.ShowDialog();
+            if (!dialogResult.HasValue || !dialogResult.Value)
+                throw new Exception("Background task failed.");
+            
+            this.Focus();
+
+            this.SetPlots();
+        }
+        catch (Exception exception)
+        {
+            Log.Error("Error while parsing log files.", exception);
+            ResponseDialog.Show(Application.Current.MainWindow, "Error while parsing the combat logs. Check the logs for more details.", "Error",
+                detailsBoxCaption: "Reason", detailsBoxList: new List<string>() {exception.Message});
+        }
+        finally
+        {
+            progressDialog?.Close();
+            CombatLogManagerContext.IsExecutingBackgroundProcess = false;
+            this.uiButtonParseLog.Click += uiButtonParseLog_Click;
+        }
     }
 
     private void uiTreeViewCombatEntityList_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -820,7 +852,8 @@ public partial class MainWindow : Window
             CombatLogManagerContext.CombatMapDetectionSettings =
                 SerializationHelper.Deserialize<CombatMapDetectionSettings>(Settings.Default.DefaultCombatMapList);
 
-            MessageBox.Show(this, "Map detection settings have been set to application default.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(this, "Map detection settings have been set to application default.", "Info",
+                MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception exception)
         {

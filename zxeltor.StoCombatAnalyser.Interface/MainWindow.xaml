@@ -19,6 +19,7 @@
             <classes:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
             <classes:MapNameStringConverter x:Key="mapNameStringConverter" />
             <classes:MapNameColorConverter x:Key="mapNameColorConverter" />
+            <classes:InvertBooleanConverter x:Key="invertBooleanConverter" />
             <Brush x:Key="colorDps">Red</Brush>
             <Brush x:Key="colorTotal">Green</Brush>
             <Brush x:Key="colorMax">Purple</Brush>
@@ -151,9 +152,10 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-                        <Button x:Name="uiButtonParseLog" Content="Parse Log(s)" 
-                                Width="80" Height="24" Margin="10,0,0,0"
-                                Click="uiButtonParseLog_Click" />
+                        <Button x:Name="uiButtonParseLog" Width="32" Height="32" Margin="10,0,0,0" Padding="4,4,4,4"
+                                ToolTip="Parse Log File(s)" Click="uiButtonParseLog_Click" IsEnabled="{Binding Path=IsExecutingBackgroundProcess, Converter={StaticResource invertBooleanConverter}}">
+                            <Image Source="Images/glyphicons-82-refresh.png"></Image>
+                        </Button>
                         <TextBlock Text="Combat List" VerticalAlignment="Center"
                                    Margin="10,0,0,0"/>
                         <TextBlock Text=" (" VerticalAlignment="Center" Visibility="{Binding Path=Combats, Converter={StaticResource typeToVisibilityConverter}}" />
@@ -210,6 +212,7 @@
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
                                 <Image Tag="combat_details" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16"
+                                       ToolTip="Click for more details."
                                     MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
                                 <TextBlock Text="Combat Details" Margin="8,0,0,0" />
                             </StackPanel>
@@ -226,13 +229,19 @@
                     <GroupBox Grid.Row="1" Grid.Column="1" Margin="4,4,4,4" Padding="4,4,4,4">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
-                                <Image Tag="combat_event_type_breakdown" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
-                                <TextBlock Text="Event Type Breakdown" Margin="4,0,0,0" />
+                                <Image Tag="combat_event_type_breakdown" Source="Images/glyphicons-196-info-sign.png"
+                                       ToolTip="Click for more details."
+                                       Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
+                                <TextBlock Text="Event Type Breakdown" Margin="4,0,0,0" VerticalAlignment="Center" />
                                 <CheckBox Name="uiCheckBoxDisplayPetsOnlyOnPieChart" IsChecked="False" Content="Pets Only" Margin="8,0,0,0"
+                                          VerticalAlignment="Center"
                                           Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
                                           Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
-                                <Button Name="uiButtonResetBarPlot" Content="Reset" Margin="16,0,0,0" Padding="4,0,4,0"
-                                        Click="UiButtonResetPlot_OnClick"/>
+                                <Button Name="uiButtonResetBarPlot" ToolTip="Reset" Margin="16,0,0,0" Width="16" Height="16"
+                                        VerticalAlignment="Center"
+                                        Click="UiButtonResetPlot_OnClick">
+                                    <Image Source="Images/glyphicons-366-restart.png"></Image>
+                                </Button>
                             </StackPanel>
                         </GroupBox.Header>
                         <scottPlot:WpfPlot Name="uiScottBarChartEntityEventTypes" />
@@ -248,7 +257,8 @@
                             <GroupBox.Header>
                                 <Grid>
                                     <StackPanel Orientation="Horizontal">
-                                        <Image Tag="combat_events_datagrid" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
+                                        <Image Tag="combat_events_datagrid" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" 
+                                               ToolTip="Click for more details."/>
                                         <TextBlock Text="Event(s) DataGrid" Margin="8,0,0,0"/>
                                         <TextBlock Text=":" />
                                         <TextBlock Text="'" Visibility="{Binding Path=EventTypeDisplayFilter.EventTypeLabel, Converter={StaticResource typeToVisibilityConverter}}" Margin="4,0,0,0"  />
@@ -350,7 +360,7 @@
                             <GroupBox.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <Image Tag="combat_events_plot" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" 
-                                           VerticalAlignment="Center"/>
+                                           ToolTip="Click for more details." VerticalAlignment="Center"/>
 
                                     <StackPanel Orientation="Vertical" Margin="8,0,0,0" VerticalAlignment="Center">
                                         <TextBlock Text="Event(s) Magnitude Plot:" />
@@ -382,8 +392,10 @@
                                                   Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
                                     </StackPanel>
 
-                                    <Button Name="uiButtonResetScatterPlot" Content="Reset" Margin="16,0,0,0"
-                                            Click="UiButtonResetPlot_OnClick" VerticalAlignment="Center"/>
+                                    <Button Name="uiButtonResetScatterPlot" ToolTip="Reset" Margin="16,0,0,0" Width="16" Height="16"
+                                            Click="UiButtonResetPlot_OnClick" VerticalAlignment="Center">
+                                        <Image Source="Images/glyphicons-366-restart.png"></Image>
+                                    </Button>
 
                                 </StackPanel>
                             </GroupBox.Header>
@@ -408,22 +420,22 @@
                     <GroupBox Header="Tools" Grid.Row="0" Margin="10,10,10,10" Padding="10,10,10,10">
                         <StackPanel Orientation="Horizontal">
                             <Image Tag="import_detection_json" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,0,0"
-                                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
+                                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details." />
                             <Button Name="uiButtonImportMapEntities" Content="Import Map Detection Settings" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
                                     Click="UiButtonImportMapEntities_OnClick"/>
 
                             <Image Tag="export_detection_json" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="16,0,0,0"
-                                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
+                                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details."/>
                             <Button Name="uiButtonExportMapEntities" Content="Export Map Detection Settings" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
                                     Click="UiButtonExportMapEntities_OnClick"/>
 
                             <Image Tag="reset_detection_json" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="16,0,0,0"
-                                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
+                                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details."/>
                             <Button Name="uiButtonResetMapEntities" Content="Reset Map Detection Settings" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
                                     Click="UiButtonResetMapEntities_OnClick"/>
 
                             <Image Tag="export_combat_json" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="16,0,0,0"
-                                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
+                                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details."/>
                             <Button Name="uiButtonExportCombat" Content="Export Selected Combat" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
                                     Click="UiButtonExportCombat_OnClick"/>
                         </StackPanel>
