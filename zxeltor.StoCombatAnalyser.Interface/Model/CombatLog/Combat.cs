@@ -105,47 +105,46 @@ public class Combat : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
-    ///     A unique list of non-player ids used in map detection.
+    ///     Return a unique list of Ids and Labels from our combat entities.
     /// </summary>
-    public List<string> UniqueOrderedOwners
+    public List<string> UniqueEntityIds
     {
         get
         {
-            if (NonPlayerEntities == null || NonPlayerEntities.Count == 0)
-                return new List<string>();
+            if (this.NonPlayerEntities.Count == 0 || this.PlayerEntities.Count == 0)
+                return [];
 
+            // Get a combined collection of player and non-player entities.
+            var allEntities = this.NonPlayerEntities.Union(this.PlayerEntities).ToList();
+
+            // Gather a unique list of Ids and Labels from our combat entities we 
+            // can use for map detection.
             var results = (
-                from entity in NonPlayerEntities
+                from entity in allEntities
                 from eve in entity.CombatEventList
-                where eve.OwnerInternal.StartsWith("C[")
-                select eve.OwnerInternal.Split(" ")[1].Replace("]", "")
-            ).Distinct().OrderBy(res => res).ToList();
+                where !string.IsNullOrWhiteSpace(eve.OwnerInternalStripped)
+                select eve.OwnerInternalStripped
+            ).Union(
+                from entity in allEntities
+                from eve in entity.CombatEventList
+                where !string.IsNullOrWhiteSpace(eve.OwnerDisplay)
+                select eve.OwnerDisplay
+                ).Union(
+                    from entity in allEntities
+                    from eve in entity.CombatEventList
+                    where !string.IsNullOrWhiteSpace(eve.TargetInternalStripped)
+                    select eve.TargetInternalStripped
+                    ).Union(
+                        from entity in allEntities
+                        from eve in entity.CombatEventList
+                        where !string.IsNullOrWhiteSpace(eve.TargetDisplay)
+                        select eve.TargetDisplay)
+                .Distinct().ToList();
 
             return results;
         }
     }
-
-    /// <summary>
-    ///     A unique list of non-player ids used in map detection.
-    /// </summary>
-    public List<string> UniqueOrderedTargets
-    {
-        get
-        {
-            if (PlayerEntities == null || PlayerEntities.Count == 0)
-                return new List<string>();
-
-            var results = (
-                from entity in PlayerEntities
-                from eve in entity.CombatEventList
-                where eve.TargetInternal.StartsWith("C[")
-                select eve.TargetInternal.Split(" ")[1].Replace("]", "")
-            ).Distinct().OrderBy(res => res).ToList();
-
-            return results;
-        }
-    }
-
+    
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
     /// </summary>

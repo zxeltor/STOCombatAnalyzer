@@ -121,11 +121,20 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Export map detection settings to a JSON file..
+        ///   Looks up a localized string similar to Export map detection settings to a JSON file with indentation..
         /// </summary>
         public static string export_detection_json {
             get {
                 return ResourceManager.GetString("export_detection_json", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export map detection settings to a JSON file without indentation..
+        /// </summary>
+        public static string export_detection_json_no_indents {
+            get {
+                return ResourceManager.GetString("export_detection_json_no_indents", resourceCulture);
             }
         }
         

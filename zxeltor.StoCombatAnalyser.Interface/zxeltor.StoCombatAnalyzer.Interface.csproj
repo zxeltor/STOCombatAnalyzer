@@ -12,7 +12,7 @@
     <AssemblyOriginatorKeyFile>zxeltor.StoCombatAnalyzer.Interface_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
     <FileVersion></FileVersion>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <AssemblyVersion>1.3.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,9 +25,13 @@
 
   <ItemGroup>
     <None Remove="CombatMapDetectionSettings.json" />
+    <None Remove="Images\glyphicons-151-edit.png" />
     <None Remove="Images\glyphicons-152-new-window.png" />
     <None Remove="Images\glyphicons-196-info-sign.png" />
+    <None Remove="Images\glyphicons-257-delete.png" />
     <None Remove="Images\glyphicons-366-restart.png" />
+    <None Remove="Images\glyphicons-433-plus.png" />
+    <None Remove="Images\glyphicons-436-undo.png" />
     <None Remove="Images\glyphicons-82-refresh.png" />
     <None Remove="Images\information-icon-6073.png" />
     <None Remove="Log4Net.config" />
@@ -54,9 +58,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\glyphicons-151-edit.png" />
     <Resource Include="Images\glyphicons-152-new-window.png" />
     <Resource Include="Images\glyphicons-196-info-sign.png" />
+    <Resource Include="Images\glyphicons-257-delete.png" />
     <Resource Include="Images\glyphicons-366-restart.png" />
+    <Resource Include="Images\glyphicons-433-plus.png" />
+    <Resource Include="Images\glyphicons-436-undo.png" />
     <Resource Include="Images\glyphicons-82-refresh.png" />
     <Resource Include="Images\information-icon-6073.png" />
   </ItemGroup>

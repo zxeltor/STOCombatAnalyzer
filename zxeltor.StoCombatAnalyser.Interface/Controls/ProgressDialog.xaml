@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="ProgressDialog" Height="150" Width="300" WindowStartupLocation="CenterOwner" WindowStyle="None"
+        Title="ProgressDialog" Height="150" Width="350" WindowStartupLocation="CenterOwner" WindowStyle="None"
         BorderBrush="CornflowerBlue">
     <Grid>
         <Grid.RowDefinitions>

@@ -142,7 +142,10 @@ Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate 
 Note: A Combat entity needs to be selected in the "Log File Analyzer" tab for this to work.</value>
   </data>
   <data name="export_detection_json" xml:space="preserve">
-    <value>Export map detection settings to a JSON file.</value>
+    <value>Export map detection settings to a JSON file with indentation.</value>
+  </data>
+  <data name="export_detection_json_no_indents" xml:space="preserve">
+    <value>Export map detection settings to a JSON file without indentation.</value>
   </data>
   <data name="GithubMapDetectRepoUrl" xml:space="preserve">
     <value>https://github.com/zxeltor/STOCombatAnalyzer.Settings</value>

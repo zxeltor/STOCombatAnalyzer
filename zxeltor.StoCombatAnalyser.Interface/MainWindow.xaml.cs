@@ -28,7 +28,7 @@ namespace zxeltor.StoCombatAnalyzer.Interface;
 /// <summary>
 ///     Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class MainWindow : Window
+public partial class MainWindow
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(MainWindow));
 
@@ -41,14 +41,14 @@ public partial class MainWindow : Window
         this.Height = 900;
 #endif
 
-        CombatLogManagerContext = new CombatLogManager();
-        this.DataContext = CombatLogManagerContext;
+        this.CombatLogManagerContext = new CombatLogManager();
+        this.DataContext = this.CombatLogManagerContext;
 
         this.Loaded += this.OnLoaded;
         this.Unloaded += this.OnUnloaded;
     }
 
-    public static CombatLogManager? CombatLogManagerContext { get; private set; }
+    private CombatLogManager CombatLogManagerContext { get; }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
@@ -61,8 +61,6 @@ public partial class MainWindow : Window
 
         // Initialize log4net settings based on log4net.config
         LoggingHelper.ConfigureLog4NetLogging();
-
-        var version = AssemblyInfoHelper.GetApplicationVersionFromAssembly();
 
         this.ToggleDataGridColumnVisibility();
 
@@ -91,77 +89,77 @@ public partial class MainWindow : Window
             switch (col.Header)
             {
                 case "Filename":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.FilenameVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.FilenameVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "LineNumber":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.LineNumberVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.LineNumberVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "Timestamp":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.TimestampVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.TimestampVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "OwnerDisplay":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.OwnerDisplayVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.OwnerDisplayVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "OwnerInternal":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.OwnerInternalVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.OwnerInternalVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "SourceDisplay":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.SourceDisplayVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.SourceDisplayVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "SourceInternal":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.SourceInternalVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.SourceInternalVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "TargetDisplay":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.TargetDisplayVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.TargetDisplayVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "TargetInternal":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.TargetInternalVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.TargetInternalVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "EventDisplay":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.EventDisplayVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.EventDisplayVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "EventInternal":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.EventInternalVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.EventInternalVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "Type":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.TypeVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.TypeVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "Flags":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.FlagsVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.FlagsVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "Magnitude":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.MagnitudeVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.MagnitudeVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
                 case "MagnitudeBase":
-                    col.Visibility = CombatLogManagerContext!.MainCombatEventGridContext.MagnitudeBaseVisible
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.MagnitudeBaseVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
@@ -173,23 +171,34 @@ public partial class MainWindow : Window
     {
         e.Handled = true;
 
-        if (CombatLogManagerContext.IsExecutingBackgroundProcess)
+        if (Keyboard.IsKeyDown(Key.LeftShift) && Keyboard.IsKeyDown(Key.LeftCtrl))
+        {
+            e.Handled = true;
+            this.uiTabItemMapSettings.Visibility = this.uiTabItemMapSettings.Visibility == Visibility.Collapsed
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            return;
+        }
+
+        if (this.CombatLogManagerContext.IsExecutingBackgroundProcess)
         {
             e.Handled = true;
             return;
         }
 
-        CombatLogManagerContext.IsExecutingBackgroundProcess = true;
+        this.CombatLogManagerContext.IsExecutingBackgroundProcess = true;
 
         ProgressDialog? progressDialog = null;
 
         try
         {
-            progressDialog = new ProgressDialog(this, () => CombatLogManagerContext?.GetCombatLogEntriesFromLogFiles(), "Parsing combat log(s)");
+            progressDialog = new ProgressDialog(this,
+                () => this.CombatLogManagerContext.GetCombatLogEntriesFromLogFiles(),
+                "Parsing combat log(s)");
             var dialogResult = progressDialog.ShowDialog();
             if (!dialogResult.HasValue || !dialogResult.Value)
                 throw new Exception("Background task failed.");
-            
+
             this.Focus();
 
             this.SetPlots();
@@ -197,23 +206,24 @@ public partial class MainWindow : Window
         catch (Exception exception)
         {
             Log.Error("Error while parsing log files.", exception);
-            ResponseDialog.Show(Application.Current.MainWindow, "Error while parsing the combat logs. Check the logs for more details.", "Error",
-                detailsBoxCaption: "Reason", detailsBoxList: new List<string>() {exception.Message});
+            ResponseDialog.Show(Application.Current.MainWindow,
+                "Error while parsing the combat logs. Check the logs for more details.", "Error",
+                detailsBoxCaption: "Reason", detailsBoxList: new List<string> { exception.Message });
         }
         finally
         {
             progressDialog?.Close();
-            CombatLogManagerContext.IsExecutingBackgroundProcess = false;
-            this.uiButtonParseLog.Click += uiButtonParseLog_Click;
+            this.CombatLogManagerContext.IsExecutingBackgroundProcess = false;
+            this.uiButtonParseLog.Click += this.uiButtonParseLog_Click;
         }
     }
 
     private void uiTreeViewCombatEntityList_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
         if (e.NewValue is CombatEntity combatEntity)
-            CombatLogManagerContext?.SetSelectedCombatEntity(combatEntity);
+            this.CombatLogManagerContext.SetSelectedCombatEntity(combatEntity);
         else
-            CombatLogManagerContext?.SetSelectedCombatEntity(null);
+            this.CombatLogManagerContext.SetSelectedCombatEntity(null);
 
         this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked = false;
         this.SetPlots();
@@ -238,13 +248,11 @@ public partial class MainWindow : Window
         this.uiScottScatterPlotEntityEvents.Plot.Clear();
         this.uiScottScatterPlotEntityEvents.Refresh();
 
-        if (CombatLogManagerContext == null) return;
-
-        var filteredCombatEventList = CombatLogManagerContext?.FilteredSelectedEntityCombatEventList;
+        var filteredCombatEventList = this.CombatLogManagerContext.FilteredSelectedEntityCombatEventList;
 
         if (filteredCombatEventList != null && filteredCombatEventList.Count > 0)
         {
-            if (CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitudeBase: true })
+            if (this.CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitudeBase: true })
             {
                 var magnitudeBaseDataList = filteredCombatEventList
                     .OrderBy(ev => ev.Timestamp)
@@ -260,7 +268,7 @@ public partial class MainWindow : Window
                 signal.LegendText = "MagnitudeBase";
             }
 
-            if (CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitude: true })
+            if (this.CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitude: true })
             {
                 var magnitudeDataList = filteredCombatEventList
                     .OrderBy(ev => ev.Timestamp)
@@ -279,7 +287,7 @@ public partial class MainWindow : Window
         this.uiScottScatterPlotEntityEvents.Plot.Legend.FontSize = 24;
 
         if (filteredCombatEventList != null && filteredCombatEventList.Count > 0 &&
-            CombatLogManagerContext!.SelectedCombatEntity != null)
+            this.CombatLogManagerContext.SelectedCombatEntity != null)
         {
             this.uiScottScatterPlotEntityEvents.Plot.ShowLegend();
             this.uiScottScatterPlotEntityEvents.MouseLeftButtonDown -=
@@ -291,28 +299,28 @@ public partial class MainWindow : Window
             var total = 0d;
             var max = 0d;
 
-            if (CombatLogManagerContext!.EventTypeDisplayFilter.EventTypeId.Equals("ALL"))
+            if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals("ALL"))
             {
-                dps = CombatLogManagerContext.SelectedCombatEntity.EntityMagnitudePerSecond;
-                total = CombatLogManagerContext.SelectedCombatEntity.EntityTotalMagnitude;
-                max = CombatLogManagerContext.SelectedCombatEntity.EntityMaxMagnitude;
+                dps = this.CombatLogManagerContext.SelectedCombatEntity.EntityMagnitudePerSecond;
+                total = this.CombatLogManagerContext.SelectedCombatEntity.EntityTotalMagnitude;
+                max = this.CombatLogManagerContext.SelectedCombatEntity.EntityMaxMagnitude;
             }
-            else if (CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals("ALL PETS"))
+            else if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals("ALL PETS"))
             {
-                dps = CombatLogManagerContext.SelectedCombatEntity.PetsMagnitudePerSecond;
-                total = CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude;
-                max = CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude;
+                dps = this.CombatLogManagerContext.SelectedCombatEntity.PetsMagnitudePerSecond;
+                total = this.CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude;
+                max = this.CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude;
             }
-            else if (CombatLogManagerContext.EventTypeDisplayFilter.EventTypeLabel.StartsWith("PET(",
+            else if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeLabel.StartsWith("PET(",
                          StringComparison.CurrentCultureIgnoreCase)
-                     && CombatLogManagerContext.SelectedEntityPetCombatEventTypeList != null &&
-                     CombatLogManagerContext.SelectedEntityPetCombatEventTypeList.Count > 0)
+                     && this.CombatLogManagerContext.SelectedEntityPetCombatEventTypeList != null &&
+                     this.CombatLogManagerContext.SelectedEntityPetCombatEventTypeList.Count > 0)
             {
-                CombatLogManagerContext.SelectedEntityPetCombatEventTypeList.ToList().ForEach(petevt =>
+                this.CombatLogManagerContext.SelectedEntityPetCombatEventTypeList.ToList().ForEach(petevt =>
                 {
                     petevt.CombatEventTypes.ForEach(evt =>
                     {
-                        if (CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals(evt.EventTypeId))
+                        if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals(evt.EventTypeId))
                         {
                             dps = evt.Dps;
                             total = evt.TotalMagnitude;
@@ -323,8 +331,9 @@ public partial class MainWindow : Window
             }
             else
             {
-                var combatEventType = CombatLogManagerContext.SelectedEntityCombatEventTypeList!.FirstOrDefault(evt =>
-                    evt.EventInternal.Equals(CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId));
+                var combatEventType = this.CombatLogManagerContext.SelectedEntityCombatEventTypeList!.FirstOrDefault(
+                    evt =>
+                        evt.EventInternal.Equals(this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId));
 
                 if (combatEventType != null)
                 {
@@ -375,11 +384,11 @@ public partial class MainWindow : Window
                 CombatEvent selectedEvent;
 
                 if (plot.LegendText.Equals("magnitudebase", StringComparison.CurrentCultureIgnoreCase))
-                    selectedEvent = CombatLogManagerContext?.SelectedCombatEntity?.CombatEventList.FirstOrDefault(
+                    selectedEvent = this.CombatLogManagerContext.SelectedCombatEntity?.CombatEventList.FirstOrDefault(
                         ev =>
                             ev.Timestamp.ToOADate() == nearest.X && ev.MagnitudeBase == nearest.Y);
                 else
-                    selectedEvent = CombatLogManagerContext?.SelectedCombatEntity?.CombatEventList.FirstOrDefault(
+                    selectedEvent = this.CombatLogManagerContext?.SelectedCombatEntity?.CombatEventList.FirstOrDefault(
                         ev =>
                             ev.Timestamp.ToOADate() == nearest.X && ev.Magnitude == nearest.Y);
 
@@ -402,18 +411,18 @@ public partial class MainWindow : Window
 
         if (combatEvent == null) return;
 
-        var combatEntity = CombatLogManagerContext?.SelectedCombatEntity;
+        var combatEntity = this.CombatLogManagerContext.SelectedCombatEntity;
 
         if (combatEntity != null && combatEntity.CombatEventList.Any())
         {
-            if (CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitudeBase: true })
+            if (this.CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitudeBase: true })
             {
                 var marker = this.uiScottScatterPlotEntityEvents.Plot.Add.Marker(combatEvent.Timestamp.ToOADate(),
                     combatEvent.MagnitudeBase, MarkerShape.OpenTriangleDown, 40, Color.FromHex("ff0000"));
                 marker.MarkerLineWidth = 4;
             }
 
-            if (CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitude: true })
+            if (this.CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitude: true })
             {
                 var marker = this.uiScottScatterPlotEntityEvents.Plot.Add.Marker(combatEvent.Timestamp.ToOADate(),
                     combatEvent.Magnitude, MarkerShape.OpenTriangleDown, 30, Color.FromHex("ff0000"));
@@ -437,7 +446,7 @@ public partial class MainWindow : Window
         if (this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked != null &&
             this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked.Value)
         {
-            var combatPetEvents = CombatLogManagerContext?.SelectedEntityPetCombatEventTypeList;
+            var combatPetEvents = this.CombatLogManagerContext.SelectedEntityPetCombatEventTypeList;
             if (combatPetEvents != null && combatPetEvents.Count != 0)
             {
                 var colorCounter = 0;
@@ -464,7 +473,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            var combatEvents = CombatLogManagerContext?.SelectedEntityCombatEventTypeList;
+            var combatEvents = this.CombatLogManagerContext.SelectedEntityCombatEventTypeList;
             if (combatEvents != null && combatEvents.Any())
             {
                 var colorCounter = 0;
@@ -483,13 +492,12 @@ public partial class MainWindow : Window
                         Position = positionCounter--,
                         Value = sumOfMagnitude,
                         FillColor = colorArray[colorCounter++],
-                        Label = evt
-                            .EventTypeLabelWithTotal //$"{evt.EventTypeLabel}: Total({sumOfMagnitude.ToMetric(null, 3)})"
+                        Label = evt.EventTypeLabelWithTotal
                     });
                 });
             }
 
-            var combatPetEvents = CombatLogManagerContext?.SelectedEntityPetCombatEventTypeList;
+            var combatPetEvents = this.CombatLogManagerContext.SelectedEntityPetCombatEventTypeList;
             if (combatPetEvents != null && combatPetEvents.Count > 0)
             {
                 var sumOfMagnitude = combatPetEvents.Sum(petevt =>
@@ -560,42 +568,38 @@ public partial class MainWindow : Window
                 {
                     if (bar.Label.StartsWith("ALL PETS"))
                     {
-                        //CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(bar.FillColor.A, bar.FillColor.G, bar.FillColor.B));
-                        CombatLogManagerContext!.EventTypeDisplayFilter =
-                            CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions
-                                .FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL PETS"));
+                        this.CombatLogManagerContext.EventTypeDisplayFilter = this.CombatLogManagerContext
+                            .SelectedEntityCombatEventTypeListDisplayedFilterOptions
+                            .FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL PETS"));
                         return;
                     }
 
                     if (bar is CombatEventTypeBar combatEventTypeBar)
                     {
-                        var eventType =
-                            CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions
-                                .FirstOrDefault(eventType =>
-                                    combatEventTypeBar.EventTypeId.Equals(eventType.EventTypeId));
+                        var eventType = this.CombatLogManagerContext!
+                            .SelectedEntityCombatEventTypeListDisplayedFilterOptions
+                            .FirstOrDefault(eventType =>
+                                combatEventTypeBar.EventTypeId.Equals(eventType.EventTypeId));
                         if (eventType != null)
                         {
-                            //CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(combatEventTypeBar.FillColor.A, combatEventTypeBar.FillColor.G, combatEventTypeBar.FillColor.B)); //combatEventTypeBar.FillColor;
-                            CombatLogManagerContext!.EventTypeDisplayFilter = eventType;
+                            this.CombatLogManagerContext!.EventTypeDisplayFilter = eventType;
                             return;
                         }
                     }
                     else
                     {
-                        var eventType =
-                            CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions
-                                .FirstOrDefault(eventType => bar.Label.StartsWith(eventType.EventTypeLabel));
+                        var eventType = this.CombatLogManagerContext!
+                            .SelectedEntityCombatEventTypeListDisplayedFilterOptions
+                            .FirstOrDefault(eventType => bar.Label.StartsWith(eventType.EventTypeLabel));
                         if (eventType != null)
                         {
-                            //CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(bar.FillColor.A, bar.FillColor.G, bar.FillColor.B));
-                            CombatLogManagerContext!.EventTypeDisplayFilter = eventType;
+                            this.CombatLogManagerContext!.EventTypeDisplayFilter = eventType;
                             return;
                         }
                     }
 
-                    //CombatLogManagerContext!.EventTypeColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
-                    CombatLogManagerContext!.EventTypeDisplayFilter =
-                        CombatLogManagerContext!.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(
+                    this.CombatLogManagerContext!.EventTypeDisplayFilter = this.CombatLogManagerContext!
+                        .SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(
                             eventType => eventType.EventTypeId.Equals("ALL"));
                 }
             });
@@ -717,6 +721,10 @@ public partial class MainWindow : Window
                 DetailsDialog.ShowDialog(this, "Export Map Detection Settings",
                     Properties.Resources.export_detection_json);
                 break;
+            case "export_detection_json_no_indents":
+                DetailsDialog.ShowDialog(this, "Export Map Detection Settings",
+                    Properties.Resources.export_detection_json_no_indents);
+                break;
             case "reset_detection_json":
                 DetailsDialog.ShowDialog(this, "Reset Map Detection Settings",
                     Properties.Resources.reset_detection_json);
@@ -763,8 +771,10 @@ public partial class MainWindow : Window
 
     private void UiButtonImportMapEntities_OnClick(object sender, RoutedEventArgs e)
     {
-        var openFile = new OpenFileDialog();
-        openFile.Filter = "MapEntities JSON|*.json";
+        var openFile = new OpenFileDialog
+        {
+            Filter = "MapEntities JSON|*.json"
+        };
 
         var result = openFile.ShowDialog();
 
@@ -776,17 +786,14 @@ public partial class MainWindow : Window
                     var jsonString = sr.ReadToEnd();
                     var serializationResult = SerializationHelper.Deserialize<CombatMapDetectionSettings>(jsonString);
 
-                    if (serializationResult == null)
-                        throw new Exception("No map entries found in JSON");
-
-                    CombatLogManagerContext.CombatMapDetectionSettings = serializationResult;
+                    this.CombatLogManagerContext.CombatMapDetectionSettings = serializationResult;
 
                     Settings.Default.UserCombatMapList = jsonString;
                     Settings.Default.Save();
                 }
 
                 var successStorage =
-                    $"Successfully imported {CombatLogManagerContext?.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.";
+                    $"Successfully imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.";
                 Log.Info(successStorage);
                 MessageBox.Show(this, successStorage, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -800,7 +807,7 @@ public partial class MainWindow : Window
 
     private void UiButtonExportCombat_OnClick(object sender, RoutedEventArgs e)
     {
-        if (CombatLogManagerContext?.SelectedCombat == null)
+        if (this.CombatLogManagerContext.SelectedCombat == null)
         {
             MessageBox.Show(this, "Need to select a Combat from the CombatList dropdown.", "Error", MessageBoxButton.OK,
                 MessageBoxImage.Exclamation);
@@ -825,7 +832,7 @@ public partial class MainWindow : Window
                 using (var sw = new StreamWriter(saveFile.FileName))
                 {
                     var serializationResult =
-                        SerializationHelper.Serialize(CombatLogManagerContext.SelectedCombat, true);
+                        SerializationHelper.Serialize(this.CombatLogManagerContext.SelectedCombat, true);
                     sw.Write(serializationResult);
                     sw.Flush();
                 }
@@ -849,7 +856,7 @@ public partial class MainWindow : Window
             Settings.Default.UserCombatMapList = null;
             Settings.Default.Save();
 
-            CombatLogManagerContext.CombatMapDetectionSettings =
+            this.CombatLogManagerContext.CombatMapDetectionSettings =
                 SerializationHelper.Deserialize<CombatMapDetectionSettings>(Settings.Default.DefaultCombatMapList);
 
             MessageBox.Show(this, "Map detection settings have been set to application default.", "Info",
@@ -880,10 +887,13 @@ public partial class MainWindow : Window
                     return;
                 }
 
+                var indent = e.Source is Button buttonResult && buttonResult.Tag is string tagResult &&
+                             tagResult.Equals("export_detection_json");
+
                 using (var sw = new StreamWriter(saveFile.FileName))
                 {
                     var serializationResult =
-                        SerializationHelper.Serialize(CombatLogManagerContext.CombatMapDetectionSettings, true);
+                        SerializationHelper.Serialize(this.CombatLogManagerContext.CombatMapDetectionSettings, indent);
                     sw.Write(serializationResult);
                     sw.Flush();
                 }
@@ -898,5 +908,500 @@ public partial class MainWindow : Window
                 Log.Error(errorMessage, exception);
                 MessageBox.Show(this, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+    }
+
+    private void SetMapDetectionSettingsChanged(bool hasChanges = true)
+    {
+        this.CombatLogManagerContext.CombatMapDetectionSettings.HasChanges = hasChanges;
+    }
+
+    private void MapDetectButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (!(e.Source is Button buttonResult))
+            return;
+
+        if (buttonResult.Tag.Equals("AddMap"))
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = string.Empty;
+            var dialogResult = dialog.ShowDialog("Add Map", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Add(
+                    new CombatMap { Name = name });
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("EditMapName") &&
+                 buttonResult.CommandParameter is CombatMap combatMapRenameResult)
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = combatMapRenameResult.Name;
+            var dialogResult = dialog.ShowDialog("Edit Map Name", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                combatMapRenameResult.Name = name;
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("DeleteMap") &&
+                 buttonResult.CommandParameter is CombatMap combatMapDeleteResult)
+        {
+            var dialogResult = MessageBox.Show(this,
+                $"Are you sure you want to delete Map: \"{combatMapDeleteResult.Name}\"?", "Question",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (dialogResult == MessageBoxResult.Yes)
+            {
+                this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Remove(
+                    combatMapDeleteResult);
+                SetMapDetectionSettingsChanged();
+            }
+        }
+
+        else if (buttonResult.Tag.Equals("AddMapEntity") &&
+                 buttonResult.CommandParameter is CombatMap combatMapAddEntityResult)
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = string.Empty;
+            var dialogResult = dialog.ShowDialog("Add Map Entity Pattern", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                combatMapAddEntityResult.MapEntities.Add(new CombatMapEntity { Pattern = name });
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("EditMapEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatMapEntityEditResult)
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = combatMapEntityEditResult.Pattern;
+            var dialogResult = dialog.ShowDialog("Edit Map Entity Pattern", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                combatMapEntityEditResult.Pattern = name;
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("DeleteMapEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatMapEntityDeleteResult)
+        {
+            var messageBoxResult = MessageBox.Show(this,
+                $"Are you sure you want to delete this MapEntity: \"{combatMapEntityDeleteResult.Pattern}\"?",
+                "Confirm Deletion",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                var mapResult = (from map in this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList
+                    from ent in map.MapEntities
+                    where ent.Id.Equals(combatMapEntityDeleteResult.Id)
+                    select map).FirstOrDefault();
+
+                if (mapResult != null)
+                {
+                    mapResult.MapEntities.Remove(combatMapEntityDeleteResult);
+                    SetMapDetectionSettingsChanged();
+                    return;
+                }
+
+                Log.Error($"Failed tp delete MapEntity={combatMapEntityDeleteResult.Pattern}.");
+
+                MessageBox.Show(this, "Failed to delete the MapEntity", "Error", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        else if (buttonResult.Tag.Equals("AddMapExceptionEntity") &&
+                 buttonResult.CommandParameter is CombatMap combatMapAddExceptionEntityResult)
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = string.Empty;
+            var dialogResult = dialog.ShowDialog("Add Map Exception Pattern", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                combatMapAddExceptionEntityResult.MapEntityExclusions.Add(new CombatMapEntity { Pattern = name });
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("EditMapExceptionEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatMapEntityExceptionEditResult)
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = combatMapEntityExceptionEditResult.Pattern;
+            var dialogResult = dialog.ShowDialog("Edit Map Exception Pattern", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                combatMapEntityExceptionEditResult.Pattern = name;
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("DeleteMapExceptionEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatMapEntityExceptionDeleteResult)
+        {
+            var messageBoxResult = MessageBox.Show(this,
+                $"Are you sure you want to delete this MapEntityExclusion: \"{combatMapEntityExceptionDeleteResult.Pattern}\"?",
+                "Confirm Deletion",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                var mapResult = (from map in this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList
+                    from ent in map.MapEntityExclusions
+                    where ent.Id.Equals(combatMapEntityExceptionDeleteResult.Id)
+                    select map).FirstOrDefault();
+
+                if (mapResult != null)
+                {
+                    mapResult.MapEntityExclusions.Remove(combatMapEntityExceptionDeleteResult);
+                    SetMapDetectionSettingsChanged();
+                    return;
+                }
+
+                Log.Error($"Failed tp delete MapEntityExclusion={combatMapEntityExceptionDeleteResult.Pattern}.");
+
+                MessageBox.Show(this, "Failed to delete the MapEntityExclusion", "Error", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        else if (buttonResult.Tag.Equals("AddExceptionEntity"))
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = string.Empty;
+            var dialogResult = dialog.ShowDialog("Add Exception Pattern", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                this.CombatLogManagerContext.CombatMapDetectionSettings.EntityExclusionList.Add(new CombatMapEntity
+                    { Pattern = name });
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("EditExceptionEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatEntityExceptionEditResult)
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = combatEntityExceptionEditResult.Pattern;
+            var dialogResult = dialog.ShowDialog("Edit Exception Pattern", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                combatEntityExceptionEditResult.Pattern = name;
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("DeleteExceptionEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatEntityExceptionDeleteResult)
+        {
+            var messageBoxResult = MessageBox.Show(this,
+                $"Are you sure you want to delete this EntityExclusion: \"{combatEntityExceptionDeleteResult.Pattern}\"?",
+                "Confirm Deletion",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                this.CombatLogManagerContext.CombatMapDetectionSettings.EntityExclusionList.Remove(
+                    combatEntityExceptionDeleteResult);
+                SetMapDetectionSettingsChanged();
+            }
+        }
+
+        else if (buttonResult.Tag.Equals("EditGroundMapName") &&
+                 buttonResult.CommandParameter is CombatMap combatGroundMapRenameResult)
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = combatGroundMapRenameResult.Name;
+            var dialogResult = dialog.ShowDialog("Edit Map Name", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                combatGroundMapRenameResult.Name = name;
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("AddGroundEntity"))
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = string.Empty;
+            var dialogResult = dialog.ShowDialog("Add a new entity", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                this.CombatLogManagerContext.CombatMapDetectionSettings.GenericGroundMap.MapEntities.Add(
+                    new CombatMapEntity
+                        { Pattern = name });
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("EditGroundEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatEntityGroundEditResult)
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = combatEntityGroundEditResult.Pattern;
+            var dialogResult = dialog.ShowDialog("Edit entity name", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                combatEntityGroundEditResult.Pattern = name;
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("DeleteGroundEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatEntityGroundDeleteResult)
+        {
+            var messageBoxResult = MessageBox.Show(this,
+                $"Are you sure you want to delete this Entity: \"{combatEntityGroundDeleteResult.Pattern}\"?",
+                "Confirm Deletion",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                this.CombatLogManagerContext.CombatMapDetectionSettings.GenericGroundMap.MapEntities.Remove(
+                    combatEntityGroundDeleteResult);
+                SetMapDetectionSettingsChanged();
+            }
+        }
+
+        else if (buttonResult.Tag.Equals("AddGroundExceptionEntity"))
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = string.Empty;
+            var dialogResult = dialog.ShowDialog("Add a new exclusion", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                this.CombatLogManagerContext.CombatMapDetectionSettings.GenericGroundMap.MapEntityExclusions.Add(
+                    new CombatMapEntity { Pattern = name });
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("EditGroundExceptionEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatEntityGroundExceptionEditResult)
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = combatEntityGroundExceptionEditResult.Pattern;
+            var dialogResult = dialog.ShowDialog("Edit exclusion name", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                combatEntityGroundExceptionEditResult.Pattern = name;
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("DeleteGroundExceptionEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatEntityGroundExceptionDeleteResult)
+        {
+            var messageBoxResult = MessageBox.Show(this,
+                $"Are you sure you want to delete this Entity: \"{combatEntityGroundExceptionDeleteResult.Pattern}\"?",
+                "Confirm Deletion",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                this.CombatLogManagerContext.CombatMapDetectionSettings.GenericGroundMap.MapEntityExclusions.Remove(
+                    combatEntityGroundExceptionDeleteResult);
+                SetMapDetectionSettingsChanged();
+            }
+        }
+
+        else if (buttonResult.Tag.Equals("EditSpaceMapName") &&
+                 buttonResult.CommandParameter is CombatMap combatSpaceMapRenameResult)
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = combatSpaceMapRenameResult.Name;
+            var dialogResult = dialog.ShowDialog("Edit Map Name", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                combatSpaceMapRenameResult.Name = name;
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("AddSpaceEntity"))
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = string.Empty;
+            var dialogResult = dialog.ShowDialog("Add a new entity", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                this.CombatLogManagerContext.CombatMapDetectionSettings.GenericSpaceMap.MapEntities.Add(
+                    new CombatMapEntity
+                        { Pattern = name });
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("EditSpaceEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatEntitySpaceEditResult)
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = combatEntitySpaceEditResult.Pattern;
+            var dialogResult = dialog.ShowDialog("Edit entity name", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                combatEntitySpaceEditResult.Pattern = name;
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("DeleteSpaceEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatEntitySpaceDeleteResult)
+        {
+            var messageBoxResult = MessageBox.Show(this,
+                $"Are you sure you want to delete this Entity: \"{combatEntitySpaceDeleteResult.Pattern}\"?",
+                "Confirm Deletion",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                this.CombatLogManagerContext.CombatMapDetectionSettings.GenericSpaceMap.MapEntities.Remove(
+                    combatEntitySpaceDeleteResult);
+                SetMapDetectionSettingsChanged();
+            }
+        }
+
+        else if (buttonResult.Tag.Equals("AddSpaceExceptionEntity"))
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = string.Empty;
+            var dialogResult = dialog.ShowDialog("Add a new exclusion", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                this.CombatLogManagerContext.CombatMapDetectionSettings.GenericSpaceMap.MapEntityExclusions.Add(
+                    new CombatMapEntity { Pattern = name });
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("EditSpaceExceptionEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatEntitySpaceExceptionEditResult)
+        {
+            var dialog = new EditTextFieldDialog(this);
+
+            var name = combatEntitySpaceExceptionEditResult.Pattern;
+            var dialogResult = dialog.ShowDialog("Edit exclusion name", ref name);
+
+            if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
+            {
+                combatEntitySpaceExceptionEditResult.Pattern = name;
+                SetMapDetectionSettingsChanged();
+            }
+        }
+        else if (buttonResult.Tag.Equals("DeleteSpaceExceptionEntity") &&
+                 buttonResult.CommandParameter is CombatMapEntity combatEntitySpaceExceptionDeleteResult)
+        {
+            var messageBoxResult = MessageBox.Show(this,
+                $"Are you sure you want to delete this Entity: \"{combatEntitySpaceExceptionDeleteResult.Pattern}\"?",
+                "Confirm Deletion",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                this.CombatLogManagerContext.CombatMapDetectionSettings.GenericSpaceMap.MapEntityExclusions.Remove(
+                    combatEntitySpaceExceptionDeleteResult);
+                SetMapDetectionSettingsChanged();
+            }
+        }
+    }
+
+    private void UiButtonSaveDetectionSettings_OnClick(object sender, RoutedEventArgs e)
+    {
+        var dialogResult = MessageBox.Show(this, "Are you sure you want to save changes to MapDetectionSettings?",
+            "Question",
+            MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+        if (dialogResult != MessageBoxResult.Yes) return;
+
+        try
+        {
+            var serializedString =
+                SerializationHelper.Serialize(this.CombatLogManagerContext.CombatMapDetectionSettings);
+
+            if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatMapList) &&
+                SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(Settings.Default.UserCombatMapList,
+                    out _))
+                this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave = Settings.Default.UserCombatMapList;
+
+            else if (!string.IsNullOrWhiteSpace(Settings.Default.DefaultCombatMapList) &&
+                     SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
+                         Settings.Default.DefaultCombatMapList, out _))
+                this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave =
+                    Settings.Default.DefaultCombatMapList;
+
+            Settings.Default.UserCombatMapList = serializedString;
+            Settings.Default.Save();
+        }
+        catch (Exception exception)
+        {
+            Log.Error("Failed to save MapDetectionSettings.", exception);
+
+            MessageBox.Show(this, $"Failed to save MapDetectionSettings. Reason={exception.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void UiButtonCancelDetectionSettings_OnClick(object sender, RoutedEventArgs e)
+    {
+        var dialogResult = MessageBox.Show(this,
+            "Are you sure you want to cancel your changes to MapDetectionSettings?", "Question",
+            MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+        if (dialogResult != MessageBoxResult.Yes) return;
+
+        if (!string.IsNullOrWhiteSpace(this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave) &&
+            SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
+                this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave,
+                out var canceledCombatMapSettingsUser))
+        {
+            this.CombatLogManagerContext.CombatMapDetectionSettings = canceledCombatMapSettingsUser;
+            Settings.Default.UserCombatMapList = this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave;
+            Settings.Default.Save();
+            SetMapDetectionSettingsChanged(false);
+        }
+        else if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatMapList) &&
+                 SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
+                     Settings.Default.UserCombatMapList,
+                     out var combatMapSettingsUser))
+        {
+            this.CombatLogManagerContext.CombatMapDetectionSettings = combatMapSettingsUser;
+            SetMapDetectionSettingsChanged(false);
+        }
+        else if (!string.IsNullOrWhiteSpace(Settings.Default.DefaultCombatMapList) &&
+                 SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
+                     Settings.Default.DefaultCombatMapList, out var combatMapSettingsDefault))
+        {
+            this.CombatLogManagerContext.CombatMapDetectionSettings = combatMapSettingsDefault;
+            SetMapDetectionSettingsChanged(false);
+        }
+        else
+        {
+            var error = "Failed to cancel MapDetectionSettings changes. No previous settings found.";
+            Log.Error(error);
+            MessageBox.Show(this, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }

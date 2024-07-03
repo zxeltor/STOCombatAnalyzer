@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Windows;
 using log4net;
 using zxeltor.ConfigUtilsHelpers.Helpers;
@@ -33,13 +32,15 @@ public class CombatLogManager : INotifyPropertyChanged
 
     private CombatMapDetectionSettings _combatMapDetectionSettings = new();
 
+    private string? _combatMapDetectionSettingsBeforeSave;
+
     private CombatEventTypeSelector _eventTypeDisplayFilter = new("ALL");
 
     private bool _isExecutingBackgroundProcess;
     private Combat? _selectedCombat;
 
     private CombatEntity? _selectedCombatEntity;
-
+    
     public CombatLogManager()
     {
         // Pull our map detection settings from the config
@@ -88,8 +89,6 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         get => this._selectedCombat;
         set => this.SetField(ref this._selectedCombat, value);
-        //if(value != null && !string.IsNullOrWhiteSpace(Settings.Default.MyCharacter))
-        //    this.SelectPlayerFromCombatEntity();
     }
 
     /// <summary>
@@ -166,6 +165,15 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         get => this._combatMapDetectionSettings;
         set => this.SetField(ref this._combatMapDetectionSettings, value);
+    }
+
+    /// <summary>
+    ///     A backed up serialized version of our CombatMapDetectionSettings
+    /// </summary>
+    public string? CombatMapDetectionSettingsBeforeSave
+    {
+        get => this._combatMapDetectionSettingsBeforeSave;
+        set => this.SetField(ref this._combatMapDetectionSettingsBeforeSave, value);
     }
 
     /// <summary>
@@ -255,7 +263,7 @@ public class CombatLogManager : INotifyPropertyChanged
     /// </summary>
     public CombatEventTypeSelector EventTypeDisplayFilter
     {
-        get => this._eventTypeDisplayFilter ?? new CombatEventTypeSelector("ALL");
+        get => this._eventTypeDisplayFilter;
         set
         {
             this.SetField(ref this._eventTypeDisplayFilter, value ?? new CombatEventTypeSelector("ALL"));
@@ -279,16 +287,6 @@ public class CombatLogManager : INotifyPropertyChanged
     public ObservableCollection<Combat> Combats { get; set; } = new();
 
     public event PropertyChangedEventHandler? PropertyChanged;
-
-    public void SelectPlayerFromCombatEntity(Combat? selectedCombat)
-    {
-        if (string.IsNullOrWhiteSpace(Settings.Default.MyCharacter) || selectedCombat == null) return;
-
-        var playerEntity =
-            selectedCombat.PlayerEntities.FirstOrDefault(player =>
-                player.OwnerInternal.Contains(Settings.Default.MyCharacter));
-        if (playerEntity != null) this.SetSelectedCombatEntity(playerEntity);
-    }
 
     /// <summary>
     ///     Purge the sto combat logs folder.
@@ -394,7 +392,7 @@ public class CombatLogManager : INotifyPropertyChanged
                         $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder.",
                         isError: true);
 
-                    MessageBox.Show(Application.Current.MainWindow,
+                    MessageBox.Show(Application.Current.MainWindow!,
                         $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder.",
                         "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
@@ -407,7 +405,7 @@ public class CombatLogManager : INotifyPropertyChanged
 
                 if (filesToParse.Count == 0)
                 {
-                    MessageBox.Show(Application.Current.MainWindow,
+                    MessageBox.Show(Application.Current.MainWindow!,
                         $"No combat log files we're found in the selected folder.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder, and check \"CombatLogPathFilePattern\".",
                         "Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -419,7 +417,7 @@ public class CombatLogManager : INotifyPropertyChanged
 
                 if (filesToParse.Count == 0)
                 {
-                    MessageBox.Show(Application.Current.MainWindow,
+                    MessageBox.Show(Application.Current.MainWindow!,
                         $"Combat log(s) were found, but they're too old.{Environment.NewLine}{Environment.NewLine}They fell outside the timespan defined by the \"HowFarBackForCombat\" setting.",
                         "Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -490,7 +488,7 @@ public class CombatLogManager : INotifyPropertyChanged
         {
             var message =
                 $"No combat data was returned.{Environment.NewLine}{Environment.NewLine}Combat log data was found, but it fell outside the timespan defined by the \"HowFarBackForCombat\" setting.";
-            MessageBox.Show(Application.Current.MainWindow, message, "Warning", MessageBoxButton.OK,
+            MessageBox.Show(Application.Current.MainWindow!, message, "Warning", MessageBoxButton.OK,
                 MessageBoxImage.Warning);
         }
 
@@ -504,7 +502,6 @@ public class CombatLogManager : INotifyPropertyChanged
 
             this.AddToLogAndLogSummaryInUi(completionMessage);
 
-            //if (Settings.Default.DebugLogging)
             ResponseDialog.Show(Application.Current.MainWindow, completionMessage, "Success",
                 detailsBoxCaption: "Files parsed",
                 detailsBoxList: fileParsedResults.Select(file => file.Value.ToLog()).ToList());
@@ -548,7 +545,7 @@ public class CombatLogManager : INotifyPropertyChanged
 
         this.EventTypeDisplayFilter =
             this.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType =>
-                eventType.EventTypeId.Equals("ALL"));
+                eventType.EventTypeId.Equals("ALL"))!;
 
         this.OnPropertyChanged(nameof(this.SelectedCombatEntity));
         this.OnPropertyChanged(nameof(this.SelectedCombatEntityEventTypeTotalDamage));
@@ -647,216 +644,118 @@ public class CombatLogManager : INotifyPropertyChanged
         {
             this.CombatMapDetectionSettings.ResetCombatMatchCountForAllMaps();
 
-            var uniqueMap = this.DetermineMapForCombatFromMapListWithUniqueEntity(combat);
-            if (uniqueMap != null)
-            {
-                if (Log.IsDebugEnabled)
-                {
-                    var logMessage =
-                        new StringBuilder(
-                            $"MapDetection for CombatStart={combat.CombatStart}: UniqueMap({uniqueMap.Name})");
-                    Log.Debug(logMessage);
-                }
-
-                combat.Map = uniqueMap.Name;
-                return;
-            }
-
-            var mapWasFound = this.DetermineMapForCombatFromMapList(combat);
-            if (mapWasFound)
-            {
-                if (Log.IsDebugEnabled)
-                {
-                    var logMessage = new StringBuilder($"MapDetection for CombatStart={combat.CombatStart}: ");
-
-                    var mapList = this.CombatMapDetectionSettings.CombatMapEntityList
-                        .Where(map => map.CombatMatchCountForMap > 0)
-                        .OrderByDescending(map => map.CombatMatchCountForMap).ToList();
-                    logMessage.Append(string.Join(',',
-                        mapList.Select(map => $"Map({map.Name},{map.CombatMatchCountForMap})")));
-
-                    Log.Debug(logMessage);
-                }
-
-                combat.Map = this.CombatMapDetectionSettings.CombatMapEntityList
-                    .OrderByDescending(map => map.CombatMatchCountForMap).First().Name;
-                return;
-            }
-
-            mapWasFound = this.DetermineMapForCombatFromGenericMaps(combat);
-            if (mapWasFound)
-            {
-                if (Log.IsDebugEnabled)
-                {
-                    var logMessage = new StringBuilder($"MapDetection for CombatStart={combat.CombatStart}: ");
-
-                    logMessage.Append(
-                        $"GenericMap(Ground,{this.CombatMapDetectionSettings.GenericGroundMap.CombatMatchCountForMap}),");
-                    logMessage.Append(
-                        $"GenericMap(Space,{this.CombatMapDetectionSettings.GenericSpaceMap.CombatMatchCountForMap})");
-
-                    Log.Debug(logMessage);
-                }
-
-                combat.Map =
-                    this.CombatMapDetectionSettings.GenericGroundMap.CombatMatchCountForMap >=
-                    this.CombatMapDetectionSettings.GenericSpaceMap.CombatMatchCountForMap
-                        ? this.CombatMapDetectionSettings.GenericGroundMap.Name
-                        : this.CombatMapDetectionSettings.GenericSpaceMap.Name;
-            }
+            var combatMapFound = this.DetermineMapFromCombatMapDetectionSettings(combat);
+            if (combatMapFound != null) combat.Map = combatMapFound.Name;
         });
     }
 
-    private bool DetermineMapForCombatFromGenericMaps(Combat combat)
+    /// <summary>
+    ///     Find a map for the provided combat entity from our MapDetectionSettings object.
+    /// </summary>
+    /// <param name="combat">The provided combat entity</param>
+    /// <returns>A combat map</returns>
+    private CombatMap? DetermineMapFromCombatMapDetectionSettings(Combat combat)
     {
-        var mapWasFound = false;
+        CombatMap? combatMap = null;
 
-        // Find a match to our generic space and ground maps based on our target ids.
-        combat.UniqueOrderedTargets.ForEach(target =>
+        var idsFoundInMapList = false;
+        var idsFoundInGenericList = false;
+
+        // Find a match in our CombatMapDetectionSettings object based on our entity ids.
+        foreach (var currentEntityId in combat.UniqueEntityIds)
         {
-            var mapGenericGroundEntitiesFound = this.CombatMapDetectionSettings.GenericGroundMap.MapEntities
-                .Where(entity => target.Contains(entity.Pattern)).ToList();
-            if (mapGenericGroundEntitiesFound.Count > 0)
-            {
-                mapWasFound = true;
-                mapGenericGroundEntitiesFound.ForEach(ent => ent.IncrementCombatMatchCount());
-            }
-
-            var mapGenericSpaceEntitiesFound = this.CombatMapDetectionSettings.GenericSpaceMap.MapEntities
-                .Where(entity => target.Contains(entity.Pattern)).ToList();
-            if (mapGenericSpaceEntitiesFound.Count > 0)
-            {
-                mapWasFound = true;
-                mapGenericSpaceEntitiesFound.ForEach(ent => ent.IncrementCombatMatchCount());
-            }
-        });
-
-        // Find a match to our generic space and ground maps based on our owner ids.
-        combat.UniqueOrderedOwners.ForEach(target =>
-        {
-            var mapGenericGroundEntitiesFound = this.CombatMapDetectionSettings.GenericGroundMap.MapEntities
-                .Where(entity => target.Contains(entity.Pattern)).ToList();
-            if (mapGenericGroundEntitiesFound.Count > 0)
-            {
-                mapWasFound = true;
-                mapGenericGroundEntitiesFound.ForEach(ent => ent.IncrementCombatMatchCount());
-            }
-
-            var mapGenericSpaceEntitiesFound = this.CombatMapDetectionSettings.GenericSpaceMap.MapEntities
-                .Where(entity => target.Contains(entity.Pattern)).ToList();
-            if (mapGenericSpaceEntitiesFound.Count > 0)
-            {
-                mapWasFound = true;
-                mapGenericSpaceEntitiesFound.ForEach(ent => ent.IncrementCombatMatchCount());
-            }
-        });
-
-        return mapWasFound;
-    }
-
-    private bool DetermineMapForCombatFromMapList(Combat combat)
-    {
-        var mapWasFound = false;
-
-        // Find a match in our map list based on our target ids.
-        combat.UniqueOrderedTargets.ForEach(target =>
-        {
-            var isException =
-                this.CombatMapDetectionSettings.EntityExclusionList.FirstOrDefault(ent =>
-                    target.Contains(ent.Pattern));
-            if (isException != null) return;
-
-            var isMapException =
+            // If the currentEntityId is found in a map exclusion list,
+            // then it gets thrown out of the rest of the detection logic,
+            // and the maps with the ID are marked as exceptions for the
+            // current combat entity being checked.
+            var mapExceptions =
                 (from map in this.CombatMapDetectionSettings.CombatMapEntityList
                     from ent in map.MapEntityExclusions
-                    where target.Contains(ent.Pattern)
-                    select map).FirstOrDefault();
-            if (isMapException != null) return;
-
-            var entitiesFoundInMap =
-                (from map in this.CombatMapDetectionSettings.CombatMapEntityList
-                    from ent in map.MapEntities
-                    where target.Contains(ent.Pattern)
-                    select ent).ToList();
-
-            if (entitiesFoundInMap.Count > 0)
+                    where currentEntityId.Contains(ent.Pattern)
+                    select map).ToList();
+            if (mapExceptions.Count > 0)
             {
-                mapWasFound = true;
-                entitiesFoundInMap.ForEach(ent => ent.IncrementCombatMatchCount());
+                mapExceptions.ForEach(map => map.IsAnException = true);
+                continue;
             }
-        });
 
-        // Find a match in our map list based on our owner ids.
-        combat.UniqueOrderedOwners.ForEach(target =>
-        {
+            // If the currentEntityId is found in main exclusion list,
+            // then it gets thrown out of the rest of the detection logic.
             var isException =
                 this.CombatMapDetectionSettings.EntityExclusionList.FirstOrDefault(ent =>
-                    target.Contains(ent.Pattern));
-            if (isException != null) return;
+                    currentEntityId.Contains(ent.Pattern));
+            if (isException != null)
+                continue;
 
-            var isMapException =
-                (from map in this.CombatMapDetectionSettings.CombatMapEntityList
-                    from ent in map.MapEntityExclusions
-                    where target.Contains(ent.Pattern)
-                    select map).FirstOrDefault();
-            if (isMapException != null) return;
-
-            var entitiesFoundInMap =
-                (from map in this.CombatMapDetectionSettings.CombatMapEntityList
-                    from ent in map.MapEntities
-                    where target.Contains(ent.Pattern)
-                    select ent).ToList();
-
-            if (entitiesFoundInMap.Count > 0)
-            {
-                mapWasFound = true;
-                entitiesFoundInMap.ForEach(ent => ent.IncrementCombatMatchCount());
-            }
-        });
-
-        return mapWasFound;
-    }
-
-    private CombatMap? DetermineMapForCombatFromMapListWithUniqueEntity(Combat combat)
-    {
-        CombatMap? mapResult = null;
-
-        // Find a match in our map list based on our target ids.
-        combat.UniqueOrderedTargets.ForEach(target =>
-        {
-            var isException =
-                this.CombatMapDetectionSettings.EntityExclusionList.FirstOrDefault(ent =>
-                    target.Contains(ent.Pattern));
-            if (isException != null) return;
-
+            // Check to see if the currentEntityId is unique to a map. If a map
+            // is found we return without doing further logic.
             var uniqueToMap =
                 (from map in this.CombatMapDetectionSettings.CombatMapEntityList
                     from ent in map.MapEntities
-                    where target.Contains(ent.Pattern) && ent.IsUniqueToMap
+                    where !map.IsAnException && currentEntityId.Contains(ent.Pattern) && ent.IsUniqueToMap
                     select map).FirstOrDefault();
-            if (uniqueToMap != null)
-                mapResult = uniqueToMap;
-        });
+            if (uniqueToMap != null) return uniqueToMap;
 
-        if (mapResult != null) return mapResult;
-
-        // Find a match in our map list based on our owner ids.
-        combat.UniqueOrderedOwners.ForEach(target =>
-        {
-            var isException =
-                this.CombatMapDetectionSettings.EntityExclusionList.FirstOrDefault(ent =>
-                    target.Contains(ent.Pattern));
-            if (isException != null) return;
-
-            var uniqueToMap =
+            // Get any match counts from our map list.
+            var entitiesFoundInMap =
                 (from map in this.CombatMapDetectionSettings.CombatMapEntityList
                     from ent in map.MapEntities
-                    where target.Contains(ent.Pattern) && ent.IsUniqueToMap
-                    select map).FirstOrDefault();
-            if (uniqueToMap != null)
-                mapResult = uniqueToMap;
-        });
+                    where !map.IsAnException && currentEntityId.Contains(ent.Pattern)
+                    select ent).ToList();
+            if (entitiesFoundInMap.Count > 0)
+            {
+                entitiesFoundInMap.ForEach(ent => ent.IncrementCombatMatchCount());
+                idsFoundInMapList = true;
+                continue;
+            }
 
-        return mapResult;
+            // If we find any matches in the main map list, we don't need to bother
+            // with checking our generic ground and space maps for matches.
+            if (idsFoundInMapList)
+                continue;
+
+            // Get any match counts from our generic ground map.
+            var entitiesFoundInGenericGroundMap =
+                (from ent in this.CombatMapDetectionSettings.GenericGroundMap.MapEntities
+                    where currentEntityId.Contains(ent.Pattern)
+                    select ent).ToList();
+            if (entitiesFoundInGenericGroundMap.Count > 0)
+            {
+                entitiesFoundInGenericGroundMap.ForEach(ent => ent.IncrementCombatMatchCount());
+                idsFoundInGenericList = true;
+            }
+
+            // Get any match counts from our generic space map.
+            var entitiesFoundInGenericSpacedMap =
+                (from ent in this.CombatMapDetectionSettings.GenericSpaceMap.MapEntities
+                    where currentEntityId.Contains(ent.Pattern)
+                    select ent).ToList();
+            if (entitiesFoundInGenericSpacedMap.Count > 0)
+            {
+                entitiesFoundInGenericSpacedMap.ForEach(ent => ent.IncrementCombatMatchCount());
+                idsFoundInGenericList = true;
+            }
+        }
+
+        // If we found any matches from our map list, we pick the one with the highest match count.
+        if (idsFoundInMapList)
+        {
+            var mapResult = this.CombatMapDetectionSettings.CombatMapEntityList.Where(map => !map.IsAnException)
+                .OrderByDescending(map => map.CombatMatchCountForMap).First();
+            return mapResult;
+        }
+
+        // If we found any matches from the generic ground and space maps, we pick the one with the highest match count.
+        if (idsFoundInGenericList)
+        {
+            var mapResult = this.CombatMapDetectionSettings.GenericGroundMap.CombatMatchCountForMap >=
+                            this.CombatMapDetectionSettings.GenericSpaceMap.CombatMatchCountForMap
+                ? this.CombatMapDetectionSettings.GenericGroundMap
+                : this.CombatMapDetectionSettings.GenericSpaceMap;
+            return mapResult;
+        }
+
+        // If all of our checks fail, we return our null object.
+        return combatMap;
     }
 }
