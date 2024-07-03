@@ -3,7 +3,7 @@
 * [Overview](#overview)
 * [Building](#building)
 * [Download](#download)
-* [Quick Start](#quick-start)
+* [Screen Shots](#screen-shots)
 * [Wiki](#wiki)
 * [Disclaimer](#disclaimer)
 
@@ -28,30 +28,7 @@ See the [wiki](https://github.com/zxeltor/STOCombatAnalyzer/wiki) for more detai
 
 ---
 
-## Quick Start
-After you have a successful build, do the following to get started using the application.
-
-- Start the application
-- Under the Settings tab, set the following settings:
-  - **CombatLogPath**: Set this to match the STO log folder on your local machine.
-    - If you click the **select** button, a folder select dialog will appear to help you select a folder.
-    - If you click the **detect** button, the application will attempt to get the STO install folder from the windows registry. A dialog box will appear to let you know if it was succesfull, and will update the field with the STO log folder if it was.
-  - **CombatLogPathFilePattern**: Set a file pattern used to select one or more combat log files.
-    - This search pattern supports wildcards so more then one file can be selected.
-  - (Optional) **MyCharacter**: An identifier used to select a player when a new combat instance is chosen.
-    - This comes in handy when browsing through multiple combat instances via the Combat List dropdown. For example, I have mine set to @zxeltor so it will pick all of my characters, intead of specific character.
-  - (Optional) **HowFarBackForCombat**: How far back in hours to pull combat log data.
-  - (Optional) **PurgeCombatLogs**: Enable combat log folder purge at application startup.
-    - Note: If only one combat log exists, it won't be purged regardless of how old it is.
-  - (Optional) **HowLongToKeepLogs**: How long to keep logs in days, before they are purged.
-  - (Optional) **DebugLogging**: Enables debug logging. This also enables/disables a few information dialogs in the UI.
-    - **Open Log File**: This button attempts to open the log file for the application in your default text file viewer/editor.
-
-- Switch to the Log File Analyzer tab:
-- Click the ![Parse Log(s)](https://github.com/zxeltor/STOCombatAnalyzer/blob/master/zxeltor.StoCombatAnalyser.Interface/Images/glyphicons-82-refresh.png) "Parse Log(s)" button. This parses the STO combat logs. If successful, a dialog will appear and inform you of success, or failure. If a failure occurs, there should be details on what to do.
-- After a successfull parse, you can choose a combat instance from the Combat List dropdown.
-- If all goes well, you should see something similar to what's displayed in Figure 1.
-
+## Screen Shots
 Figure 1: What the UI looks like after a successfull parse, and a combat instance was selected in the Combat List dropdown.
 ![The main tab](https://github.com/zxeltor/STOCombatAnalyzer/blob/master/zxeltor.StoCombatAnalyser.Interface/Images/StoCombatAnalyzerScreenShot.jpg)
 
