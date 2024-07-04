@@ -286,7 +286,7 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
         if (string.IsNullOrWhiteSpace(this.OwnerInternal))
         {
             // Prepend the astrix as an extra label to identify this wierd event.
-            this.OwnerDisplay = $"(*){this.TargetDisplay}";
+            this.OwnerDisplay = this.TargetDisplay;
             this.OwnerInternal = this.TargetInternal;
             this.IsOwnerModified = true;
         }

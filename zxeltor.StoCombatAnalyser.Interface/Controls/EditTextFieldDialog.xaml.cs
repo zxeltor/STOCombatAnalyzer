@@ -30,7 +30,7 @@ public partial class EditTextFieldDialog : Window
 
         if (dialogResult.HasValue && dialogResult.Value)
         {
-            value = this.uiTextBoxValue.Text;
+            value = this.uiTextBoxValue.Text.Trim();
             return true;
         }
 

@@ -17,6 +17,7 @@
             <classes:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
             <classes:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
             <classes:TypeToBooleanConverter x:Key="typeToBooleanConverter" />
+            <classes:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
             <classes:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
             <classes:MapNameStringConverter x:Key="mapNameStringConverter" />
             <classes:MapNameColorConverter x:Key="mapNameColorConverter" />
@@ -258,22 +259,28 @@
                                 <Grid>
                                     <StackPanel Orientation="Horizontal">
                                         <Image Tag="combat_events_datagrid" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" 
-                                               ToolTip="Click for more details."/>
-                                        <TextBlock Text="Event(s) DataGrid" Margin="8,0,0,0"/>
-                                        <TextBlock Text=":" />
-                                        <TextBlock Text="'" Visibility="{Binding Path=EventTypeDisplayFilter.EventTypeLabel, Converter={StaticResource typeToVisibilityConverter}}" Margin="4,0,0,0"  />
-                                        <TextBlock Text="{Binding Path=EventTypeDisplayFilter.EventTypeLabel}" />
-                                        <TextBlock Text="'" Visibility="{Binding Path=EventTypeDisplayFilter.EventTypeLabel, Converter={StaticResource typeToVisibilityConverter}}" />
-                                        <TextBlock Text="(" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" Margin="4,0,0,0"/>
-                                        <TextBlock Text="{Binding Path=FilteredSelectedEntityCombatEventList.Count}" />
-                                        <TextBlock Text=")" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" />
-
+                                               ToolTip="Click for more details." VerticalAlignment="Center"/>
+                                        <TextBlock Text="Event(s) DataGrid" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text=":"  VerticalAlignment="Center"/>
+                                        <TextBlock Text="'" Visibility="{Binding Path=EventTypeDisplayFilter.EventTypeLabel, Converter={StaticResource typeToVisibilityConverter}}" 
+                                                   Margin="4,0,0,0"  VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Path=EventTypeDisplayFilter.EventTypeLabel}"  VerticalAlignment="Center"/>
+                                        <TextBlock Text="'" Visibility="{Binding Path=EventTypeDisplayFilter.EventTypeLabel, Converter={StaticResource typeToVisibilityConverter}}"  
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="(" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" 
+                                                   Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Path=FilteredSelectedEntityCombatEventList.Count}" VerticalAlignment="Center"/>
+                                        <TextBlock Text=")" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" 
+                                                   VerticalAlignment="Center"/>
+                                        <CheckBox Name="uiCheckBoxDataGridUnitSelectionMode" IsChecked="False" Margin="32,0,0,0"
+                                                  VerticalAlignment="Center">Enable cell selection</CheckBox>
                                     </StackPanel>
                                 </Grid>
                             </GroupBox.Header>
                             <DataGrid Name="uiDataGridAllEvents" ItemsSource="{Binding FilteredSelectedEntityCombatEventList}" AutoGenerateColumns="False"
                                       CanUserReorderColumns="True" CanUserSortColumns="True"
-                                      CanUserResizeColumns="True" SelectionChanged="UiDataGridAllEvents_OnSelectionChanged">
+                                      CanUserResizeColumns="True" SelectionChanged="UiDataGridAllEvents_OnSelectionChanged"
+                                      SelectionUnit="{Binding ElementName=uiCheckBoxDataGridUnitSelectionMode, Path=IsChecked, Converter={StaticResource typeToDataGridSelectUnitConverter}}">
                                 <DataGrid.ContextMenu>
                                     <ContextMenu>
                                         <StackPanel Orientation="Vertical">
@@ -309,6 +316,10 @@
                                                           Tag="Magnitude" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
                                                 <CheckBox Content="MagnitudeBase" IsChecked="{Binding Path=MainCombatEventGridContext.MagnitudeBaseVisible, Mode=TwoWay}" 
                                                           Tag="MagnitudeBase" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                <CheckBox Content="IsPetEvent" IsChecked="{Binding Path=MainCombatEventGridContext.IsPetEventVisible, Mode=TwoWay}" 
+                                                          Tag="IsPetEvent" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                <CheckBox Content="IsOwnerModified" IsChecked="{Binding Path=MainCombatEventGridContext.IsOwnerModifiedVisible, Mode=TwoWay}" 
+                                                          Tag="IsOwnerModified" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
                                             </StackPanel>
                                         </StackPanel>
                                     </ContextMenu>
@@ -347,6 +358,12 @@
                                                         IsReadOnly="True" />
                                     <DataGridTextColumn Header="MagnitudeBase"
                                                         Binding="{Binding MagnitudeBase, Mode=OneTime}" 
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="IsPetEvent"
+                                                        Binding="{Binding IsPetEvent, Mode=OneTime}" 
+                                                        IsReadOnly="True" />
+                                    <DataGridTextColumn Header="IsOwnerModified"
+                                                        Binding="{Binding IsOwnerModified, Mode=OneTime}" 
                                                         IsReadOnly="True" />
                                 </DataGrid.Columns>
                             </DataGrid>
@@ -514,7 +531,7 @@
                                         </Button>
                                     </StackPanel>
                                 </GroupBox.Header>
-                                <ListView ItemsSource="{Binding Path=CombatMapDetectionSettings.GenericGroundMap.MapEntities}">
+                                <ListView ItemsSource="{Binding Path=CombatMapDetectionSettings.GenericGroundMap.MapEntitiesOrderByPattern}">
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Vertical">
@@ -550,7 +567,7 @@
                                         </Button>
                                     </StackPanel>
                                 </GroupBox.Header>
-                                <ListView ItemsSource="{Binding Path=CombatMapDetectionSettings.GenericGroundMap.MapEntityExclusions}">
+                                <ListView ItemsSource="{Binding Path=CombatMapDetectionSettings.GenericGroundMap.MapEntityExclusionsOrderByPattern}">
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Vertical">
@@ -608,7 +625,7 @@
                                         </Button>
                                     </StackPanel>
                                 </GroupBox.Header>
-                                <ListView ItemsSource="{Binding Path=CombatMapDetectionSettings.GenericSpaceMap.MapEntities}">
+                                <ListView ItemsSource="{Binding Path=CombatMapDetectionSettings.GenericSpaceMap.MapEntitiesOrderByPattern}">
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Vertical">
@@ -641,7 +658,7 @@
                                         </Button>
                                     </StackPanel>
                                 </GroupBox.Header>
-                                <ListView ItemsSource="{Binding Path=CombatMapDetectionSettings.GenericSpaceMap.MapEntityExclusions}">
+                                <ListView ItemsSource="{Binding Path=CombatMapDetectionSettings.GenericSpaceMap.MapEntityExclusionsOrderByPattern}">
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Vertical">
@@ -682,7 +699,7 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"></RowDefinition>
                             </Grid.RowDefinitions>
-                            <TreeView Name="uiTreeViewMapDetectMapList" Grid.Row="0" ItemsSource="{Binding Path=CombatMapDetectionSettings.CombatMapEntityList}">
+                            <TreeView Name="uiTreeViewMapDetectMapList" Grid.Row="0" ItemsSource="{Binding Path=CombatMapDetectionSettings.CombatMapEntityListOrderedByMapName}">
                                 <TreeView.ItemTemplate>
                                     <HierarchicalDataTemplate>
                                         <TreeViewItem Tag="Map">
@@ -700,7 +717,7 @@
                                                 </StackPanel>
                                             </TreeViewItem.Header>
                                             <StackPanel Orientation="Vertical">
-                                                <TreeViewItem Tag="MapEntity" ItemsSource="{Binding Path=MapEntities}">
+                                                <TreeViewItem Tag="MapEntity" ItemsSource="{Binding Path=MapEntitiesOrderByPattern}">
                                                     <TreeViewItem.Header>
                                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                                             <Button Tag="AddMapEntity" Margin="0,0,0,0" ToolTip="Add map entity" 
@@ -731,7 +748,7 @@
                                                         </DataTemplate>
                                                     </TreeViewItem.ItemTemplate>
                                                 </TreeViewItem>
-                                                <TreeViewItem Tag="MapEntityExclusion" ItemsSource="{Binding Path=MapEntityExclusions}">
+                                                <TreeViewItem Tag="MapEntityExclusion" ItemsSource="{Binding Path=MapEntityExclusionsOrderByPattern}">
                                                     <TreeViewItem.Header>
                                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                                             <Button Tag="AddMapExceptionEntity" Margin="0,0,0,0" ToolTip="Add map entity exclusion"
@@ -786,7 +803,7 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"></RowDefinition>
                             </Grid.RowDefinitions>
-                            <ListView Grid.Row="0" ItemsSource="{Binding Path=CombatMapDetectionSettings.EntityExclusionList}">
+                            <ListView Grid.Row="0" ItemsSource="{Binding Path=CombatMapDetectionSettings.EntityExclusionListOrderedByPattern}">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">

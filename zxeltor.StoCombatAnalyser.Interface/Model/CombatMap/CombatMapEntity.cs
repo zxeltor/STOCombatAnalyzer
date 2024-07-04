@@ -61,8 +61,9 @@ public class CombatMapEntity : INotifyPropertyChanged, IEquatable<CombatMapEntit
     {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
-        return this._pattern == other._pattern;
+        return this._pattern == other._pattern && this.Id.Equals(other.Id);
     }
+
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -112,6 +113,6 @@ public class CombatMapEntity : INotifyPropertyChanged, IEquatable<CombatMapEntit
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return this._pattern.GetHashCode();
+        return HashCode.Combine(this._pattern, this.Id);
     }
 }
