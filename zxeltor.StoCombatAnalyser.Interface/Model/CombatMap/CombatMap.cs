@@ -21,9 +21,14 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
 
     public CombatMap()
     {
-        this.MapEntities.CollectionChanged += (sender, args) => this.HasChanges = true;
-        this.MapEntityExclusions.CollectionChanged += (sender, args) => this.HasChanges = true;
+        this.Id = Guid.NewGuid();
+
+        this.MapEntities.CollectionChanged += (sender, args) => this.OnPropertyChanged("MapEntitiesOrderByPattern");
+        this.MapEntityExclusions.CollectionChanged +=
+            (sender, args) => this.OnPropertyChanged("MapEntityExclusionsOrderByPattern");
     }
+
+    [JsonIgnore] public Guid Id { get; }
 
     [JsonIgnore]
     public bool HasChanges
@@ -48,10 +53,22 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
     [JsonRequired]
     public ObservableCollection<CombatMapEntity> MapEntities { get; set; } = [];
 
+    [JsonIgnore]
+    public ObservableCollection<CombatMapEntity> MapEntitiesOrderByPattern
+    {
+        get { return new ObservableCollection<CombatMapEntity>(this.MapEntities.OrderBy(ent => ent.Pattern)); }
+    }
+
     /// <summary>
     ///     This is used to filter out game entity ids from the map detect process.
     /// </summary>
     public ObservableCollection<CombatMapEntity> MapEntityExclusions { get; set; } = [];
+
+    [JsonIgnore]
+    public ObservableCollection<CombatMapEntity> MapEntityExclusionsOrderByPattern
+    {
+        get { return new ObservableCollection<CombatMapEntity>(this.MapEntityExclusions.OrderBy(ent => ent.Pattern)); }
+    }
 
     /// <summary>
     ///     Get the sum of entity matches for this map for the current combat entity
@@ -67,7 +84,7 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
     {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
-        return this.Name == other.Name;
+        return this._name == other._name && this.Id.Equals(other.Id);
     }
 
     /// <inheritdoc />
@@ -88,20 +105,6 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
         return $"Name={this.Name}, Entities={this.MapEntities.Count}, Matches={this.CombatMatchCountForMap}";
     }
 
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return this.Equals((CombatMap)obj);
-    }
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return this.Name.GetHashCode();
-    }
 
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
@@ -123,5 +126,20 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         this.HasChanges = true;
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return this.Equals((CombatMap)obj);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(this._name, this.Id);
     }
 }

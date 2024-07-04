@@ -23,8 +23,10 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
 
     public CombatMapDetectionSettings()
     {
-        //this.CombatMapEntityList.CollectionChanged += (sender, args) => this.HasChanges = true;
-        //this.EntityExclusionList.CollectionChanged += (sender, args) => this.HasChanges = true;
+        this.CombatMapEntityList.CollectionChanged +=
+            (sender, args) => this.OnPropertyChanged("CombatMapEntityListOrderedByMapName");
+        this.EntityExclusionList.CollectionChanged +=
+            (sender, args) => this.OnPropertyChanged("EntityExclusionListOrderedByPattern");
     }
 
     [JsonProperty(Order = 2)] public List<string> Comments { get; set; }
@@ -35,7 +37,7 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
         get => this._hasChanges;
         set => this.SetField(ref this._hasChanges, value);
     }
-    
+
     /// <summary>
     ///     The current version of this object.
     /// </summary>
@@ -78,12 +80,24 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
     [JsonRequired]
     public ObservableCollection<CombatMapEntity> EntityExclusionList { get; set; } = new();
 
+    [JsonIgnore]
+    public ObservableCollection<CombatMapEntity> EntityExclusionListOrderedByPattern
+    {
+        get { return new ObservableCollection<CombatMapEntity>(this.EntityExclusionList.OrderBy(ent => ent.Pattern)); }
+    }
+
     /// <summary>
     ///     The main list of map definitions. This collection is used first when trying to detect a map for a Combat entity
     /// </summary>
     [JsonProperty(Order = 11)]
     [JsonRequired]
     public ObservableCollection<CombatMap> CombatMapEntityList { get; set; } = new();
+
+    [JsonIgnore]
+    public ObservableCollection<CombatMap> CombatMapEntityListOrderedByMapName
+    {
+        get { return new ObservableCollection<CombatMap>(this.CombatMapEntityList.OrderBy(map => map.Name)); }
+    }
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;

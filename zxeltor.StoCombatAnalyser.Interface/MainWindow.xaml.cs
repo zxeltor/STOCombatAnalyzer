@@ -163,6 +163,16 @@ public partial class MainWindow
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
+                case "IsPetEvent":
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.IsPetEventVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
+                case "IsOwnerModified":
+                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.IsOwnerModifiedVisible
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    break;
             }
         });
     }
@@ -931,7 +941,7 @@ public partial class MainWindow
             {
                 this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Add(
                     new CombatMap { Name = name });
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("EditMapName") &&
@@ -945,7 +955,7 @@ public partial class MainWindow
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
                 combatMapRenameResult.Name = name;
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("DeleteMap") &&
@@ -959,7 +969,7 @@ public partial class MainWindow
             {
                 this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Remove(
                     combatMapDeleteResult);
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
 
@@ -974,7 +984,7 @@ public partial class MainWindow
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
                 combatMapAddEntityResult.MapEntities.Add(new CombatMapEntity { Pattern = name });
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("EditMapEntity") &&
@@ -988,7 +998,7 @@ public partial class MainWindow
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
                 combatMapEntityEditResult.Pattern = name;
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("DeleteMapEntity") &&
@@ -1009,7 +1019,7 @@ public partial class MainWindow
                 if (mapResult != null)
                 {
                     mapResult.MapEntities.Remove(combatMapEntityDeleteResult);
-                    SetMapDetectionSettingsChanged();
+                    this.SetMapDetectionSettingsChanged();
                     return;
                 }
 
@@ -1031,7 +1041,7 @@ public partial class MainWindow
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
                 combatMapAddExceptionEntityResult.MapEntityExclusions.Add(new CombatMapEntity { Pattern = name });
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("EditMapExceptionEntity") &&
@@ -1045,7 +1055,7 @@ public partial class MainWindow
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
                 combatMapEntityExceptionEditResult.Pattern = name;
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("DeleteMapExceptionEntity") &&
@@ -1066,7 +1076,7 @@ public partial class MainWindow
                 if (mapResult != null)
                 {
                     mapResult.MapEntityExclusions.Remove(combatMapEntityExceptionDeleteResult);
-                    SetMapDetectionSettingsChanged();
+                    this.SetMapDetectionSettingsChanged();
                     return;
                 }
 
@@ -1088,7 +1098,7 @@ public partial class MainWindow
             {
                 this.CombatLogManagerContext.CombatMapDetectionSettings.EntityExclusionList.Add(new CombatMapEntity
                     { Pattern = name });
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("EditExceptionEntity") &&
@@ -1102,7 +1112,7 @@ public partial class MainWindow
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
                 combatEntityExceptionEditResult.Pattern = name;
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("DeleteExceptionEntity") &&
@@ -1117,7 +1127,7 @@ public partial class MainWindow
             {
                 this.CombatLogManagerContext.CombatMapDetectionSettings.EntityExclusionList.Remove(
                     combatEntityExceptionDeleteResult);
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
 
@@ -1132,7 +1142,7 @@ public partial class MainWindow
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
                 combatGroundMapRenameResult.Name = name;
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("AddGroundEntity"))
@@ -1147,7 +1157,7 @@ public partial class MainWindow
                 this.CombatLogManagerContext.CombatMapDetectionSettings.GenericGroundMap.MapEntities.Add(
                     new CombatMapEntity
                         { Pattern = name });
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("EditGroundEntity") &&
@@ -1161,7 +1171,7 @@ public partial class MainWindow
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
                 combatEntityGroundEditResult.Pattern = name;
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("DeleteGroundEntity") &&
@@ -1176,7 +1186,7 @@ public partial class MainWindow
             {
                 this.CombatLogManagerContext.CombatMapDetectionSettings.GenericGroundMap.MapEntities.Remove(
                     combatEntityGroundDeleteResult);
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
 
@@ -1191,7 +1201,7 @@ public partial class MainWindow
             {
                 this.CombatLogManagerContext.CombatMapDetectionSettings.GenericGroundMap.MapEntityExclusions.Add(
                     new CombatMapEntity { Pattern = name });
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("EditGroundExceptionEntity") &&
@@ -1205,7 +1215,7 @@ public partial class MainWindow
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
                 combatEntityGroundExceptionEditResult.Pattern = name;
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("DeleteGroundExceptionEntity") &&
@@ -1220,7 +1230,7 @@ public partial class MainWindow
             {
                 this.CombatLogManagerContext.CombatMapDetectionSettings.GenericGroundMap.MapEntityExclusions.Remove(
                     combatEntityGroundExceptionDeleteResult);
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
 
@@ -1235,7 +1245,7 @@ public partial class MainWindow
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
                 combatSpaceMapRenameResult.Name = name;
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("AddSpaceEntity"))
@@ -1250,7 +1260,7 @@ public partial class MainWindow
                 this.CombatLogManagerContext.CombatMapDetectionSettings.GenericSpaceMap.MapEntities.Add(
                     new CombatMapEntity
                         { Pattern = name });
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("EditSpaceEntity") &&
@@ -1264,7 +1274,7 @@ public partial class MainWindow
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
                 combatEntitySpaceEditResult.Pattern = name;
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("DeleteSpaceEntity") &&
@@ -1279,7 +1289,7 @@ public partial class MainWindow
             {
                 this.CombatLogManagerContext.CombatMapDetectionSettings.GenericSpaceMap.MapEntities.Remove(
                     combatEntitySpaceDeleteResult);
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
 
@@ -1294,7 +1304,7 @@ public partial class MainWindow
             {
                 this.CombatLogManagerContext.CombatMapDetectionSettings.GenericSpaceMap.MapEntityExclusions.Add(
                     new CombatMapEntity { Pattern = name });
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("EditSpaceExceptionEntity") &&
@@ -1308,7 +1318,7 @@ public partial class MainWindow
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
                 combatEntitySpaceExceptionEditResult.Pattern = name;
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("DeleteSpaceExceptionEntity") &&
@@ -1323,7 +1333,7 @@ public partial class MainWindow
             {
                 this.CombatLogManagerContext.CombatMapDetectionSettings.GenericSpaceMap.MapEntityExclusions.Remove(
                     combatEntitySpaceExceptionDeleteResult);
-                SetMapDetectionSettingsChanged();
+                this.SetMapDetectionSettingsChanged();
             }
         }
     }
@@ -1380,7 +1390,7 @@ public partial class MainWindow
             this.CombatLogManagerContext.CombatMapDetectionSettings = canceledCombatMapSettingsUser;
             Settings.Default.UserCombatMapList = this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave;
             Settings.Default.Save();
-            SetMapDetectionSettingsChanged(false);
+            this.SetMapDetectionSettingsChanged(false);
         }
         else if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatMapList) &&
                  SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
@@ -1388,14 +1398,14 @@ public partial class MainWindow
                      out var combatMapSettingsUser))
         {
             this.CombatLogManagerContext.CombatMapDetectionSettings = combatMapSettingsUser;
-            SetMapDetectionSettingsChanged(false);
+            this.SetMapDetectionSettingsChanged(false);
         }
         else if (!string.IsNullOrWhiteSpace(Settings.Default.DefaultCombatMapList) &&
                  SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
                      Settings.Default.DefaultCombatMapList, out var combatMapSettingsDefault))
         {
             this.CombatLogManagerContext.CombatMapDetectionSettings = combatMapSettingsDefault;
-            SetMapDetectionSettingsChanged(false);
+            this.SetMapDetectionSettingsChanged(false);
         }
         else
         {

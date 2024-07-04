@@ -15,6 +15,8 @@ public class CombatEventGridContext : INotifyPropertyChanged
     private bool _eventInternal;
     private bool _filenameEnabled;
     private bool _flags = true;
+    private bool _isOwnerModified;
+    private bool _isPetEvent;
 
     private bool _isPlotDisplayMagnitude = true;
     private bool _isPlotDisplayMagnitudeBase;
@@ -46,6 +48,24 @@ public class CombatEventGridContext : INotifyPropertyChanged
     {
         get => this._isPlotDisplayMagnitudeBase;
         set => this.SetField(ref this._isPlotDisplayMagnitudeBase, value);
+    }
+
+    /// <summary>
+    ///     Display IsPetEventVisible in the main data grid
+    /// </summary>
+    public bool IsPetEventVisible
+    {
+        get => this._isPetEvent;
+        set => this.SetField(ref this._isPetEvent, value);
+    }
+
+    /// <summary>
+    ///     Display IsOwnerModifiedVisible in the main data grid
+    /// </summary>
+    public bool IsOwnerModifiedVisible
+    {
+        get => this._isOwnerModified;
+        set => this.SetField(ref this._isOwnerModified, value);
     }
 
     /// <summary>
