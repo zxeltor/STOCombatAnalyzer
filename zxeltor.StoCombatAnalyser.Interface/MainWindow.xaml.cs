@@ -180,16 +180,7 @@ public partial class MainWindow
     private void uiButtonParseLog_Click(object sender, RoutedEventArgs e)
     {
         e.Handled = true;
-
-        if (Keyboard.IsKeyDown(Key.LeftShift) && Keyboard.IsKeyDown(Key.LeftCtrl))
-        {
-            e.Handled = true;
-            this.uiTabItemMapSettings.Visibility = this.uiTabItemMapSettings.Visibility == Visibility.Collapsed
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-            return;
-        }
-
+        
         if (this.CombatLogManagerContext.IsExecutingBackgroundProcess)
         {
             e.Handled = true;
