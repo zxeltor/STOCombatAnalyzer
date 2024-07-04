@@ -219,5 +219,17 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
                 this["HowFarBackForCombat"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsDetectionsSettingsVisibleInUi {
+            get {
+                return ((bool)(this["IsDetectionsSettingsVisibleInUi"]));
+            }
+            set {
+                this["IsDetectionsSettingsVisibleInUi"] = value;
+            }
+        }
     }
 }

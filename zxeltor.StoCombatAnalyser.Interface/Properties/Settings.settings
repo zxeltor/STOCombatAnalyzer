@@ -35,5 +35,8 @@
     <Setting Name="HowFarBackForCombat" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">48</Value>
     </Setting>
+    <Setting Name="IsDetectionsSettingsVisibleInUi" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
