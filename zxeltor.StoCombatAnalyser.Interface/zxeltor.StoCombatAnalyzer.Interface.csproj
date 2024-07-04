@@ -28,11 +28,13 @@
     <None Remove="Images\glyphicons-151-edit.png" />
     <None Remove="Images\glyphicons-152-new-window.png" />
     <None Remove="Images\glyphicons-196-info-sign.png" />
+    <None Remove="Images\glyphicons-224-chevron-right.png" />
     <None Remove="Images\glyphicons-257-delete.png" />
     <None Remove="Images\glyphicons-366-restart.png" />
     <None Remove="Images\glyphicons-433-plus.png" />
     <None Remove="Images\glyphicons-436-undo.png" />
     <None Remove="Images\glyphicons-512-copy.png" />
+    <None Remove="Images\glyphicons-602-chevron-down.png" />
     <None Remove="Images\glyphicons-82-refresh.png" />
     <None Remove="Images\information-icon-6073.png" />
     <None Remove="Log4Net.config" />
@@ -62,10 +64,12 @@
     <Resource Include="Images\glyphicons-151-edit.png" />
     <Resource Include="Images\glyphicons-152-new-window.png" />
     <Resource Include="Images\glyphicons-196-info-sign.png" />
+    <Resource Include="Images\glyphicons-224-chevron-right.png" />
     <Resource Include="Images\glyphicons-257-delete.png" />
     <Resource Include="Images\glyphicons-366-restart.png" />
     <Resource Include="Images\glyphicons-433-plus.png" />
     <Resource Include="Images\glyphicons-436-undo.png" />
+    <Resource Include="Images\glyphicons-602-chevron-down.png" />
     <Resource Include="Images\glyphicons-82-refresh.png" />
     <Resource Include="Images\information-icon-6073.png" />
   </ItemGroup>

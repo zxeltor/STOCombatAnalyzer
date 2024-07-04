@@ -930,7 +930,16 @@ public partial class MainWindow
         if (!(e.Source is Button buttonResult))
             return;
 
-        if (buttonResult.Tag.Equals("AddMap"))
+        if (buttonResult.Tag.Equals("Expand all maps"))
+        {
+            CombatLogManagerContext.CombatMapDetectionSettings.IsAllMapsExpanded = true;
+        }
+        else if (buttonResult.Tag.Equals("Collapse all maps"))
+        {
+            CombatLogManagerContext.CombatMapDetectionSettings.IsAllMapsExpanded = false;
+        }
+
+        else if (buttonResult.Tag.Equals("AddMap"))
         {
             var dialog = new EditTextFieldDialog(this);
 
