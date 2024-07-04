@@ -171,6 +171,24 @@
                     </StackPanel>
                 </Grid>
             </ListBoxItem>
+            <ListBoxItem Tag="EnableDetectionSettingsInUi" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="IsDetectionsSettingsVisibleInUi" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <CheckBox x:Name="uiCheckBoxEnableDetectionSettingsUi" Content="Enable" Margin="4,4,0,0"
+                                  IsChecked="{Binding Path=EnableDetectionSettingsInUi}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">Enable Detection Settings tab in the UI.</TextBlock>
+                    </StackPanel>
+                </Grid>
+            </ListBoxItem>
         </ListBox>
     </Grid>
 </UserControl>

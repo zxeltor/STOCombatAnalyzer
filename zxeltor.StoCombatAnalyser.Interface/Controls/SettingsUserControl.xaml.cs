@@ -290,6 +290,7 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
     private bool _purgeCombatLogs = Settings.Default.PurgeCombatLogs;
     private string _myCharacter = Settings.Default.MyCharacter;
     private int _howFarBackForCombat = Settings.Default.HowFarBackForCombat;
+    private bool _enableDetectionSettingsInUi = Settings.Default.IsDetectionsSettingsVisibleInUi;
 
     /// <summary>
     ///     Enable combat log folder purge at application startup.
@@ -359,6 +360,20 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
             Settings.Default.DebugLogging = value;
             Settings.Default.Save();
             this.SetField(ref this._enableDebugLogging, value);
+        }
+    }
+
+    /// <summary>
+    ///     Enable detection settings tab in the UI
+    /// </summary>
+    public bool EnableDetectionSettingsInUi
+    {
+        get => this._enableDetectionSettingsInUi = Settings.Default.IsDetectionsSettingsVisibleInUi;
+        set
+        {
+            Settings.Default.IsDetectionsSettingsVisibleInUi = value;
+            Settings.Default.Save();
+            this.SetField(ref this._enableDetectionSettingsInUi, value);
         }
     }
 
