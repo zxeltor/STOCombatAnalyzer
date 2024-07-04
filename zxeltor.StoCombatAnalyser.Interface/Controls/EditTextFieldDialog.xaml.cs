@@ -4,6 +4,7 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using System.ComponentModel;
 using System.Windows;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
@@ -19,6 +20,14 @@ public partial class EditTextFieldDialog : Window
 
         this.Owner = parent;
         this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+        this.ContentRendered += OnContentRendered;
+    }
+
+    private void OnContentRendered(object? sender, EventArgs e)
+    {
+        this.ContentRendered -= OnContentRendered;
+        this.uiTextBoxValue.Focus();
     }
 
     public bool? ShowDialog(string description, ref string? value)
