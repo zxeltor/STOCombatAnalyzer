@@ -18,6 +18,7 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
 {
     private CombatMap _groundMap = new();
     private bool _hasChanges;
+    private bool _isAllMapsExpanded;
     private string _jsonVersion = "1.0.0.0";
     private CombatMap _spaceMap = new();
 
@@ -27,6 +28,16 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
             (sender, args) => this.OnPropertyChanged("CombatMapEntityListOrderedByMapName");
         this.EntityExclusionList.CollectionChanged +=
             (sender, args) => this.OnPropertyChanged("EntityExclusionListOrderedByPattern");
+    }
+
+    /// <summary>
+    ///     Used the UI to determine if all combat maps should be expanded in the treeview.
+    /// </summary>
+    [JsonIgnore]
+    public bool IsAllMapsExpanded
+    {
+        get => this._isAllMapsExpanded;
+        set => this.SetField(ref this._isAllMapsExpanded, value);
     }
 
     [JsonProperty(Order = 2)] public List<string> Comments { get; set; }
