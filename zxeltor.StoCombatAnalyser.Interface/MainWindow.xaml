@@ -3,7 +3,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:interface="clr-namespace:zxeltor.StoCombatAnalyzer.Interface"
     xmlns:properties="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Properties"
     xmlns:classes="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes"
     xmlns:modelcombatlog="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog"
@@ -14,14 +13,10 @@
     d:DataContext="{d:DesignInstance Type={x:Type classes:CombatLogManager}}"
     mc:Ignorable="d"
     Title="{Binding Path=MainWindowTitle}" Height="600" MinHeight="600" Width="1000" MinWidth="1000" WindowStartupLocation="CenterScreen">
-    <Window.Resources>
-        
-    </Window.Resources>
     <Grid x:Name="uiGridMain">
         <Grid.Resources>
             <classes:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
             <classes:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
-            <classes:TypeToBooleanConverter x:Key="typeToBooleanConverter" />
             <classes:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
             <classes:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
             <classes:MapNameStringConverter x:Key="mapNameStringConverter" />
@@ -447,26 +442,38 @@
                         <ColumnDefinition></ColumnDefinition>
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Tag="Version" Orientation="Horizontal" Grid.Row="0" Grid.Column="0">
-                        <TextBlock Text="Version:" VerticalAlignment="Center"></TextBlock>
-                        <TextBox Text="{Binding Path=CombatMapDetectionSettings.JsonVersion}" VerticalAlignment="Center"></TextBox>
-                    </StackPanel>
+                    <Grid Tag="Version" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="4,0,4,4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Version:" VerticalAlignment="Center" Margin="0,4,0,4"></TextBlock>
+                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Path=CombatMapDetectionSettings.JsonVersion}" 
+                                 VerticalAlignment="Center" Margin="4,4,0,4" Width="200" HorizontalAlignment="Left"></TextBox>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Description:" VerticalAlignment="Center" Margin="0,4,0,4"></TextBlock>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=CombatMapDetectionSettings.JsonVersionDescription}" 
+                                 VerticalAlignment="Center" Margin="4,4,0,4"></TextBox>
+                    </Grid>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4">
-                        <Image Tag="export_detection_json" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="16,0,0,0"
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3">
+                        <Image Tag="export_detection_json" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,0,0"
                 MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details."/>
-                        <Button Tag="export_detection_json" Name="uiButtonExportMapEntities" Content="Export Detection JSON w/Indents" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                        <Button Tag="export_detection_json" Name="uiButtonExportMapEntities" Content="Export w/Indents" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
                     Click="UiButtonExportMapEntities_OnClick"/>
 
-                        <Image Tag="export_detection_json_no_indents" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="16,0,0,0"
+                        <Image Tag="export_detection_json_no_indents" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="8,0,0,0"
                    MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details."/>
-                        <Button Tag="export_detection_json_no_indents" Name="uiButtonExportMapEntitiesNoIndent" Content="Export Detection JSON" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                        <Button Tag="export_detection_json_no_indents" Name="uiButtonExportMapEntitiesNoIndent" Content="Export" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
                     Click="UiButtonExportMapEntities_OnClick"/>
 
-                        <Button Name="uiButtonSaveDetectionSettings" Content="Save Changes" Margin="32,0,0,0" Padding="4,4,4,4"
+                        <Button Name="uiButtonSaveDetectionSettings" Content="Save Changes" Margin="16,0,0,0" Padding="4,4,4,4" VerticalAlignment="Center"
                     Click="UiButtonSaveDetectionSettings_OnClick"></Button>
 
-                        <Button Name="uiButtonCancelDetectionSettings" Content="Cancel Changes" Margin="8,0,0,0" Padding="4,4,4,4"
+                        <Button Name="uiButtonCancelDetectionSettings" Content="Cancel Changes" Margin="8,0,0,0" Padding="4,4,4,4" VerticalAlignment="Center"
                     Click="UiButtonCancelDetectionSettings_OnClick"
                     IsEnabled="{Binding Path=CombatMapDetectionSettings.HasChanges}"></Button>
                     </StackPanel>
