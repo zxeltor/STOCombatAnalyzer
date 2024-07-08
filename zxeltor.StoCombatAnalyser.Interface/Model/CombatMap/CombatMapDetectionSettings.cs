@@ -20,6 +20,7 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
     private bool _hasChanges;
     private bool _isAllMapsExpanded;
     private string _jsonVersion = "1.0.0.0";
+    private string _jsonVersionDescription;
     private CombatMap _spaceMap = new();
 
     public CombatMapDetectionSettings()
@@ -40,7 +41,7 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
         set => this.SetField(ref this._isAllMapsExpanded, value);
     }
 
-    [JsonProperty(Order = 2)] public List<string> Comments { get; set; }
+    [JsonProperty(Order = 4)] public List<string> Comments { get; set; }
 
     [JsonIgnore]
     public bool HasChanges
@@ -58,6 +59,16 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
     {
         get => this._jsonVersion;
         set => this.SetField(ref this._jsonVersion, value);
+    }
+
+    /// <summary>
+    ///     A description or a comment for this version
+    /// </summary>
+    [JsonProperty(Order = 2)]
+    public string JsonVersionDescription
+    {
+        get => this._jsonVersionDescription;
+        set => this.SetField(ref this._jsonVersionDescription, value);
     }
 
     /// <summary>
