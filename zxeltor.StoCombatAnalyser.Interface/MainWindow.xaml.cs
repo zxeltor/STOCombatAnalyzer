@@ -180,7 +180,7 @@ public partial class MainWindow
     private void uiButtonParseLog_Click(object sender, RoutedEventArgs e)
     {
         e.Handled = true;
-        
+
         if (this.CombatLogManagerContext.IsExecutingBackgroundProcess)
         {
             e.Handled = true;
@@ -923,11 +923,11 @@ public partial class MainWindow
 
         if (buttonResult.Tag.Equals("Expand all maps"))
         {
-            CombatLogManagerContext.CombatMapDetectionSettings.IsAllMapsExpanded = true;
+            this.CombatLogManagerContext.CombatMapDetectionSettings.IsAllMapsExpanded = true;
         }
         else if (buttonResult.Tag.Equals("Collapse all maps"))
         {
-            CombatLogManagerContext.CombatMapDetectionSettings.IsAllMapsExpanded = false;
+            this.CombatLogManagerContext.CombatMapDetectionSettings.IsAllMapsExpanded = false;
         }
 
         else if (buttonResult.Tag.Equals("AddMap"))
@@ -1412,6 +1412,32 @@ public partial class MainWindow
             var error = "Failed to cancel MapDetectionSettings changes. No previous settings found.";
             Log.Error(error);
             MessageBox.Show(this, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void UiButtonSetDataGridFilter_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(this.uiTextBoxSearchGrid.Text))
+            this.UiButtonResetDataGridFilter_OnClick(sender, e);
+        else
+        {
+            this.CombatLogManagerContext.DataGridSearchString = this.uiTextBoxSearchGrid.Text.Trim();
+            this.SetScatterPlot();
+        }
+    }
+
+    private void UiButtonResetDataGridFilter_OnClick(object sender, RoutedEventArgs e)
+    {
+        this.uiTextBoxSearchGrid.Text = string.Empty;
+        this.CombatLogManagerContext.DataGridSearchString = null;
+        this.SetScatterPlot();
+    }
+    
+    private void UiTextBoxSearchGrid_OnKeyUp(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter || e.Key == Key.Return)
+        {
+            this.UiButtonSetDataGridFilter_OnClick(sender, new RoutedEventArgs());
         }
     }
 }

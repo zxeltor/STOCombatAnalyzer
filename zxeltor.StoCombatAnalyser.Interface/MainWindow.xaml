@@ -256,117 +256,149 @@
                         <GroupBox x:Name="uiGroupBoxSelectedCombatEntity" Grid.Column="0" Margin="4,4,4,4"
                                   Padding="4,4,4,4">
                             <GroupBox.Header>
-                                <Grid>
                                     <StackPanel Orientation="Horizontal">
                                         <Image Tag="combat_events_datagrid" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" 
                                                ToolTip="Click for more details." VerticalAlignment="Center"/>
                                         <TextBlock Text="Event(s) DataGrid" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                         <TextBlock Text=":"  VerticalAlignment="Center"/>
                                         <TextBlock Text="'" Visibility="{Binding Path=EventTypeDisplayFilter.EventTypeLabel, Converter={StaticResource typeToVisibilityConverter}}" 
-                                                   Margin="4,0,0,0"  VerticalAlignment="Center" />
+                                                    Margin="4,0,0,0"  VerticalAlignment="Center" />
                                         <TextBlock Text="{Binding Path=EventTypeDisplayFilter.EventTypeLabel}"  VerticalAlignment="Center"/>
                                         <TextBlock Text="'" Visibility="{Binding Path=EventTypeDisplayFilter.EventTypeLabel, Converter={StaticResource typeToVisibilityConverter}}"  
-                                                   VerticalAlignment="Center"/>
+                                                    VerticalAlignment="Center"/>
                                         <TextBlock Text="(" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" 
-                                                   Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                                    Margin="4,0,0,0" VerticalAlignment="Center"/>
                                         <TextBlock Text="{Binding Path=FilteredSelectedEntityCombatEventList.Count}" VerticalAlignment="Center"/>
                                         <TextBlock Text=")" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" 
-                                                   VerticalAlignment="Center"/>
+                                                    VerticalAlignment="Center"/>
                                         <CheckBox Name="uiCheckBoxDataGridUnitSelectionMode" IsChecked="False" Margin="32,0,0,0"
                                                   VerticalAlignment="Center">Enable cell selection</CheckBox>
                                     </StackPanel>
-                                </Grid>
                             </GroupBox.Header>
-                            <DataGrid Name="uiDataGridAllEvents" ItemsSource="{Binding FilteredSelectedEntityCombatEventList}" AutoGenerateColumns="False"
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                
+                                <Grid Grid.Row="0" Margin="0,0,0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <TextBlock Grid.Column="1" Text="Search:" Margin="8,0,0,0" VerticalAlignment="Center"></TextBlock>
+                                    <TextBox Name="uiTextBoxSearchGrid" VerticalAlignment="Center" Grid.Column="2" Margin="4,0,0,0"
+                                             KeyUp="UiTextBoxSearchGrid_OnKeyUp"/>
+                                    <Button Name="uiButtonSetDataGridFilter" VerticalAlignment="Center" Grid.Column="3"
+                                            Margin="4,0,0,0"
+                                            ToolTip="Set the search filter"
+                                            Click="UiButtonSetDataGridFilter_OnClick">
+                                        <Image Source="Images/glyphicons-28-search.png" Stretch="Fill" Height="16" Width="16"></Image>
+                                    </Button>
+                                    <Button Name="uiButtonResetDataGridFilter" VerticalAlignment="Center" Grid.Column="4"
+                                            Margin="4,0,0,0"
+                                            ToolTip="Clear the search filter"
+                                            Click="UiButtonResetDataGridFilter_OnClick">
+                                        <Image Source="Images/glyphicons-366-restart.png" Stretch="Fill" Height="16" Width="16"></Image>
+                                    </Button>
+                                </Grid>
+
+                                <DataGrid Name="uiDataGridAllEvents" Grid.Row="1"
+                                          ItemsSource="{Binding FilteredSelectedEntityCombatEventList}" AutoGenerateColumns="False"
                                       CanUserReorderColumns="True" CanUserSortColumns="True"
                                       CanUserResizeColumns="True" SelectionChanged="UiDataGridAllEvents_OnSelectionChanged"
                                       SelectionUnit="{Binding ElementName=uiCheckBoxDataGridUnitSelectionMode, Path=IsChecked, Converter={StaticResource typeToDataGridSelectUnitConverter}}">
-                                <DataGrid.ContextMenu>
-                                    <ContextMenu>
-                                        <StackPanel Orientation="Vertical">
+                                    <DataGrid.ContextMenu>
+                                        <ContextMenu>
                                             <StackPanel Orientation="Vertical">
-                                                <TextBlock Text="Enable Columns:"></TextBlock>
-                                                <CheckBox Content="Filename" IsChecked="{Binding Path=MainCombatEventGridContext.FilenameVisible, Mode=TwoWay}" 
-                                                          Tag="Filename" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="LineNumber" IsChecked="{Binding Path=MainCombatEventGridContext.LineNumberVisible, Mode=TwoWay}" 
-                                                          Tag="LineNumber" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="Timestamp" IsChecked="{Binding Path=MainCombatEventGridContext.TimestampVisible, Mode=TwoWay}" 
-                                                          Tag="Timestamp" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="OwnerDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.OwnerDisplayVisible, Mode=TwoWay}" 
-                                                          Tag="OwnerDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="OwnerInternal" IsChecked="{Binding Path=MainCombatEventGridContext.OwnerInternalVisible, Mode=TwoWay}" 
-                                                          Tag="OwnerInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="SourceDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.SourceDisplayVisible, Mode=TwoWay}" 
-                                                          Tag="SourceDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="SourceInternal" IsChecked="{Binding Path=MainCombatEventGridContext.SourceInternalVisible, Mode=TwoWay}" 
-                                                          Tag="SourceInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="TargetDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.TargetDisplayVisible, Mode=TwoWay}" 
-                                                          Tag="TargetDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="TargetInternal" IsChecked="{Binding Path=MainCombatEventGridContext.TargetInternalVisible, Mode=TwoWay}" 
-                                                          Tag="TargetInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="EventDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.EventDisplayVisible, Mode=TwoWay}" 
-                                                          Tag="EventDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="EventInternal" IsChecked="{Binding Path=MainCombatEventGridContext.EventInternalVisible, Mode=TwoWay}" 
-                                                          Tag="EventInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="Type" IsChecked="{Binding Path=MainCombatEventGridContext.TypeVisible, Mode=TwoWay}" 
-                                                          Tag="Type" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="Flags" IsChecked="{Binding Path=MainCombatEventGridContext.FlagsVisible, Mode=TwoWay}" 
-                                                          Tag="Flags" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="Magnitude" IsChecked="{Binding Path=MainCombatEventGridContext.MagnitudeVisible, Mode=TwoWay}" 
-                                                          Tag="Magnitude" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="MagnitudeBase" IsChecked="{Binding Path=MainCombatEventGridContext.MagnitudeBaseVisible, Mode=TwoWay}" 
-                                                          Tag="MagnitudeBase" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="IsPetEvent" IsChecked="{Binding Path=MainCombatEventGridContext.IsPetEventVisible, Mode=TwoWay}" 
-                                                          Tag="IsPetEvent" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                <CheckBox Content="IsOwnerModified" IsChecked="{Binding Path=MainCombatEventGridContext.IsOwnerModifiedVisible, Mode=TwoWay}" 
-                                                          Tag="IsOwnerModified" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                <StackPanel Orientation="Vertical">
+                                                    <TextBlock Text="Enable Columns:"></TextBlock>
+                                                    <CheckBox Content="Filename" IsChecked="{Binding Path=MainCombatEventGridContext.FilenameVisible, Mode=TwoWay}" 
+                                                              Tag="Filename" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="LineNumber" IsChecked="{Binding Path=MainCombatEventGridContext.LineNumberVisible, Mode=TwoWay}" 
+                                                              Tag="LineNumber" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="Timestamp" IsChecked="{Binding Path=MainCombatEventGridContext.TimestampVisible, Mode=TwoWay}" 
+                                                              Tag="Timestamp" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="OwnerDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.OwnerDisplayVisible, Mode=TwoWay}" 
+                                                              Tag="OwnerDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="OwnerInternal" IsChecked="{Binding Path=MainCombatEventGridContext.OwnerInternalVisible, Mode=TwoWay}" 
+                                                              Tag="OwnerInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="SourceDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.SourceDisplayVisible, Mode=TwoWay}" 
+                                                              Tag="SourceDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="SourceInternal" IsChecked="{Binding Path=MainCombatEventGridContext.SourceInternalVisible, Mode=TwoWay}" 
+                                                              Tag="SourceInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="TargetDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.TargetDisplayVisible, Mode=TwoWay}" 
+                                                              Tag="TargetDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="TargetInternal" IsChecked="{Binding Path=MainCombatEventGridContext.TargetInternalVisible, Mode=TwoWay}" 
+                                                              Tag="TargetInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="EventDisplay" IsChecked="{Binding Path=MainCombatEventGridContext.EventDisplayVisible, Mode=TwoWay}" 
+                                                              Tag="EventDisplay" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="EventInternal" IsChecked="{Binding Path=MainCombatEventGridContext.EventInternalVisible, Mode=TwoWay}" 
+                                                              Tag="EventInternal" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="Type" IsChecked="{Binding Path=MainCombatEventGridContext.TypeVisible, Mode=TwoWay}" 
+                                                              Tag="Type" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="Flags" IsChecked="{Binding Path=MainCombatEventGridContext.FlagsVisible, Mode=TwoWay}" 
+                                                              Tag="Flags" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="Magnitude" IsChecked="{Binding Path=MainCombatEventGridContext.MagnitudeVisible, Mode=TwoWay}" 
+                                                              Tag="Magnitude" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="MagnitudeBase" IsChecked="{Binding Path=MainCombatEventGridContext.MagnitudeBaseVisible, Mode=TwoWay}" 
+                                                              Tag="MagnitudeBase" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="IsPetEvent" IsChecked="{Binding Path=MainCombatEventGridContext.IsPetEventVisible, Mode=TwoWay}" 
+                                                              Tag="IsPetEvent" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="IsOwnerModified" IsChecked="{Binding Path=MainCombatEventGridContext.IsOwnerModifiedVisible, Mode=TwoWay}" 
+                                                              Tag="IsOwnerModified" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                </StackPanel>
                                             </StackPanel>
-                                        </StackPanel>
-                                    </ContextMenu>
-                                </DataGrid.ContextMenu>
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Filename"
-                                                        Binding="{Binding OriginalFileName, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="LineNumber"
-                                                        Binding="{Binding OriginalFileLineNumber, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="Timestamp"
-                                                        Binding="{Binding Timestamp, Converter={StaticResource dateTimeToExtendedDateStringConverter}, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="OwnerDisplay" Binding="{Binding OwnerDisplay, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="OwnerInternal" Binding="{Binding OwnerInternal, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="SourceDisplay" Binding="{Binding SourceDisplay, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="SourceInternal" Binding="{Binding SourceInternal, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="TargetDisplay" Binding="{Binding TargetDisplay, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="TargetInternal" Binding="{Binding TargetInternal, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="EventDisplay" Binding="{Binding EventDisplay, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="EventInternal" Binding="{Binding EventInternal, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="Type" Binding="{Binding Type, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="Flags" Binding="{Binding Flags, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="Magnitude" Binding="{Binding Magnitude, Mode=OneTime}"
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="MagnitudeBase"
-                                                        Binding="{Binding MagnitudeBase, Mode=OneTime}" 
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="IsPetEvent"
-                                                        Binding="{Binding IsPetEvent, Mode=OneTime}" 
-                                                        IsReadOnly="True" />
-                                    <DataGridTextColumn Header="IsOwnerModified"
-                                                        Binding="{Binding IsOwnerModified, Mode=OneTime}" 
-                                                        IsReadOnly="True" />
-                                </DataGrid.Columns>
-                            </DataGrid>
+                                        </ContextMenu>
+                                    </DataGrid.ContextMenu>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Filename"
+                                                            Binding="{Binding OriginalFileName, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="LineNumber"
+                                                            Binding="{Binding OriginalFileLineNumber, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Timestamp"
+                                                            Binding="{Binding Timestamp, Converter={StaticResource dateTimeToExtendedDateStringConverter}, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="OwnerDisplay" Binding="{Binding OwnerDisplay, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="OwnerInternal" Binding="{Binding OwnerInternal, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="SourceDisplay" Binding="{Binding SourceDisplay, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="SourceInternal" Binding="{Binding SourceInternal, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="TargetDisplay" Binding="{Binding TargetDisplay, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="TargetInternal" Binding="{Binding TargetInternal, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="EventDisplay" Binding="{Binding EventDisplay, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="EventInternal" Binding="{Binding EventInternal, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Type" Binding="{Binding Type, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Flags" Binding="{Binding Flags, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Magnitude" Binding="{Binding Magnitude, Mode=OneTime}"
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="MagnitudeBase"
+                                                            Binding="{Binding MagnitudeBase, Mode=OneTime}" 
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="IsPetEvent"
+                                                            Binding="{Binding IsPetEvent, Mode=OneTime}" 
+                                                            IsReadOnly="True" />
+                                        <DataGridTextColumn Header="IsOwnerModified"
+                                                            Binding="{Binding IsOwnerModified, Mode=OneTime}" 
+                                                            IsReadOnly="True" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
                         </GroupBox>
 
                         <GridSplitter Grid.Column="0" Background="Gray" 

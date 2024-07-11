@@ -33,6 +33,7 @@ public class CombatLogManager : INotifyPropertyChanged
     private CombatMapDetectionSettings _combatMapDetectionSettings = new();
 
     private string? _combatMapDetectionSettingsBeforeSave;
+    private string? _dataGridSearchString;
 
     private CombatEventTypeSelector _eventTypeDisplayFilter = new("ALL");
 
@@ -40,7 +41,7 @@ public class CombatLogManager : INotifyPropertyChanged
     private Combat? _selectedCombat;
 
     private CombatEntity? _selectedCombatEntity;
-    
+
     public CombatLogManager()
     {
         // Pull our map detection settings from the config
@@ -67,6 +68,19 @@ public class CombatLogManager : INotifyPropertyChanged
     ///     The title for main UI.
     /// </summary>
     public string MainWindowTitle => $"{Resources.ApplicationName}: {this.ApplicationVersionInfoString}";
+
+    /// <summary>
+    ///     Used to filter the result set for the data grid
+    /// </summary>
+    public string? DataGridSearchString
+    {
+        get => this._dataGridSearchString;
+        set
+        {
+            this.SetField(ref this._dataGridSearchString, value);
+            this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
+        }
+    }
 
     /// <summary>
     ///     Assembly version string for the application.
@@ -185,43 +199,78 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         get
         {
+            ObservableCollection<CombatEvent> results;
+
             // Return a list of all player events, with pet events grouped together.
             if (this.EventTypeDisplayFilter == null || this.EventTypeDisplayFilter.EventTypeId.Equals("ALL"))
-                return this.SelectedEntityCombatEventList;
-
+            {
+                results = this.SelectedEntityCombatEventList;
+            }
             // Return a list of all Player Pet events
-            if (this.EventTypeDisplayFilter.EventTypeId.Equals("ALL PETS"))
-                return new ObservableCollection<CombatEvent>(
+            else if (this.EventTypeDisplayFilter.EventTypeId.Equals("ALL PETS"))
+            {
+                results = new ObservableCollection<CombatEvent>(
                     this.SelectedEntityCombatEventList?.Where(evt => evt.IsPetEvent) ?? Array.Empty<CombatEvent>());
-
+            }
             // Return a list of events specific to a Pet
-            if (this.EventTypeDisplayFilter.IsPetEvent)
+            else if (this.EventTypeDisplayFilter.IsPetEvent)
             {
                 if (this.SelectedEntityPetCombatEventTypeList == null ||
                     this.SelectedEntityPetCombatEventTypeList.Count == 0)
-                    return new ObservableCollection<CombatEvent>();
-
-                var petEvtList = new List<CombatEvent>();
-
-                this.SelectedEntityPetCombatEventTypeList.ToList().ForEach(petevt =>
                 {
-                    petevt.CombatEventTypes.ForEach(evt =>
-                    {
-                        if (this.EventTypeDisplayFilter.EventTypeId.Equals(evt.EventTypeId))
-                            petEvtList.AddRange(evt.CombatEvents);
-                    });
-                });
+                    results = new ObservableCollection<CombatEvent>();
+                }
+                else
+                {
+                    var petEvtList = new List<CombatEvent>();
 
-                return new ObservableCollection<CombatEvent>(petEvtList);
+                    this.SelectedEntityPetCombatEventTypeList.ToList().ForEach(petevt =>
+                    {
+                        petevt.CombatEventTypes.ForEach(evt =>
+                        {
+                            if (this.EventTypeDisplayFilter.EventTypeId.Equals(evt.EventTypeId))
+                                petEvtList.AddRange(evt.CombatEvents);
+                        });
+                    });
+
+                    results = new ObservableCollection<CombatEvent>(petEvtList);
+                }
+            }
+            else
+            {
+                // Return a list of events for a specific non-pet event.
+                results = new ObservableCollection<CombatEvent>(
+                    this.SelectedEntityCombatEventList?.Where(evt => !evt.IsPetEvent &&
+                                                                     evt.EventInternal.Equals(
+                                                                         this.EventTypeDisplayFilter.EventTypeId,
+                                                                         StringComparison.CurrentCultureIgnoreCase)) ??
+                    Array.Empty<CombatEvent>());
             }
 
-            // Return a list of events for a specific non-pet event.
-            return new ObservableCollection<CombatEvent>(
-                this.SelectedEntityCombatEventList?.Where(evt => !evt.IsPetEvent &&
-                                                                 evt.EventInternal.Equals(
-                                                                     this.EventTypeDisplayFilter.EventTypeId,
-                                                                     StringComparison.CurrentCultureIgnoreCase)) ??
-                Array.Empty<CombatEvent>());
+            // Filter our final result set, if we have a filter string set.
+            if (results != null && results.Count > 0 && !string.IsNullOrWhiteSpace(this.DataGridSearchString))
+                results = new ObservableCollection<CombatEvent>(results.Where(ev =>
+                    (this.MainCombatEventGridContext.OwnerInternalVisible &&
+                     ev.OwnerInternal.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase))
+                    || (this.MainCombatEventGridContext.OwnerDisplayVisible &&
+                        ev.OwnerDisplay.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase))
+                    || (this.MainCombatEventGridContext.TargetInternalVisible &&
+                        ev.TargetInternal.Contains(this.DataGridSearchString,
+                            StringComparison.CurrentCultureIgnoreCase))
+                    || (this.MainCombatEventGridContext.TargetDisplayVisible &&
+                        ev.TargetDisplay.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase))
+                    || (this.MainCombatEventGridContext.SourceInternalVisible &&
+                        ev.SourceInternal.Contains(this.DataGridSearchString,
+                            StringComparison.CurrentCultureIgnoreCase))
+                    || (this.MainCombatEventGridContext.SourceDisplayVisible &&
+                        ev.SourceDisplay.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase))
+                    || (this.MainCombatEventGridContext.TypeVisible && ev.Type.Contains(this.DataGridSearchString,
+                        StringComparison.CurrentCultureIgnoreCase))
+                    || (this.MainCombatEventGridContext.FlagsVisible && ev.Flags.Contains(this.DataGridSearchString,
+                        StringComparison.CurrentCultureIgnoreCase))
+                ).ToList());
+
+            return results;
         }
     }
 
