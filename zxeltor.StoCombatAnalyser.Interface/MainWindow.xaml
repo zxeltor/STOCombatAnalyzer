@@ -883,12 +883,13 @@
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
                         <ColumnDefinition Width="Auto"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
 
-                    <Image Name="uiImageAbout" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Height="256" Margin="10,10,10,10" VerticalAlignment="Top" Width="256" 
-                           Source="Images/information-icon-6073.png" />
+                    <Image Name="uiImageAbout" Grid.Row="0" Grid.Column="0" Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Width="128" Height="128"
+                           Source="Images/trekwphaser-128x128.png" />
 
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center"  HorizontalAlignment="Center">
                         <TextBlock Text="{x:Static myProperties:Resources.ApplicationName}" FontSize="40" FontWeight="Bold"/>
@@ -902,7 +903,10 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <GroupBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,10,10,10" Padding="10,10,10,10">
+                    <Image Name="uiImageAbout2" Grid.Row="0" Grid.Column="2" Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Width="128" Height="128"
+                           Source="Images/trekwphaser-128x128.png" />
+
+                    <GroupBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="10,10,10,10" Padding="10,10,10,10">
                         <Grid HorizontalAlignment="Center" Margin="10,0,0,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />

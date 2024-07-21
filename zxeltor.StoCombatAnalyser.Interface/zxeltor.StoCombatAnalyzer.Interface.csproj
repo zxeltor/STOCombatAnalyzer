@@ -10,7 +10,7 @@
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>zxeltor.StoCombatAnalyzer.Interface_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
-    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <ApplicationIcon>Images\trekwphaser-128x128.ico</ApplicationIcon>
     <FileVersion></FileVersion>
     <AssemblyVersion>1.4.0.0</AssemblyVersion>
   </PropertyGroup>
@@ -37,14 +37,14 @@
     <None Remove="Images\glyphicons-512-copy.png" />
     <None Remove="Images\glyphicons-602-chevron-down.png" />
     <None Remove="Images\glyphicons-82-refresh.png" />
-    <None Remove="Images\information-icon-6073.png" />
+    <None Remove="Images\trekwphaser-128x128.png" />
     <None Remove="Log4Net.config" />
     <None Remove="Log4Net.Development.config" />
     <None Remove="StoCombatAnalyzerSettings2.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="favicon.ico" />
+    <Content Include="Images\trekwphaser-128x128.ico" />
     <Content Include="Log4Net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -73,7 +73,7 @@
     <Resource Include="Images\glyphicons-436-undo.png" />
     <Resource Include="Images\glyphicons-602-chevron-down.png" />
     <Resource Include="Images\glyphicons-82-refresh.png" />
-    <Resource Include="Images\information-icon-6073.png" />
+    <Resource Include="Images\trekwphaser-128x128.png" />
   </ItemGroup>
 
   <ItemGroup>
