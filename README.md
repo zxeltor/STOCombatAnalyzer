@@ -1,5 +1,7 @@
 # Star Trek Online Combat Analyzer [![GitHub release (latest by date)](https://img.shields.io/github/v/release/zxeltor/STOCombatAnalyzer)](https://github.com/zxeltor/STOCombatAnalyzer/releases/latest)
 
+![The main tab](zxeltor.StoCombatAnalyser.Interface/Images/trekwphaser-128x128.png)
+
 * [Overview](#overview)
 * [Building](#building)
 * [Download](#download)
