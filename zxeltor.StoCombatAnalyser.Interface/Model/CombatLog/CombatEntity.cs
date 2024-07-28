@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using Humanizer;
 using Humanizer.Localisation;
 using Newtonsoft.Json;
+using zxeltor.StoCombatAnalyzer.Interface.Properties;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
@@ -63,14 +64,30 @@ public class CombatEntity : INotifyPropertyChanged
         {
             if (!this.CombatEventList.Any(ev => ev.IsPetEvent)) return new List<CombatPetEventType>();
 
-            var myEvents = this.CombatEventList.Where(ev => ev.IsPetEvent)
-                .GroupBy(ev => new { ev.SourceInternal, ev.EventInternal, ev.EventDisplay })
-                .OrderBy(evg => evg.Key.EventDisplay)
-                .Select(evg => new CombatEventType(evg.ToList())).ToList();
+            var petEvents = new List<CombatPetEventType>();
 
-            var petEvents = myEvents.GroupBy(evt => new { evt.SourceInternal, evt.SourceDisplay, evt.EventInternal })
-                .Select(evtGrp =>
-                    new CombatPetEventType(evtGrp.ToList())).ToList();
+            if (Settings.Default.IsCombinePets)
+            {
+                var myEvents = this.CombatEventList.Where(ev => ev.IsPetEvent)
+                    .GroupBy(ev => new { ev.SourceDisplay, ev.EventInternal, ev.EventDisplay })
+                    .OrderBy(evg => evg.Key.EventDisplay)
+                    .Select(evg => new CombatEventType(evg.ToList())).ToList();
+
+                petEvents = myEvents.GroupBy(evt => new { evt.SourceDisplay, evt.EventInternal })
+                    .Select(evtGrp =>
+                        new CombatPetEventType(evtGrp.ToList())).ToList();
+            }
+            else
+            {
+                var myEvents = this.CombatEventList.Where(ev => ev.IsPetEvent)
+                    .GroupBy(ev => new { ev.SourceInternal, ev.EventInternal, ev.EventDisplay })
+                    .OrderBy(evg => evg.Key.EventDisplay)
+                    .Select(evg => new CombatEventType(evg.ToList())).ToList();
+
+                petEvents = myEvents.GroupBy(evt => new { evt.SourceInternal, evt.SourceDisplay, evt.EventInternal })
+                    .Select(evtGrp =>
+                        new CombatPetEventType(evtGrp.ToList())).ToList();
+            }
 
             return petEvents;
         }
@@ -135,7 +152,7 @@ public class CombatEntity : INotifyPropertyChanged
         ? 0
         : this.CombatEventList.Max(dam => Math.Abs(dam.Magnitude));
 
-    /// <summary>
+/// <summary>
     ///     A rudimentary calculation for max damage for player pet events, and probably incorrect.
     /// </summary>
     public double PetsMaxMagnitude
@@ -215,7 +232,6 @@ public class CombatEntity : INotifyPropertyChanged
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
-
 
 
     /// <inheritdoc />

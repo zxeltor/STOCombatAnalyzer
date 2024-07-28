@@ -10,11 +10,9 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
-
 using log4net;
 using log4net.Core;
 using log4net.Repository.Hierarchy;
-
 using Microsoft.Win32;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Helpers;
@@ -27,11 +25,13 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 /// </summary>
 public partial class SettingsUserControl : UserControl
 {
-    private readonly ILog _log = log4net.LogManager.GetLogger(typeof(SettingsUserControl));
+    private readonly ILog _log = LogManager.GetLogger(typeof(SettingsUserControl));
 
     public SettingsUserControl()
     {
         this.InitializeComponent();
+
+        this.VerifyVersion();
 
         this.DataContext = this.MyPrivateContext = new SettingsUserControlBindingContext();
 
@@ -58,7 +58,32 @@ public partial class SettingsUserControl : UserControl
         this.uiTextBoxHowLongBeforeNewCombat.TextChanged += this.TextBoxBase_OnTextChanged;
         this.uiTextBoxHowLongToKeepLogs.TextChanged += this.TextBoxBase_OnTextChanged;
 
-        SetLog4netLogLevelFromSettings();
+        this.SetLog4netLogLevelFromSettings();
+    }
+
+    /// <summary>
+    ///     If existing settings aren't found, and a previous version exist, attempt to import them from the previous version.
+    /// </summary>
+    private void VerifyVersion()
+    {
+        if (string.IsNullOrWhiteSpace(Settings.Default.CombatLogPath))
+        {
+            var previousVersion = Properties.Settings.Default.GetPreviousVersion("CombatLogPath");
+            if (previousVersion != null && previousVersion is string resultString)
+            {
+                var result = MessageBox.Show(
+                    "It looks like you may be missing some settings do to a software update. Would you like to use the settings from the previous versions settings?", 
+                    "Question",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    // If setting for the current version aren't found, let's look for a previous version.
+                    Settings.Default.Upgrade();
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -187,7 +212,7 @@ public partial class SettingsUserControl : UserControl
     {
         if (!(sender is TextBox textBox)) return;
 
-        if(textBox.Name.Equals(nameof(this.uiTextBoxHowFarBackForCombat)))
+        if (textBox.Name.Equals(nameof(this.uiTextBoxHowFarBackForCombat)))
             this.UpdateHowFarBackForCombat();
         else if (textBox.Name.Equals(nameof(this.uiTextBoxHowLongBeforeNewCombat)))
             this.UpdateHowLongBeforeNewCombat();
@@ -201,9 +226,9 @@ public partial class SettingsUserControl : UserControl
     {
         if (!(sender is Button button)) return;
 
-        if (button == uiButtonPurgeLogsNow)
+        if (button == this.uiButtonPurgeLogsNow)
         {
-            _log.Debug("Purging log files.");
+            this._log.Debug("Purging log files.");
 
             if (CombatLogManager.TryPurgeCombatLogFolder(out var filesPurged, out var errorReason))
             {
@@ -220,9 +245,10 @@ public partial class SettingsUserControl : UserControl
                     ResponseDialog.Show(Application.Current.MainWindow, errorReason, "Combat log purge error");
             }
         }
-        else if (button == uiButtonOpenLogFile)
+        else if (button == this.uiButtonOpenLogFile)
         {
-            var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoCombatAnalyzer\\logs\\StoCombatAnalyzer.log");
+            var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "StoCombatAnalyzer\\logs\\StoCombatAnalyzer.log");
             if (!File.Exists(logPath))
             {
                 MessageBox.Show($"Log file not found: {logPath}", "Eror", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -233,10 +259,10 @@ public partial class SettingsUserControl : UserControl
             {
                 using (var openLogProcess = new Process())
                 {
-                    openLogProcess.StartInfo = new ProcessStartInfo()
+                    openLogProcess.StartInfo = new ProcessStartInfo
                     {
                         FileName = logPath,
-                        UseShellExecute = true                        
+                        UseShellExecute = true
                     };
 
                     openLogProcess.Start();
@@ -245,9 +271,8 @@ public partial class SettingsUserControl : UserControl
             catch (Exception ex)
             {
                 var errorMessage = $"Failed to load log file: {logPath}";
-                _log.Error(errorMessage, ex );
+                this._log.Error(errorMessage, ex);
                 MessageBox.Show(errorMessage, "Eror", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
             }
         }
     }
@@ -256,18 +281,21 @@ public partial class SettingsUserControl : UserControl
     {
         try
         {
-            LogManager.GetAllRepositories().ToList().ForEach(repository => {
-                Hierarchy hier = (Hierarchy)repository;
-                hier.GetCurrentLoggers().ToList().ForEach(logger => {
-                    var tmpLogger = ((Logger)logger);
+            LogManager.GetAllRepositories().ToList().ForEach(repository =>
+            {
+                var hier = (Hierarchy)repository;
+                hier.GetCurrentLoggers().ToList().ForEach(logger =>
+                {
+                    var tmpLogger = (Logger)logger;
                     tmpLogger.Level = Settings.Default.DebugLogging ? Level.Debug : Level.Warn;
                 });
             });
         }
         catch (Exception e)
         {
-            _log.Warn("Failed to set application log level", e);
-            MessageBox.Show("Failed to set application log level", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            this._log.Warn("Failed to set application log level", e);
+            MessageBox.Show("Failed to set application log level", "Warning", MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
     }
 
@@ -284,13 +312,29 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
 {
     private string? _combatLogPath = Settings.Default.CombatLogPath;
     private string? _combatLogPathFilePattern = Settings.Default.CombatLogPathFilePattern;
+    private bool _enableCombinePets = Settings.Default.IsCombinePets;
     private bool _enableDebugLogging = Settings.Default.DebugLogging;
+    private bool _enableDetectionSettingsInUi = Settings.Default.IsDetectionsSettingsVisibleInUi;
+    private int _howFarBackForCombat = Settings.Default.HowFarBackForCombat;
     private int _howLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombat;
     private long _howLongToKeepLogs = Settings.Default.HowLongToKeepLogs;
-    private bool _purgeCombatLogs = Settings.Default.PurgeCombatLogs;
     private string _myCharacter = Settings.Default.MyCharacter;
-    private int _howFarBackForCombat = Settings.Default.HowFarBackForCombat;
-    private bool _enableDetectionSettingsInUi = Settings.Default.IsDetectionsSettingsVisibleInUi;
+    private bool _purgeCombatLogs = Settings.Default.PurgeCombatLogs;
+
+    /// <summary>
+    ///     Combine Pets in the UI. Combine pet types by using SourceDisplay field, instead of showing each unique pet using
+    ///     SourceInternal.
+    /// </summary>
+    public bool EnableCombinePets
+    {
+        get => this._enableCombinePets = Settings.Default.IsCombinePets;
+        set
+        {
+            Settings.Default.IsCombinePets = value;
+            Settings.Default.Save();
+            this.SetField(ref this._enableCombinePets, value);
+        }
+    }
 
     /// <summary>
     ///     Enable combat log folder purge at application startup.

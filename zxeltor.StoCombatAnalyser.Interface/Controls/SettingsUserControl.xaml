@@ -5,10 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Controls"
              d:DataContext="{d:DesignInstance Type=local:SettingsUserControlBindingContext}"
-             mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             mc:Ignorable="d" d:DesignWidth="800" Height="614">
     <Grid>
-        <ListBox Margin="0,0,0,0" Padding="2,2,2,2" HorizontalContentAlignment="Stretch">
+        <ListBox Margin="0,0,0,0" Padding="2,2,2,2" HorizontalContentAlignment="Stretch" VerticalAlignment="Top">
             <ListBoxItem Tag="CombatLogPath" BorderThickness="2" BorderBrush="Black"  HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -65,7 +64,7 @@
                         <TextBlock>Description:</TextBlock>
                         <TextBlock TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Height="Auto"
                                    Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                            An identifier used to select a player when a new combat instance is chosen. 
+                            An identifier used to select a player when a new combat instance is chosen.
                         </TextBlock>
                     </StackPanel>
                 </Grid>
@@ -179,13 +178,31 @@
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <TextBlock Text="IsDetectionsSettingsVisibleInUi" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="DetectionsSettingsVisibleInUi" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         <CheckBox x:Name="uiCheckBoxEnableDetectionSettingsUi" Content="Enable" Margin="4,4,0,0"
                                   IsChecked="{Binding Path=EnableDetectionSettingsInUi}" />
                     </StackPanel>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
                         <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">Enable Detection Settings tab in the UI.</TextBlock>
+                    </StackPanel>
+                </Grid>
+            </ListBoxItem>
+            <ListBoxItem Tag="EnableCombinePetDps" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="CombinePets" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <CheckBox x:Name="uiCheckBoxEnableCombinePetsUi" Content="Enable" Margin="4,4,0,0"
+                                  IsChecked="{Binding Path=EnableCombinePets}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">Combine Pets in the UI. Combine pet types by using SourceDisplay field, instead of showing each unique pet using SourceInternal.</TextBlock>
                     </StackPanel>
                 </Grid>
             </ListBoxItem>

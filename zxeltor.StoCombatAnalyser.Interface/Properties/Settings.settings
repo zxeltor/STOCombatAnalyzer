@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="CombatLogPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">c:\temp</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="CombatLogPathFilePattern" Type="System.String" Scope="User">
       <Value Profile="(Default)">combatlog*.log</Value>
@@ -37,6 +37,15 @@
     </Setting>
     <Setting Name="IsDetectionsSettingsVisibleInUi" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="IsCombinePets" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="EventTypeRemovalFilterForDps" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+  &lt;string&gt;hitpoints&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
     </Setting>
   </Settings>
 </SettingsFile>
