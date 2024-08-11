@@ -78,7 +78,7 @@ public class Combat : INotifyPropertyChanged
     /// <summary>
     ///     A humanized string base on combat duration. (<see cref="CombatEnd" /> - <see cref="CombatStart" />)
     /// </summary>
-    public string CombatDuration => (this.CombatEnd - this.CombatStart).Humanize(3, maxUnit: TimeUnit.Minute);
+    public string CombatDuration => (this.CombatEnd - this.CombatStart).Humanize(2, maxUnit: TimeUnit.Minute);
 
     /// <summary>
     ///     The identity of the map related to this combat instance.

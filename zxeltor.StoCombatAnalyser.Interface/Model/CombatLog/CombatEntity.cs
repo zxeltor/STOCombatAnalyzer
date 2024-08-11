@@ -123,11 +123,19 @@ public class CombatEntity : INotifyPropertyChanged
     /// <summary>
     ///     A rudimentary calculation for player events EntityMagnitudePerSecond, and probably incorrect.
     /// </summary>
-    public double EntityMagnitudePerSecond => this.CombatEventList.Count == 0
-        ? 0
-        : this.CombatEventList.Sum(dam => Math.Abs(dam.Magnitude)) /
-          ((this.CombatEventList.Max(ev => ev.Timestamp) - this.CombatEventList.Min(ev => ev.Timestamp)).TotalSeconds +
-           .001);
+    public double EntityMagnitudePerSecond
+    {
+        get
+        {
+            var entityEvents = this.CombatEventList.Where(ev =>
+                !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+            if (entityEvents.Count == 0) return 0;
+
+            return entityEvents.Sum(dam => Math.Abs(dam.Magnitude)) /
+                   ((entityEvents.Max(ev => ev.Timestamp) - entityEvents.Min(ev => ev.Timestamp)).TotalSeconds + .001);
+        }
+    }
 
     /// <summary>
     ///     A rudimentary calculation for player pet events EntityMagnitudePerSecond, and probably incorrect.
@@ -136,7 +144,8 @@ public class CombatEntity : INotifyPropertyChanged
     {
         get
         {
-            var petEvents = this.CombatEventList.Where(ev => ev.IsPetEvent).ToList();
+            var petEvents = this.CombatEventList.Where(ev =>
+                ev.IsPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
             if (petEvents.Count == 0) return 0;
 
@@ -148,18 +157,28 @@ public class CombatEntity : INotifyPropertyChanged
     /// <summary>
     ///     A rudimentary calculation for max damage for player events, and probably incorrect.
     /// </summary>
-    public double EntityMaxMagnitude => this.CombatEventList.Count == 0
-        ? 0
-        : this.CombatEventList.Max(dam => Math.Abs(dam.Magnitude));
+    public double EntityMaxMagnitude
+    {
+        get
+        {
+            var entityEvents = this.CombatEventList.Where(ev =>
+                !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-/// <summary>
+            if (entityEvents.Count == 0) return 0;
+
+            return entityEvents.Max(dam => Math.Abs(dam.Magnitude));
+        }
+    }
+
+    /// <summary>
     ///     A rudimentary calculation for max damage for player pet events, and probably incorrect.
     /// </summary>
     public double PetsMaxMagnitude
     {
         get
         {
-            var petEvents = this.CombatEventList.Where(ev => ev.IsPetEvent).ToList();
+            var petEvents = this.CombatEventList.Where(ev =>
+                ev.IsPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
             if (petEvents.Count == 0) return 0;
 
@@ -170,9 +189,18 @@ public class CombatEntity : INotifyPropertyChanged
     /// <summary>
     ///     A rudimentary calculation for total damage for player events, and probably incorrect.
     /// </summary>
-    public double EntityTotalMagnitude => this.CombatEventList.Count == 0
-        ? 0
-        : this.CombatEventList.Sum(dam => Math.Abs(dam.Magnitude));
+    public double EntityTotalMagnitude
+    {
+        get
+        {
+            var entityEvents = this.CombatEventList.Where(ev =>
+                !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+            if (entityEvents.Count == 0) return 0;
+
+            return entityEvents.Sum(dam => Math.Abs(dam.Magnitude));
+        }
+    }
 
     /// <summary>
     ///     A rudimentary calculation for total damage for player pet events, and probably incorrect.
@@ -181,7 +209,8 @@ public class CombatEntity : INotifyPropertyChanged
     {
         get
         {
-            var petEvents = this.CombatEventList.Where(ev => ev.IsPetEvent).ToList();
+            var petEvents = this.CombatEventList.Where(ev =>
+                ev.IsPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
             if (petEvents.Count == 0) return 0;
 

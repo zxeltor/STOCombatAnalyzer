@@ -215,7 +215,6 @@ public partial class MainWindow
         {
             progressDialog?.Close();
             this.CombatLogManagerContext.IsExecutingBackgroundProcess = false;
-            this.uiButtonParseLog.Click += this.uiButtonParseLog_Click;
         }
     }
 
@@ -305,12 +304,28 @@ public partial class MainWindow
                 dps = this.CombatLogManagerContext.SelectedCombatEntity.EntityMagnitudePerSecond;
                 total = this.CombatLogManagerContext.SelectedCombatEntity.EntityTotalMagnitude;
                 max = this.CombatLogManagerContext.SelectedCombatEntity.EntityMaxMagnitude;
+
+                var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
+                    $"ALL: "
+                    + $"Damage({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                    Alignment.UpperCenter);
+
+                annotation.LabelFontSize = 18f;
+                annotation.LabelBold = true;
             }
             else if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals("ALL PETS"))
             {
                 dps = this.CombatLogManagerContext.SelectedCombatEntity.PetsMagnitudePerSecond;
                 total = this.CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude;
                 max = this.CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude;
+
+                var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
+                    $"ALL PETS: "
+                    + $"Damage({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                    Alignment.UpperCenter);
+
+                annotation.LabelFontSize = 18f;
+                annotation.LabelBold = true;
             }
             else if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeLabel.StartsWith("PET(",
                          StringComparison.CurrentCultureIgnoreCase)
@@ -324,8 +339,16 @@ public partial class MainWindow
                         if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals(evt.EventTypeId))
                         {
                             dps = evt.Dps;
-                            total = evt.TotalMagnitude;
-                            max = evt.MaxMagnitude;
+                            total = evt.Damage;
+                            max = evt.MaxDamage;
+
+                            var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
+                                $"{evt.EventTypeLabel}: "
+                                + $"Damage({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                                Alignment.UpperCenter);
+
+                            annotation.LabelFontSize = 18f;
+                            annotation.LabelBold = true;
                         }
                     });
                 });
@@ -339,17 +362,18 @@ public partial class MainWindow
                 if (combatEventType != null)
                 {
                     dps = combatEventType.Dps;
-                    total = combatEventType.TotalMagnitude;
-                    max = combatEventType.MaxMagnitude;
+                    total = combatEventType.Damage;
+                    max = combatEventType.MaxDamage;
+
+                    var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
+                        $"{combatEventType.EventTypeLabel}: "
+                        + $"Damage({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                        Alignment.UpperCenter);
+
+                    annotation.LabelFontSize = 18f;
+                    annotation.LabelBold = true;
                 }
             }
-
-            var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
-                $"DPS({dps.ToMetric(null, 3)}) Total({total.ToMetric(null, 3)}) Max({max.ToMetric(null, 3)})",
-                Alignment.UpperCenter);
-
-            annotation.LabelFontSize = 18f;
-            annotation.LabelBold = true;
         }
         else
         {
@@ -457,19 +481,31 @@ public partial class MainWindow
                 {
                     petevt.CombatEventTypes.ForEach(evt =>
                     {
-                        if (evt.TotalMagnitude == 0) return;
+                        if (evt.Damage == 0) return;
 
                         bars.Add(new CombatEventTypeBar
                         {
                             EventTypeId = evt.EventTypeId,
                             Position = positionCounter--,
-                            Value = evt.TotalMagnitude,
+                            Value = evt.Damage,
                             FillColor = colorArray[colorCounter++],
                             Label = evt.EventTypeLabelWithTotal,
                             CenterLabel = true
                         });
                     });
                 });
+            }
+
+            if (CombatLogManagerContext.SelectedCombatEntity != null)
+            {
+                var upperCenterAnnotation = this.uiScottBarChartEntityEventTypes.Plot.Add.Annotation(
+                    $"ALL PETS: Damage({CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude.ToMetric(null, 3)})" 
+                    + $" DPS({CombatLogManagerContext.SelectedCombatEntity.PetsMagnitudePerSecond.ToMetric(null, 3)})"
+                    + $" Max Hit({CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude.ToMetric(null, 3)})"
+                    , Alignment.UpperCenter);
+
+                upperCenterAnnotation.LabelFontSize = 18f;
+                upperCenterAnnotation.LabelBold = true;
             }
         }
         else
@@ -482,8 +518,7 @@ public partial class MainWindow
 
                 combatEvents.ToList().ForEach(evt =>
                 {
-                    var sumOfMagnitude =
-                        evt.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude));
+                    var sumOfMagnitude = evt.Damage;
 
                     if (sumOfMagnitude == 0) return;
 
@@ -501,17 +536,28 @@ public partial class MainWindow
             var combatPetEvents = this.CombatLogManagerContext.SelectedEntityPetCombatEventTypeList;
             if (combatPetEvents != null && combatPetEvents.Count > 0)
             {
-                var sumOfMagnitude = combatPetEvents.Sum(petevt =>
-                    petevt.CombatEventTypes.Sum(evt => evt.CombatEvents.Sum(ev => Math.Abs(ev.Magnitude))));
-
+                var sumOfMagnitude = combatPetEvents.Sum(petevt => petevt.Damage);
+                
                 if (sumOfMagnitude != 0)
                     bars.Add(new Bar
                     {
                         Position = positionCounter--,
                         Value = sumOfMagnitude,
                         FillColor = Color.FromHex("000000"),
-                        Label = $"ALL PETS: Total({sumOfMagnitude.ToMetric(null, 3)})"
+                        Label = $"ALL PETS: Damage({sumOfMagnitude.ToMetric(null, 3)})"
                     });
+            }
+
+            if (CombatLogManagerContext.SelectedCombatEntity != null)
+            {
+                var upperCenterAnnotation = this.uiScottBarChartEntityEventTypes.Plot.Add.Annotation(
+                    $"ALL: Damage({CombatLogManagerContext.SelectedCombatEntity.EntityTotalMagnitude.ToMetric(null, 3)})"
+                    + $" DPS({CombatLogManagerContext.SelectedCombatEntity.EntityMagnitudePerSecond.ToMetric(null, 3)})"
+                    + $" Max Hit({CombatLogManagerContext.SelectedCombatEntity.EntityMaxMagnitude.ToMetric(null, 3)})"
+                    , Alignment.UpperCenter);
+
+                upperCenterAnnotation.LabelFontSize = 18f;
+                upperCenterAnnotation.LabelBold = true;
             }
         }
 
@@ -522,11 +568,6 @@ public partial class MainWindow
             pie.ValueLabelStyle.Bold = true;
             pie.ValueLabelStyle.FontSize = 18;
             this.uiScottBarChartEntityEventTypes.Plot.Axes.Margins(0, right: 0.3);
-
-            var upperCenterAnnotation = this.uiScottBarChartEntityEventTypes.Plot.Add.Annotation(
-                $"Total({bars.Sum(pieSlice => pieSlice.Value).ToMetric(null, 3)})", Alignment.UpperCenter);
-            upperCenterAnnotation.LabelFontSize = 18f;
-            upperCenterAnnotation.LabelBold = true;
 
             this.uiScottBarChartEntityEventTypes.Plot.Axes.AutoScale();
 
@@ -557,53 +598,63 @@ public partial class MainWindow
 
         barPlots.ForEach(plot =>
         {
-            plot.Bars.ToList().ForEach(bar =>
+            var plotBars = plot.Bars.ToList();
+
+            if (plotBars.Count > 0)
             {
-                var maxY = bar.Position + bar.Size / 2;
-                var minY = bar.Position - bar.Size / 2;
-                var maxX = bar.Value;
-                var minX = 0;
+                var barValueFailSafe = plotBars.Max(bar => bar.Value) * .10;
 
-                if (mouseLocation.Y >= minY && mouseLocation.Y <= maxY && mouseLocation.X >= minX &&
-                    mouseLocation.X <= maxX)
+                plotBars.ForEach(bar =>
                 {
-                    if (bar.Label.StartsWith("ALL PETS"))
-                    {
-                        this.CombatLogManagerContext.EventTypeDisplayFilter = this.CombatLogManagerContext
-                            .SelectedEntityCombatEventTypeListDisplayedFilterOptions
-                            .FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL PETS"));
-                        return;
-                    }
+                    var maxY = bar.Position + bar.Size / 2;
+                    var minY = bar.Position - bar.Size / 2;
+                    // If the value of the bar is close to zero, it could be difficult to click on it.
+                    // In this case we use a failsafe value to make it easier.
+                    var maxX = bar.Value < barValueFailSafe ? barValueFailSafe : bar.Value;
+                    var minX = 0;
 
-                    if (bar is CombatEventTypeBar combatEventTypeBar)
+                    if (mouseLocation.Y >= minY && mouseLocation.Y <= maxY && mouseLocation.X >= minX &&
+                        mouseLocation.X <= maxX)
                     {
-                        var eventType = this.CombatLogManagerContext!
-                            .SelectedEntityCombatEventTypeListDisplayedFilterOptions
-                            .FirstOrDefault(eventType =>
-                                combatEventTypeBar.EventTypeId.Equals(eventType.EventTypeId));
-                        if (eventType != null)
+                        if (bar.Label.StartsWith("ALL PETS"))
                         {
-                            this.CombatLogManagerContext!.EventTypeDisplayFilter = eventType;
+                            this.CombatLogManagerContext.EventTypeDisplayFilter = this.CombatLogManagerContext
+                                .SelectedEntityCombatEventTypeListDisplayedFilterOptions
+                                .FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL PETS"));
+
                             return;
                         }
-                    }
-                    else
-                    {
-                        var eventType = this.CombatLogManagerContext!
-                            .SelectedEntityCombatEventTypeListDisplayedFilterOptions
-                            .FirstOrDefault(eventType => bar.Label.StartsWith(eventType.EventTypeLabel));
-                        if (eventType != null)
-                        {
-                            this.CombatLogManagerContext!.EventTypeDisplayFilter = eventType;
-                            return;
-                        }
-                    }
 
-                    this.CombatLogManagerContext!.EventTypeDisplayFilter = this.CombatLogManagerContext!
-                        .SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(
-                            eventType => eventType.EventTypeId.Equals("ALL"));
-                }
-            });
+                        if (bar is CombatEventTypeBar combatEventTypeBar)
+                        {
+                            var eventType = this.CombatLogManagerContext!
+                                .SelectedEntityCombatEventTypeListDisplayedFilterOptions
+                                .FirstOrDefault(eventType =>
+                                    combatEventTypeBar.EventTypeId.Equals(eventType.EventTypeId));
+                            if (eventType != null)
+                            {
+                                this.CombatLogManagerContext!.EventTypeDisplayFilter = eventType;
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            var eventType = this.CombatLogManagerContext!
+                                .SelectedEntityCombatEventTypeListDisplayedFilterOptions
+                                .FirstOrDefault(eventType => bar.Label.StartsWith(eventType.EventTypeLabel));
+                            if (eventType != null)
+                            {
+                                this.CombatLogManagerContext!.EventTypeDisplayFilter = eventType;
+                                return;
+                            }
+                        }
+
+                        this.CombatLogManagerContext!.EventTypeDisplayFilter = this.CombatLogManagerContext!
+                            .SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(
+                                eventType => eventType.EventTypeId.Equals("ALL"));
+                    }
+                });
+            }
         });
 
         this.SetPlots();
@@ -621,8 +672,26 @@ public partial class MainWindow
 
     private void UiCheckbox_OnCheckedOrUnCheckedForPlots(object sender, RoutedEventArgs e)
     {
-        if (e.Source is CheckBox)
+        if (e.Source is CheckBox checkBox)
+        {
+            if (checkBox.Tag is string tagStringValue && tagStringValue.Equals("PetsOnlyOn"))
+            {
+                if (checkBox.IsChecked != null && checkBox.IsChecked.Value)
+                {
+                    this.CombatLogManagerContext.EventTypeDisplayFilter = this.CombatLogManagerContext
+                        .SelectedEntityCombatEventTypeListDisplayedFilterOptions
+                        .FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL PETS"));
+                }
+                else if (checkBox.IsChecked != null && !checkBox.IsChecked.Value)
+                {
+                    this.CombatLogManagerContext.EventTypeDisplayFilter = this.CombatLogManagerContext
+                        .SelectedEntityCombatEventTypeListDisplayedFilterOptions
+                        .FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL"));
+                }
+            }
+
             this.SetPlots();
+        }
     }
 
     private void UiDataGridAllEvents_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -633,8 +702,34 @@ public partial class MainWindow
     private void UiComboBoxSelectEventType_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (this.uiComboBoxSelectEventType.Items.Count > 0)
-            if (this.uiComboBoxSelectEventType.SelectedItem is CombatEventTypeSelector)
+            if (this.uiComboBoxSelectEventType.SelectedItem is CombatEventTypeSelector combatEventTypeSelector)
+            {
+                if (combatEventTypeSelector.CombatEventType == null)
+                {
+                    if (CombatLogManagerContext.SelectedCombatEntity != null)
+                    {
+                        if (combatEventTypeSelector.EventTypeId.Equals("ALL PETS",
+                                StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            CombatLogManagerContext.SelectedCombatEventType = new CombatEventType(
+                                CombatLogManagerContext.SelectedCombatEntity.CombatEventList.Where(ev => ev.IsPetEvent)
+                                    .ToList(), "ALL PETS");
+                        }
+                        else
+                        {
+                            CombatLogManagerContext.SelectedCombatEventType =
+                                new CombatEventType(
+                                    CombatLogManagerContext.SelectedCombatEntity.CombatEventList.ToList(), "ALL");
+                        }
+                    }
+                }
+                else
+                {
+                    CombatLogManagerContext.SelectedCombatEventType = combatEventTypeSelector.CombatEventType;
+                }
+
                 this.SetScatterPlot();
+            }
     }
 
     private void UiButtonResetPlot_OnClick(object sender, RoutedEventArgs e)

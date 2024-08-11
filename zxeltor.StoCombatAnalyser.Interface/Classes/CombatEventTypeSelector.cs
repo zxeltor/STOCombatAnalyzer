@@ -6,23 +6,39 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
 
 public class CombatEventTypeSelector : INotifyPropertyChanged, IEquatable<CombatEventTypeSelector>
 {
+    private CombatEventType? _combatEventType;
     private string _eventTypeId;
     private string _eventTypeLabel;
     private string _eventTypeLabelWithTotalDamage;
     private bool _isPetEvent;
 
-    public CombatEventTypeSelector(string eventTypeId, bool isPetEvent = false, string? eventTypeLabel = null,
-        string? eventTypeLabelWithTotalDamage = null)
+    public CombatEventTypeSelector(string eventTypeId, bool isPetEvent = false)
     {
         this.EventTypeId = eventTypeId;
         this.IsPetEvent = isPetEvent;
-        this.EventTypeLabel = eventTypeLabel ?? eventTypeId;
-        this.EventTypeLabelWithTotalDamage = eventTypeLabel ?? eventTypeLabel ?? eventTypeId;
+        this.EventTypeLabel = eventTypeId;
+        this.EventTypeLabelWithTotalDamage = eventTypeId;
+    }
+
+    public CombatEventTypeSelector(CombatEventType? combatEventType = null, bool isPetEvent = false)
+    {
+        this._combatEventType = combatEventType;
+        this.EventTypeId = combatEventType.EventTypeId;
+        this.IsPetEvent = isPetEvent;
+        this.EventTypeLabel = combatEventType.EventTypeLabel ?? combatEventType.EventTypeId;
+        this.EventTypeLabelWithTotalDamage = combatEventType.EventTypeLabelWithTotal ?? combatEventType.EventTypeLabel ?? combatEventType.EventTypeId;
+    }
+
+    public CombatEventType? CombatEventType
+    {
+        get => _combatEventType;
+        set => SetField(ref this._combatEventType, value);
     }
 
     public string EventTypeId
