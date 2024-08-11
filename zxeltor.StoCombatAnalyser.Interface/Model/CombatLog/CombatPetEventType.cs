@@ -10,7 +10,7 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
 public class CombatPetEventType
 {
-    public CombatPetEventType(List<CombatEventType> combatEventTypeList)
+    public CombatPetEventType(List<CombatEventType> combatEventTypeList, string? petId = null, string? petLabel = null)
     {
         if (combatEventTypeList == null) throw new NullReferenceException(nameof(combatEventTypeList));
         if (combatEventTypeList.Count == 0)
@@ -20,19 +20,24 @@ public class CombatPetEventType
 
         var firstCombatEventType = combatEventTypeList[0];
 
-        this.TotalMagnitude = this.CombatEventTypes.Sum(ev => ev.TotalMagnitude);
-        this.MaxMagnitude = this.CombatEventTypes.Max(ev => ev.MaxMagnitude);
-        this.MaxMagnitudeBase = this.CombatEventTypes.Max(ev => ev.MaxMagnitudeBase);
-
-        this.PetId = firstCombatEventType.SourceInternal;
-        this.PetLabel = firstCombatEventType.SourceDisplay;
+        this.Damage = this.CombatEventTypes.Sum(ev => ev.Damage);
+        this.MaxDamage = this.CombatEventTypes.Max(ev => ev.MaxDamage);
+        
+        if (petId == null)
+        {
+            this.PetId = firstCombatEventType.SourceInternal;
+            this.PetLabel = firstCombatEventType.SourceDisplay;
+        }
+        else
+        {
+            this.PetId = petId;
+            this.PetLabel = petId ?? petLabel;
+        }
     }
 
-    public double TotalMagnitude { get; }
+    public double Damage { get; }
 
-    public double MaxMagnitude { get; }
-
-    public double MaxMagnitudeBase { get; }
+    public double MaxDamage { get; }
 
     public List<CombatEventType> CombatEventTypes { get; }
 

@@ -42,6 +42,8 @@ public class CombatLogManager : INotifyPropertyChanged
 
     private CombatEntity? _selectedCombatEntity;
 
+    private CombatEventType? _selectedCombatEventType;
+
     public CombatLogManager()
     {
         // Pull our map detection settings from the config
@@ -115,6 +117,15 @@ public class CombatLogManager : INotifyPropertyChanged
     }
 
     /// <summary>
+    ///     The currently selected type for the current entity.
+    /// </summary>
+    public CombatEventType? SelectedCombatEventType
+    {
+        get => this._selectedCombatEventType;
+        set => this.SetField(ref this._selectedCombatEventType, value);
+    }
+
+    /// <summary>
     ///     Total damage for the selected event type
     /// </summary>
     public double? SelectedCombatEntityEventTypeTotalDamage
@@ -124,12 +135,12 @@ public class CombatLogManager : INotifyPropertyChanged
             var selectedCombatEntity = this.SelectedCombatEntity;
             return selectedCombatEntity is { CombatEventTypeListForEntity.Count: 0 }
                 ? 0
-                : this.SelectedCombatEntity?.CombatEventTypeListForEntity.Sum(ev => ev.TotalMagnitude);
+                : this.SelectedCombatEntity?.CombatEventTypeListForEntity.Sum(ev => ev.Damage);
         }
     }
 
     /// <summary>
-    ///     Max damage for the selected event type
+    ///     MaxDamage damage for the selected event type
     /// </summary>
     public double? SelectedCombatEntityEventTypeMaxDamage
     {
@@ -138,7 +149,7 @@ public class CombatLogManager : INotifyPropertyChanged
             var selectedCombatEntity = this.SelectedCombatEntity;
             return selectedCombatEntity is { CombatEventTypeListForEntity.Count: 0 }
                 ? 0
-                : this.SelectedCombatEntity?.CombatEventTypeListForEntity.Max(ev => ev.MaxMagnitude);
+                : this.SelectedCombatEntity?.CombatEventTypeListForEntity.Max(ev => ev.MaxDamage);
         }
     }
 
@@ -153,12 +164,12 @@ public class CombatLogManager : INotifyPropertyChanged
             return selectedCombatEntity is { CombatEventTypeListForEntityPets.Count: 0 }
                 ? 0
                 : this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Sum(ev =>
-                    ev.CombatEventTypes.Sum(evt => evt.TotalMagnitude));
+                    ev.CombatEventTypes.Sum(evt => evt.Damage));
         }
     }
 
     /// <summary>
-    ///     Max damage for the selected pet event type
+    ///     MaxDamage damage for the selected pet event type
     /// </summary>
     public double? SelectedCombatEntityPetEventTypeMaxDamage
     {
@@ -168,7 +179,7 @@ public class CombatLogManager : INotifyPropertyChanged
             return selectedCombatEntity is { CombatEventTypeListForEntityPets.Count: 0 }
                 ? 0
                 : this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Max(ev =>
-                    ev.CombatEventTypes.Max(evt => evt.MaxMagnitude));
+                    ev.CombatEventTypes.Max(evt => evt.MaxDamage));
         }
     }
 
@@ -287,8 +298,7 @@ public class CombatLogManager : INotifyPropertyChanged
             // Add player events to the list
             if (this.SelectedEntityCombatEventTypeList != null && this.SelectedEntityCombatEventTypeList.Count > 0)
                 this.SelectedEntityCombatEventTypeList.OrderBy(evt => evt.EventTypeLabel).ToList().ForEach(evt =>
-                    resultCollection.Add(new CombatEventTypeSelector(evt.EventTypeId, false, evt.EventTypeLabel,
-                        evt.EventTypeLabelWithTotal)));
+                    resultCollection.Add(new CombatEventTypeSelector(evt)));
 
             // Add player pet events to the list
             if (this.SelectedEntityPetCombatEventTypeList != null &&
@@ -298,8 +308,7 @@ public class CombatLogManager : INotifyPropertyChanged
                     if (pevt.CombatEventTypes != null && pevt.CombatEventTypes.Count > 0)
                         pevt.CombatEventTypes.OrderBy(evt => evt.EventTypeLabel).ToList().ForEach(evt =>
                         {
-                            resultCollection.Add(new CombatEventTypeSelector(evt.EventTypeId, true,
-                                evt.EventTypeLabel, evt.EventTypeLabelWithTotal));
+                            resultCollection.Add(new CombatEventTypeSelector(evt, true));
                         });
                 });
 
@@ -601,6 +610,7 @@ public class CombatLogManager : INotifyPropertyChanged
         this.OnPropertyChanged(nameof(this.SelectedCombatEntityEventTypeMaxDamage));
         this.OnPropertyChanged(nameof(this.SelectedCombatEntityPetEventTypeTotalDamage));
         this.OnPropertyChanged(nameof(this.SelectedCombatEntityPetEventTypeMaxDamage));
+
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventList));
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeList));
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeListDisplayedFilterOptions));
