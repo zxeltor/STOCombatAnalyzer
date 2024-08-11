@@ -307,7 +307,7 @@ public partial class MainWindow
 
                 var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
                     $"ALL: "
-                    + $"Total({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                    + $"Damage({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
                     Alignment.UpperCenter);
 
                 annotation.LabelFontSize = 18f;
@@ -321,7 +321,7 @@ public partial class MainWindow
 
                 var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
                     $"ALL PETS: "
-                    + $"Total({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                    + $"Damage({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
                     Alignment.UpperCenter);
 
                 annotation.LabelFontSize = 18f;
@@ -344,7 +344,7 @@ public partial class MainWindow
 
                             var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
                                 $"{evt.EventTypeLabel}: "
-                                + $"Total({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                                + $"Damage({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
                                 Alignment.UpperCenter);
 
                             annotation.LabelFontSize = 18f;
@@ -367,7 +367,7 @@ public partial class MainWindow
 
                     var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
                         $"{combatEventType.EventTypeLabel}: "
-                        + $"Total({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                        + $"Damage({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
                         Alignment.UpperCenter);
 
                     annotation.LabelFontSize = 18f;
