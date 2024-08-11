@@ -85,8 +85,8 @@ public class CombatEventType
             this.EventDisplay = eventDisplay ?? eventInternal ?? sourceDisplay ?? sourceInternal;
 
             this.IsPetEventType = false;
-            this.EventTypeId = firstCombatEvent.EventInternal;
-            this.EventTypeLabel = firstCombatEvent.EventDisplay;
+            this.EventTypeId = eventInternal ?? sourceDisplay ?? sourceInternal;
+            this.EventTypeLabel = eventDisplay ?? eventInternal ?? sourceDisplay ?? sourceInternal;
         }
 
         this.EventTypeLabelWithTotal = $"{this.EventTypeLabel}: Damage({this.Damage.ToMetric(null, 3)})";

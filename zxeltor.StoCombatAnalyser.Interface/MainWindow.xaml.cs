@@ -304,12 +304,28 @@ public partial class MainWindow
                 dps = this.CombatLogManagerContext.SelectedCombatEntity.EntityMagnitudePerSecond;
                 total = this.CombatLogManagerContext.SelectedCombatEntity.EntityTotalMagnitude;
                 max = this.CombatLogManagerContext.SelectedCombatEntity.EntityMaxMagnitude;
+
+                var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
+                    $"ALL: "
+                    + $"Total({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                    Alignment.UpperCenter);
+
+                annotation.LabelFontSize = 18f;
+                annotation.LabelBold = true;
             }
             else if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals("ALL PETS"))
             {
                 dps = this.CombatLogManagerContext.SelectedCombatEntity.PetsMagnitudePerSecond;
                 total = this.CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude;
                 max = this.CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude;
+
+                var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
+                    $"ALL PETS: "
+                    + $"Total({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                    Alignment.UpperCenter);
+
+                annotation.LabelFontSize = 18f;
+                annotation.LabelBold = true;
             }
             else if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeLabel.StartsWith("PET(",
                          StringComparison.CurrentCultureIgnoreCase)
@@ -325,6 +341,14 @@ public partial class MainWindow
                             dps = evt.Dps;
                             total = evt.Damage;
                             max = evt.MaxDamage;
+
+                            var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
+                                $"{evt.EventTypeLabel}: "
+                                + $"Total({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                                Alignment.UpperCenter);
+
+                            annotation.LabelFontSize = 18f;
+                            annotation.LabelBold = true;
                         }
                     });
                 });
@@ -340,6 +364,14 @@ public partial class MainWindow
                     dps = combatEventType.Dps;
                     total = combatEventType.Damage;
                     max = combatEventType.MaxDamage;
+
+                    var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
+                        $"{combatEventType.EventTypeLabel}: "
+                        + $"Total({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                        Alignment.UpperCenter);
+
+                    annotation.LabelFontSize = 18f;
+                    annotation.LabelBold = true;
                 }
             }
         }
