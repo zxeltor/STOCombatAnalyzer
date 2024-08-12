@@ -33,6 +33,26 @@
                 <Setter Property="CornerRadius" Value="4"></Setter>
                 <Setter Property="Margin" Value="0,0,2,2"></Setter>
             </Style>
+            <Style TargetType="{x:Type TreeViewItem}" x:Key="combatEntityTreeViewItem">
+                <Style.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="4"/>
+                        <Setter Property="Margin" Value="0,2,0,2"/>
+                    </Style>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="White" />
+                </Style.Resources>
+                <Setter Property="BorderBrush" Value="Black"></Setter>
+                <Setter Property="BorderThickness" Value="4"></Setter>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="Padding" Value="4,4,4,4"></Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="BorderBrush" Value="Green"/>
+                        <Setter Property="BorderThickness" Value="4" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
             <ControlTemplate x:Key="combatEventTypeLabelTemplate" TargetType="{x:Type Label}">
                 <Border BorderBrush="Black" BorderThickness="2" CornerRadius="2" />
             </ControlTemplate>
@@ -57,47 +77,45 @@
                 </Border>
             </DataTemplate>
             <DataTemplate x:Key="combatEntityItemTemplate" DataType="{x:Type modelcombatlog:CombatEntity}">
-                <Border BorderBrush="Black" BorderThickness="2" Padding="4" Margin="0">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Name=" />
-                            <TextBlock Text="{Binding OwnerDisplay}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="GameId=" />
-                            <TextBlock Text="{Binding OwnerInternal}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Active=" />
-                            <TextBlock Text="{Binding EntityCombatDuration}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Start=" />
-                            <TextBlock
-                                Text="{Binding EntityCombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
-                            <TextBlock Text="End=" Margin="8,0,0,0" />
-                            <TextBlock
-                                Text="{Binding EntityCombatEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Combat Events=" />
-                            <TextBlock Text="{Binding CombatEventList.Count}" />
-                            <TextBlock Text="Kills=" Margin="8,0,0,0" />
-                            <TextBlock Text="{Binding EntityCombatKills}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Damage(" Foreground="{StaticResource colorTotal}" />
-                            <TextBlock Text="{Binding EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorTotal}" />
-                            <TextBlock Text=")" Foreground="{StaticResource colorTotal}" />
-                            <TextBlock Text="DPS(" Margin="8,0,0,0" Foreground="{StaticResource colorDps}" />
-                            <TextBlock Text="{Binding EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorDps}" />
-                            <TextBlock Text=")" Foreground="{StaticResource colorDps}" />
-                            <TextBlock Text="Max Hit(" Margin="8,0,0,0" Foreground="{StaticResource colorMax}" />
-                            <TextBlock Text="{Binding EntityMaxMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorMax}" />
-                            <TextBlock Text=")" Foreground="{StaticResource colorMax}" />
-                        </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Name=" />
+                        <TextBlock Text="{Binding OwnerDisplay}" />
                     </StackPanel>
-                </Border>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="GameId=" />
+                        <TextBlock Text="{Binding OwnerInternal}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Active=" />
+                        <TextBlock Text="{Binding EntityCombatDuration}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Start=" />
+                        <TextBlock
+                            Text="{Binding EntityCombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
+                        <TextBlock Text="End=" Margin="8,0,0,0" />
+                        <TextBlock
+                            Text="{Binding EntityCombatEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Combat Events=" />
+                        <TextBlock Text="{Binding CombatEventList.Count}" />
+                        <TextBlock Text="Kills=" Margin="8,0,0,0" />
+                        <TextBlock Text="{Binding EntityCombatKills}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Damage(" Foreground="{StaticResource colorTotal}" />
+                        <TextBlock Text="{Binding EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorTotal}" />
+                        <TextBlock Text=")" Foreground="{StaticResource colorTotal}" />
+                        <TextBlock Text="DPS(" Margin="8,0,0,0" Foreground="{StaticResource colorDps}" />
+                        <TextBlock Text="{Binding EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorDps}" />
+                        <TextBlock Text=")" Foreground="{StaticResource colorDps}" />
+                        <TextBlock Text="Max Hit(" Margin="8,0,0,0" Foreground="{StaticResource colorMax}" />
+                        <TextBlock Text="{Binding EntityMaxMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorMax}" />
+                        <TextBlock Text=")" Foreground="{StaticResource colorMax}" />
+                    </StackPanel>
+                </StackPanel>
             </DataTemplate>
             <DataTemplate x:Key="selectedCombatDetailsTemplate" DataType="{x:Type modelcombatlog:Combat}">
                 <Grid>
@@ -145,14 +163,16 @@
                                 <TextBlock Text="Entity List" />
                             </StackPanel>
                         </GroupBox.Header>
-                        <TreeView x:Name="uiTreeViewCombatEntityList"
-                                  SelectedItemChanged="uiTreeViewCombatEntityList_SelectedItemChanged">
-                            <TreeViewItem Header="Players" ItemsSource="{Binding PlayerEntitiesOrderByName}"
+                        <TreeView x:Name="uiTreeViewCombatEntityList" SelectedItemChanged="uiTreeViewCombatEntityList_SelectedItemChanged"
+                                  HorizontalContentAlignment="Stretch">
+                            <TreeViewItem Name="uiTreeviewItemPlayers"  Header="Players" ItemsSource="{Binding PlayerEntitiesOrderByName}"
                                           ItemTemplate="{StaticResource combatEntityItemTemplate}"
-                                          HorizontalContentAlignment="Stretch" IsExpanded="True" />
+                                          HorizontalContentAlignment="Stretch" IsExpanded="True"
+                                          ItemContainerStyle="{StaticResource combatEntityTreeViewItem}" />
                             <TreeViewItem Header="NonPlayers" ItemsSource="{Binding NonPlayerEntitiesOrderByName}"
                                           ItemTemplate="{StaticResource combatEntityItemTemplate}"
-                                          HorizontalContentAlignment="Stretch" IsExpanded="True"/>
+                                          HorizontalContentAlignment="Stretch" IsExpanded="True"
+                                          ItemContainerStyle="{StaticResource combatEntityTreeViewItem}" />
                         </TreeView>
                     </GroupBox>
                 </Grid>
@@ -353,7 +373,7 @@
                         </GroupBox.Header>
                         <Grid>
                             <ContentControl Name="uiContentControlSelectedCombat" Content="{Binding Combats}"
-                                            ContentTemplate="{StaticResource selectedCombatDetailsTemplate}" />
+                                            ContentTemplate="{StaticResource selectedCombatDetailsTemplate}" HorizontalContentAlignment="Stretch" />
                         </Grid>
                     </GroupBox>
 
