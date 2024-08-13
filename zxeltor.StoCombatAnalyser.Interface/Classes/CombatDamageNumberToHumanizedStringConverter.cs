@@ -21,8 +21,11 @@ public class CombatDamageNumberToHumanizedStringConverter : IValueConverter
     /// <inheritdoc />
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if(value != null && Information.IsNumeric(value))
-            return ((double)value).ToMetric(decimals: 3);
+        if (value != null && Information.IsNumeric(value))
+            if (value is double dblValue)
+                return dblValue.ToMetric(decimals: 2);
+            else if (value is int intValue)
+                return intValue.ToMetric(decimals: 2);
 
         return 0;
     }

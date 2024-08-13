@@ -5,26 +5,22 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:properties="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Properties"
     xmlns:classes="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes"
-    xmlns:modelcombatlog="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog"
     xmlns:controls="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Controls"
     xmlns:scottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
-    xmlns:myProperties="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Properties"
     x:Class="zxeltor.StoCombatAnalyzer.Interface.MainWindow"
     d:DataContext="{d:DesignInstance Type={x:Type classes:CombatLogManager}}"
     mc:Ignorable="d"
-    Title="{Binding Path=MainWindowTitle}" Height="600" MinHeight="600" Width="1000" MinWidth="1000" WindowStartupLocation="CenterScreen">
+    Title="{Binding Path=MainWindowTitle}" Height="1080" MinHeight="800" Width="1920" MinWidth="1000" WindowStartupLocation="CenterScreen">
     <Grid x:Name="uiGridMain">
         <Grid.Resources>
             <classes:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
             <classes:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
+            <classes:TypeToVisibilityConverterInverted x:Key="typeToVisibilityConverterInverted" />
             <classes:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
             <classes:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
             <classes:MapNameStringConverter x:Key="mapNameStringConverter" />
             <classes:MapNameColorConverter x:Key="mapNameColorConverter" />
             <classes:InvertBooleanConverter x:Key="invertBooleanConverter" />
-            <Brush x:Key="colorDps">Red</Brush>
-            <Brush x:Key="colorTotal">Green</Brush>
-            <Brush x:Key="colorMax">Purple</Brush>
             <Brush x:Key="colorEventTypeMetricLabel">Green</Brush>
             <Brush x:Key="colorEventTypeMetricValue">Blue</Brush>
             <Style TargetType="Border" x:Key="combatTypeLabelStyle">
@@ -53,138 +49,14 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
-            <ControlTemplate x:Key="combatEventTypeLabelTemplate" TargetType="{x:Type Label}">
-                <Border BorderBrush="Black" BorderThickness="2" CornerRadius="2" />
-            </ControlTemplate>
-            <DataTemplate x:Key="combatListItemTemplate" DataType="{x:Type modelcombatlog:Combat}">
-                <Border BorderBrush="Black" BorderThickness="2" Padding="4" Margin="0">
-                    <StackPanel Margin="0">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <TextBlock Text="Started: " />
-                            <TextBlock Text="{Binding CombatStart}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <TextBlock Text="Duration: " />
-                            <TextBlock Text="{Binding CombatDuration}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <TextBlock Text="Players: " />
-                            <TextBlock Text="{Binding PlayerEntities.Count}" />
-                            <TextBlock Text=", NonPlayers: " />
-                            <TextBlock Text="{Binding NonPlayerEntities.Count}" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </DataTemplate>
-            <DataTemplate x:Key="combatEntityItemTemplate" DataType="{x:Type modelcombatlog:CombatEntity}">
-                <StackPanel Orientation="Vertical">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Name=" />
-                        <TextBlock Text="{Binding OwnerDisplay}" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="GameId=" />
-                        <TextBlock Text="{Binding OwnerInternal}" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Active=" />
-                        <TextBlock Text="{Binding EntityCombatDuration}" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Start=" />
-                        <TextBlock
-                            Text="{Binding EntityCombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
-                        <TextBlock Text="End=" Margin="8,0,0,0" />
-                        <TextBlock
-                            Text="{Binding EntityCombatEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Combat Events=" />
-                        <TextBlock Text="{Binding CombatEventList.Count}" />
-                        <TextBlock Text="Kills=" Margin="8,0,0,0" />
-                        <TextBlock Text="{Binding EntityCombatKills}" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Damage(" Foreground="{StaticResource colorTotal}" />
-                        <TextBlock Text="{Binding EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorTotal}" />
-                        <TextBlock Text=")" Foreground="{StaticResource colorTotal}" />
-                        <TextBlock Text="DPS(" Margin="8,0,0,0" Foreground="{StaticResource colorDps}" />
-                        <TextBlock Text="{Binding EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorDps}" />
-                        <TextBlock Text=")" Foreground="{StaticResource colorDps}" />
-                        <TextBlock Text="Max Hit(" Margin="8,0,0,0" Foreground="{StaticResource colorMax}" />
-                        <TextBlock Text="{Binding EntityMaxMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorMax}" />
-                        <TextBlock Text=")" Foreground="{StaticResource colorMax}" />
-                    </StackPanel>
-                </StackPanel>
-            </DataTemplate>
-            <DataTemplate x:Key="selectedCombatDetailsTemplate" DataType="{x:Type modelcombatlog:Combat}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Margin="0,0,0,0" Height="Auto" VerticalAlignment="Top">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <TextBlock Text="Started: " />
-                            <TextBlock
-                                Text="{Binding CombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
-                            <TextBlock Text="Ended: " Margin="8,0,0,0" />
-                            <TextBlock
-                                Text="{Binding CombatEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <TextBlock Text="Duration: " />
-                            <TextBlock Text="{Binding CombatDuration}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <TextBlock Text="Map: " />
-                            <TextBlock Text="{Binding Path=Map, Converter={StaticResource mapNameStringConverter}}" 
-                                       Foreground="{Binding Path=Map, Converter={StaticResource mapNameColorConverter}}" FontWeight="Bold" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <TextBlock Text="Entities:" />
-                            <TextBlock Text="Players=" Margin="8,0,0,0"
-                                       Visibility="{Binding PlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" />
-                            <TextBlock Text="{Binding PlayerEntities.Count}" 
-                                       Visibility="{Binding PlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" />
-                            <TextBlock Text="Non-Players=" Margin="8,0,0,0"
-                                       Visibility="{Binding NonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" />
-                            <TextBlock Text="{Binding NonPlayerEntities.Count}" 
-                                       Visibility="{Binding NonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                            <TextBlock Text="Events: " Margin="0,0,0,0" />
-                            <TextBlock Text="{Binding Path=EventsCount}" />
-                        </StackPanel>
-                    </StackPanel>
-                    <GroupBox Grid.Row="1" Margin="0,4,0,0">
-                        <GroupBox.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Entity List" />
-                            </StackPanel>
-                        </GroupBox.Header>
-                        <TreeView x:Name="uiTreeViewCombatEntityList" SelectedItemChanged="uiTreeViewCombatEntityList_SelectedItemChanged"
-                                  HorizontalContentAlignment="Stretch">
-                            <TreeViewItem Name="uiTreeviewItemPlayers"  Header="Players" ItemsSource="{Binding PlayerEntitiesOrderByName}"
-                                          ItemTemplate="{StaticResource combatEntityItemTemplate}"
-                                          HorizontalContentAlignment="Stretch" IsExpanded="True"
-                                          ItemContainerStyle="{StaticResource combatEntityTreeViewItem}" />
-                            <TreeViewItem Header="NonPlayers" ItemsSource="{Binding NonPlayerEntitiesOrderByName}"
-                                          ItemTemplate="{StaticResource combatEntityItemTemplate}"
-                                          HorizontalContentAlignment="Stretch" IsExpanded="True"
-                                          ItemContainerStyle="{StaticResource combatEntityTreeViewItem}" />
-                        </TreeView>
-                    </GroupBox>
-                </Grid>
-            </DataTemplate>
         </Grid.Resources>
         <TabControl x:Name="uiTableControlMain" Margin="0">
             <TabItem x:Name="uiTabLogAnalyzer" Header="Log File Analyzer">
-                <Grid>
+                <Grid Name="uiGridTabLogAnalyzer">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="79*" />
-                        <RowDefinition Height="60*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="30*"></ColumnDefinition>
@@ -192,70 +64,151 @@
                     </Grid.ColumnDefinitions>
 
                     <Grid Grid.Row="0" Column="0" ColumnSpan="2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" Orientation="Horizontal">
-                            <Button x:Name="uiButtonParseLog" Width="32" Height="32" Margin="10,0,0,0" Padding="4,4,4,4"
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Row="0" Grid.Column="0" x:Name="uiButtonParseLog" Width="32" Height="32" Margin="0,0,0,0" Padding="4,4,4,4"
                                     ToolTip="Parse Log File(s)" Click="uiButtonParseLog_Click" IsEnabled="{Binding Path=IsExecutingBackgroundProcess, Converter={StaticResource invertBooleanConverter}}">
                                 <Image Source="Images/glyphicons-82-refresh.png"></Image>
                             </Button>
-                            <TextBlock Text="Combat List" VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                            <TextBlock Text=" (" VerticalAlignment="Center" Visibility="{Binding Path=Combats, Converter={StaticResource typeToVisibilityConverter}}" />
-                            <TextBlock Text="{Binding Path=Combats.Count}" VerticalAlignment="Center" 
-                                       Visibility="{Binding Path=Combats, Converter={StaticResource typeToVisibilityConverter}}" />
-                            <TextBlock Text="):" VerticalAlignment="Center" Visibility="{Binding Path=Combats, Converter={StaticResource typeToVisibilityConverter}}" />
-                            <ComboBox Name="uiComboBoxCombats" Text="Help" ItemsSource="{Binding Path=Combats}" IsSynchronizedWithCurrentItem="True" 
-                                      VerticalAlignment="Center" Margin="4,0,0,0" SelectedItem="{Binding Path=SelectedCombat}" SelectionChanged="UiComboBoxCombats_OnSelectionChanged">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Vertical">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Start: " />
-                                                <TextBlock Text="{Binding Path=CombatStart}" />
-                                            </StackPanel>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Duration: " Margin="0,0,0,0" />
-                                                <TextBlock Text="{Binding Path=CombatDuration}" />
-                                            </StackPanel>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Map: " />
-                                                <TextBlock Text="{Binding Path=Map, Converter={StaticResource mapNameStringConverter}}" 
-                                                           Foreground="{Binding Path=Map, Converter={StaticResource mapNameColorConverter}}" FontWeight="Bold" />
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </StackPanel>
-                        <Grid Grid.Column="1" Margin="16,0,0,0">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"></RowDefinition>
-                                <RowDefinition Height="*"></RowDefinition>
-                            </Grid.RowDefinitions>
-                            <Grid Grid.Row="0" HorizontalAlignment="Left">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                    <ColumnDefinition Width="*"></ColumnDefinition>
-                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                    <ColumnDefinition Width="*"></ColumnDefinition>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Margin="0,0,0,0" Text="Selected Entity:" VerticalAlignment="Center" HorizontalAlignment="Left"
-                                            Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />
-                                <TextBlock Grid.Column="1" Margin="4,0,0,0" Text="{Binding Path=SelectedCombatEntity.OwnerDisplay}" HorizontalAlignment="Left"
-                                            Foreground="CornflowerBlue" FontWeight="Bold" VerticalAlignment="Center"
-                                            Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />
-                                <TextBlock Grid.Column="2" Margin="16,0,0,0" Text="Selected Event Type:" VerticalAlignment="Center" HorizontalAlignment="Left"
-                                            Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />
-                                <TextBlock Grid.Column="3" Margin="4,0,0,0" Text="{Binding Path=SelectedCombatEventType.EventTypeLabel}" HorizontalAlignment="Left"
-                                            Foreground="CornflowerBlue" FontWeight="Bold" VerticalAlignment="Center"
-                                            Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}" />
-                            </Grid>
 
-                            <WrapPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,4,0,0"
-                                Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}">
+                            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" Margin="4,0,4,0">
+                                <CheckBox Name="uiCheckBoxDisplayAnalysisTools" Content="Display Analysis Tools" Margin="0,2,0,0"
+                                          IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsEnableAnalysisTools}"
+                                          HorizontalAlignment="Left" Click="UiCheckBoxDisplayAnalysisTools_OnClick" 
+                                          ToolTip="{x:Static properties:Resources.is_display_analysis_tools}"/>
+
+                                <GroupBox HorizontalAlignment="Center" Margin="0,4,0,0"
+                                          Visibility="{Binding Path=Combats.Count, Converter={StaticResource typeToVisibilityConverter}}">
+                                    <GroupBox.Header>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                            <TextBlock Text="Combat Select: " VerticalAlignment="Center" />
+                                            <TextBlock Text="{Binding Path=Combats.Count}" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </GroupBox.Header>
+                                    <ComboBox Name="uiComboBoxCombats" Text="Help" ItemsSource="{Binding Path=Combats}" IsSynchronizedWithCurrentItem="True" 
+                                              VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="100"
+                                              SelectedItem="{Binding Path=SelectedCombat}" SelectionChanged="UiComboBoxCombats_OnSelectionChanged">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Vertical">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Start: " />
+                                                        <TextBlock Text="{Binding Path=CombatStart}" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Duration: " Margin="0,0,0,0" />
+                                                        <TextBlock Text="{Binding Path=CombatDuration}" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Map: " />
+                                                        <TextBlock Text="{Binding Path=Map, Converter={StaticResource mapNameStringConverter}}" 
+                                                                    Foreground="{Binding Path=Map, Converter={StaticResource mapNameColorConverter}}" FontWeight="Bold" />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </GroupBox>
+                                
+                            </StackPanel>
+
+                            <GroupBox Grid.Row="0" Grid.Column="2" Margin="4,0,4,0" Visibility="{Binding Path=SelectedCombat, Converter={StaticResource typeToVisibilityConverter}}">
+                                <GroupBox.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Selected Combat" />
+                                    </StackPanel>
+                                </GroupBox.Header>
+                                <Grid Visibility="{Binding Path=SelectedCombat, Converter={StaticResource typeToVisibilityConverter}}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="*"></RowDefinition>
+                                    </Grid.RowDefinitions>
+
+                                    <StackPanel Grid.Row="0" Margin="0,0,0,0">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Text="Started: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                            <TextBlock Text="{Binding Path=SelectedCombat.CombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" 
+                                                       Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                            <TextBlock Text="Ended: " Margin="8,0,0,0" Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                            <TextBlock Text="{Binding Path=SelectedCombat.CombatEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" 
+                                                       Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Text="Duration: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                            <TextBlock Text="{Binding Path=SelectedCombat.CombatDuration}" Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Text="Map: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                            <TextBlock Text="{Binding Path=SelectedCombat.Map, Converter={StaticResource mapNameStringConverter}}" Foreground="{Binding Path=SelectedCombat.Map, Converter={StaticResource mapNameColorConverter}}" FontWeight="Bold" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Text="Players: " Margin="0,0,0,0" Visibility="{Binding PlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" 
+                                                       Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                            <TextBlock Text="{Binding Path=SelectedCombat.PlayerEntities.Count}" Visibility="{Binding Path=SelectedCombat.PlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" 
+                                                       Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                            <TextBlock Text="Non-Players: " Margin="4,0,0,0" Visibility="{Binding Path=SelectedCombat.NonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" 
+                                                       Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                            <TextBlock Text="{Binding Path=SelectedCombat.NonPlayerEntities.Count}" Visibility="{Binding Path=SelectedCombat.NonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" 
+                                                       Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                            <TextBlock Text="Events: " Margin="4,0,0,0" Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                            <TextBlock Text="{Binding Path=SelectedCombat.EventsCount}" Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                   
+                                </Grid>
+                            </GroupBox>
+
+                            <GroupBox Header="Selected Player" Grid.Row="0" Grid.Column="3" Margin="4,0,4,0" 
+                                      Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}">
+                                <StackPanel Orientation="Vertical">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Name: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombatEntity.OwnerDisplay}" 
+                                                   Foreground="CornflowerBlue" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Id: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombatEntity.OwnerInternal}" TextWrapping="Wrap" 
+                                                   Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Active: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombatEntity.EntityCombatDuration}" 
+                                                   Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Start: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombatEntity.EntityCombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" 
+                                                   Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                        <TextBlock Text="End: " Margin="8,0,0,0" Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombatEntity.EntityCombatEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" 
+                                                   Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </GroupBox>
+                        </Grid>
+
+                        <Grid Grid.Row="1" Margin="4,0,4,0" Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}">
+                            <GroupBox>
+                                <GroupBox.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Selected Event Type Details: " VerticalAlignment="Center" HorizontalAlignment="Left" />
+                                        <TextBlock Text="{Binding Path=SelectedCombatEventType.EventTypeLabel}" HorizontalAlignment="Left"
+                                                   Foreground="CornflowerBlue" FontWeight="Bold" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </GroupBox.Header>
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,4,0,0"
+                                           Visibility="{Binding Path=SelectedCombatEntity, Converter={StaticResource typeToVisibilityConverter}}">
                                 <Border Style="{StaticResource combatTypeLabelStyle}">
                                     <Label>
                                         <StackPanel Orientation="Horizontal">
@@ -305,7 +258,7 @@
                                     <Label>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Attacks:" Foreground="{StaticResource colorEventTypeMetricLabel}" Margin="0,0,2,0" />
-                                            <TextBlock Text="{Binding Path=SelectedCombatEventType.Attacks}" Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                                <TextBlock Text="{Binding Path=SelectedCombatEventType.Attacks, Converter={StaticResource doubleToThousandsStringConverter}}" Foreground="{StaticResource colorEventTypeMetricValue}" />
                                         </StackPanel>
                                     </Label>
                                 </Border>
@@ -329,7 +282,8 @@
                                     <Label>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Kills:" Foreground="{StaticResource colorEventTypeMetricLabel}" Margin="0,0,2,0" />
-                                            <TextBlock Text="{Binding Path=SelectedCombatEventType.Kills}" Foreground="{StaticResource colorEventTypeMetricValue}"/>
+                                                <TextBlock Text="{Binding Path=SelectedCombatEventType.Kills, Converter={StaticResource doubleToThousandsStringConverter}}" 
+                                                           Foreground="{StaticResource colorEventTypeMetricValue}"/>
                                         </StackPanel>
                                     </Label>
                                 </Border>
@@ -351,7 +305,8 @@
                                         </StackPanel>
                                     </Label>
                                 </Border>
-                            </WrapPanel>
+                            </StackPanel>
+                            </GroupBox>
                         </Grid>
                     </Grid>
 
@@ -368,18 +323,73 @@
                                 <Image Tag="combat_details" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16"
                                        ToolTip="Click for more details."
                                     MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
-                                <TextBlock Text="Combat Details" Margin="8,0,0,0" />
+                                <TextBlock Text="Player Select" Margin="8,0,0,0" />
                             </StackPanel>
                         </GroupBox.Header>
-                        <Grid>
-                            <ContentControl Name="uiContentControlSelectedCombat" Content="{Binding Combats}"
-                                            ContentTemplate="{StaticResource selectedCombatDetailsTemplate}" HorizontalContentAlignment="Stretch" />
+                        <Grid Visibility="{Binding Path=SelectedCombat, Converter={StaticResource typeToVisibilityConverter}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            
+                            <Grid Grid.Row="1" Margin="0,4,0,0" Name="uiGridPlayerEntities">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                
+                                <GroupBox Grid.Row="0" Margin="0,0,0,0">
+                                    <GroupBox.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Players: "></TextBlock>
+                                            <TextBlock Text="{Binding Path=SelectedCombat.PlayerEntities.Count}"></TextBlock>
+                                        </StackPanel>
+                                    </GroupBox.Header>
+                                    <ListView ItemsSource="{Binding Path=SelectedCombat.PlayerEntitiesOrderByName}"
+                                              SelectedItem="{Binding Path=SelectedCombatEntity, Mode=TwoWay}"
+                                              SelectionChanged="Selector_OnSelectionChanged">
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Path=OwnerDisplay}" />
+                                                <GridViewColumn Header="Attacks" DisplayMemberBinding="{Binding Path=EntityCombatAttacks}" />
+                                                <GridViewColumn Header="Kills" DisplayMemberBinding="{Binding Path=EntityCombatKills}" />
+                                                <GridViewColumn Header="Damage" DisplayMemberBinding="{Binding Path=EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" />
+                                                <GridViewColumn Header="DPS" DisplayMemberBinding="{Binding Path=EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}" />
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
+                                </GroupBox>
+
+                                <CheckBox Name="uiCheckBoxDisplayNonPlayerEntities" Grid.Row="1" Margin="0,4,0,0" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsIncludeNonPlayerEntities}" 
+                                          Content="Display Non-Players" HorizontalAlignment="Left"
+                                          Click="UiCheckBoxDisplayNonPlayerEntities_OnClick" />
+
+                                <GroupBox Grid.Row="2" Margin="0,4,0,0" 
+                                          Visibility="{Binding Source={x:Static properties:Settings.Default}, Path=IsIncludeNonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}">
+                                    <GroupBox.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Non Players: "></TextBlock>
+                                            <TextBlock Text="{Binding Path=SelectedCombat.NonPlayerEntities.Count}"></TextBlock>
+                                        </StackPanel>
+                                    </GroupBox.Header>
+                                    <ListView ItemsSource="{Binding Path=SelectedCombat.NonPlayerEntitiesOrderByName}" Margin="0,0,0,0"
+                                              SelectedItem="{Binding Path=SelectedCombatEntity, Mode=TwoWay}"
+                                              SelectionChanged="Selector_OnSelectionChanged">
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Path=OwnerDisplay}" />
+                                                <GridViewColumn Header="Attacks" DisplayMemberBinding="{Binding Path=EntityCombatAttacks}" />
+                                                <GridViewColumn Header="Kills" DisplayMemberBinding="{Binding Path=EntityCombatKills}" />
+                                                <GridViewColumn Header="Damage" DisplayMemberBinding="{Binding Path=EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" />
+                                                <GridViewColumn Header="DPS" DisplayMemberBinding="{Binding Path=EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}" />
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
+                                </GroupBox>
+                            </Grid>
                         </Grid>
                     </GroupBox>
-
-                    <GridSplitter Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Background="Gray" Height="2" Margin="10,2,10,0"
-                                  HorizontalAlignment="Stretch" VerticalAlignment="Top" />
-
+                    
                     <GroupBox Grid.Row="1" Grid.Column="1" Margin="4,4,4,4" Padding="4,4,4,4">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
@@ -387,11 +397,12 @@
                                        ToolTip="Click for more details."
                                        Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
                                 <TextBlock Text="Event Type Breakdown" Margin="4,0,0,0" VerticalAlignment="Center" />
-                                <CheckBox Name="uiCheckBoxDisplayPetsOnlyOnPieChart" IsChecked="False" Content="Pets Only" Margin="8,0,0,0"
+                                <CheckBox Name="uiCheckBoxDisplayPetsOnlyOnPieChart" IsChecked="False" Content="Display Pets Only" Margin="8,0,0,0"
+                                          ToolTip="{x:Static properties:Resources.is_display_pets_only}"
                                           VerticalAlignment="Center" Tag="PetsOnlyOn"
                                           Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
                                           Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
-                                <Button Name="uiButtonResetBarPlot" ToolTip="Reset" Margin="16,0,0,0" Width="16" Height="16"
+                                <Button Name="uiButtonResetBarPlot" ToolTip="Reset Pan/Zoom of map, and set Event Type to OVERALL." Margin="16,0,0,0" Width="16" Height="16"
                                         VerticalAlignment="Center"
                                         Click="UiButtonResetPlot_OnClick">
                                     <Image Source="Images/glyphicons-366-restart.png"></Image>
@@ -401,7 +412,7 @@
                         <scottPlot:WpfPlot Name="uiScottBarChartEntityEventTypes" />
                     </GroupBox>
 
-                    <Grid Grid.Row="2" Grid.Column="0" ColumnSpan="2">
+                    <Grid Grid.Row="2" Grid.Column="0" ColumnSpan="2" Visibility="{Binding Source={x:Static properties:Settings.Default}, Path=IsEnableAnalysisTools, Converter={StaticResource typeToVisibilityConverter}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="50*" />
                             <ColumnDefinition Width="50*" />
@@ -413,17 +424,9 @@
                                         <Image Tag="combat_events_datagrid" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" 
                                                ToolTip="Click for more details." VerticalAlignment="Center"/>
                                         <TextBlock Text="Event(s) DataGrid" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text=":"  VerticalAlignment="Center"/>
-                                        <TextBlock Text="'" Visibility="{Binding Path=EventTypeDisplayFilter.EventTypeLabel, Converter={StaticResource typeToVisibilityConverter}}" 
-                                                    Margin="4,0,0,0"  VerticalAlignment="Center" />
-                                        <TextBlock Text="{Binding Path=EventTypeDisplayFilter.EventTypeLabel}"  VerticalAlignment="Center"/>
-                                        <TextBlock Text="'" Visibility="{Binding Path=EventTypeDisplayFilter.EventTypeLabel, Converter={StaticResource typeToVisibilityConverter}}"  
-                                                    VerticalAlignment="Center"/>
-                                        <TextBlock Text="(" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" 
-                                                    Margin="4,0,0,0" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Path=FilteredSelectedEntityCombatEventList.Count}" VerticalAlignment="Center"/>
-                                        <TextBlock Text=")" Visibility="{Binding Path=FilteredSelectedEntityCombatEventList, Converter={StaticResource typeToVisibilityConverter}}" 
-                                                    VerticalAlignment="Center"/>
+                                        <TextBlock Text=": "  VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Path=EventTypeDisplayFilter.EventTypeLabel}"  Foreground="CornflowerBlue" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Path=FilteredSelectedEntityCombatEventList.Count}" Margin="4,0,0,0" VerticalAlignment="Center"/>
                                         <CheckBox Name="uiCheckBoxDataGridUnitSelectionMode" IsChecked="False" Margin="32,0,0,0"
                                                   VerticalAlignment="Center">Enable cell selection</CheckBox>
                                     </StackPanel>
@@ -460,8 +463,7 @@
                                     </Button>
                                 </Grid>
 
-                                <DataGrid Name="uiDataGridAllEvents" Grid.Row="1"
-                                          ItemsSource="{Binding FilteredSelectedEntityCombatEventList}" AutoGenerateColumns="False"
+                                <DataGrid Name="uiDataGridAllEvents" Grid.Row="1" ItemsSource="{Binding FilteredSelectedEntityCombatEventList}" AutoGenerateColumns="False"
                                       CanUserReorderColumns="True" CanUserSortColumns="True"
                                       CanUserResizeColumns="True" SelectionChanged="UiDataGridAllEvents_OnSelectionChanged"
                                       SelectionUnit="{Binding ElementName=uiCheckBoxDataGridUnitSelectionMode, Path=IsChecked, Converter={StaticResource typeToDataGridSelectUnitConverter}}">
@@ -1048,7 +1050,7 @@
                            Source="Images/trekwphaser-128x128.png" />
 
                     <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center"  HorizontalAlignment="Center">
-                        <TextBlock Text="{x:Static myProperties:Resources.ApplicationName}" FontSize="40" FontWeight="Bold"/>
+                        <TextBlock Text="{x:Static properties:Resources.ApplicationName}" FontSize="40" FontWeight="Bold"/>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Version:" FontSize="16" FontWeight="Bold" />
                             <TextBlock Text="{Binding Path=ApplicationVersionInfoString, Mode=OneTime}" FontSize="16" Margin="8,0,0,0" />
@@ -1076,21 +1078,21 @@
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Source Code:" FontWeight="Bold" HorizontalAlignment="Right" />
-                            <TextBox Grid.Row="0" Grid.Column="1" Text="{x:Static myProperties:Resources.GithubRepoUrl}" IsReadOnly="True" Margin="8,0,0,0" />
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{x:Static properties:Resources.GithubRepoUrl}" IsReadOnly="True" Margin="8,0,0,0" />
                             <Button Tag="GithubRepoUrl" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" Height="20" Margin="8,0,0,0" Click="Browse_OnMouseLeftButtonUp">
                                 <Button.ToolTip>Attempt to open URL in default browser.</Button.ToolTip>
                                 <Image Source="Images/glyphicons-152-new-window.png" />
                             </Button>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Wiki:" Margin="0,10,0,0" FontWeight="Bold" HorizontalAlignment="Right" />
-                            <TextBox Grid.Row="1" Grid.Column="1" Text="{x:Static myProperties:Resources.GithubRepoWikiUrl}" IsReadOnly="True" Margin="8,10,0,0" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{x:Static properties:Resources.GithubRepoWikiUrl}" IsReadOnly="True" Margin="8,10,0,0" />
                             <Button Tag="GithubRepoWikiUrl" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" Height="20" Margin="8,10,0,0" Click="Browse_OnMouseLeftButtonUp">
                                 <Button.ToolTip>Attempt to open URL in default browser.</Button.ToolTip>
                                 <Image Source="Images/glyphicons-152-new-window.png" />
                             </Button>
 
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Latest Map Detection Settings:" Margin="0,10,0,0" FontWeight="Bold" HorizontalAlignment="Right" />
-                            <TextBox Grid.Row="2" Grid.Column="1" Text="{x:Static myProperties:Resources.GithubMapDetectRepoUrl}" IsReadOnly="True" Margin="8,10,0,0" />
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{x:Static properties:Resources.GithubMapDetectRepoUrl}" IsReadOnly="True" Margin="8,10,0,0" />
                             <Button Tag="GithubMapDetectRepoUrl" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Left" Height="20" Margin="8,10,0,0" Click="Browse_OnMouseLeftButtonUp">
                                 <Button.ToolTip>Attempt to open URL in default browser.</Button.ToolTip>
                                 <Image Source="Images/glyphicons-152-new-window.png" />

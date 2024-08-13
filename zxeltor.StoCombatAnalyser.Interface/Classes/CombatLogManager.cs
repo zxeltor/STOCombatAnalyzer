@@ -35,7 +35,7 @@ public class CombatLogManager : INotifyPropertyChanged
     private string? _combatMapDetectionSettingsBeforeSave;
     private string? _dataGridSearchString;
 
-    private CombatEventTypeSelector _eventTypeDisplayFilter = new("ALL");
+    private CombatEventTypeSelector _eventTypeDisplayFilter = new("OVERALL");
 
     private bool _isExecutingBackgroundProcess;
     private Combat? _selectedCombat;
@@ -212,13 +212,17 @@ public class CombatLogManager : INotifyPropertyChanged
         {
             ObservableCollection<CombatEvent> results;
 
+            // If we don't have analysis tool turned on, we don't want to take the time to return this list.
+            if (!Settings.Default.IsEnableAnalysisTools)
+                return null;
+
             // Return a list of all player events, with pet events grouped together.
-            if (this.EventTypeDisplayFilter == null || this.EventTypeDisplayFilter.EventTypeId.Equals("ALL"))
+            if (this.EventTypeDisplayFilter == null || this.EventTypeDisplayFilter.EventTypeId.Equals("OVERALL"))
             {
                 results = this.SelectedEntityCombatEventList;
             }
             // Return a list of all Player Pet events
-            else if (this.EventTypeDisplayFilter.EventTypeId.Equals("ALL PETS"))
+            else if (this.EventTypeDisplayFilter.EventTypeId.Equals("PETS OVERALL"))
             {
                 results = new ObservableCollection<CombatEvent>(
                     this.SelectedEntityCombatEventList?.Where(evt => evt.IsPetEvent) ?? Array.Empty<CombatEvent>());
@@ -291,8 +295,8 @@ public class CombatLogManager : INotifyPropertyChanged
         {
             var resultCollection = new ObservableCollection<CombatEventTypeSelector>
             {
-                new("ALL"), // Return all events
-                new("ALL PETS") // Return player pet events.
+                new("OVERALL"), // Return all events
+                new("PETS OVERALL") // Return player pet events.
             };
 
             // Add player events to the list
@@ -324,7 +328,7 @@ public class CombatLogManager : INotifyPropertyChanged
         get => this._eventTypeDisplayFilter;
         set
         {
-            this.SetField(ref this._eventTypeDisplayFilter, value ?? new CombatEventTypeSelector("ALL"));
+            this.SetField(ref this._eventTypeDisplayFilter, value ?? new CombatEventTypeSelector("OVERALL"));
             this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
         }
     }
@@ -560,9 +564,12 @@ public class CombatLogManager : INotifyPropertyChanged
 
             this.AddToLogAndLogSummaryInUi(completionMessage);
 
-            ResponseDialog.Show(Application.Current.MainWindow, completionMessage, "Success",
-                detailsBoxCaption: "Files parsed",
-                detailsBoxList: fileParsedResults.Select(file => file.Value.ToLog()).ToList());
+            if (Properties.Settings.Default.IsDisplayParseResults)
+            {
+                ResponseDialog.Show(Application.Current.MainWindow, completionMessage, "Success",
+                    detailsBoxCaption: "Files parsed",
+                    detailsBoxList: fileParsedResults.Select(file => file.Value.ToLog()).ToList());
+            }
         }
         catch (Exception ex)
         {
@@ -603,7 +610,7 @@ public class CombatLogManager : INotifyPropertyChanged
 
         this.EventTypeDisplayFilter =
             this.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(eventType =>
-                eventType.EventTypeId.Equals("ALL"))!;
+                eventType.EventTypeId.Equals("OVERALL"))!;
 
         this.OnPropertyChanged(nameof(this.SelectedCombatEntity));
         this.OnPropertyChanged(nameof(this.SelectedCombatEntityEventTypeTotalDamage));

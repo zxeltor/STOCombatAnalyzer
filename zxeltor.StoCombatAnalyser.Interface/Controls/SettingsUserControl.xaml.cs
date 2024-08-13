@@ -303,6 +303,12 @@ public partial class SettingsUserControl : UserControl
     {
         this.SetLog4netLogLevelFromSettings();
     }
+
+    private void SaveSettings_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (e.Source != null)
+            Properties.Settings.Default.Save();
+    }
 }
 
 /// <summary>

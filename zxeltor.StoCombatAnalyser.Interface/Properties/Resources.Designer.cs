@@ -70,16 +70,7 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This is used to examine a selected Combat from the Combat List dropdown. When a Player or NonPlayer entity is selected here, the rest of the controls in the UI update with information for the selected entity..
-        /// </summary>
-        public static string combat_details {
-            get {
-                return ResourceManager.GetString("combat_details", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to This is a breakdown of event types for the selected combat entity. If you click on a particular bar, the DataGrid and Magnitude Plot will update with more specific data for the selected event type..
+        ///   Looks up a localized string similar to This is a breakdown of event types for the selected Player. If you click on a particular bar, the DataGrid and Magnitude Plot will update with more specific data for the selected event type..
         /// </summary>
         public static string combat_event_type_breakdown {
             get {
@@ -90,7 +81,9 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         /// <summary>
         ///   Looks up a localized string similar to This displays the raw STO combat log data for the selected event type. By default, not all data columns from the combat log are displayed. You can enable/disable the columns in the display by right clicking on the datagrid and interacting with the context menu that’s displayed.
         ///
-        ///Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI..
+        ///Notes:
+        ///1) If you choose to use the Search field for filtering, keep in mind it will only filter on columns which are visible.
+        ///2) Keep in mind this shows the raw data from the combat logs..
         /// </summary>
         public static string combat_events_datagrid {
             get {
@@ -101,11 +94,11 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         /// <summary>
         ///   Looks up a localized string similar to This is a scatter plot of the Magnitude data vs. time for the selected event type. You can use the control to switch between the various groupings of event types. You can also display the MagnitudeBase data on the grid if selected.
         ///
-        ///Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI..
+        ///Note: Keep in mind this shows the raw data from the combat logs..
         /// </summary>
-        public static string combat_events_plot {
+        public static string combat_events_scatterplot {
             get {
-                return ResourceManager.GetString("combat_events_plot", resourceCulture);
+                return ResourceManager.GetString("combat_events_scatterplot", resourceCulture);
             }
         }
         
@@ -173,6 +166,33 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         public static string import_detection_json {
             get {
                 return ResourceManager.GetString("import_detection_json", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display the Events(s) DataGrid and the Event(s) Magnitude Plot..
+        /// </summary>
+        public static string is_display_analysis_tools {
+            get {
+                return ResourceManager.GetString("is_display_analysis_tools", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If selected, display a breakdown of Pet Only events in the Event Type Breakdown barchart..
+        /// </summary>
+        public static string is_display_pets_only {
+            get {
+                return ResourceManager.GetString("is_display_pets_only", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When a Player is selected here, the rest of the controls in the UI update with information for the selected Player..
+        /// </summary>
+        public static string player_select {
+            get {
+                return ResourceManager.GetString("player_select", resourceCulture);
             }
         }
         

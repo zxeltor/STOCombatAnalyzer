@@ -121,6 +121,20 @@ public class CombatEntity : INotifyPropertyChanged
         this.CombatEventList.Count(dam => dam.Flags.Contains("kill", StringComparison.CurrentCultureIgnoreCase));
 
     /// <summary>
+    ///     Get a number of attacks for this entity
+    /// </summary>
+    public int EntityCombatAttacks
+    {
+        get
+        {
+            var entityAttacks = this.CombatEventTypeListForEntity.Sum(evt => evt.Attacks);
+            var entityPetAttacks = this.CombatEventTypeListForEntityPets.Sum(pEvt => pEvt.CombatEventTypes.Sum(evt => evt.Attacks));
+
+            return entityAttacks + entityPetAttacks;
+        }
+    }
+
+    /// <summary>
     ///     A rudimentary calculation for player events EntityMagnitudePerSecond, and probably incorrect.
     /// </summary>
     public double EntityMagnitudePerSecond

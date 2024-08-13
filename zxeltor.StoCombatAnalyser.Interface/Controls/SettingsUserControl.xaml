@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Controls"
+             xmlns:properties="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Properties"
              d:DataContext="{d:DesignInstance Type=local:SettingsUserControlBindingContext}"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="614">
     <Grid>
@@ -203,6 +204,44 @@
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
                         <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">Combine Pets in the UI. Combine pet types by using SourceDisplay field, instead of showing each unique pet using SourceInternal.</TextBlock>
+                    </StackPanel>
+                </Grid>
+            </ListBoxItem>
+            <ListBoxItem Tag="EnableDisplayParseResults" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="DisplayParseResults" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <CheckBox x:Name="uiCheckBoxEnableParseResultsInUi" Content="Enable" Margin="4,4,0,0"
+                                  IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsDisplayParseResults}"
+                                  Click="SaveSettings_OnClick"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">Display the parse results after the user clicks the "Parse Log File(s)" button in the UI.</TextBlock>
+                    </StackPanel>
+                </Grid>
+            </ListBoxItem>
+            <ListBoxItem Tag="EnableLatestCombatSelect" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="EnableLatestCombatSelectOnParse" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <CheckBox Content="Enable" Margin="4,4,0,0"
+                                  IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsSelectLatestCombatOnParseLogs}"
+                                  Click="SaveSettings_OnClick"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
+                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">Display the latest combat result after the user clicks the "Parse Log File(s)" button in the UI.</TextBlock>
                     </StackPanel>
                 </Grid>
             </ListBoxItem>

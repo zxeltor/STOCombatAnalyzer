@@ -89,7 +89,7 @@ public class CombatEventType
             this.EventTypeLabel = eventDisplay ?? eventInternal ?? sourceDisplay ?? sourceInternal;
         }
 
-        this.EventTypeLabelWithTotal = $"{this.EventTypeLabel}: Damage({this.Damage.ToMetric(null, 3)})";
+        this.EventTypeLabelWithTotal = $"{this.EventTypeLabel}: Damage({this.Damage.ToMetric(null, 2)})";
     }
 
     public bool IsPetEventType { get; }
