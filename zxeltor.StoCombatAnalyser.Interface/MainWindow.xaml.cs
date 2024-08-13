@@ -16,7 +16,6 @@ using ScottPlot.Plottables;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
-using zxeltor.StoCombatAnalyzer.Interface.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
@@ -78,6 +77,10 @@ public partial class MainWindow
             if (!string.IsNullOrWhiteSpace(errorReason))
                 ResponseDialog.Show(Application.Current.MainWindow, errorReason, "Combat log purge error");
         }
+
+        // Utilize config params which affect the layout of the UI.
+        this.ToggleDisplayNonPlayerEntities(Settings.Default.IsIncludeNonPlayerEntities);
+        this.ToggleDisplayAnalysisTools(Settings.Default.IsEnableAnalysisTools);
     }
 
     /// <summary>
@@ -197,13 +200,20 @@ public partial class MainWindow
             progressDialog = new ProgressDialog(this,
                 () => this.CombatLogManagerContext.GetCombatLogEntriesFromLogFiles(),
                 "Parsing combat log(s)");
+
             var dialogResult = progressDialog.ShowDialog();
+
             if (!dialogResult.HasValue || !dialogResult.Value)
                 throw new Exception("Background task failed.");
 
             this.Focus();
 
-            this.SetPlots();
+            // Optionally load the latest Combat instance from the Combat list
+            var latestCombat = this.CombatLogManagerContext.Combats.FirstOrDefault();
+            if (Settings.Default.IsSelectLatestCombatOnParseLogs && latestCombat != null)
+                this.CombatLogManagerContext.SelectedCombat = latestCombat;
+            else
+                this.SetPlots();
         }
         catch (Exception exception)
         {
@@ -217,27 +227,6 @@ public partial class MainWindow
             progressDialog?.Close();
             this.CombatLogManagerContext.IsExecutingBackgroundProcess = false;
         }
-    }
-
-    private void uiTreeViewCombatEntityList_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-    {
-        if (e.NewValue is CombatEntity combatEntity)
-        {
-            // Find the combat entity and make sure it gets selected in the treeview.
-            var itemList = AppHelper.FindVisualChildren<TreeViewItem>(this.uiContentControlSelectedCombat).ToList();
-            var selectedTreeViewItem = itemList.FirstOrDefault(item => item.DataContext.Equals(combatEntity));
-            if (selectedTreeViewItem != null)
-                selectedTreeViewItem.IsSelected = true;
-
-            this.CombatLogManagerContext.SetSelectedCombatEntity(combatEntity);
-        }
-        else
-        {
-            this.CombatLogManagerContext.SetSelectedCombatEntity(null);
-        }
-
-        this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked = false;
-        this.SetPlots();
     }
 
     /// <summary>
@@ -258,6 +247,10 @@ public partial class MainWindow
 
         this.uiScottScatterPlotEntityEvents.Plot.Clear();
         this.uiScottScatterPlotEntityEvents.Refresh();
+
+        // If analysis tools are disabled, just return after plot has been cleared.
+        if (!Settings.Default.IsEnableAnalysisTools)
+            return;
 
         var filteredCombatEventList = this.CombatLogManagerContext.FilteredSelectedEntityCombatEventList;
 
@@ -310,29 +303,29 @@ public partial class MainWindow
             var total = 0d;
             var max = 0d;
 
-            if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals("ALL"))
+            if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals("OVERALL"))
             {
                 dps = this.CombatLogManagerContext.SelectedCombatEntity.EntityMagnitudePerSecond;
                 total = this.CombatLogManagerContext.SelectedCombatEntity.EntityTotalMagnitude;
                 max = this.CombatLogManagerContext.SelectedCombatEntity.EntityMaxMagnitude;
 
                 var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
-                    $"ALL: "
-                    + $"Damage({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                    $"OVERALL: "
+                    + $"Damage({total.ToMetric(null, 2)}) DPS({dps.ToMetric(null, 2)}) Max Hit({max.ToMetric(null, 2)})",
                     Alignment.UpperCenter);
 
                 annotation.LabelFontSize = 18f;
                 annotation.LabelBold = true;
             }
-            else if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals("ALL PETS"))
+            else if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals("PETS OVERALL"))
             {
                 dps = this.CombatLogManagerContext.SelectedCombatEntity.PetsMagnitudePerSecond;
                 total = this.CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude;
                 max = this.CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude;
 
                 var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
-                    $"ALL PETS: "
-                    + $"Damage({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                    $"PETS OVERALL: "
+                    + $"Damage({total.ToMetric(null, 2)}) DPS({dps.ToMetric(null, 2)}) Max Hit({max.ToMetric(null, 2)})",
                     Alignment.UpperCenter);
 
                 annotation.LabelFontSize = 18f;
@@ -355,7 +348,7 @@ public partial class MainWindow
 
                             var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
                                 $"{evt.EventTypeLabel}: "
-                                + $"Damage({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                                + $"Damage({total.ToMetric(null, 2)}) DPS({dps.ToMetric(null, 2)}) Max Hit({max.ToMetric(null, 2)})",
                                 Alignment.UpperCenter);
 
                             annotation.LabelFontSize = 18f;
@@ -378,7 +371,7 @@ public partial class MainWindow
 
                     var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
                         $"{combatEventType.EventTypeLabel}: "
-                        + $"Damage({total.ToMetric(null, 3)}) DPS({dps.ToMetric(null, 3)}) Max Hit({max.ToMetric(null, 3)})",
+                        + $"Damage({total.ToMetric(null, 2)}) DPS({dps.ToMetric(null, 2)}) Max Hit({max.ToMetric(null, 2)})",
                         Alignment.UpperCenter);
 
                     annotation.LabelFontSize = 18f;
@@ -510,9 +503,9 @@ public partial class MainWindow
             if (this.CombatLogManagerContext.SelectedCombatEntity != null)
             {
                 var upperCenterAnnotation = this.uiScottBarChartEntityEventTypes.Plot.Add.Annotation(
-                    $"ALL PETS: Damage({this.CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude.ToMetric(null, 3)})"
-                    + $" DPS({this.CombatLogManagerContext.SelectedCombatEntity.PetsMagnitudePerSecond.ToMetric(null, 3)})"
-                    + $" Max Hit({this.CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude.ToMetric(null, 3)})"
+                    $"PETS OVERALL: Damage({this.CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude.ToMetric(null, 2)})"
+                    + $" DPS({this.CombatLogManagerContext.SelectedCombatEntity.PetsMagnitudePerSecond.ToMetric(null, 2)})"
+                    + $" Max Hit({this.CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude.ToMetric(null, 2)})"
                     , Alignment.UpperCenter);
 
                 upperCenterAnnotation.LabelFontSize = 18f;
@@ -555,16 +548,16 @@ public partial class MainWindow
                         Position = positionCounter--,
                         Value = sumOfMagnitude,
                         FillColor = Color.FromHex("000000"),
-                        Label = $"ALL PETS: Damage({sumOfMagnitude.ToMetric(null, 3)})"
+                        Label = $"PETS OVERALL: Damage({sumOfMagnitude.ToMetric(null, 2)})"
                     });
             }
 
             if (this.CombatLogManagerContext.SelectedCombatEntity != null)
             {
                 var upperCenterAnnotation = this.uiScottBarChartEntityEventTypes.Plot.Add.Annotation(
-                    $"ALL: Damage({this.CombatLogManagerContext.SelectedCombatEntity.EntityTotalMagnitude.ToMetric(null, 3)})"
-                    + $" DPS({this.CombatLogManagerContext.SelectedCombatEntity.EntityMagnitudePerSecond.ToMetric(null, 3)})"
-                    + $" Max Hit({this.CombatLogManagerContext.SelectedCombatEntity.EntityMaxMagnitude.ToMetric(null, 3)})"
+                    $"OVERALL: Damage({this.CombatLogManagerContext.SelectedCombatEntity.EntityTotalMagnitude.ToMetric(null, 2)})"
+                    + $" DPS({this.CombatLogManagerContext.SelectedCombatEntity.EntityMagnitudePerSecond.ToMetric(null, 2)})"
+                    + $" Max Hit({this.CombatLogManagerContext.SelectedCombatEntity.EntityMaxMagnitude.ToMetric(null, 2)})"
                     , Alignment.UpperCenter);
 
                 upperCenterAnnotation.LabelFontSize = 18f;
@@ -627,11 +620,11 @@ public partial class MainWindow
                     if (mouseLocation.Y >= minY && mouseLocation.Y <= maxY && mouseLocation.X >= minX &&
                         mouseLocation.X <= maxX)
                     {
-                        if (bar.Label.StartsWith("ALL PETS"))
+                        if (bar.Label.StartsWith("PETS OVERALL"))
                         {
                             this.CombatLogManagerContext.EventTypeDisplayFilter = this.CombatLogManagerContext
                                 .SelectedEntityCombatEventTypeListDisplayedFilterOptions
-                                .FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL PETS"));
+                                .FirstOrDefault(eventType => eventType.EventTypeId.Equals("PETS OVERALL"));
 
                             return;
                         }
@@ -662,7 +655,7 @@ public partial class MainWindow
 
                         this.CombatLogManagerContext!.EventTypeDisplayFilter = this.CombatLogManagerContext!
                             .SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(
-                                eventType => eventType.EventTypeId.Equals("ALL"));
+                                eventType => eventType.EventTypeId.Equals("OVERALL"));
                     }
                 });
             }
@@ -690,11 +683,11 @@ public partial class MainWindow
                 if (checkBox.IsChecked != null && checkBox.IsChecked.Value)
                     this.CombatLogManagerContext.EventTypeDisplayFilter = this.CombatLogManagerContext
                         .SelectedEntityCombatEventTypeListDisplayedFilterOptions
-                        .FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL PETS"));
+                        .FirstOrDefault(eventType => eventType.EventTypeId.Equals("PETS OVERALLS"));
                 else if (checkBox.IsChecked != null && !checkBox.IsChecked.Value)
                     this.CombatLogManagerContext.EventTypeDisplayFilter = this.CombatLogManagerContext
                         .SelectedEntityCombatEventTypeListDisplayedFilterOptions
-                        .FirstOrDefault(eventType => eventType.EventTypeId.Equals("ALL"));
+                        .FirstOrDefault(eventType => eventType.EventTypeId.Equals("OVERALL"));
             }
 
             this.SetPlots();
@@ -715,15 +708,16 @@ public partial class MainWindow
                 {
                     if (this.CombatLogManagerContext.SelectedCombatEntity != null)
                     {
-                        if (combatEventTypeSelector.EventTypeId.Equals("ALL PETS",
+                        if (combatEventTypeSelector.EventTypeId.Equals("PETS OVERALL",
                                 StringComparison.CurrentCultureIgnoreCase))
                             this.CombatLogManagerContext.SelectedCombatEventType = new CombatEventType(this
                                 .CombatLogManagerContext.SelectedCombatEntity.CombatEventList.Where(ev => ev.IsPetEvent)
-                                .ToList(), "ALL PETS");
+                                .ToList(), "PETS OVERALL");
                         else
                             this.CombatLogManagerContext.SelectedCombatEventType =
                                 new CombatEventType(
-                                    this.CombatLogManagerContext.SelectedCombatEntity.CombatEventList.ToList(), "ALL");
+                                    this.CombatLogManagerContext.SelectedCombatEntity.CombatEventList.ToList(),
+                                    "OVERALL");
                     }
                 }
                 else
@@ -749,6 +743,16 @@ public partial class MainWindow
                 this.uiScottScatterPlotEntityEvents.Plot.Axes.AutoScale();
                 this.uiScottScatterPlotEntityEvents.Refresh();
             }
+
+            // Reset the selected event type to our default OVERALL filter.
+            var overallFilter =
+                this.CombatLogManagerContext.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(
+                    filter => filter.Equals("OVERALL"));
+            if (overallFilter != null)
+            {
+                this.CombatLogManagerContext!.EventTypeDisplayFilter = overallFilter;
+                this.SetPlots();
+            }
         }
     }
 
@@ -758,30 +762,21 @@ public partial class MainWindow
         {
             if (string.IsNullOrWhiteSpace(Settings.Default.MyCharacter))
             {
-                this.uiTreeViewCombatEntityList_SelectedItemChanged(sender,
-                    new RoutedPropertyChangedEventArgs<object>(null, null));
+                this.SetSelectedCombatEntity(null);
             }
             else
             {
                 var playerEntity = selectedCombat.PlayerEntities.FirstOrDefault(player =>
                     player.OwnerInternal.Contains(Settings.Default.MyCharacter));
                 if (playerEntity != null)
-                {
-                    this.uiTreeViewCombatEntityList_SelectedItemChanged(sender,
-                        new RoutedPropertyChangedEventArgs<object>(playerEntity, playerEntity));
-                    this.uiContentControlSelectedCombat.Focus();
-                }
+                    this.SetSelectedCombatEntity(playerEntity);
                 else
-                {
-                    this.uiTreeViewCombatEntityList_SelectedItemChanged(sender,
-                        new RoutedPropertyChangedEventArgs<object>(null, null));
-                }
+                    this.SetSelectedCombatEntity(null);
             }
         }
         else if (e.RemovedItems.Count > 0)
         {
-            this.uiTreeViewCombatEntityList_SelectedItemChanged(sender,
-                new RoutedPropertyChangedEventArgs<object>(null, null));
+            this.SetSelectedCombatEntity(null);
         }
     }
 
@@ -800,7 +795,7 @@ public partial class MainWindow
         switch (image.Tag)
         {
             case "combat_details":
-                DetailsDialog.ShowDialog(this, "Combat Details", Properties.Resources.combat_details);
+                DetailsDialog.ShowDialog(this, "Player Select", Properties.Resources.player_select);
                 break;
             case "combat_event_type_breakdown":
                 DetailsDialog.ShowDialog(this, "Event Type Breakdown",
@@ -810,7 +805,8 @@ public partial class MainWindow
                 DetailsDialog.ShowDialog(this, "Event(s) DataGrid", Properties.Resources.combat_events_datagrid);
                 break;
             case "combat_events_plot":
-                DetailsDialog.ShowDialog(this, "Event(s) Magnitude Plot", Properties.Resources.combat_events_plot);
+                DetailsDialog.ShowDialog(this, "Event(s) Magnitude Plot",
+                    Properties.Resources.combat_events_scatterplot);
                 break;
             case "import_detection_json":
                 DetailsDialog.ShowDialog(this, "Import Map Detection Settings",
@@ -1537,5 +1533,86 @@ public partial class MainWindow
     {
         if (e.Key == Key.Enter || e.Key == Key.Return)
             this.UiButtonSetDataGridFilter_OnClick(sender, new RoutedEventArgs());
+    }
+
+    private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        CombatEntity? combatEntityResult = null;
+
+        if (e.AddedItems.Count > 0)
+            if (e.AddedItems[0] is CombatEntity combatEntity)
+                combatEntityResult = combatEntity;
+
+        this.SetSelectedCombatEntity(combatEntityResult);
+    }
+
+    private void SetSelectedCombatEntity(CombatEntity? combatEntity)
+    {
+        if (combatEntity == null)
+            this.CombatLogManagerContext.SetSelectedCombatEntity(null);
+        else
+            this.CombatLogManagerContext.SetSelectedCombatEntity(combatEntity);
+
+        this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked = false;
+        this.SetPlots();
+    }
+
+    private void UiCheckBoxDisplayNonPlayerEntities_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (this.uiCheckBoxDisplayNonPlayerEntities.IsChecked.HasValue &&
+            this.uiCheckBoxDisplayNonPlayerEntities.IsChecked.Value)
+            this.ToggleDisplayNonPlayerEntities(true);
+        else
+            this.ToggleDisplayNonPlayerEntities(false);
+    }
+
+    private void ToggleDisplayNonPlayerEntities(bool display)
+    {
+        if (display)
+        {
+            if (this.uiGridPlayerEntities.RowDefinitions.Count == 2)
+            {
+                this.uiGridPlayerEntities.RowDefinitions.Add(new RowDefinition());
+                Settings.Default.Save();
+            }
+        }
+        else
+        {
+            if (this.uiGridPlayerEntities.RowDefinitions.Count == 3)
+            {
+                this.uiGridPlayerEntities.RowDefinitions.RemoveAt(2);
+                Settings.Default.Save();
+            }
+        }
+    }
+
+    private void UiCheckBoxDisplayAnalysisTools_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (this.uiCheckBoxDisplayAnalysisTools.IsChecked.HasValue &&
+            this.uiCheckBoxDisplayAnalysisTools.IsChecked.Value)
+            this.ToggleDisplayAnalysisTools(true);
+        else
+            this.ToggleDisplayAnalysisTools(false);
+    }
+
+    private void ToggleDisplayAnalysisTools(bool display)
+    {
+        if (display)
+        {
+            if (this.uiGridTabLogAnalyzer.RowDefinitions.Count != 2) return;
+
+            this.uiGridTabLogAnalyzer.RowDefinitions.Add(new RowDefinition());
+            Settings.Default.Save();
+        }
+        else
+        {
+            if (this.uiGridTabLogAnalyzer.RowDefinitions.Count != 3) return;
+
+            this.uiGridTabLogAnalyzer.RowDefinitions.RemoveAt(2);
+            Settings.Default.Save();
+        }
+
+        this.CombatLogManagerContext!.EventTypeDisplayFilter = this.CombatLogManagerContext!.EventTypeDisplayFilter;
+        this.SetPlots();
     }
 }

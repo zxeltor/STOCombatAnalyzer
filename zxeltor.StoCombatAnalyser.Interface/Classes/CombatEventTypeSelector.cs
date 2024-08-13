@@ -10,7 +10,7 @@ using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
 
-public class CombatEventTypeSelector : INotifyPropertyChanged, IEquatable<CombatEventTypeSelector>
+public class CombatEventTypeSelector : INotifyPropertyChanged, IEquatable<CombatEventTypeSelector>, IEquatable<string>
 {
     private CombatEventType? _combatEventType;
     private string _eventTypeId;
@@ -84,6 +84,13 @@ public class CombatEventTypeSelector : INotifyPropertyChanged, IEquatable<Combat
         field = value;
         this.OnPropertyChanged(propertyName);
         return true;
+    }
+
+    /// <inheritdoc />
+    public bool Equals(string? other)
+    {
+        if (other == null) return false;
+        return this.EventTypeId.Equals(other);
     }
 
     public override string ToString()

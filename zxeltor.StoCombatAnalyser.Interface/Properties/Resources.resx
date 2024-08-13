@@ -120,21 +120,20 @@
   <data name="ApplicationName" xml:space="preserve">
     <value>STO Combat Log Analyzer</value>
   </data>
-  <data name="combat_details" xml:space="preserve">
-    <value>This is used to examine a selected Combat from the Combat List dropdown. When a Player or NonPlayer entity is selected here, the rest of the controls in the UI update with information for the selected entity.</value>
-  </data>
   <data name="combat_events_datagrid" xml:space="preserve">
     <value>This displays the raw STO combat log data for the selected event type. By default, not all data columns from the combat log are displayed. You can enable/disable the columns in the display by right clicking on the datagrid and interacting with the context menu that’s displayed.
 
-Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI.</value>
+Notes:
+1) If you choose to use the Search field for filtering, keep in mind it will only filter on columns which are visible.
+2) Keep in mind this shows the raw data from the combat logs.</value>
   </data>
-  <data name="combat_events_plot" xml:space="preserve">
+  <data name="combat_events_scatterplot" xml:space="preserve">
     <value>This is a scatter plot of the Magnitude data vs. time for the selected event type. You can use the control to switch between the various groupings of event types. You can also display the MagnitudeBase data on the grid if selected.
 
-Note: Keep in mind this shows the raw data. ABS(Magnitude) is used to calculate the DPS and other damage values displayed in the UI.</value>
+Note: Keep in mind this shows the raw data from the combat logs.</value>
   </data>
   <data name="combat_event_type_breakdown" xml:space="preserve">
-    <value>This is a breakdown of event types for the selected combat entity. If you click on a particular bar, the DataGrid and Magnitude Plot will update with more specific data for the selected event type.</value>
+    <value>This is a breakdown of event types for the selected Player. If you click on a particular bar, the DataGrid and Magnitude Plot will update with more specific data for the selected event type.</value>
   </data>
   <data name="export_combat_json" xml:space="preserve">
     <value>Used to export the currently selected Combat entity to a JSON file. The JSON is primarily used for troubleshooting purposes.
@@ -160,6 +159,15 @@ Note: A Combat entity needs to be selected in the "Log File Analyzer" tab for th
     <value>Import a new or modified CombatMapDetectionSettings.json file. These settings affect how a map is determined for a Combat entity.
 
 Note: The new settings won't be reflected in the interface until you run "Parse Log(s)".</value>
+  </data>
+  <data name="is_display_analysis_tools" xml:space="preserve">
+    <value>Display the Events(s) DataGrid and the Event(s) Magnitude Plot.</value>
+  </data>
+  <data name="is_display_pets_only" xml:space="preserve">
+    <value>If selected, display a breakdown of Pet Only events in the Event Type Breakdown barchart.</value>
+  </data>
+  <data name="player_select" xml:space="preserve">
+    <value>When a Player is selected here, the rest of the controls in the UI update with information for the selected Player.</value>
   </data>
   <data name="reset_detection_json" xml:space="preserve">
     <value>Reset map detection settings to application default.

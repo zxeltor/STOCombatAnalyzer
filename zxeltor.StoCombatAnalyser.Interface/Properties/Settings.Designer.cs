@@ -257,5 +257,53 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
                 this["EventTypeRemovalFilterForDps"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsIncludeNonPlayerEntities {
+            get {
+                return ((bool)(this["IsIncludeNonPlayerEntities"]));
+            }
+            set {
+                this["IsIncludeNonPlayerEntities"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsDisplayParseResults {
+            get {
+                return ((bool)(this["IsDisplayParseResults"]));
+            }
+            set {
+                this["IsDisplayParseResults"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsSelectLatestCombatOnParseLogs {
+            get {
+                return ((bool)(this["IsSelectLatestCombatOnParseLogs"]));
+            }
+            set {
+                this["IsSelectLatestCombatOnParseLogs"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsEnableAnalysisTools {
+            get {
+                return ((bool)(this["IsEnableAnalysisTools"]));
+            }
+            set {
+                this["IsEnableAnalysisTools"] = value;
+            }
+        }
     }
 }
