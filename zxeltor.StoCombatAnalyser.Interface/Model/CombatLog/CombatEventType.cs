@@ -92,6 +92,70 @@ public class CombatEventType
         this.EventTypeLabelWithTotal = $"{this.EventTypeLabel}: Damage({this.Damage.ToMetric(null, 2)})";
     }
 
+    public double GetEventTypeValueForMetric(CombatEventTypeMetric? combatEventTypeMetric)
+    {
+        if(combatEventTypeMetric == null)
+            return this.Damage;
+
+        switch (combatEventTypeMetric.Name)
+        {
+            case "DPS":
+                return this.Dps;
+            case "MAXHIT":
+                return this.MaxDamage;
+            case "HULLDAM":
+                return this.HullDamage;
+            case "SHIELDDAM":
+                return this.ShieldDamage;
+            case "ATTACKS":
+                return this.Attacks;
+            case "CRIT":
+                return this.CritPercent;
+            case "FLANK":
+                return this.FlankPercent;
+            case "KILLS":
+                return this.Kills;
+            case "HEALS":
+                return this.Heals;
+            case "HPS":
+                return this.Hps;
+            default:
+                return this.Damage;
+        }
+    }
+
+    public string GetEventTypeLabelForMetric(CombatEventTypeMetric? combatEventTypeMetric)
+    {
+        if (combatEventTypeMetric == null)
+            return $"{this.EventTypeLabel}: Damage({this.Damage.ToMetric(null, 2)})";
+
+        switch (combatEventTypeMetric.Name)
+        {
+            case "DPS":
+                return $"{this.EventTypeLabel}: {combatEventTypeMetric.Label}({this.Dps.ToMetric(null, 2)})";
+            case "MAXHIT":
+                return $"{this.EventTypeLabel}: {combatEventTypeMetric.Label}({this.MaxDamage.ToMetric(null, 2)})";
+            case "HULLDAM":
+                return $"{this.EventTypeLabel}: {combatEventTypeMetric.Label}({this.HullDamage.ToMetric(null, 2)})";
+            case "SHIELDDAM":
+                return $"{this.EventTypeLabel}: {combatEventTypeMetric.Label}({this.ShieldDamage.ToMetric(null, 2)})";
+            case "ATTACKS":
+                return $"{this.EventTypeLabel}: {combatEventTypeMetric.Label}({this.Attacks.ToMetric(null, 2)})";
+            case "CRIT":
+                return $"{this.EventTypeLabel}: {combatEventTypeMetric.Label}({this.CritPercent})";
+            case "FLANK":
+                return $"{this.EventTypeLabel}: {combatEventTypeMetric.Label}({this.FlankPercent})";
+            case "KILLS":
+                return $"{this.EventTypeLabel}: {combatEventTypeMetric.Label}({this.Kills.ToMetric(null)})";
+            case "HEALS":
+                return $"{this.EventTypeLabel}: {combatEventTypeMetric.Label}({this.Heals.ToMetric(null, 2)})";
+            case "HPS":
+                return $"{this.EventTypeLabel}: {combatEventTypeMetric.Label}({this.Hps.ToMetric(null, 2)})";
+            default:
+                return $"{this.EventTypeLabel}: {combatEventTypeMetric.Label}({this.Damage.ToMetric(null, 2)})";
+        }
+    }
+
     public bool IsPetEventType { get; }
     public string SourceInternal { get; }
     public string SourceDisplay { get; }

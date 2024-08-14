@@ -29,7 +29,7 @@ public class CombatLogManager : INotifyPropertyChanged
     public delegate void StatusChangeEventHandler(object sender, CombatManagerStatusEventArgs e);
 
     private static readonly ILog Log = LogManager.GetLogger(typeof(CombatLogManager));
-
+    
     private CombatMapDetectionSettings _combatMapDetectionSettings = new();
 
     private string? _combatMapDetectionSettingsBeforeSave;
@@ -321,6 +321,12 @@ public class CombatLogManager : INotifyPropertyChanged
     }
 
     /// <summary>
+    ///     A list of available combat event type metrics to display.
+    /// </summary>
+    public ObservableCollection<CombatEventTypeMetric> CombatEventTypeMetrics =>
+        CombatEventTypeMetric.CombatEventTypeMetricList;
+
+    /// <summary>
     ///     The filter string for the
     /// </summary>
     public CombatEventTypeSelector EventTypeDisplayFilter
@@ -564,12 +570,10 @@ public class CombatLogManager : INotifyPropertyChanged
 
             this.AddToLogAndLogSummaryInUi(completionMessage);
 
-            if (Properties.Settings.Default.IsDisplayParseResults)
-            {
+            if (Settings.Default.IsDisplayParseResults)
                 ResponseDialog.Show(Application.Current.MainWindow, completionMessage, "Success",
                     detailsBoxCaption: "Files parsed",
                     detailsBoxList: fileParsedResults.Select(file => file.Value.ToLog()).ToList());
-            }
         }
         catch (Exception ex)
         {
