@@ -472,6 +472,28 @@ public partial class MainWindow
         var positionCounter = 0;
         var bars = new List<Bar>();
 
+        var selectedCombatEventMetric = this.uiComboBoxMetricSelect.SelectedItem as CombatEventTypeMetric;
+
+        // If we don't currently have an event metric selected in the ui,
+        // we pick and set one as a default.
+        if (selectedCombatEventMetric == null)
+        {
+            if (CombatEventTypeMetric.CombatEventTypeMetricList.Count > 0)
+            {
+                var damageMetric = CombatEventTypeMetric.CombatEventTypeMetricList.FirstOrDefault(metric => metric.Name.Equals("DAMAGE"));
+                if (damageMetric == null)
+                {
+                    selectedCombatEventMetric = CombatEventTypeMetric.CombatEventTypeMetricList[0];
+                }
+                else
+                {
+                    selectedCombatEventMetric = damageMetric;
+                }
+
+                this.uiComboBoxMetricSelect.SelectedItem = selectedCombatEventMetric;
+            }
+        }
+        
         if (this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked != null &&
             this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked.Value)
         {
@@ -491,9 +513,9 @@ public partial class MainWindow
                         {
                             EventTypeId = evt.EventTypeId,
                             Position = positionCounter--,
-                            Value = evt.Damage,
+                            Value = evt.GetEventTypeValueForMetric(selectedCombatEventMetric),
                             FillColor = colorArray[colorCounter++],
-                            Label = evt.EventTypeLabelWithTotal,
+                            Label = evt.GetEventTypeLabelForMetric(selectedCombatEventMetric),
                             CenterLabel = true
                         });
                     });
@@ -522,23 +544,20 @@ public partial class MainWindow
 
                 combatEvents.ToList().ForEach(evt =>
                 {
-                    var sumOfMagnitude = evt.Damage;
-
-                    if (sumOfMagnitude == 0) return;
-
                     bars.Add(new CombatEventTypeBar
                     {
                         EventTypeId = evt.EventTypeId,
                         Position = positionCounter--,
-                        Value = sumOfMagnitude,
+                        Value = evt.GetEventTypeValueForMetric(selectedCombatEventMetric),
                         FillColor = colorArray[colorCounter++],
-                        Label = evt.EventTypeLabelWithTotal
+                        Label = evt.GetEventTypeLabelForMetric(selectedCombatEventMetric),
+                        CenterLabel = true
                     });
                 });
             }
 
             var combatPetEvents = this.CombatLogManagerContext.SelectedEntityPetCombatEventTypeList;
-            if (combatPetEvents != null && combatPetEvents.Count > 0)
+            if (combatPetEvents != null && combatPetEvents.Count > 0 && selectedCombatEventMetric.Equals("DAMAGE"))
             {
                 var sumOfMagnitude = combatPetEvents.Sum(petevt => petevt.Damage);
 
@@ -548,7 +567,8 @@ public partial class MainWindow
                         Position = positionCounter--,
                         Value = sumOfMagnitude,
                         FillColor = Color.FromHex("000000"),
-                        Label = $"PETS OVERALL: Damage({sumOfMagnitude.ToMetric(null, 2)})"
+                        Label = $"PETS OVERALL: Damage({sumOfMagnitude.ToMetric(null, 2)})",
+                        CenterLabel = true
                     });
             }
 
@@ -748,6 +768,10 @@ public partial class MainWindow
             var overallFilter =
                 this.CombatLogManagerContext.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(
                     filter => filter.Equals("OVERALL"));
+
+            var damageMetric = CombatEventTypeMetric.CombatEventTypeMetricList.First(metric => metric.Name.Equals("DAMAGE"));
+            this.uiComboBoxMetricSelect.SelectedItem = damageMetric;
+            
             if (overallFilter != null)
             {
                 this.CombatLogManagerContext!.EventTypeDisplayFilter = overallFilter;
@@ -1614,5 +1638,12 @@ public partial class MainWindow
 
         this.CombatLogManagerContext!.EventTypeDisplayFilter = this.CombatLogManagerContext!.EventTypeDisplayFilter;
         this.SetPlots();
+    }
+
+    private void UiComboBoxMetricSelect_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if(e.Source is ComboBox comboBox)
+            if(comboBox.Name.Equals("uiComboBoxMetricSelect"))
+                this.SetBarChartForEntity();
     }
 }

@@ -397,12 +397,20 @@
                                        ToolTip="Click for more details."
                                        Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
                                 <TextBlock Text="Event Type Breakdown" Margin="4,0,0,0" VerticalAlignment="Center" />
+                                <ComboBox Name="uiComboBoxMetricSelect" Margin="8,0,0,0" ItemsSource="{Binding Path=CombatEventTypeMetrics}"
+                                          SelectionChanged="UiComboBoxMetricSelect_OnSelectionChanged">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=Label}"></TextBlock>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                                 <CheckBox Name="uiCheckBoxDisplayPetsOnlyOnPieChart" IsChecked="False" Content="Display Pets Only" Margin="8,0,0,0"
                                           ToolTip="{x:Static properties:Resources.is_display_pets_only}"
                                           VerticalAlignment="Center" Tag="PetsOnlyOn"
                                           Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
                                           Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
-                                <Button Name="uiButtonResetBarPlot" ToolTip="Reset Pan/Zoom of map, and set Event Type to OVERALL." Margin="16,0,0,0" Width="16" Height="16"
+                                <Button Name="uiButtonResetBarPlot" ToolTip="Reset Pan/Zoom of map, and set Event Type to OVERALL." Margin="8,0,0,0" Width="16" Height="16"
                                         VerticalAlignment="Center"
                                         Click="UiButtonResetPlot_OnClick">
                                     <Image Source="Images/glyphicons-366-restart.png"></Image>
