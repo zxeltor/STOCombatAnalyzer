@@ -21,7 +21,7 @@ public class CombatPetEventType
         var firstCombatEventType = combatEventTypeList[0];
 
         this.Damage = this.CombatEventTypes.Sum(ev => ev.Damage);
-        this.MaxDamage = this.CombatEventTypes.Max(ev => ev.MaxDamage);
+        this.MaxDamage = this.CombatEventTypes.Max(ev => ev.MaxDamageHit);
         
         if (petId == null)
         {

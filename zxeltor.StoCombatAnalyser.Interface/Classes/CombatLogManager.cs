@@ -23,13 +23,23 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
 /// </summary>
 public class CombatLogManager : INotifyPropertyChanged
 {
+    #region Public Delegates
+
     /// <summary>
     ///     An event used to send status updates back to the main window
     /// </summary>
     public delegate void StatusChangeEventHandler(object sender, CombatManagerStatusEventArgs e);
 
+    #endregion
+
+    #region Static Fields and Constants
+
     private static readonly ILog Log = LogManager.GetLogger(typeof(CombatLogManager));
-    
+
+    #endregion
+
+    #region Private Fields
+
     private CombatMapDetectionSettings _combatMapDetectionSettings = new();
 
     private string? _combatMapDetectionSettingsBeforeSave;
@@ -44,6 +54,10 @@ public class CombatLogManager : INotifyPropertyChanged
 
     private CombatEventType? _selectedCombatEventType;
 
+    #endregion
+
+    #region Constructors
+
     public CombatLogManager()
     {
         // Pull our map detection settings from the config
@@ -56,6 +70,10 @@ public class CombatLogManager : INotifyPropertyChanged
                      Settings.Default.DefaultCombatMapList, out var combatMapSettingsDefault))
             this.CombatMapDetectionSettings = combatMapSettingsDefault;
     }
+
+    #endregion
+
+    #region Public Properties
 
     /// <summary>
     ///     A databind to disable the main UI while an expensive background process is running
@@ -132,24 +150,22 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         get
         {
-            var selectedCombatEntity = this.SelectedCombatEntity;
-            return selectedCombatEntity is { CombatEventTypeListForEntity.Count: 0 }
-                ? 0
-                : this.SelectedCombatEntity?.CombatEventTypeListForEntity.Sum(ev => ev.Damage);
+            if (this.SelectedCombatEntity?.CombatEventTypeListForEntity == null || this.SelectedCombatEntity.CombatEventTypeListForEntity.Count == 0) return null;
+            
+            return this.SelectedCombatEntity.CombatEventTypeListForEntity.Sum(ev => ev.Damage);
         }
     }
 
     /// <summary>
-    ///     MaxDamage damage for the selected event type
+    ///     MaxDamageHit damage for the selected event type
     /// </summary>
     public double? SelectedCombatEntityEventTypeMaxDamage
     {
         get
         {
-            var selectedCombatEntity = this.SelectedCombatEntity;
-            return selectedCombatEntity is { CombatEventTypeListForEntity.Count: 0 }
-                ? 0
-                : this.SelectedCombatEntity?.CombatEventTypeListForEntity.Max(ev => ev.MaxDamage);
+            if (this.SelectedCombatEntity?.CombatEventTypeListForEntity == null || this.SelectedCombatEntity.CombatEventTypeListForEntity.Count == 0) return null;
+            
+            return this.SelectedCombatEntity?.CombatEventTypeListForEntity.Max(ev => ev.MaxDamageHit);
         }
     }
 
@@ -160,26 +176,22 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         get
         {
-            var selectedCombatEntity = this.SelectedCombatEntity;
-            return selectedCombatEntity is { CombatEventTypeListForEntityPets.Count: 0 }
-                ? 0
-                : this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Sum(ev =>
-                    ev.CombatEventTypes.Sum(evt => evt.Damage));
+            if (this.SelectedCombatEntity?.CombatEventTypeListForEntityPets == null || this.SelectedCombatEntity.CombatEventTypeListForEntityPets.Count == 0) return null;
+
+            return this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Sum(ev => ev.CombatEventTypes.Sum(evt => evt.Damage));
         }
     }
 
     /// <summary>
-    ///     MaxDamage damage for the selected pet event type
+    ///     MaxDamageHit damage for the selected pet event type
     /// </summary>
     public double? SelectedCombatEntityPetEventTypeMaxDamage
     {
         get
         {
-            var selectedCombatEntity = this.SelectedCombatEntity;
-            return selectedCombatEntity is { CombatEventTypeListForEntityPets.Count: 0 }
-                ? 0
-                : this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Max(ev =>
-                    ev.CombatEventTypes.Max(evt => evt.MaxDamage));
+            if (this.SelectedCombatEntity?.CombatEventTypeListForEntityPets == null || this.SelectedCombatEntity.CombatEventTypeListForEntityPets.Count == 0) return null;
+
+            return this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Max(ev => ev.CombatEventTypes.Max(evt => evt.MaxDamageHit));
         }
     }
 
@@ -204,7 +216,7 @@ public class CombatLogManager : INotifyPropertyChanged
     /// <summary>
     ///     A list of <see cref="CombatEvent" /> for <see cref="SelectedCombat" />
     /// </summary>
-    public ObservableCollection<CombatEvent>? SelectedEntityCombatEventList { get; set; } = new();
+    //public ObservableCollection<CombatEvent>? SelectedEntityCombatEventList { get; set; } = new();
 
     public ObservableCollection<CombatEvent>? FilteredSelectedEntityCombatEventList
     {
@@ -216,16 +228,19 @@ public class CombatLogManager : INotifyPropertyChanged
             if (!Settings.Default.IsEnableAnalysisTools)
                 return null;
 
+            if (this.SelectedCombatEntity == null)
+                return null;
+
             // Return a list of all player events, with pet events grouped together.
             if (this.EventTypeDisplayFilter == null || this.EventTypeDisplayFilter.EventTypeId.Equals("OVERALL"))
             {
-                results = this.SelectedEntityCombatEventList;
+                results = new ObservableCollection<CombatEvent>(this.SelectedCombatEntity.CombatEventsList);
             }
             // Return a list of all Player Pet events
             else if (this.EventTypeDisplayFilter.EventTypeId.Equals("PETS OVERALL"))
             {
                 results = new ObservableCollection<CombatEvent>(
-                    this.SelectedEntityCombatEventList?.Where(evt => evt.IsPetEvent) ?? Array.Empty<CombatEvent>());
+                    this.SelectedCombatEntity.CombatEventsList?.Where(evt => evt.IsPetEvent) ?? Array.Empty<CombatEvent>());
             }
             // Return a list of events specific to a Pet
             else if (this.EventTypeDisplayFilter.IsPetEvent)
@@ -255,10 +270,10 @@ public class CombatLogManager : INotifyPropertyChanged
             {
                 // Return a list of events for a specific non-pet event.
                 results = new ObservableCollection<CombatEvent>(
-                    this.SelectedEntityCombatEventList?.Where(evt => !evt.IsPetEvent &&
-                                                                     evt.EventInternal.Equals(
-                                                                         this.EventTypeDisplayFilter.EventTypeId,
-                                                                         StringComparison.CurrentCultureIgnoreCase)) ??
+                    this.SelectedCombatEntity.CombatEventsList?.Where(evt => !evt.IsPetEvent &&
+                                                                             evt.EventInternal.Equals(
+                                                                                 this.EventTypeDisplayFilter.EventTypeId,
+                                                                                 StringComparison.CurrentCultureIgnoreCase)) ??
                     Array.Empty<CombatEvent>());
             }
 
@@ -354,6 +369,10 @@ public class CombatLogManager : INotifyPropertyChanged
     /// </summary>
     public ObservableCollection<Combat> Combats { get; set; } = new();
 
+    #endregion
+
+    #region Public Members
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
@@ -409,17 +428,6 @@ public class CombatLogManager : INotifyPropertyChanged
         }
 
         return false;
-    }
-
-    /// <summary>
-    ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
-    /// </summary>
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        //if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        field = value;
-        this.OnPropertyChanged(propertyName);
-        return true;
     }
 
     public event StatusChangeEventHandler? StatusChange;
@@ -598,14 +606,12 @@ public class CombatLogManager : INotifyPropertyChanged
         if (combatEntity == null)
         {
             this.SelectedCombatEntity = null;
-            this.SelectedEntityCombatEventList = null;
             this.SelectedEntityCombatEventTypeList = null;
             this.SelectedEntityPetCombatEventTypeList = null;
         }
         else
         {
             this.SelectedCombatEntity = combatEntity;
-            this.SelectedEntityCombatEventList = combatEntity.CombatEventList;
             this.SelectedEntityCombatEventTypeList =
                 new ObservableCollection<CombatEventType>(combatEntity.CombatEventTypeListForEntity);
             this.SelectedEntityPetCombatEventTypeList =
@@ -622,12 +628,26 @@ public class CombatLogManager : INotifyPropertyChanged
         this.OnPropertyChanged(nameof(this.SelectedCombatEntityPetEventTypeTotalDamage));
         this.OnPropertyChanged(nameof(this.SelectedCombatEntityPetEventTypeMaxDamage));
 
-        this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventList));
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeList));
         this.OnPropertyChanged(nameof(this.SelectedEntityCombatEventTypeListDisplayedFilterOptions));
         this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
         this.OnPropertyChanged(nameof(this.EventTypeDisplayFilter));
         this.OnPropertyChanged(nameof(this.SelectedEntityPetCombatEventTypeList));
+    }
+
+    #endregion
+
+    #region Other Members
+
+    /// <summary>
+    ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
+    /// </summary>
+    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        //if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        field = value;
+        this.OnPropertyChanged(propertyName);
+        return true;
     }
 
     protected void OnPropertyChanged([CallerMemberName] string? name = null)
@@ -692,6 +712,8 @@ public class CombatLogManager : INotifyPropertyChanged
 
         var takeCount = Settings.Default.MaxNumberOfCombatsToDisplay;
 
+        combatList.ForEach(combat => combat.LockObject());
+
         // Based on our MaxNumberOfCombatsToDisplay setting, we may want to filter our combat list
         if (takeCount > 0)
             combatList.TakeLast(takeCount).OrderByDescending(com => com.CombatStart).ToList()
@@ -700,7 +722,7 @@ public class CombatLogManager : INotifyPropertyChanged
             combatList.OrderByDescending(com => com.CombatStart).ToList().ForEach(combat => this.Combats.Add(combat));
 
         this.DetermineMapsForCombatList();
-
+        
         this.OnPropertyChanged(nameof(this.Combats));
     }
 
@@ -828,4 +850,6 @@ public class CombatLogManager : INotifyPropertyChanged
         // If all of our checks fail, we return our null object.
         return combatMap;
     }
+
+    #endregion
 }

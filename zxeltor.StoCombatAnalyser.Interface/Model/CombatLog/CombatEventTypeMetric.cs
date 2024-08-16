@@ -15,27 +15,29 @@ public class CombatEventTypeMetric : INotifyPropertyChanged, IEquatable<CombatEv
     public static ObservableCollection<CombatEventTypeMetric> CombatEventTypeMetricList =
         new(
         [
-            new CombatEventTypeMetric("DAMAGE", "DAMAGE"),
-            new CombatEventTypeMetric("DPS", "DPS"),
-            new CombatEventTypeMetric("MAXHIT", "Max Hit"),
-            new CombatEventTypeMetric("HULLDAM", "Hull Damage"),
-            new CombatEventTypeMetric("SHIELDDAM", "Shield Damage"),
-            new CombatEventTypeMetric("ATTACKS", "Attacks"),
-            new CombatEventTypeMetric("CRIT", "Crit %"),
-            new CombatEventTypeMetric("FLANK", "Flank %"),
-            new CombatEventTypeMetric("KILLS", "Kills"),
-            new CombatEventTypeMetric("HEALS", "Heals"),
-            new CombatEventTypeMetric("HPS", "HPS")
+            new CombatEventTypeMetric("DAMAGE", "DAMAGE", "The total amount of damage done by the player."),
+            new CombatEventTypeMetric("DPS", "DPS", "The damage per second done by the player."),
+            new CombatEventTypeMetric("MAXHIT", "Max Hit", "The maximum damage hit done by the player."),
+            new CombatEventTypeMetric("HULLDAM", "Hull Damage", "The total amount of hull/hp damage done by the player."),
+            new CombatEventTypeMetric("SHIELDDAM", "Shield Damage", "The total amount of shield damage done by the player."),
+            new CombatEventTypeMetric("ATTACKS", "Attacks", "The total number of attacks done by the player."),
+            new CombatEventTypeMetric("CRIT", "Crit %", "The percent chance of critical attacks done by the player."),
+            new CombatEventTypeMetric("FLANK", "Flank %", "The percent chance of flanking attacks done by the player."),
+            new CombatEventTypeMetric("KILLS", "Kills", "The total number of kills done by the player."),
+            new CombatEventTypeMetric("HEALS", "Heals", "The total amount of heals done by the player."),
+            new CombatEventTypeMetric("HPS", "HPS", "The heals per second done by the player.")
         ]);
 
-    public CombatEventTypeMetric(string name, string? label = null)
+    public CombatEventTypeMetric(string name, string? label = null, string? toolTip = null)
     {
         this.Name = name;
         this.Label = label ?? name;
+        this.Tooltip = toolTip ?? label ?? name;
     }
 
     public string Name { get; }
     public string Label { get; }
+    public string Tooltip { get; } 
 
     /// <inheritdoc />
     public bool Equals(CombatEventTypeMetric? other)

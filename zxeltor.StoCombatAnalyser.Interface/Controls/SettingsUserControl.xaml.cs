@@ -25,7 +25,13 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 /// </summary>
 public partial class SettingsUserControl : UserControl
 {
+    #region Private Fields
+
     private readonly ILog _log = LogManager.GetLogger(typeof(SettingsUserControl));
+
+    #endregion
+
+    #region Constructors
 
     public SettingsUserControl()
     {
@@ -39,7 +45,15 @@ public partial class SettingsUserControl : UserControl
         this.Unloaded += this.OnUnloaded;
     }
 
+    #endregion
+
+    #region Public Properties
+
     private SettingsUserControlBindingContext MyPrivateContext { get; }
+
+    #endregion
+
+    #region Other Members
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
@@ -68,20 +82,18 @@ public partial class SettingsUserControl : UserControl
     {
         if (string.IsNullOrWhiteSpace(Settings.Default.CombatLogPath))
         {
-            var previousVersion = Properties.Settings.Default.GetPreviousVersion("CombatLogPath");
+            var previousVersion = Settings.Default.GetPreviousVersion("CombatLogPath");
             if (previousVersion != null && previousVersion is string resultString)
             {
                 var result = MessageBox.Show(
-                    "It looks like you may be missing some settings do to a software update. Would you like to use the settings from the previous versions settings?", 
+                    "It looks like you may be missing some settings do to a software update. Would you like to use the settings from the previous versions settings?",
                     "Question",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.Yes)
-                {
                     // If setting for the current version aren't found, let's look for a previous version.
                     Settings.Default.Upgrade();
-                }
             }
         }
     }
@@ -307,8 +319,49 @@ public partial class SettingsUserControl : UserControl
     private void SaveSettings_OnClick(object sender, RoutedEventArgs e)
     {
         if (e.Source != null)
-            Properties.Settings.Default.Save();
+            Settings.Default.Save();
     }
+
+    private void UiCheckBoxEnableInactiveTimeCalculations_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (this.uiCheckBoxEnableInactiveTimeCalculations.IsChecked.HasValue &&
+            this.uiCheckBoxEnableInactiveTimeCalculations.IsChecked.Value)
+        {
+            if (this.MyPrivateContext.MinInActiveInSeconds < 1)
+            {
+                MessageBox.Show("MinInActiveInSeconds can't be < 1 second.", "Error", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+
+            this.MyPrivateContext.EnableInActiveCalc = true;
+        }
+        else
+        {
+            this.MyPrivateContext.EnableInActiveCalc = false;
+        }
+    }
+
+    private void UiTextBoxMinInActiveInSeconds_OnTextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (double.TryParse(this.uiTextBoxMinInActiveInSeconds.Text, out var parseResult))
+        {
+            if (parseResult < 1)
+            {
+                this.uiTextBoxMinInActiveInSeconds.Text = "1";
+                parseResult = 1;
+            }
+
+            this.MyPrivateContext.MinInActiveInSeconds = parseResult;
+        }
+        else
+        {
+            this.uiTextBoxMinInActiveInSeconds.Text = "1";
+            this.MyPrivateContext.MinInActiveInSeconds = 1;
+        }
+    }
+
+    #endregion
 }
 
 /// <summary>
@@ -316,16 +369,46 @@ public partial class SettingsUserControl : UserControl
 /// </summary>
 internal class SettingsUserControlBindingContext : INotifyPropertyChanged
 {
+    #region Private Fields
+
     private string? _combatLogPath = Settings.Default.CombatLogPath;
     private string? _combatLogPathFilePattern = Settings.Default.CombatLogPathFilePattern;
     private bool _enableCombinePets = Settings.Default.IsCombinePets;
     private bool _enableDebugLogging = Settings.Default.DebugLogging;
     private bool _enableDetectionSettingsInUi = Settings.Default.IsDetectionsSettingsVisibleInUi;
+    private bool _enableInActiveCalc = Settings.Default.IsEnableInactiveTimeCalculations;
     private int _howFarBackForCombat = Settings.Default.HowFarBackForCombat;
     private int _howLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombat;
     private long _howLongToKeepLogs = Settings.Default.HowLongToKeepLogs;
+    private double _minInActiveInSeconds = Settings.Default.MinInActiveInSeconds;
     private string _myCharacter = Settings.Default.MyCharacter;
     private bool _purgeCombatLogs = Settings.Default.PurgeCombatLogs;
+
+    #endregion
+
+    #region Public Properties
+
+    public bool EnableInActiveCalc
+    {
+        get => this._enableInActiveCalc = Settings.Default.IsEnableInactiveTimeCalculations;
+        set
+        {
+            Settings.Default.IsEnableInactiveTimeCalculations = value;
+            Settings.Default.Save();
+            this.SetField(ref this._enableInActiveCalc, value);
+        }
+    }
+
+    public double MinInActiveInSeconds
+    {
+        get => this._minInActiveInSeconds = Settings.Default.MinInActiveInSeconds;
+        set
+        {
+            Settings.Default.MinInActiveInSeconds = value;
+            Settings.Default.Save();
+            this.SetField(ref this._minInActiveInSeconds, value);
+        }
+    }
 
     /// <summary>
     ///     Combine Pets in the UI. Combine pet types by using SourceDisplay field, instead of showing each unique pet using
@@ -467,8 +550,16 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         }
     }
 
+    #endregion
+
+    #region Public Members
+
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    #endregion
+
+    #region Other Members
 
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
@@ -488,4 +579,6 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         this.OnPropertyChanged(propertyName);
         return true;
     }
+
+    #endregion
 }
