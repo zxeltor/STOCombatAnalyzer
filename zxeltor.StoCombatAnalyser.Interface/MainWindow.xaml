@@ -18,6 +18,8 @@
             <classes:TypeToVisibilityConverterInverted x:Key="typeToVisibilityConverterInverted" />
             <classes:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
             <classes:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
+            <classes:CombatTimeSpanToHumanizedStringMaxMinuteMinSecondsConverter x:Key="timeSpanMinSeconds" />
+            <classes:CombatTimeSpanToHumanizedStringMaxMinuteMinMilliSecondsConverter x:Key="timeSpanMinMilliSeconds" />
             <classes:MapNameStringConverter x:Key="mapNameStringConverter" />
             <classes:MapNameColorConverter x:Key="mapNameColorConverter" />
             <classes:InvertBooleanConverter x:Key="invertBooleanConverter" />
@@ -182,8 +184,8 @@
                                                    Foreground="{StaticResource colorEventTypeMetricValue}" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Active: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
-                                        <TextBlock Text="{Binding Path=SelectedCombatEntity.EntityCombatDuration}" 
+                                        <TextBlock Text="Duration: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombatEntity.EntityCombatDuration, Converter={StaticResource timeSpanMinMilliSeconds}}" 
                                                    Foreground="{StaticResource colorEventTypeMetricValue}" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
@@ -359,15 +361,24 @@
                                         </StackPanel>
                                     </GroupBox.Header>
                                     <ListView ItemsSource="{Binding Path=SelectedCombat.PlayerEntitiesOrderByName}"
-                                              SelectedItem="{Binding Path=SelectedCombatEntity, Mode=TwoWay}"
-                                              SelectionChanged="Selector_OnSelectionChanged">
+                                                SelectedItem="{Binding Path=SelectedCombatEntity, Mode=TwoWay}"
+                                                SelectionChanged="Selector_OnSelectionChanged">
                                         <ListView.View>
                                             <GridView>
-                                                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Path=OwnerDisplay}" />
-                                                <GridViewColumn Header="Attacks" DisplayMemberBinding="{Binding Path=EntityCombatAttacks}" />
-                                                <GridViewColumn Header="Kills" DisplayMemberBinding="{Binding Path=EntityCombatKills}" />
-                                                <GridViewColumn Header="Damage" DisplayMemberBinding="{Binding Path=EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" />
-                                                <GridViewColumn Header="DPS" DisplayMemberBinding="{Binding Path=EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}" />
+                                                <GridViewColumn Header="Name" Width="Auto"
+                                                                DisplayMemberBinding="{Binding Path=OwnerDisplay}"/>
+                                                <GridViewColumn Header="Attacks" Width="Auto"
+                                                                DisplayMemberBinding="{Binding Path=EntityCombatAttacks}" />
+                                                <GridViewColumn Header="Kills" Width="Auto"
+                                                                DisplayMemberBinding="{Binding Path=EntityCombatKills}" />
+                                                <GridViewColumn Header="Damage" Width="Auto"
+                                                                DisplayMemberBinding="{Binding Path=EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" />
+                                                <GridViewColumn Header="DPS" Width="Auto"
+                                                                DisplayMemberBinding="{Binding Path=EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}" />
+                                                <GridViewColumn Header="Inactive" Width="Auto"
+                                                                DisplayMemberBinding="{Binding Path=EntityCombatInActive, Converter={StaticResource timeSpanMinSeconds}}" />
+                                                <GridViewColumn Header="Duration" Width="Auto"
+                                                                DisplayMemberBinding="{Binding Path=EntityCombatDuration, Converter={StaticResource timeSpanMinSeconds}}" />
                                             </GridView>
                                         </ListView.View>
                                     </ListView>
@@ -390,11 +401,11 @@
                                               SelectionChanged="Selector_OnSelectionChanged">
                                         <ListView.View>
                                             <GridView>
-                                                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Path=OwnerDisplay}" />
-                                                <GridViewColumn Header="Attacks" DisplayMemberBinding="{Binding Path=EntityCombatAttacks}" />
-                                                <GridViewColumn Header="Kills" DisplayMemberBinding="{Binding Path=EntityCombatKills}" />
-                                                <GridViewColumn Header="Damage" DisplayMemberBinding="{Binding Path=EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" />
-                                                <GridViewColumn Header="DPS" DisplayMemberBinding="{Binding Path=EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}" />
+                                                <GridViewColumn Header="Name" Width="Auto" DisplayMemberBinding="{Binding Path=OwnerDisplay}" />
+                                                <GridViewColumn Header="Attacks" Width="Auto" DisplayMemberBinding="{Binding Path=EntityCombatAttacks}" />
+                                                <GridViewColumn Header="Kills" Width="Auto" DisplayMemberBinding="{Binding Path=EntityCombatKills}" />
+                                                <GridViewColumn Header="Damage" Width="Auto" DisplayMemberBinding="{Binding Path=EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" />
+                                                <GridViewColumn Header="DPS" Width="Auto" DisplayMemberBinding="{Binding Path=EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}" />
                                             </GridView>
                                         </ListView.View>
                                     </ListView>

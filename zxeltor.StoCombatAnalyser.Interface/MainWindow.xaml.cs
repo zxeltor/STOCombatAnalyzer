@@ -42,11 +42,6 @@ public partial class MainWindow
     {
         this.InitializeComponent();
 
-#if DEBUG
-        this.Width = 1500;
-        this.Height = 900;
-#endif
-
         this.CombatLogManagerContext = new CombatLogManager();
         this.DataContext = this.CombatLogManagerContext;
 
@@ -292,10 +287,28 @@ public partial class MainWindow
                     .OrderBy(ev => ev.Timestamp)
                     .Select(ev => new { Mag = ev.Magnitude, DateTimeDouble = ev.Timestamp.ToOADate() }).ToList();
 
+                var inactiveLegendAdded = false;
+                foreach (var deadZone in CombatLogManagerContext.SelectedCombatEntity.DeadZones)
+                {
+                    var deadZoneSignal = this.uiScottScatterPlotEntityEvents.Plot.Add.Rectangle(
+                        deadZone.StartTime.ToOADate(), deadZone.EndTime.ToOADate(), magnitudeDataList.Min(mag => mag.Mag),
+                        magnitudeDataList.Max(mag => mag.Mag));
+
+                    deadZoneSignal.FillStyle.Color = Colors.Black.WithAlpha(.2);
+                    deadZoneSignal.LineStyle.Color = Colors.Black;
+                    deadZoneSignal.LineStyle.Width = 3;
+                    deadZoneSignal.LineStyle.Pattern = LinePattern.Solid;
+
+                    if(!inactiveLegendAdded)
+                        deadZoneSignal.LegendText = "Inactive";
+
+                    inactiveLegendAdded = true;
+                }
+
                 var signal = this.uiScottScatterPlotEntityEvents.Plot.Add.SignalXY(
                     magnitudeDataList.Select(pd => pd.DateTimeDouble).ToArray(),
                     magnitudeDataList.Select(pd => pd.Mag).ToArray());
-
+                
                 signal.MarkerSize = 15;
                 signal.LegendText = "Magnitude";
                 signal.Color = Color.FromHex("00bdff");
@@ -742,12 +755,12 @@ public partial class MainWindow
                                 StringComparison.CurrentCultureIgnoreCase))
                             this.CombatLogManagerContext.SelectedCombatEventType = new CombatEventType(this
                                 .CombatLogManagerContext.SelectedCombatEntity.CombatEventsList.Where(ev => ev.IsPetEvent)
-                                .ToList(), "PETS OVERALL");
+                                .ToList(), "PETS OVERALL", inactiveTimeSpan: this.CombatLogManagerContext.SelectedCombatEntity.EntityCombatInActive);
                         else
                             this.CombatLogManagerContext.SelectedCombatEventType =
                                 new CombatEventType(
                                     this.CombatLogManagerContext.SelectedCombatEntity.CombatEventsList.ToList(),
-                                    "OVERALL");
+                                    "OVERALL", inactiveTimeSpan: this.CombatLogManagerContext.SelectedCombatEntity.EntityCombatInActive);
                     }
                 }
                 else

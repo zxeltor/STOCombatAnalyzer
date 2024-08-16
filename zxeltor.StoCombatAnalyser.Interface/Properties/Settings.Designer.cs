@@ -305,5 +305,29 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
                 this["IsEnableAnalysisTools"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public double MinInActiveInSeconds {
+            get {
+                return ((double)(this["MinInActiveInSeconds"]));
+            }
+            set {
+                this["MinInActiveInSeconds"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsEnableInactiveTimeCalculations {
+            get {
+                return ((bool)(this["IsEnableInactiveTimeCalculations"]));
+            }
+            set {
+                this["IsEnableInactiveTimeCalculations"] = value;
+            }
+        }
     }
 }

@@ -25,11 +25,12 @@ public class CombatEventType
     /// <exception cref="NullReferenceException"><see cref="combatEventList" /> was specified using a null object.</exception>
     /// <exception cref="ArgumentException"><see cref="combatEventList" /> was specified with an empty list.</exception>
     public CombatEventType(List<CombatEvent> combatEventList, string? sourceInternal = null,
-        string? sourceDisplay = null, string? eventInternal = null, string? eventDisplay = null)
+        string? sourceDisplay = null, string? eventInternal = null, string? eventDisplay = null, TimeSpan? inactiveTimeSpan = null)
     {
         if (combatEventList == null) throw new NullReferenceException(nameof(combatEventList));
         if (combatEventList.Count == 0) throw new ArgumentException(@"Empty collection", nameof(combatEventList));
 
+        this.InactiveTimeSpan = inactiveTimeSpan ?? TimeSpan.Zero;
         this.CombatEvents = combatEventList;
 
         if (sourceInternal == null)
@@ -72,6 +73,12 @@ public class CombatEventType
     #endregion
 
     #region Public Properties
+
+    /// <summary>
+    ///     The total amount of time the player was Inactive.
+    ///     <para>If not enabled in config, this will be 0</para>
+    /// </summary>
+    public TimeSpan InactiveTimeSpan { get; }
 
     /// <summary>
     ///     True if this event type originated from a player pet, and not directly from a player itself.
@@ -218,12 +225,15 @@ public class CombatEventType
 
         this.Dps = damageEvents.Count == 0
             ? 0
-            : this.Damage /
-              ((damageEvents.Max(ev => ev.Timestamp) - damageEvents.Min(ev => ev.Timestamp)).TotalSeconds + .001);
+            : this.Damage / ((
+                (damageEvents.Max(ev => ev.Timestamp) - damageEvents.Min(ev => ev.Timestamp)) - InactiveTimeSpan
+                    ).TotalSeconds + .001);
 
         this.MaxDamageHit = damageEvents.Count == 0 ? 0 : damageEvents.Max(ev => Math.Abs(ev.Magnitude));
+
         this.HullDamage = damageEvents.Where(ev => !ev.Type.Equals("Shield", StringComparison.CurrentCultureIgnoreCase))
             .Sum(ev => Math.Abs(ev.Magnitude));
+
         this.ShieldDamage = damageEvents
             .Where(ev => ev.Type.Equals("Shield", StringComparison.CurrentCultureIgnoreCase))
             .Sum(ev => Math.Abs(ev.Magnitude));
@@ -233,12 +243,14 @@ public class CombatEventType
 
         var criticalEvents = damageEvents
             .Where(ev => ev.Flags.Contains("Critical", StringComparison.CurrentCultureIgnoreCase)).ToList();
+
         var flankEvents = damageEvents
             .Where(ev => ev.Flags.Contains("Flank", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
         this.CriticalPercentage = criticalEvents.Count > 0 && this.Attacks > 0
             ? Math.Round(criticalEvents.Count / (double)this.Attacks * 100, 2)
             : 0;
+
         this.FlankPercentage = flankEvents.Count > 0 && this.Attacks > 0
             ? Math.Round(flankEvents.Count / (double)this.Attacks * 100, 2)
             : 0;
@@ -249,8 +261,10 @@ public class CombatEventType
         this.Heals = this.CombatEvents
             .Where(ev => ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase))
             .Sum(ev => Math.Abs(ev.Magnitude));
-        this.Hps = this.Heals / ((this.CombatEvents.Max(ev => ev.Timestamp) - this.CombatEvents.Min(ev => ev.Timestamp))
-            .TotalSeconds + .001);
+
+        this.Hps = this.Heals / ((
+            (this.CombatEvents.Max(ev => ev.Timestamp) - this.CombatEvents.Min(ev => ev.Timestamp)) - InactiveTimeSpan
+            ).TotalSeconds + .001);
     }
 
     #endregion

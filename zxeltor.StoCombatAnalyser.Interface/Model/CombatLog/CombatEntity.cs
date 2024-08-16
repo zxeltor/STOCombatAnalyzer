@@ -4,11 +4,9 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Humanizer;
-using Humanizer.Localisation;
 using Newtonsoft.Json;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
 
@@ -25,11 +23,15 @@ public class CombatEntity : INotifyPropertyChanged
 
     private List<CombatPetEventType>? _combatEventTypeListForEntityPets;
 
+    private List<CombatEntityDeadZone>? _deadZones;
+
     private int? _entityCombatAttacks;
 
-    private string? _entityCombatDuration;
+    private TimeSpan? _entityCombatDuration;
 
     private DateTime? _entityCombatEnd;
+
+    public TimeSpan? _entityCombatInActive;
 
     private int? _entityCombatKills;
 
@@ -69,11 +71,46 @@ public class CombatEntity : INotifyPropertyChanged
         this.AddCombatEvent(combatEvent);
     }
 
-    public IReadOnlyList<CombatEvent> CombatEventsList => this._combatEventList;
-
     #endregion
 
     #region Public Properties
+
+    /// <summary>
+    ///     A list of timespans where the Player is considered Inactive.
+    /// </summary>
+    public List<CombatEntityDeadZone> DeadZones
+    {
+        get
+        {
+            if (this._deadZones != null && this._isObjectLocked)
+                return this._deadZones;
+
+            if (!Settings.Default.IsEnableInactiveTimeCalculations || this.CombatEventsList.Count == 0)
+                return this._deadZones = new List<CombatEntityDeadZone>(0);
+
+            var deadZones = new List<CombatEntityDeadZone>();
+
+            var minNoActivity = TimeSpan.FromSeconds(Settings.Default.MinInActiveInSeconds) < TimeSpan.FromSeconds(1)
+                ? TimeSpan.FromSeconds(1)
+                : TimeSpan.FromSeconds(Settings.Default.MinInActiveInSeconds);
+
+            var lastTimestamp = this.CombatEventsList.First().Timestamp;
+
+            foreach (var combatEvent in this.CombatEventsList)
+            {
+                if (combatEvent.Timestamp == this.EntityCombatStart) continue;
+
+                if (combatEvent.Timestamp - lastTimestamp >= minNoActivity)
+                    deadZones.Add(new CombatEntityDeadZone(lastTimestamp, combatEvent.Timestamp));
+
+                lastTimestamp = combatEvent.Timestamp;
+            }
+
+            return this._deadZones = deadZones;
+        }
+    }
+
+    public IReadOnlyList<CombatEvent> CombatEventsList => this._combatEventList;
 
     /// <summary>
     ///     Get a list of event types specific to the Player or Non-Player
@@ -91,7 +128,7 @@ public class CombatEntity : INotifyPropertyChanged
             this._combatEventTypeListForEntity = this._combatEventList.Where(ev => !ev.IsPetEvent)
                 .GroupBy(ev => new { ev.EventInternal, ev.EventDisplay })
                 .OrderBy(evg => evg.Key.EventDisplay)
-                .Select(evg => new CombatEventType(evg.ToList())).ToList();
+                .Select(evg => new CombatEventType(evg.ToList(), inactiveTimeSpan: this.EntityCombatInActive)).ToList();
 
             return this._combatEventTypeListForEntity;
         }
@@ -115,7 +152,8 @@ public class CombatEntity : INotifyPropertyChanged
                 var myEvents = this._combatEventList.Where(ev => ev.IsPetEvent)
                     .GroupBy(ev => new { ev.SourceDisplay, ev.EventInternal, ev.EventDisplay })
                     .OrderBy(evg => evg.Key.EventDisplay)
-                    .Select(evg => new CombatEventType(evg.ToList())).ToList();
+                    .Select(evg => new CombatEventType(evg.ToList(), inactiveTimeSpan: this.EntityCombatInActive))
+                    .ToList();
 
                 this._combatEventTypeListForEntityPets = myEvents
                     .GroupBy(evt => new { evt.SourceDisplay, evt.EventInternal })
@@ -127,7 +165,8 @@ public class CombatEntity : INotifyPropertyChanged
                 var myEvents = this._combatEventList.Where(ev => ev.IsPetEvent)
                     .GroupBy(ev => new { ev.SourceInternal, ev.EventInternal, ev.EventDisplay })
                     .OrderBy(evg => evg.Key.EventDisplay)
-                    .Select(evg => new CombatEventType(evg.ToList())).ToList();
+                    .Select(evg => new CombatEventType(evg.ToList(), inactiveTimeSpan: this.EntityCombatInActive))
+                    .ToList();
 
                 this._combatEventTypeListForEntityPets = myEvents.GroupBy(evt =>
                         new { evt.SourceInternal, evt.SourceDisplay, evt.EventInternal })
@@ -176,7 +215,7 @@ public class CombatEntity : INotifyPropertyChanged
     /// <summary>
     ///     A humanized string base on combat duration. (<see cref="EntityCombatEnd" /> - <see cref="EntityCombatStart" />)
     /// </summary>
-    public string EntityCombatDuration
+    public TimeSpan? EntityCombatDuration
     {
         get
         {
@@ -184,9 +223,24 @@ public class CombatEntity : INotifyPropertyChanged
                 return this._entityCombatDuration;
 
             if (this.EntityCombatEnd.HasValue && this.EntityCombatStart.HasValue)
-                return this._entityCombatDuration =
-                    (this.EntityCombatEnd.Value - this.EntityCombatStart.Value).Humanize(3, maxUnit: TimeUnit.Minute);
-            return this._entityCombatDuration = "0";
+                return this._entityCombatDuration = this.EntityCombatEnd.Value - this.EntityCombatStart.Value;
+
+            return this._entityCombatDuration = null;
+        }
+    }
+
+    public TimeSpan? EntityCombatInActive
+    {
+        get
+        {
+            if (this._entityCombatInActive != null && this._isObjectLocked)
+                return this._entityCombatInActive;
+
+            if (this.DeadZones.Count > 0)
+                return this._entityCombatInActive =
+                    TimeSpan.FromSeconds(this.DeadZones.Sum(dead => dead.Duration.TotalSeconds));
+
+            return this._entityCombatInActive = null;
         }
     }
 
@@ -238,14 +292,17 @@ public class CombatEntity : INotifyPropertyChanged
             if (this._entityMagnitudePerSecond.HasValue && this._isObjectLocked)
                 return this._entityMagnitudePerSecond.Value;
 
-            var entityEvents = this._combatEventList.Where(ev =>
-                !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+            var entityEvents = this._combatEventList
+                .Where(ev => !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-            if (entityEvents.Count == 0) return 0;
+            if (entityEvents.Count == 0) return this._entityMagnitudePerSecond = 0;
 
-            return this._entityMagnitudePerSecond = entityEvents.Sum(dam => Math.Abs(dam.Magnitude)) /
-                                                    ((entityEvents.Max(ev => ev.Timestamp) -
-                                                      entityEvents.Min(ev => ev.Timestamp)).TotalSeconds + .001);
+            return this._entityMagnitudePerSecond = entityEvents.Sum(dam => Math.Abs(dam.Magnitude)) / (
+                (
+                    entityEvents.Max(ev => ev.Timestamp) - entityEvents.Min(ev => ev.Timestamp) -
+                    (this.EntityCombatInActive ?? TimeSpan.Zero)
+                ).TotalSeconds + .001
+            );
         }
     }
 
@@ -262,11 +319,14 @@ public class CombatEntity : INotifyPropertyChanged
             var petEvents = this._combatEventList.Where(ev =>
                 ev.IsPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-            if (petEvents.Count == 0) return 0;
+            if (petEvents.Count == 0) return this._entityMagnitudePerSecond = 0;
 
-            return this._petsMagnitudePerSecond = petEvents.Sum(dam => Math.Abs(dam.Magnitude)) /
-                                                  ((petEvents.Max(ev => ev.Timestamp) -
-                                                    petEvents.Min(ev => ev.Timestamp)).TotalSeconds + .001);
+            return this._entityMagnitudePerSecond = petEvents.Sum(dam => Math.Abs(dam.Magnitude)) / (
+                (
+                    petEvents.Max(ev => ev.Timestamp) - petEvents.Min(ev => ev.Timestamp) -
+                    (this.EntityCombatInActive ?? TimeSpan.Zero)
+                ).TotalSeconds + .001
+            );
         }
     }
 
@@ -280,10 +340,10 @@ public class CombatEntity : INotifyPropertyChanged
             if (this._entityMaxMagnitude.HasValue && this._isObjectLocked)
                 return this._entityMaxMagnitude.Value;
 
-            var entityEvents = this._combatEventList.Where(ev =>
-                !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+            var entityEvents = this._combatEventList
+                .Where(ev => !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-            if (entityEvents.Count == 0) return 0;
+            if (entityEvents.Count == 0) return this._entityMaxMagnitude = 0;
 
             return this._entityMaxMagnitude = entityEvents.Max(dam => Math.Abs(dam.Magnitude));
         }
@@ -302,7 +362,7 @@ public class CombatEntity : INotifyPropertyChanged
             var petEvents = this._combatEventList.Where(ev =>
                 ev.IsPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-            if (petEvents.Count == 0) return 0;
+            if (petEvents.Count == 0) return this._petsMaxMagnitude = 0;
 
             return this._petsMaxMagnitude = petEvents.Max(dam => Math.Abs(dam.Magnitude));
         }
@@ -318,10 +378,10 @@ public class CombatEntity : INotifyPropertyChanged
             if (this._entityTotalMagnitude.HasValue && this._isObjectLocked)
                 return this._entityTotalMagnitude.Value;
 
-            var entityEvents = this._combatEventList.Where(ev =>
-                !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+            var entityEvents = this._combatEventList
+                .Where(ev => !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-            if (entityEvents.Count == 0) return 0;
+            if (entityEvents.Count == 0) return this._entityTotalMagnitude = 0;
 
             return this._entityTotalMagnitude = entityEvents.Sum(dam => Math.Abs(dam.Magnitude));
         }
@@ -340,7 +400,7 @@ public class CombatEntity : INotifyPropertyChanged
             var petEvents = this._combatEventList.Where(ev =>
                 ev.IsPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-            if (petEvents.Count == 0) return 0;
+            if (petEvents.Count == 0) return this._petsTotalMagnitude = 0;
 
             return this._petsTotalMagnitude = petEvents.Sum(dam => Math.Abs(dam.Magnitude));
         }
@@ -410,6 +470,7 @@ public class CombatEntity : INotifyPropertyChanged
     {
         this._combatEventTypeListForEntity = null;
         this._combatEventTypeListForEntityPets = null;
+        this._entityCombatInActive = null;
         this._entityCombatAttacks = null;
         this._entityCombatDuration = null;
         this._entityCombatEnd = null;
