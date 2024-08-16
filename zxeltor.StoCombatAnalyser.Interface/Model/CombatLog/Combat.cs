@@ -19,6 +19,24 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 /// </summary>
 public class Combat : INotifyPropertyChanged
 {
+    #region Private Fields
+
+    private string? _combatDuration;
+
+    private DateTime? _combatEnd;
+
+    private DateTime? _combatStart;
+
+    private int? _eventsCount;
+
+    private bool _isObjectLocked;
+
+    private List<string>? _uniqueEntityIds;
+
+    #endregion
+
+    #region Constructors
+
     /// <summary>
     ///     The main constructor
     /// </summary>
@@ -31,28 +49,44 @@ public class Combat : INotifyPropertyChanged
         this.AddCombatEvent(combatEvent);
     }
 
+    #endregion
+
+    #region Public Properties
+
     /// <summary>
     ///     A total number of events for Player and NonPlayer entities.
     /// </summary>
-    public int EventsCount => this.PlayerEntities.Sum(en => en.CombatEventList.Count) +
-                              this.NonPlayerEntities.Sum(en => en.CombatEventList.Count);
+    public int? EventsCount
+    {
+        get
+        {
+            if (this._eventsCount.HasValue && this._isObjectLocked)
+                return this._eventsCount.Value;
+
+            return this._eventsCount = this.PlayerEntities.Sum(en => en.CombatEventsList.Count) +
+                                       this.NonPlayerEntities.Sum(en => en.CombatEventsList.Count);
+        }
+    }
 
     /// <summary>
     ///     Used to establish the start time for this combat instance.
     ///     <para>The first timestamp from our <see cref="CombatEntity" /> collections, based on an ordered list.</para>
     /// </summary>
-    public DateTime CombatStart
+    public DateTime? CombatStart
     {
         get
         {
+            if (this._combatStart.HasValue && this._isObjectLocked)
+                return this._combatStart.Value;
+
             var results = new List<DateTime>(2);
 
             if (this.PlayerEntities.Count > 0)
-                results.Add(this.PlayerEntities.Min(entity => entity.EntityCombatStart));
+                results.Add(this.PlayerEntities.Min(entity => entity.EntityCombatStart.Value));
             if (this.NonPlayerEntities.Count > 0)
-                results.Add(this.NonPlayerEntities.Min(entity => entity.EntityCombatStart));
+                results.Add(this.NonPlayerEntities.Min(entity => entity.EntityCombatStart.Value));
 
-            return results.Any() ? results.Min() : DateTime.MinValue;
+            return this._combatStart = results.Count > 0 ? results.Min() : DateTime.MinValue;
         }
     }
 
@@ -60,25 +94,40 @@ public class Combat : INotifyPropertyChanged
     ///     Used to establish the end time for this combat instance.
     ///     <para>The last timestamp from our <see cref="CombatEntity" /> collections, based on ann ordered list.</para>
     /// </summary>
-    public DateTime CombatEnd
+    public DateTime? CombatEnd
     {
         get
         {
+            if (this._combatEnd.HasValue && this._isObjectLocked)
+                return this._combatEnd.Value;
+
             var results = new List<DateTime>(2);
 
             if (this.PlayerEntities.Count > 0)
-                results.Add(this.PlayerEntities.Max(entity => entity.EntityCombatEnd));
+                results.Add(this.PlayerEntities.Max(entity => entity.EntityCombatEnd.Value));
             if (this.NonPlayerEntities.Count > 0)
-                results.Add(this.NonPlayerEntities.Max(entity => entity.EntityCombatEnd));
+                results.Add(this.NonPlayerEntities.Max(entity => entity.EntityCombatEnd.Value));
 
-            return results.Any() ? results.Max() : DateTime.MaxValue;
+            return this._combatEnd = results.Count > 0 ? results.Max() : DateTime.MaxValue;
         }
     }
 
     /// <summary>
-    ///     A humanized string base on combat duration. (<see cref="CombatEnd" /> - <see cref="CombatStart" />)
+    ///     A humanized string based on combat duration. (<see cref="CombatEnd" /> - <see cref="CombatStart" />)
     /// </summary>
-    public string CombatDuration => (this.CombatEnd - this.CombatStart).Humanize(2, maxUnit: TimeUnit.Minute);
+    public string? CombatDuration
+    {
+        get
+        {
+            if (this._combatDuration != null && this._isObjectLocked)
+                return this._combatDuration;
+
+            if (this.CombatEnd.HasValue && this.CombatStart.HasValue)
+                return this._combatDuration =
+                    (this.CombatEnd.Value - this.CombatStart.Value).Humanize(2, maxUnit: TimeUnit.Minute);
+            return this._combatDuration = "0";
+        }
+    }
 
     /// <summary>
     ///     The identity of the map related to this combat instance.
@@ -91,7 +140,8 @@ public class Combat : INotifyPropertyChanged
     public ObservableCollection<CombatEntity> PlayerEntities { get; } = new();
 
     [JsonIgnore]
-    public ObservableCollection<CombatEntity> PlayerEntitiesOrderByName => new(this.PlayerEntities.OrderBy(ent => ent.OwnerDisplay));
+    public ObservableCollection<CombatEntity> PlayerEntitiesOrderByName =>
+        new(this.PlayerEntities.OrderBy(ent => ent.OwnerDisplay));
 
     /// <summary>
     ///     A list of non-player <see cref="CombatEntity" /> objects.
@@ -99,10 +149,8 @@ public class Combat : INotifyPropertyChanged
     public ObservableCollection<CombatEntity> NonPlayerEntities { get; } = new();
 
     [JsonIgnore]
-    public ObservableCollection<CombatEntity> NonPlayerEntitiesOrderByName => new(this.NonPlayerEntities.OrderBy(ent => ent.OwnerDisplay));
-
-    /// <inheritdoc />
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public ObservableCollection<CombatEntity> NonPlayerEntitiesOrderByName =>
+        new(this.NonPlayerEntities.OrderBy(ent => ent.OwnerDisplay));
 
     /// <summary>
     ///     Return a unique list of Ids and Labels from our combat entities.
@@ -111,6 +159,9 @@ public class Combat : INotifyPropertyChanged
     {
         get
         {
+            if (this._uniqueEntityIds != null && this._isObjectLocked)
+                return this._uniqueEntityIds;
+
             if (this.NonPlayerEntities.Count == 0 || this.PlayerEntities.Count == 0)
                 return [];
 
@@ -119,32 +170,121 @@ public class Combat : INotifyPropertyChanged
 
             // Gather a unique list of Ids and Labels from our combat entities we 
             // can use for map detection.
-            var results = (
-                from entity in allEntities
-                from eve in entity.CombatEventList
-                where !string.IsNullOrWhiteSpace(eve.OwnerInternalStripped)
-                select eve.OwnerInternalStripped
-            ).Union(
-                from entity in allEntities
-                from eve in entity.CombatEventList
-                where !string.IsNullOrWhiteSpace(eve.OwnerDisplay)
-                select eve.OwnerDisplay
+            this._uniqueEntityIds = (
+                    from entity in allEntities
+                    from eve in entity.CombatEventsList
+                    where !string.IsNullOrWhiteSpace(eve.OwnerInternalStripped)
+                    select eve.OwnerInternalStripped
                 ).Union(
                     from entity in allEntities
-                    from eve in entity.CombatEventList
+                    from eve in entity.CombatEventsList
+                    where !string.IsNullOrWhiteSpace(eve.OwnerDisplay)
+                    select eve.OwnerDisplay
+                ).Union(
+                    from entity in allEntities
+                    from eve in entity.CombatEventsList
                     where !string.IsNullOrWhiteSpace(eve.TargetInternalStripped)
                     select eve.TargetInternalStripped
-                    ).Union(
-                        from entity in allEntities
-                        from eve in entity.CombatEventList
-                        where !string.IsNullOrWhiteSpace(eve.TargetDisplay)
-                        select eve.TargetDisplay)
+                ).Union(
+                    from entity in allEntities
+                    from eve in entity.CombatEventsList
+                    where !string.IsNullOrWhiteSpace(eve.TargetDisplay)
+                    select eve.TargetDisplay)
                 .Distinct().ToList();
 
-            return results;
+            return this._uniqueEntityIds;
         }
     }
-    
+
+    #endregion
+
+    #region Public Members
+
+    /// <summary>
+    ///     Lock the class from accepting new combat events.
+    /// </summary>
+    /// <param name="lockObject">True to lock the object. False otherwise.</param>
+    public void LockObject(bool lockObject = true)
+    {
+        this._isObjectLocked = lockObject;
+
+        this.PlayerEntities.ToList().ForEach(ent => ent.LockObject(lockObject));
+        this.NonPlayerEntities.ToList().ForEach(ent => ent.LockObject(lockObject));
+
+        if (lockObject)
+            this.RefreshProperties();
+    }
+
+    /// <inheritdoc />
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    ///     A method used to inject new <see cref="CombatEvent" /> objects into our <see cref="CombatEntity" /> hierarchy.
+    /// </summary>
+    /// <param name="combatEvent">A new combat event to inject into our hierarchy.</param>
+    public void AddCombatEvent(CombatEvent combatEvent)
+    {
+        if (this._isObjectLocked)
+            throw new Exception("Trying to add new events to a locked object");
+
+        if (combatEvent.IsPlayerEntity)
+        {
+            // Insert the incoming event under an existing player combat entity, or create a new one if we need too.
+            var existingPlayer =
+                this.PlayerEntities.FirstOrDefault(owner => owner.OwnerInternal.Equals(combatEvent.OwnerInternal));
+            if (existingPlayer == null)
+            {
+                existingPlayer = new CombatEntity(combatEvent);
+                this.PlayerEntities.Add(existingPlayer);
+            }
+            else
+            {
+                existingPlayer.AddCombatEvent(combatEvent);
+            }
+        }
+        else
+        {
+            // Insert the incoming event under an existing non-player combat entity, or create a new one if we need too.
+            var existingNonPlayer =
+                this.NonPlayerEntities.FirstOrDefault(owner => owner.OwnerInternal.Equals(combatEvent.OwnerInternal));
+            if (existingNonPlayer == null)
+            {
+                existingNonPlayer = new CombatEntity(combatEvent);
+                this.NonPlayerEntities.Add(existingNonPlayer);
+            }
+            else
+            {
+                existingNonPlayer.AddCombatEvent(combatEvent);
+            }
+        }
+
+        //ToddDo: Revisit this after testing. I don't think this is needed anymore.
+        // We call this in an effort to update the binding in the UI, so it updates with the new data.
+        //this.OnNewCombatEventAdded();
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return $"EntityCombatDuration={this.CombatDuration}, Start={this.CombatStart}, End={this.CombatEnd}";
+    }
+
+    #endregion
+
+    #region Other Members
+
+    private void RefreshProperties()
+    {
+        this._combatDuration = null;
+        this._combatEnd = null;
+        this._combatStart = null;
+        this._eventsCount = null;
+        this._uniqueEntityIds = null;
+
+        var memberInfo = this.GetType().GetProperties();
+        memberInfo.ToList().ForEach(prop => this.OnPropertyChanged(prop.Name));
+    }
+
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
     /// </summary>
@@ -167,51 +307,5 @@ public class Combat : INotifyPropertyChanged
         this.OnPropertyChanged(nameof(this.NonPlayerEntitiesOrderByName));
     }
 
-    /// <summary>
-    ///     A method used to inject new <see cref="CombatEvent" /> objects into our <see cref="CombatEntity" /> hierarchy.
-    /// </summary>
-    /// <param name="combatEvent">A new combat event to inject into our hierarchy.</param>
-    public void AddCombatEvent(CombatEvent combatEvent)
-    {
-        if (combatEvent.IsPlayerEntity)
-        {
-            // Insert the incoming event under an existing player combat entity, or create a new one if we need too.
-            var existingPlayer =
-                this.PlayerEntities.FirstOrDefault(owner => owner.OwnerInternal.Equals(combatEvent.OwnerInternal));
-            if (existingPlayer == null)
-            {
-                existingPlayer = new CombatEntity(combatEvent);
-                this.PlayerEntities.Add(existingPlayer);
-            }
-            else
-            {
-                existingPlayer.CombatEventList.Add(combatEvent);
-            }
-        }
-        else
-        {
-            // Insert the incoming event under an existing non-player combat entity, or create a new one if we need too.
-            var existingNonPlayer =
-                this.NonPlayerEntities.FirstOrDefault(owner => owner.OwnerInternal.Equals(combatEvent.OwnerInternal));
-            if (existingNonPlayer == null)
-            {
-                existingNonPlayer = new CombatEntity(combatEvent);
-                this.NonPlayerEntities.Add(existingNonPlayer);
-            }
-            else
-            {
-                existingNonPlayer.CombatEventList.Add(combatEvent);
-            }
-        }
-
-        // We call this in an effort to update the binding in the UI, so it updates with the new data.
-        this.OnNewCombatEventAdded();
-    }
-
-    /// <inheritdoc />
-    public override string ToString()
-    {
-        return
-            $"EntityCombatDuration={(this.CombatEnd - this.CombatStart).Humanize()}, Start={this.CombatStart}, End={this.CombatEnd}";
-    }
+    #endregion
 }

@@ -4,16 +4,15 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
 namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
 /// <summary>
 ///     This class represents a line of data from the STO combat logs.
 /// </summary>
-public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
+public class CombatEvent : IEquatable<CombatEvent>
 {
+    #region Constructors
+
     ///// <summary>
     /////     ToddDo: I'm experimenting with using regex to parse log file lines. At the moment, it's considerably slower than my
     /////     original method.
@@ -37,20 +36,24 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
         this.ParseLogFileEntryOldSchool(combatLogEntry);
     }
 
+    #endregion
+
+    #region Public Properties
+
     /// <summary>
     ///     The source file where this entry came from.
     /// </summary>
-    public string OriginalFileName { get; set; }
+    public string OriginalFileName { get; }
 
     /// <summary>
     ///     The line from the source file.
     /// </summary>
-    public long OriginalFileLineNumber { get; set; }
+    public long OriginalFileLineNumber { get; }
 
     /// <summary>
     ///     The file line number where this entry originated from.
     /// </summary>
-    public string OriginalFileLineString { get; set; }
+    public string OriginalFileLineString { get; }
 
     /// <summary>
     ///     A hashcode derived from properties in this class. An attempt to create a unique id.
@@ -109,7 +112,7 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     public string OwnerInternalStripped { get; private set; }
 
     /// <summary>
-    ///     Display name of source(only appears if Pet/Gravity Well etc)
+    ///     Display name of source(only appears if Pet/Gravity Well etc.)
     ///     <para>
     ///         This was a field parsed directly from the original CSV log file entry.
     ///         This was entry 2 in the CSV. Entries are zero based.
@@ -173,7 +176,7 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     public string EventInternal { get; private set; }
 
     /// <summary>
-    ///     Type (Shield or Plasma/Antiproton etc)
+    ///     Type (Shield or Plasma/Antiproton etc.)
     ///     <para>
     ///         This was a field parsed directly from the original CSV log file entry.
     ///         This was entry 8 in the CSV. Entries are zero based.
@@ -182,7 +185,7 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     public string Type { get; private set; }
 
     /// <summary>
-    ///     Flags (Critical, Flank, Dodge, Miss etc)
+    ///     Flags (Critical, Flank, Dodge, Miss etc.)
     ///     <para>
     ///         This was a field parsed directly from the original CSV log file entry.
     ///         This was entry 9 in the CSV. Entries are zero based.
@@ -208,6 +211,10 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     /// </summary>
     public double MagnitudeBase { get; private set; }
 
+    #endregion
+
+    #region Public Members
+
     /// <inheritdoc />
     public bool Equals(CombatEvent? other)
     {
@@ -215,7 +222,23 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     }
 
     /// <inheritdoc />
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public override string ToString()
+    {
+        return
+            $"Timestamp={this.Timestamp:s}, Owner={this.OwnerInternal}, Target={this.TargetInternal}, {this.EventInternal}, {this.Type}";
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(this.Timestamp, this.OwnerInternal, this.SourceInternal, this.TargetInternal,
+            this.EventInternal, this.Type,
+            this.Flags, this.Magnitude);
+    }
+
+    #endregion
+
+    #region Other Members
 
     /// <summary>
     ///     This method is used to parse line from a STO combat log.
@@ -294,28 +317,27 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
         if (!string.IsNullOrWhiteSpace(this.SourceDisplay))
             this.IsPetEvent = true;
 
-        if (!this.IsPetEvent && OwnerInternal.StartsWith("C["))
+        if (!this.IsPetEvent && this.OwnerInternal.StartsWith("C["))
         {
-            var splitResult = OwnerInternal.Split(" ");
-            if (splitResult.Length == 2)
-            {
-                OwnerInternalStripped = splitResult[1].Replace("]", "");
-            }
+            var splitResult = this.OwnerInternal.Split(" ");
+            if (splitResult.Length == 2) this.OwnerInternalStripped = splitResult[1].Replace("]", "");
         }
 
-        if (!this.IsPetEvent && TargetInternal.StartsWith("C["))
+        if (!this.IsPetEvent && this.TargetInternal.StartsWith("C["))
         {
-            var splitResult = TargetInternal.Split(" ");
+            var splitResult = this.TargetInternal.Split(" ");
             if (splitResult.Length == 2)
             {
-                IsTargetNonPlayer = true;
-                TargetInternalStripped = splitResult[1].Replace("]", "");
+                this.IsTargetNonPlayer = true;
+                this.TargetInternalStripped = splitResult[1].Replace("]", "");
             }
         }
 
         if (this.OwnerInternal.StartsWith("P["))
             this.IsPlayerEntity = true;
     }
+
+    #endregion
 
     ///// <summary>
     /////     ToddDo: I'm experimenting with using regex to parse log file lines. At the moment, it's considerably slower than my
@@ -384,27 +406,4 @@ public class CombatEvent : INotifyPropertyChanged, IEquatable<CombatEvent>
     //    if (this.OwnerInternal.StartsWith("P["))
     //        this.IsPlayerEntity = true;
     //}
-
-    /// <summary>
-    ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
-    /// </summary>
-    protected void OnPropertyChanged([CallerMemberName] string? name = null)
-    {
-        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    }
-
-    /// <inheritdoc />
-    public override string ToString()
-    {
-        return
-            $"Timestamp={this.Timestamp:s}, Owner={this.OwnerInternal}, Target={this.TargetInternal}, {this.EventInternal}, {this.Type}";
-    }
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(this.Timestamp, this.OwnerInternal, this.SourceInternal, this.TargetInternal,
-            this.EventInternal, this.Type,
-            this.Flags, this.Magnitude);
-    }
 }

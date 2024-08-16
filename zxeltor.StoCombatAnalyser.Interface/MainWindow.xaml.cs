@@ -30,7 +30,13 @@ namespace zxeltor.StoCombatAnalyzer.Interface;
 /// </summary>
 public partial class MainWindow
 {
+    #region Static Fields and Constants
+
     private static readonly ILog Log = LogManager.GetLogger(typeof(MainWindow));
+
+    #endregion
+
+    #region Constructors
 
     public MainWindow()
     {
@@ -48,7 +54,15 @@ public partial class MainWindow
         this.Unloaded += this.OnUnloaded;
     }
 
+    #endregion
+
+    #region Public Properties
+
     private CombatLogManager CombatLogManagerContext { get; }
+
+    #endregion
+
+    #region Other Members
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
@@ -305,9 +319,9 @@ public partial class MainWindow
 
             if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals("OVERALL"))
             {
-                dps = this.CombatLogManagerContext.SelectedCombatEntity.EntityMagnitudePerSecond;
-                total = this.CombatLogManagerContext.SelectedCombatEntity.EntityTotalMagnitude;
-                max = this.CombatLogManagerContext.SelectedCombatEntity.EntityMaxMagnitude;
+                dps = this.CombatLogManagerContext.SelectedCombatEntity.EntityMagnitudePerSecond ?? 0;
+                total = this.CombatLogManagerContext.SelectedCombatEntity.EntityTotalMagnitude ?? 0;
+                max = this.CombatLogManagerContext.SelectedCombatEntity.EntityMaxMagnitude ?? 0;
 
                 var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
                     $"OVERALL: "
@@ -319,9 +333,9 @@ public partial class MainWindow
             }
             else if (this.CombatLogManagerContext.EventTypeDisplayFilter.EventTypeId.Equals("PETS OVERALL"))
             {
-                dps = this.CombatLogManagerContext.SelectedCombatEntity.PetsMagnitudePerSecond;
-                total = this.CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude;
-                max = this.CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude;
+                dps = this.CombatLogManagerContext.SelectedCombatEntity.PetsMagnitudePerSecond ?? 0;
+                total = this.CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude ?? 0;
+                max = this.CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude ?? 0;
 
                 var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
                     $"PETS OVERALL: "
@@ -344,7 +358,7 @@ public partial class MainWindow
                         {
                             dps = evt.Dps;
                             total = evt.Damage;
-                            max = evt.MaxDamage;
+                            max = evt.MaxDamageHit;
 
                             var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
                                 $"{evt.EventTypeLabel}: "
@@ -367,7 +381,7 @@ public partial class MainWindow
                 {
                     dps = combatEventType.Dps;
                     total = combatEventType.Damage;
-                    max = combatEventType.MaxDamage;
+                    max = combatEventType.MaxDamageHit;
 
                     var annotation = this.uiScottScatterPlotEntityEvents.Plot.Add.Annotation(
                         $"{combatEventType.EventTypeLabel}: "
@@ -413,11 +427,11 @@ public partial class MainWindow
                 CombatEvent selectedEvent;
 
                 if (plot.LegendText.Equals("magnitudebase", StringComparison.CurrentCultureIgnoreCase))
-                    selectedEvent = this.CombatLogManagerContext.SelectedCombatEntity?.CombatEventList.FirstOrDefault(
+                    selectedEvent = this.CombatLogManagerContext.SelectedCombatEntity?.CombatEventsList.FirstOrDefault(
                         ev =>
                             ev.Timestamp.ToOADate() == nearest.X && ev.MagnitudeBase == nearest.Y);
                 else
-                    selectedEvent = this.CombatLogManagerContext?.SelectedCombatEntity?.CombatEventList.FirstOrDefault(
+                    selectedEvent = this.CombatLogManagerContext?.SelectedCombatEntity?.CombatEventsList.FirstOrDefault(
                         ev =>
                             ev.Timestamp.ToOADate() == nearest.X && ev.Magnitude == nearest.Y);
 
@@ -442,7 +456,7 @@ public partial class MainWindow
 
         var combatEntity = this.CombatLogManagerContext.SelectedCombatEntity;
 
-        if (combatEntity != null && combatEntity.CombatEventList.Any())
+        if (combatEntity != null && combatEntity.CombatEventsList.Any())
         {
             if (this.CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitudeBase: true })
             {
@@ -477,23 +491,19 @@ public partial class MainWindow
         // If we don't currently have an event metric selected in the ui,
         // we pick and set one as a default.
         if (selectedCombatEventMetric == null)
-        {
             if (CombatEventTypeMetric.CombatEventTypeMetricList.Count > 0)
             {
-                var damageMetric = CombatEventTypeMetric.CombatEventTypeMetricList.FirstOrDefault(metric => metric.Name.Equals("DAMAGE"));
+                var damageMetric =
+                    CombatEventTypeMetric.CombatEventTypeMetricList.FirstOrDefault(metric =>
+                        metric.Name.Equals("DAMAGE"));
                 if (damageMetric == null)
-                {
                     selectedCombatEventMetric = CombatEventTypeMetric.CombatEventTypeMetricList[0];
-                }
                 else
-                {
                     selectedCombatEventMetric = damageMetric;
-                }
 
                 this.uiComboBoxMetricSelect.SelectedItem = selectedCombatEventMetric;
             }
-        }
-        
+
         if (this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked != null &&
             this.uiCheckBoxDisplayPetsOnlyOnPieChart.IsChecked.Value)
         {
@@ -525,9 +535,9 @@ public partial class MainWindow
             if (this.CombatLogManagerContext.SelectedCombatEntity != null)
             {
                 var upperCenterAnnotation = this.uiScottBarChartEntityEventTypes.Plot.Add.Annotation(
-                    $"PETS OVERALL: Damage({this.CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude.ToMetric(null, 2)})"
-                    + $" DPS({this.CombatLogManagerContext.SelectedCombatEntity.PetsMagnitudePerSecond.ToMetric(null, 2)})"
-                    + $" Max Hit({this.CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude.ToMetric(null, 2)})"
+                    $"PETS OVERALL: Damage({this.CombatLogManagerContext.SelectedCombatEntity.PetsTotalMagnitude?.ToMetric(null, 2)})"
+                    + $" DPS({this.CombatLogManagerContext.SelectedCombatEntity.PetsMagnitudePerSecond?.ToMetric(null, 2)})"
+                    + $" Max Hit({this.CombatLogManagerContext.SelectedCombatEntity.PetsMaxMagnitude?.ToMetric(null, 2)})"
                     , Alignment.UpperCenter);
 
                 upperCenterAnnotation.LabelFontSize = 18f;
@@ -575,9 +585,9 @@ public partial class MainWindow
             if (this.CombatLogManagerContext.SelectedCombatEntity != null)
             {
                 var upperCenterAnnotation = this.uiScottBarChartEntityEventTypes.Plot.Add.Annotation(
-                    $"OVERALL: Damage({this.CombatLogManagerContext.SelectedCombatEntity.EntityTotalMagnitude.ToMetric(null, 2)})"
-                    + $" DPS({this.CombatLogManagerContext.SelectedCombatEntity.EntityMagnitudePerSecond.ToMetric(null, 2)})"
-                    + $" Max Hit({this.CombatLogManagerContext.SelectedCombatEntity.EntityMaxMagnitude.ToMetric(null, 2)})"
+                    $"OVERALL: Damage({this.CombatLogManagerContext.SelectedCombatEntity.EntityTotalMagnitude?.ToMetric(null, 2)})"
+                    + $" DPS({this.CombatLogManagerContext.SelectedCombatEntity.EntityMagnitudePerSecond?.ToMetric(null, 2)})"
+                    + $" Max Hit({this.CombatLogManagerContext.SelectedCombatEntity.EntityMaxMagnitude?.ToMetric(null, 2)})"
                     , Alignment.UpperCenter);
 
                 upperCenterAnnotation.LabelFontSize = 18f;
@@ -731,12 +741,12 @@ public partial class MainWindow
                         if (combatEventTypeSelector.EventTypeId.Equals("PETS OVERALL",
                                 StringComparison.CurrentCultureIgnoreCase))
                             this.CombatLogManagerContext.SelectedCombatEventType = new CombatEventType(this
-                                .CombatLogManagerContext.SelectedCombatEntity.CombatEventList.Where(ev => ev.IsPetEvent)
+                                .CombatLogManagerContext.SelectedCombatEntity.CombatEventsList.Where(ev => ev.IsPetEvent)
                                 .ToList(), "PETS OVERALL");
                         else
                             this.CombatLogManagerContext.SelectedCombatEventType =
                                 new CombatEventType(
-                                    this.CombatLogManagerContext.SelectedCombatEntity.CombatEventList.ToList(),
+                                    this.CombatLogManagerContext.SelectedCombatEntity.CombatEventsList.ToList(),
                                     "OVERALL");
                     }
                 }
@@ -769,9 +779,10 @@ public partial class MainWindow
                 this.CombatLogManagerContext.SelectedEntityCombatEventTypeListDisplayedFilterOptions.FirstOrDefault(
                     filter => filter.Equals("OVERALL"));
 
-            var damageMetric = CombatEventTypeMetric.CombatEventTypeMetricList.First(metric => metric.Name.Equals("DAMAGE"));
+            var damageMetric =
+                CombatEventTypeMetric.CombatEventTypeMetricList.First(metric => metric.Name.Equals("DAMAGE"));
             this.uiComboBoxMetricSelect.SelectedItem = damageMetric;
-            
+
             if (overallFilter != null)
             {
                 this.CombatLogManagerContext!.EventTypeDisplayFilter = overallFilter;
@@ -1642,8 +1653,10 @@ public partial class MainWindow
 
     private void UiComboBoxMetricSelect_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if(e.Source is ComboBox comboBox)
-            if(comboBox.Name.Equals("uiComboBoxMetricSelect"))
+        if (e.Source is ComboBox comboBox)
+            if (comboBox.Name.Equals("uiComboBoxMetricSelect"))
                 this.SetBarChartForEntity();
     }
+
+    #endregion
 }
