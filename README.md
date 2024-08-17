@@ -13,7 +13,7 @@
 ## Overview
 This is a PC application used to parse and analyze Star Trek Online combat logs. I became interested in trying out STO random elites, but I was curious if my Space DPS was up to snuff. After a little research, I found a reddit post which had a brief outline of the combat log, and the available fields. I figured this application would give me the opportunity to wrap my head around the combat log and it's fields.
 
-This app displays a breakdown of damage types, using calculations based on the absolute value of the magnitude field from the STO combat log file entries. Calculations for DPS, Total Damage, and Max Damage are displayed. Information like resists and such aren't included.
+This app displays a breakdown of various damage/ability [metrics](https://github.com/zxeltor/STOCombatAnalyzer/wiki/Player-Metrics).
 
 See the [wiki](https://github.com/zxeltor/STOCombatAnalyzer/wiki) for more details.
 
@@ -26,7 +26,7 @@ You could also run the dotnet cli build and run commands from inside the zxeltor
 ---
 
 ## Download
-See the [wiki](https://github.com/zxeltor/STOCombatAnalyzer/wiki) for more details.
+See the [wiki](https://github.com/zxeltor/STOCombatAnalyzer/wiki#installer) for more details.
 
 ---
 
