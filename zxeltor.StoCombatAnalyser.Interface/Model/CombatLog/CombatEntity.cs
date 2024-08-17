@@ -6,6 +6,7 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Humanizer;
 using Newtonsoft.Json;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
@@ -465,6 +466,32 @@ public class CombatEntity : INotifyPropertyChanged
     #endregion
 
     #region Other Members
+
+    public string ToCombatStats
+    {
+        get
+        {
+            var str = new StringBuilder($"{this.OwnerDisplay}: ");
+            str.Append($"Attacks={this.EntityCombatAttacks??0}, ");
+            
+            if(EntityTotalMagnitude == null)
+                str.Append("Dam=0, ");
+            else
+                str.Append($"Dam={this.EntityTotalMagnitude.Value.ToMetric(decimals: 2)}, ");
+
+            if (EntityMagnitudePerSecond == null)
+                str.Append("DPS=0, ");
+            else
+                str.Append($"DPS={this.EntityMagnitudePerSecond.Value.ToMetric(decimals: 2)}, ");
+
+            if(EntityCombatInActive == null)
+                str.Append("InActive=0");
+            else
+                str.Append($"InActive={this.EntityCombatInActive.Value.ToString("g")}");
+
+            return str.ToString();
+        }
+    }
 
     private void RefreshProperties()
     {

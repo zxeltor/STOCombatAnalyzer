@@ -71,6 +71,7 @@
     <Resource Include="Images\glyphicons-366-restart.png" />
     <Resource Include="Images\glyphicons-433-plus.png" />
     <Resource Include="Images\glyphicons-436-undo.png" />
+    <Resource Include="Images\glyphicons-512-copy.png" />
     <Resource Include="Images\glyphicons-602-chevron-down.png" />
     <Resource Include="Images\glyphicons-82-refresh.png" />
     <Resource Include="Images\trekwphaser-128x128.png" />

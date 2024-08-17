@@ -339,6 +339,11 @@
                                        ToolTip="Click for more details."
                                     MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" />
                                 <TextBlock Text="Player Select" Margin="8,0,0,0" />
+                                <Button Name="uiButtonCopyPlayerCombatStats" ToolTip="Copy Player combat stats" Margin="8,0,0,0" Width="16" Height="16"
+                                        VerticalAlignment="Center"
+                                        Click="UiButtonCopyPlayerCombatStats_OnClick">
+                                    <Image Source="Images/glyphicons-512-copy.png"></Image>
+                                </Button>
                             </StackPanel>
                         </GroupBox.Header>
                         <Grid Visibility="{Binding Path=SelectedCombat, Converter={StaticResource typeToVisibilityConverter}}">

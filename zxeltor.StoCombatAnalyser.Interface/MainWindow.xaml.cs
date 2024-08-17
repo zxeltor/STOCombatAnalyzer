@@ -1672,4 +1672,11 @@ public partial class MainWindow
     }
 
     #endregion
+
+    private void UiButtonCopyPlayerCombatStats_OnClick(object sender, RoutedEventArgs e)
+    {
+        if(this.CombatLogManagerContext.SelectedCombat == null) return;
+
+        ResponseDialog.Show(this, string.Empty, detailsBoxCaption: "Combat Details", detailsBoxList: this.CombatLogManagerContext.SelectedCombat.PlayerEntities.Select(player => player.ToCombatStats).ToList());
+    }
 }
