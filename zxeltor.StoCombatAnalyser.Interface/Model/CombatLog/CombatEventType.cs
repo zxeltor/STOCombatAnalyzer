@@ -22,10 +22,12 @@ public class CombatEventType
     /// <param name="sourceDisplay">A display name given to a pet entity from the STO combat log.</param>
     /// <param name="eventInternal">A unique id given to an event/ability from the STO combat log.</param>
     /// <param name="eventDisplay">A display name given to an event/ability from the STO combat log.</param>
+    /// <param name="inactiveTimeSpan">The amount of time the player was considered inactive.</param>
     /// <exception cref="NullReferenceException"><see cref="combatEventList" /> was specified using a null object.</exception>
     /// <exception cref="ArgumentException"><see cref="combatEventList" /> was specified with an empty list.</exception>
     public CombatEventType(List<CombatEvent> combatEventList, string? sourceInternal = null,
-        string? sourceDisplay = null, string? eventInternal = null, string? eventDisplay = null, TimeSpan? inactiveTimeSpan = null)
+        string? sourceDisplay = null, string? eventInternal = null, string? eventDisplay = null,
+        TimeSpan? inactiveTimeSpan = null)
     {
         if (combatEventList == null) throw new NullReferenceException(nameof(combatEventList));
         if (combatEventList.Count == 0) throw new ArgumentException(@"Empty collection", nameof(combatEventList));
@@ -218,16 +220,28 @@ public class CombatEventType
     /// </summary>
     private void SetMetrics()
     {
+        /*
+         * Confirm we have a valid overall timespan for the event type.
+         * It's possible to only have one log entry, or multiple with the same timestamp.
+         */
+        TimeSpan eventTypeDuration;
+        if (this.CombatEvents.Count == 1)
+            eventTypeDuration = Constants.MINCOMBATDURATION;
+        else
+            eventTypeDuration = this.CombatEvents.Max(ev => ev.Timestamp) - this.CombatEvents.Min(ev => ev.Timestamp);
+        if (eventTypeDuration < Constants.MINCOMBATDURATION) eventTypeDuration = Constants.MINCOMBATDURATION;
+
         var damageEvents = this.CombatEvents
             .Where(ev => !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
         this.Damage = damageEvents.Sum(ev => Math.Abs(ev.Magnitude));
 
-        this.Dps = damageEvents.Count == 0
-            ? 0
-            : this.Damage / ((
-                (damageEvents.Max(ev => ev.Timestamp) - damageEvents.Min(ev => ev.Timestamp)) - InactiveTimeSpan
-                    ).TotalSeconds + .001);
+        if (damageEvents.Count == 0)
+            this.Dps = 0;
+        else if (damageEvents.Count == 1 || eventTypeDuration <= this.InactiveTimeSpan)
+            this.Dps = this.Damage / eventTypeDuration.TotalSeconds;
+        else
+            this.Dps = this.Damage / (eventTypeDuration - this.InactiveTimeSpan).TotalSeconds;
 
         this.MaxDamageHit = damageEvents.Count == 0 ? 0 : damageEvents.Max(ev => Math.Abs(ev.Magnitude));
 
@@ -258,13 +272,17 @@ public class CombatEventType
         this.Kills = damageEvents.Where(ev => ev.Flags.Contains("kill", StringComparison.CurrentCultureIgnoreCase))
             .ToList().Count;
 
-        this.Heals = this.CombatEvents
-            .Where(ev => ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase))
-            .Sum(ev => Math.Abs(ev.Magnitude));
+        var healEvents = this.CombatEvents
+            .Where(ev => ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-        this.Hps = this.Heals / ((
-            (this.CombatEvents.Max(ev => ev.Timestamp) - this.CombatEvents.Min(ev => ev.Timestamp)) - InactiveTimeSpan
-            ).TotalSeconds + .001);
+        this.Heals = healEvents.Sum(ev => Math.Abs(ev.Magnitude));
+
+        if (healEvents.Count == 0)
+            this.Hps = 0;
+        else if (healEvents.Count == 1 || eventTypeDuration < this.InactiveTimeSpan)
+            this.Hps = this.Heals / eventTypeDuration.TotalSeconds;
+        else
+            this.Hps = this.Heals / (eventTypeDuration - this.InactiveTimeSpan).TotalSeconds;
     }
 
     #endregion
