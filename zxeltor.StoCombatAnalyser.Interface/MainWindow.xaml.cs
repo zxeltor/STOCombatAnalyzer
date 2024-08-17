@@ -5,6 +5,9 @@
 // LICENSE file in the root directory of this source tree.
 
 using System.IO;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -856,6 +859,10 @@ public partial class MainWindow
                 DetailsDialog.ShowDialog(this, "Event(s) Magnitude Plot",
                     Properties.Resources.combat_events_scatterplot);
                 break;
+            case "import_detection_json_from_url":
+                DetailsDialog.ShowDialog(this, "Download and Install the latest Map Detection Settings",
+                    Properties.Resources.import_detection_json_from_url);
+                break;
             case "import_detection_json":
                 DetailsDialog.ShowDialog(this, "Import Map Detection Settings",
                     Properties.Resources.import_detection_json);
@@ -936,9 +943,15 @@ public partial class MainWindow
                 }
 
                 var successStorage =
-                    $"Successfully imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.";
-                Log.Info(successStorage);
-                MessageBox.Show(this, successStorage, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    new StringBuilder(
+                        $"Successfully imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
+                successStorage.Append(Environment.NewLine).Append(Environment.NewLine)
+                    .Append("Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
+
+                Log.Info($"Successfully imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
+                MessageBox.Show(this, successStorage.ToString(), "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                this.CombatLogManagerContext.Combats.Clear();
             }
             catch (Exception exception)
             {
@@ -947,7 +960,7 @@ public partial class MainWindow
                 MessageBox.Show(this, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
     }
-
+    
     private void UiButtonExportCombat_OnClick(object sender, RoutedEventArgs e)
     {
         if (this.CombatLogManagerContext.SelectedCombat == null)
@@ -1002,7 +1015,11 @@ public partial class MainWindow
             this.CombatLogManagerContext.CombatMapDetectionSettings =
                 SerializationHelper.Deserialize<CombatMapDetectionSettings>(Settings.Default.DefaultCombatMapList);
 
-            MessageBox.Show(this, "Map detection settings have been set to application default.", "Info",
+            this.CombatLogManagerContext.Combats.Clear();
+
+            var message = "Map detection settings have been set to application default.";
+            Log.Info(message);
+            MessageBox.Show(this, $"{message} You'll need to parse your logs again.", "Info",
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception exception)
@@ -1506,6 +1523,18 @@ public partial class MainWindow
 
             Settings.Default.UserCombatMapList = serializedString;
             Settings.Default.Save();
+
+            var successMessage =
+                $"Successfully saved {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.";
+
+            var successMessageForDisplay = new StringBuilder(successMessage);
+            successMessageForDisplay.Append(Environment.NewLine).Append(Environment.NewLine)
+                .Append("Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
+
+            Log.Info(successMessage);
+            MessageBox.Show(this, successMessageForDisplay.ToString(), "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            this.CombatLogManagerContext.Combats.Clear();
         }
         catch (Exception exception)
         {
@@ -1678,5 +1707,88 @@ public partial class MainWindow
         if(this.CombatLogManagerContext.SelectedCombat == null) return;
 
         ResponseDialog.Show(this, string.Empty, detailsBoxCaption: "Combat Details", detailsBoxList: this.CombatLogManagerContext.SelectedCombat.PlayerEntities.Select(player => player.ToCombatStats).ToList());
+    }
+
+    private void UiButtonDownloadMapDetectionEntities_OnClick(object sender, RoutedEventArgs e)
+    {
+        var messageToUser = new StringBuilder("This action will download and install the latest Map Detection Settings file from the official site. ");
+        messageToUser.Append("This will replace your existing Map Detection Settings. If you have made any manual changes, they will be lost.")
+            .Append(Environment.NewLine).Append(Environment.NewLine)
+            .Append("Are you sure you want to do this?");
+
+        var dialogResult = MessageBox.Show(this, messageToUser.ToString(), "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+        if (dialogResult != MessageBoxResult.Yes)
+            return;
+
+        try
+        {
+            var downloadUrl = Settings.Default.MapDetctionSettingsDownloadUrl;
+
+            using (var httpClient = new HttpClient())
+            {
+                var taskResult = httpClient.GetFromJsonAsync(downloadUrl, typeof(CombatMapDetectionSettings));
+                taskResult.Wait(TimeSpan.FromSeconds(20));
+
+                if (!taskResult.IsCompletedSuccessfully)
+                {
+                    Log.Error($"Failed to download latest Map Detection Settings. Status={taskResult.Status}", taskResult.Exception);
+
+                    var uiErrorMessage =
+                        new StringBuilder($"Failed to download the latest Map Detection Settings. Status:{taskResult.Status}.");
+                    uiErrorMessage.Append(Environment.NewLine)
+                    .Append("Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open Log File button in the Tools/Settings tab.");
+
+                    MessageBox.Show(this, uiErrorMessage.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                    return;
+                }
+
+                if (taskResult.Result is not CombatMapDetectionSettings combatMapDetectionSettings)
+                {
+                    var errorMessage =
+                        "The CombatMapDetectionSettings.json successfully downloaded, however it appears to have failed the validation process.";
+
+                    Log.Error(errorMessage, taskResult.Exception);
+
+                    var uiErrorMessage =
+                        new StringBuilder(errorMessage);
+                    uiErrorMessage.Append(Environment.NewLine)
+                        .Append("Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open Log File button in the Tools/Settings tab.");
+
+                    MessageBox.Show(this, uiErrorMessage.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                    return;
+                }
+
+                this.CombatLogManagerContext.CombatMapDetectionSettings = combatMapDetectionSettings;
+
+                Settings.Default.UserCombatMapList = SerializationHelper.Serialize(combatMapDetectionSettings);
+                Settings.Default.Save();
+            }
+
+            var successStorage =
+                new StringBuilder(
+                    $"Successfully downloaded and imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
+            successStorage.Append(Environment.NewLine).Append(Environment.NewLine)
+                .Append("Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
+
+            Log.Info($"Successfully downloaded and imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
+            MessageBox.Show(this, successStorage.ToString(), "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            this.CombatLogManagerContext.Combats.Clear();
+        }
+        catch (Exception exception)
+        {
+            var errorMessage = $"Failed to import MapEntities JSON. Reason={exception.Message}.";
+            Log.Error(errorMessage + $" Url={Settings.Default.MapDetctionSettingsDownloadUrl}", exception);
+
+            var uiErrorMessage =
+                new StringBuilder(errorMessage);
+            uiErrorMessage.Append(Environment.NewLine).Append(Environment.NewLine)
+                .Append("Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open Log File button in the Tools/Settings tab.");
+
+            MessageBox.Show(this, uiErrorMessage.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }

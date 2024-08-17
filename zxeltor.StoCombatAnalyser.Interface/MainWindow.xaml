@@ -1046,7 +1046,12 @@
 
                     <GroupBox Header="Tools" Grid.Row="0" Margin="10,10,10,10" Padding="10,10,10,10">
                         <StackPanel Orientation="Horizontal">
-                            <Image Tag="import_detection_json" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,0,0"
+                            <Image Tag="import_detection_json_from_url" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,0,0"
+                                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details." />
+                            <Button Name="uiButtonDownloadMapDetectionEntities" Content="Download Latest Map Detection Settings" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                                    Click="UiButtonDownloadMapDetectionEntities_OnClick"/>
+
+                            <Image Tag="import_detection_json" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="16,0,0,0"
                                    MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details." />
                             <Button Name="uiButtonImportMapEntities" Content="Import Map Detection Settings" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
                                     Click="UiButtonImportMapEntities_OnClick"/>

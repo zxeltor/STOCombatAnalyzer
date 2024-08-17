@@ -160,6 +160,13 @@ Note: A Combat entity needs to be selected in the "Log File Analyzer" tab for th
 
 Note: The new settings won't be reflected in the interface until you run "Parse Log(s)".</value>
   </data>
+  <data name="import_detection_json_from_url" xml:space="preserve">
+    <value>Download and import the latest CombatMapDetectionSettings.json file from the offical site.
+
+These settings affect how a map is determined for a Combat entity.
+
+Note: The new settings won't be reflected in the interface until you run "Parse Log(s)".</value>
+  </data>
   <data name="is_display_analysis_tools" xml:space="preserve">
     <value>Display the Events(s) DataGrid and the Event(s) Magnitude Plot.</value>
   </data>

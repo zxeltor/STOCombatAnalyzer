@@ -121,75 +121,75 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("{\"JsonVersion\":\"1.3.3\",\"Comments\":[\"JsonVersion: Uses Semantic Versioning 2.0.0 (" +
-            "Major,Minor,Patch)\",\"GenericGroundMap: When a map isn\'t detected when checking C" +
-            "ombatMapEntityList, we use this to determine if the Combat entity is on a ground" +
-            " based map.\",\"GenericSpaceMap: When a map isn\'t detected when checking CombatMap" +
-            "EntityList, we use this to determine if the Combat entity is on a space based ma" +
-            "p.\",\"EntityExclusionList: This is used to filter out game entity ids from the ma" +
-            "p detect process.\",\"CombatMapEntityList: The main list of map definitions. This " +
-            "collection is used first when trying to detect a map for a Combat entity.\"],\"Ent" +
-            "ityExclusionList\":[{\"Pattern\":\"Space_Nimbus_Pirate_Distress\",\"IsUniqueToMap\":fal" +
-            "se}],\"CombatMapEntityList\":[{\"Name\":\"Infected Space\",\"MapEntities\":[{\"Pattern\":\"" +
-            "Space_Borg_Dreadnought_Raidisode_Sibrian_Final_Boss\",\"IsUniqueToMap\":true}],\"Map" +
-            "EntityExclusions\":[]},{\"Name\":\"Azure Nebula Rescue\",\"MapEntities\":[{\"Pattern\":\"M" +
-            "ission_Space_Romulan_Colony_Flagship_Lleiset\",\"IsUniqueToMap\":true}],\"MapEntityE" +
-            "xclusions\":[]},{\"Name\":\"Battle At The Binary Stars\",\"MapEntities\":[{\"Pattern\":\"S" +
-            "pace_Klingon_Dreadnought_Dsc_Sarcophagus\",\"IsUniqueToMap\":true}],\"MapEntityExclu" +
-            "sions\":[]},{\"Name\":\"Battle At Procyon V\",\"MapEntities\":[{\"Pattern\":\"Event_Procyo" +
-            "n_5_Queue_Krenim_Dreadnaught_Annorax\",\"IsUniqueToMap\":true}],\"MapEntityExclusion" +
-            "s\":[]},{\"Name\":\"Borg Disconnected\",\"MapEntities\":[{\"Pattern\":\"Mission_Space_Borg" +
-            "_Queen_Diamond_Brg_Queue_Liberation\",\"IsUniqueToMap\":true}],\"MapEntityExclusions" +
-            "\":[]},{\"Name\":\"Counterpoint\",\"MapEntities\":[{\"Pattern\":\"Mission_Starbase_Mirror_" +
-            "Ds9_Mu_Queue\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Crystall" +
-            "ine Entity\",\"MapEntities\":[{\"Pattern\":\"Space_Crystalline_Entity_2018\",\"IsUniqueT" +
-            "oMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Gateway To Grethor\",\"MapEntities" +
-            "\":[{\"Pattern\":\"Event_Ico_Qonos_Space_Herald_Dreadnaught\",\"IsUniqueToMap\":true}]," +
-            "\"MapEntityExclusions\":[]},{\"Name\":\"Herald Sphere\",\"MapEntities\":[{\"Pattern\":\"Mis" +
-            "sion_Space_Federation_Science_Herald_Sphere\",\"IsUniqueToMap\":true}],\"MapEntityEx" +
-            "clusions\":[]},{\"Name\":\"Operation Riposte\",\"MapEntities\":[{\"Pattern\":\"Msn_Dsc_Pri" +
-            "ors_System_Tfo_Orbital_Platform_1_Fed_Dsc\",\"IsUniqueToMap\":true}],\"MapEntityExcl" +
-            "usions\":[]},{\"Name\":\"Cure Found\",\"MapEntities\":[{\"Pattern\":\"Space_Borg_Dreadnoug" +
-            "ht_R02\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Days Of Doom\"," +
-            "\"MapEntities\":[{\"Pattern\":\"Space_Klingon_Tos_X3_Battlecruiser\",\"IsUniqueToMap\":t" +
-            "rue}],\"MapEntityExclusions\":[]},{\"Name\":\"Dranuur Gauntlet\",\"MapEntities\":[{\"Patt" +
-            "ern\":\"Msn_Luk_Colony_Dranuur_Queue_System_Upgradeable_Satellite\",\"IsUniqueToMap\"" +
-            ":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Khitomer Space\",\"MapEntities\":[{\"Patt" +
-            "ern\":\"Space_Borg_Dreadnought_Raidisode_Khitomer_Intro_Boss\",\"IsUniqueToMap\":true" +
-            "}],\"MapEntityExclusions\":[]},{\"Name\":\"Storming The Spire\",\"MapEntities\":[{\"Patte" +
-            "rn\":\"Mission_Spire_Space_Voth_Frigate\",\"IsUniqueToMap\":true}],\"MapEntityExclusio" +
-            "ns\":[]},{\"Name\":\"Swarm\",\"MapEntities\":[{\"Pattern\":\"Space_Drantzuli_Alpha_Battles" +
-            "hip\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"To Hell With Hono" +
-            "r\",\"MapEntities\":[{\"Pattern\":\"Mission_Beta_Lankal_Destructible_Reactor\",\"IsUniqu" +
-            "eToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Gravity Kills\",\"MapEntities\":[" +
-            "{\"Pattern\":\"Space_Federation_Dreadnought_Jupiter_Class_Carrier\",\"IsUniqueToMap\":" +
-            "true},{\"Pattern\":\"Msn_Luk_Hypermass_Queue_System_Tzk_Protomatter_Facility\",\"IsUn" +
-            "iqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Hive Space\",\"MapEntities\":[" +
-            "{\"Pattern\":\"Space_Borg_Dreadnought_Hive_Intro\",\"IsUniqueToMap\":true}],\"MapEntity" +
-            "Exclusions\":[]},{\"Name\":\"Operation Wolf\",\"MapEntities\":[{\"Pattern\":\"Ground_Feder" +
-            "ation_Capt_Mirror_Runabout_Tfo\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]}" +
-            ",{\"Name\":\"Bug Hunt\",\"MapEntities\":[{\"Pattern\":\"Bluegills_Ground_Boss\",\"IsUniqueT" +
-            "oMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Miner Instabilities\",\"MapEntitie" +
-            "s\":[{\"Pattern\":\"Msn_Edren_Queue_Ground_Gorn_Lt_Tos_Range_Rock\",\"IsUniqueToMap\":t" +
-            "rue}],\"MapEntityExclusions\":[]},{\"Name\":\"Jupiter Station Showdown\",\"MapEntities\"" +
-            ":[{\"Pattern\":\"Msn_Ground_Capt_Mirror_Janeway_Boss_Unkillable\",\"IsUniqueToMap\":tr" +
-            "ue}],\"MapEntityExclusions\":[]},{\"Name\":\"Nukara Prime: Transdimensional Tactics\"," +
-            "\"MapEntities\":[{\"Pattern\":\"Mission_Event_Tholian_Invasion_Ext_Boss\",\"IsUniqueToM" +
-            "ap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Battle of Wolf 359\",\"MapEntities\":" +
-            "[{\"Pattern\":\"Space_Borg_Dreadnought_Wolf359\",\"IsUniqueToMap\":true}],\"MapEntityEx" +
-            "clusions\":[]},{\"Name\":\"Nimbus\",\"MapEntities\":[{\"Pattern\":\"Ground_Renegades_Lt_Go" +
-            "rn_Nimbus_Sniper\",\"IsUniqueToMap\":true},{\"Pattern\":\"Ground_Gorn\",\"IsUniqueToMap\"" +
-            ":false},{\"Pattern\":\"Beast_Dewan_Arthropod\",\"IsUniqueToMap\":false},{\"Pattern\":\"Ni" +
-            "mbus\",\"IsUniqueToMap\":false}],\"MapEntityExclusions\":[]},{\"Name\":\"Nukara\",\"MapEnt" +
-            "ities\":[{\"Pattern\":\"Ground_Tholian\",\"IsUniqueToMap\":false}],\"MapEntityExclusions" +
-            "\":[]},{\"Name\":\"Defend Rh\'Ihho Station\",\"MapEntities\":[{\"Pattern\":\"Ground_Elachi\"" +
-            ",\"IsUniqueToMap\":false}],\"MapEntityExclusions\":[{\"Pattern\":\"Ground_Elachi_Ensign" +
-            "_Friendly_Rift\",\"IsUniqueToMap\":false}]},{\"Name\":\"Borg Battle Royale\",\"MapEntiti" +
-            "es\":[{\"Pattern\":\"Range_Mirror\",\"IsUniqueToMap\":false}],\"MapEntityExclusions\":[]}" +
-            "],\"GenericGroundMap\":{\"Name\":\"Generic Ground\",\"MapEntities\":[{\"Pattern\":\"Ground_" +
-            "\",\"IsUniqueToMap\":false}],\"MapEntityExclusions\":[]},\"GenericSpaceMap\":{\"Name\":\"G" +
-            "eneric Space\",\"MapEntities\":[{\"Pattern\":\"Space_\",\"IsUniqueToMap\":false}],\"MapEnt" +
-            "ityExclusions\":[]}}")]
+        [global::System.Configuration.DefaultSettingValueAttribute("{\"JsonVersion\":\"1.3.4\",\"JsonVersionDescription\":\"\",\"Comments\":[\"JsonVersion: Uses" +
+            " Semantic Versioning 2.0.0 (Major,Minor,Patch)\",\"GenericGroundMap: When a map is" +
+            "n\'t detected when checking CombatMapEntityList, we use this to determine if the " +
+            "Combat entity is on a ground based map.\",\"GenericSpaceMap: When a map isn\'t dete" +
+            "cted when checking CombatMapEntityList, we use this to determine if the Combat e" +
+            "ntity is on a space based map.\",\"EntityExclusionList: This is used to filter out" +
+            " game entity ids from the map detect process.\",\"CombatMapEntityList: The main li" +
+            "st of map definitions. This collection is used first when trying to detect a map" +
+            " for a Combat entity.\"],\"EntityExclusionList\":[{\"Pattern\":\"Space_Nimbus_Pirate_D" +
+            "istress\",\"IsUniqueToMap\":false}],\"CombatMapEntityList\":[{\"Name\":\"Infected Space\"" +
+            ",\"MapEntities\":[{\"Pattern\":\"Space_Borg_Dreadnought_Raidisode_Sibrian_Final_Boss\"" +
+            ",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Azure Nebula Rescue\"," +
+            "\"MapEntities\":[{\"Pattern\":\"Mission_Space_Romulan_Colony_Flagship_Lleiset\",\"IsUni" +
+            "queToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Battle At The Binary Stars\"," +
+            "\"MapEntities\":[{\"Pattern\":\"Space_Klingon_Dreadnought_Dsc_Sarcophagus\",\"IsUniqueT" +
+            "oMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Battle At Procyon V\",\"MapEntitie" +
+            "s\":[{\"Pattern\":\"Event_Procyon_5_Queue_Krenim_Dreadnaught_Annorax\",\"IsUniqueToMap" +
+            "\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Borg Disconnected\",\"MapEntities\":[{\"" +
+            "Pattern\":\"Mission_Space_Borg_Queen_Diamond_Brg_Queue_Liberation\",\"IsUniqueToMap\"" +
+            ":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Counterpoint\",\"MapEntities\":[{\"Patter" +
+            "n\":\"Mission_Starbase_Mirror_Ds9_Mu_Queue\",\"IsUniqueToMap\":true}],\"MapEntityExclu" +
+            "sions\":[]},{\"Name\":\"Crystalline Entity\",\"MapEntities\":[{\"Pattern\":\"Space_Crystal" +
+            "line_Entity_2018\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Gate" +
+            "way To Grethor\",\"MapEntities\":[{\"Pattern\":\"Event_Ico_Qonos_Space_Herald_Dreadnau" +
+            "ght\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Herald Sphere\",\"M" +
+            "apEntities\":[{\"Pattern\":\"Mission_Space_Federation_Science_Herald_Sphere\",\"IsUniq" +
+            "ueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Operation Riposte\",\"MapEntiti" +
+            "es\":[{\"Pattern\":\"Msn_Dsc_Priors_System_Tfo_Orbital_Platform_1_Fed_Dsc\",\"IsUnique" +
+            "ToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Cure Found\",\"MapEntities\":[{\"Pa" +
+            "ttern\":\"Space_Borg_Dreadnought_R02\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\"" +
+            ":[]},{\"Name\":\"Days Of Doom\",\"MapEntities\":[{\"Pattern\":\"Space_Klingon_Tos_X3_Batt" +
+            "lecruiser\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Dranuur Gau" +
+            "ntlet\",\"MapEntities\":[{\"Pattern\":\"Msn_Luk_Colony_Dranuur_Queue_System_Upgradeabl" +
+            "e_Satellite\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Khitomer " +
+            "Space\",\"MapEntities\":[{\"Pattern\":\"Space_Borg_Dreadnought_Raidisode_Khitomer_Intr" +
+            "o_Boss\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Storming The S" +
+            "pire\",\"MapEntities\":[{\"Pattern\":\"Mission_Spire_Space_Voth_Frigate\",\"IsUniqueToMa" +
+            "p\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Swarm\",\"MapEntities\":[{\"Pattern\":\"S" +
+            "pace_Drantzuli_Alpha_Battleship\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]" +
+            "},{\"Name\":\"To Hell With Honor\",\"MapEntities\":[{\"Pattern\":\"Mission_Beta_Lankal_De" +
+            "structible_Reactor\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Gr" +
+            "avity Kills\",\"MapEntities\":[{\"Pattern\":\"Space_Federation_Dreadnought_Jupiter_Cla" +
+            "ss_Carrier\",\"IsUniqueToMap\":true},{\"Pattern\":\"Msn_Luk_Hypermass_Queue_System_Tzk" +
+            "_Protomatter_Facility\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":" +
+            "\"Hive Space\",\"MapEntities\":[{\"Pattern\":\"Space_Borg_Dreadnought_Hive_Intro\",\"IsUn" +
+            "iqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Operation Wolf\",\"MapEntitie" +
+            "s\":[{\"Pattern\":\"Ground_Federation_Capt_Mirror_Runabout_Tfo\",\"IsUniqueToMap\":true" +
+            "}],\"MapEntityExclusions\":[]},{\"Name\":\"Bug Hunt\",\"MapEntities\":[{\"Pattern\":\"Blueg" +
+            "ills_Ground_Boss\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Mine" +
+            "r Instabilities\",\"MapEntities\":[{\"Pattern\":\"Msn_Edren_Queue_Ground_Gorn_Lt_Tos_R" +
+            "ange_Rock\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Jupiter Sta" +
+            "tion Showdown\",\"MapEntities\":[{\"Pattern\":\"Msn_Ground_Capt_Mirror_Janeway_Boss_Un" +
+            "killable\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Nukara Prime" +
+            ": Transdimensional Tactics\",\"MapEntities\":[{\"Pattern\":\"Mission_Event_Tholian_Inv" +
+            "asion_Ext_Boss\",\"IsUniqueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Battle" +
+            " of Wolf 359\",\"MapEntities\":[{\"Pattern\":\"Space_Borg_Dreadnought_Wolf359\",\"IsUniq" +
+            "ueToMap\":true}],\"MapEntityExclusions\":[]},{\"Name\":\"Nimbus\",\"MapEntities\":[{\"Patt" +
+            "ern\":\"Ground_Renegades_Lt_Gorn_Nimbus_Sniper\",\"IsUniqueToMap\":true},{\"Pattern\":\"" +
+            "Ground_Gorn\",\"IsUniqueToMap\":false},{\"Pattern\":\"Beast_Dewan_Arthropod\",\"IsUnique" +
+            "ToMap\":false}],\"MapEntityExclusions\":[]},{\"Name\":\"Nukara\",\"MapEntities\":[{\"Patte" +
+            "rn\":\"Ground_Tholian\",\"IsUniqueToMap\":false}],\"MapEntityExclusions\":[]},{\"Name\":\"" +
+            "Defend Rh\'Ihho Station\",\"MapEntities\":[{\"Pattern\":\"Ground_Elachi\",\"IsUniqueToMap" +
+            "\":false}],\"MapEntityExclusions\":[{\"Pattern\":\"Ground_Elachi_Ensign_Friendly_Rift\"" +
+            ",\"IsUniqueToMap\":false}]},{\"Name\":\"Borg Battle Royale\",\"MapEntities\":[{\"Pattern\"" +
+            ":\"Range_Mirror\",\"IsUniqueToMap\":false}],\"MapEntityExclusions\":[]}],\"GenericGroun" +
+            "dMap\":{\"Name\":\"Generic Ground\",\"MapEntities\":[{\"Pattern\":\"Ground_\",\"IsUniqueToMa" +
+            "p\":false}],\"MapEntityExclusions\":[]},\"GenericSpaceMap\":{\"Name\":\"Generic Space\",\"" +
+            "MapEntities\":[{\"Pattern\":\"Space_\",\"IsUniqueToMap\":false}],\"MapEntityExclusions\":" +
+            "[]}}")]
         public string DefaultCombatMapList {
             get {
                 return ((string)(this["DefaultCombatMapList"]));
@@ -327,6 +327,16 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
             }
             set {
                 this["IsEnableInactiveTimeCalculations"] = value;
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://raw.githubusercontent.com/zxeltor/STOCombatAnalyzer.Settings/main/CombatM" +
+            "apDetectionSettings.json")]
+        public string MapDetctionSettingsDownloadUrl {
+            get {
+                return ((string)(this["MapDetctionSettingsDownloadUrl"]));
             }
         }
     }

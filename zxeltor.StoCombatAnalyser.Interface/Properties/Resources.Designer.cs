@@ -170,6 +170,19 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Download and import the latest CombatMapDetectionSettings.json file from the offical site.
+        ///
+        ///These settings affect how a map is determined for a Combat entity.
+        ///
+        ///Note: The new settings won&apos;t be reflected in the interface until you run &quot;Parse Log(s)&quot;..
+        /// </summary>
+        public static string import_detection_json_from_url {
+            get {
+                return ResourceManager.GetString("import_detection_json_from_url", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Display the Events(s) DataGrid and the Event(s) Magnitude Plot..
         /// </summary>
         public static string is_display_analysis_tools {
