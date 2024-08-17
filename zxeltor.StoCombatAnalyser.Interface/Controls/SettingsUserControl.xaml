@@ -6,9 +6,9 @@
              xmlns:local="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Controls"
              xmlns:properties="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Properties"
              d:DataContext="{d:DesignInstance Type=local:SettingsUserControlBindingContext}"
-             mc:Ignorable="d" d:DesignWidth="800" Height="614">
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="614">
     <Grid>
-        <ListBox Margin="0,0,0,0" Padding="2,2,2,2" HorizontalContentAlignment="Stretch" VerticalAlignment="Top">
+        <ListBox Margin="0,0,0,0" Padding="2,2,2,2" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top" VerticalAlignment="Top">
             <ListBoxItem Tag="CombatLogPath" BorderThickness="2" BorderBrush="Black"  HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
                 <Grid>
                     <Grid.RowDefinitions>

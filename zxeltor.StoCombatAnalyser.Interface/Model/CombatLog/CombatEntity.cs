@@ -32,7 +32,7 @@ public class CombatEntity : INotifyPropertyChanged
 
     private DateTime? _entityCombatEnd;
 
-    public TimeSpan? _entityCombatInActive;
+    private TimeSpan? _entityCombatInActive;
 
     private int? _entityCombatKills;
 
@@ -191,7 +191,7 @@ public class CombatEntity : INotifyPropertyChanged
                 return this._entityCombatStart;
 
             return this._entityCombatStart = this._combatEventList.Count == 0
-                ? DateTime.MinValue
+                ? null // This should be possible, but checking for it anyway.
                 : this._combatEventList.First().Timestamp;
         }
     }
@@ -208,7 +208,7 @@ public class CombatEntity : INotifyPropertyChanged
                 return this._entityCombatEnd;
 
             return this._entityCombatEnd = this._combatEventList.Count == 0
-                ? DateTime.MinValue
+                ? null // This should be possible, but checking for it anyway.
                 : this._combatEventList.Last().Timestamp;
         }
     }
@@ -224,12 +224,18 @@ public class CombatEntity : INotifyPropertyChanged
                 return this._entityCombatDuration;
 
             if (this.EntityCombatEnd.HasValue && this.EntityCombatStart.HasValue)
-                return this._entityCombatDuration = this.EntityCombatEnd.Value - this.EntityCombatStart.Value;
+                if (this.EntityCombatEnd.Value - this.EntityCombatStart.Value <= Constants.MINCOMBATDURATION)
+                    return this._entityCombatDuration = Constants.MINCOMBATDURATION;
+                else
+                    return this._entityCombatDuration = this.EntityCombatEnd.Value - this.EntityCombatStart.Value;
 
             return this._entityCombatDuration = null;
         }
     }
 
+    /// <summary>
+    ///     Calculate the total amount of Player inactive time.
+    /// </summary>
     public TimeSpan? EntityCombatInActive
     {
         get
@@ -255,8 +261,8 @@ public class CombatEntity : INotifyPropertyChanged
             if (this._entityCombatKills != null && this._isObjectLocked)
                 return this._entityCombatKills;
 
-            return this._entityCombatKills = this._combatEventList.Count(dam =>
-                dam.Flags.Contains("kill", StringComparison.CurrentCultureIgnoreCase));
+            return this._entityCombatKills = this._combatEventList.Count(ev =>
+                ev.Flags.Contains("kill", StringComparison.CurrentCultureIgnoreCase));
         }
     }
 
@@ -296,14 +302,15 @@ public class CombatEntity : INotifyPropertyChanged
             var entityEvents = this._combatEventList
                 .Where(ev => !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-            if (entityEvents.Count == 0) return this._entityMagnitudePerSecond = 0;
+            if (entityEvents.Count == 0 || this.EntityCombatDuration == null)
+                return this._entityMagnitudePerSecond = 0;
 
-            return this._entityMagnitudePerSecond = entityEvents.Sum(dam => Math.Abs(dam.Magnitude)) / (
-                (
-                    entityEvents.Max(ev => ev.Timestamp) - entityEvents.Min(ev => ev.Timestamp) -
-                    (this.EntityCombatInActive ?? TimeSpan.Zero)
-                ).TotalSeconds + .001
-            );
+            var duration = this.EntityCombatDuration.Value;
+
+            if (this.EntityCombatInActive != null && this.EntityCombatDuration.Value > this.EntityCombatInActive.Value)
+                duration = this.EntityCombatDuration.Value - this.EntityCombatInActive.Value;
+
+            return this._entityMagnitudePerSecond = this.EntityTotalMagnitude / duration.TotalSeconds;
         }
     }
 
@@ -320,14 +327,15 @@ public class CombatEntity : INotifyPropertyChanged
             var petEvents = this._combatEventList.Where(ev =>
                 ev.IsPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-            if (petEvents.Count == 0) return this._entityMagnitudePerSecond = 0;
+            if (petEvents.Count == 0 || this.EntityCombatDuration == null)
+                return this._petsMagnitudePerSecond = 0;
 
-            return this._entityMagnitudePerSecond = petEvents.Sum(dam => Math.Abs(dam.Magnitude)) / (
-                (
-                    petEvents.Max(ev => ev.Timestamp) - petEvents.Min(ev => ev.Timestamp) -
-                    (this.EntityCombatInActive ?? TimeSpan.Zero)
-                ).TotalSeconds + .001
-            );
+            var duration = this.EntityCombatDuration.Value;
+
+            if (this.EntityCombatInActive != null && this.EntityCombatDuration.Value > this.EntityCombatInActive.Value)
+                duration = this.EntityCombatDuration.Value - this.EntityCombatInActive.Value;
+
+            return this._petsMagnitudePerSecond = this.PetsTotalMagnitude / duration.TotalSeconds;
         }
     }
 
