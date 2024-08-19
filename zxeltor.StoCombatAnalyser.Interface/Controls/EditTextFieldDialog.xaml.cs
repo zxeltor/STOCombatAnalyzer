@@ -4,8 +4,8 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-using System.ComponentModel;
 using System.Windows;
+using zxeltor.ConfigUtilsHelpers.Extensions;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 
@@ -14,6 +14,8 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 /// </summary>
 public partial class EditTextFieldDialog : Window
 {
+    #region Constructors
+
     public EditTextFieldDialog(Window parent)
     {
         this.InitializeComponent();
@@ -21,14 +23,12 @@ public partial class EditTextFieldDialog : Window
         this.Owner = parent;
         this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
-        this.ContentRendered += OnContentRendered;
+        this.ContentRendered += this.OnContentRendered;
     }
 
-    private void OnContentRendered(object? sender, EventArgs e)
-    {
-        this.ContentRendered -= OnContentRendered;
-        this.uiTextBoxValue.Focus();
-    }
+    #endregion
+
+    #region Public Members
 
     public bool? ShowDialog(string description, ref string? value)
     {
@@ -39,11 +39,21 @@ public partial class EditTextFieldDialog : Window
 
         if (dialogResult.HasValue && dialogResult.Value)
         {
-            value = this.uiTextBoxValue.Text.Trim();
+            value = this.uiTextBoxValue.Text.RemoveSpecialChars();
             return true;
         }
 
         return false;
+    }
+
+    #endregion
+
+    #region Other Members
+
+    private void OnContentRendered(object? sender, EventArgs e)
+    {
+        this.ContentRendered -= this.OnContentRendered;
+        this.uiTextBoxValue.Focus();
     }
 
     private void UiButtonSave_OnClick(object sender, RoutedEventArgs e)
@@ -55,4 +65,6 @@ public partial class EditTextFieldDialog : Window
     {
         this.DialogResult = false;
     }
+
+    #endregion
 }
