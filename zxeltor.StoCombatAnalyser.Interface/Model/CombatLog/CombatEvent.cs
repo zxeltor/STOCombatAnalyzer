@@ -4,6 +4,8 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using zxeltor.ConfigUtilsHelpers.Extensions;
+
 namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
 /// <summary>
@@ -12,14 +14,6 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 public class CombatEvent : IEquatable<CombatEvent>
 {
     #region Constructors
-
-    ///// <summary>
-    /////     ToddDo: I'm experimenting with using regex to parse log file lines. At the moment, it's considerably slower than my
-    /////     original method.
-    /////     Will revisit this when I can.
-    ///// </summary>
-    //private static readonly Regex RegexCombatLogLineRegex =
-    //    new(Settings.Default.CombatLogLineRegex, RegexOptions.Compiled);
 
     /// <summary>
     ///     The main constructor
@@ -33,7 +27,7 @@ public class CombatEvent : IEquatable<CombatEvent>
         this.OriginalFileLineString = combatLogEntry;
         this.OriginalFileLineNumber = lineNumber;
 
-        this.ParseLogFileEntryOldSchool(combatLogEntry);
+        this.ParseLogFileEntry(combatLogEntry);
     }
 
     #endregion
@@ -130,6 +124,11 @@ public class CombatEvent : IEquatable<CombatEvent>
     public string SourceInternal { get; private set; }
 
     /// <summary>
+    ///     The SourceInternal id stripped of it's ID wrapper.
+    /// </summary>
+    public string SourceInternalStripped { get; private set; }
+
+    /// <summary>
     ///     Display name of target
     ///     <para>
     ///         This was a field parsed directly from the original CSV log file entry.
@@ -150,7 +149,7 @@ public class CombatEvent : IEquatable<CombatEvent>
     /// <summary>
     ///     True if the target is a non-player. False otherwise.
     /// </summary>
-    public bool IsTargetNonPlayer { get; private set; }
+    public bool IsTargetPlayer { get; private set; }
 
     /// <summary>
     ///     The TargetInternal id stripped of it's ID wrapper.
@@ -244,12 +243,12 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///     This method is used to parse line from a STO combat log.
     /// </summary>
     /// <param name="combatLogEntry">A line entry from a combat log</param>
-    private void ParseLogFileEntryOldSchool(string combatLogEntry)
+    private void ParseLogFileEntry(string combatLogEntry)
     {
         if (combatLogEntry == null)
             throw new NullReferenceException(nameof(combatLogEntry));
 
-        var combatLogEntryDataArray = combatLogEntry.Split(',');
+        var combatLogEntryDataArray = combatLogEntry.RemoveSpecialChars().Split(',');
 
         if (combatLogEntryDataArray == null)
             throw new Exception("Failed to parse combat log entry. Line was not properly delimited with commas.");
@@ -315,22 +314,31 @@ public class CombatEvent : IEquatable<CombatEvent>
         }
 
         if (!string.IsNullOrWhiteSpace(this.SourceDisplay))
+        {
             this.IsPetEvent = true;
+            var splitResult = this.SourceInternal.Split(" ");
+            if (splitResult.Length == 2) this.SourceInternalStripped = splitResult[1].Replace("]", "");
+        }
 
-        if (!this.IsPetEvent && this.OwnerInternal.StartsWith("C["))
+        if (this.OwnerInternal.StartsWith("C[") || this.OwnerInternal.StartsWith("P["))
         {
             var splitResult = this.OwnerInternal.Split(" ");
             if (splitResult.Length == 2) this.OwnerInternalStripped = splitResult[1].Replace("]", "");
         }
 
-        if (!this.IsPetEvent && this.TargetInternal.StartsWith("C["))
+        if (this.TargetInternal.StartsWith("P["))
         {
             var splitResult = this.TargetInternal.Split(" ");
             if (splitResult.Length == 2)
             {
-                this.IsTargetNonPlayer = true;
+                this.IsTargetPlayer = true;
                 this.TargetInternalStripped = splitResult[1].Replace("]", "");
             }
+        }
+        else
+        {
+            var splitResult = this.TargetInternal.Split(" ");
+            if (splitResult.Length == 2) this.TargetInternalStripped = splitResult[1].Replace("]", "");
         }
 
         if (this.OwnerInternal.StartsWith("P["))
@@ -338,72 +346,4 @@ public class CombatEvent : IEquatable<CombatEvent>
     }
 
     #endregion
-
-    ///// <summary>
-    /////     ToddDo: I'm experimenting with using regex to parse log file lines. At the moment, it's considerably slower than my
-    /////     original method.
-    /////     Will revisit this when I can.
-    ///// </summary>
-    //private void ParseLogFileEntryUsingRegex(string combatLogEntry)
-    //{
-    //    if (combatLogEntry == null)
-    //        throw new NullReferenceException(nameof(combatLogEntry));
-
-    //    var logRegexMatch = RegexCombatLogLineRegex.Match(combatLogEntry);
-
-    //    if (logRegexMatch == null)
-    //        throw new Exception(
-    //            "Failed to parse combat log entry. Line was not properly delimited with commas, or you need to fix your CombatLogFileRegex setting.");
-
-    //    // 24:04:11:17:10:35.9::zxeltor
-    //    this.Timestamp = DateTime.MinValue;
-
-    //    if (int.TryParse(logRegexMatch.Groups["year"].Value, out var year))
-    //        if (int.TryParse(logRegexMatch.Groups["month"].Value, out var month))
-    //            if (int.TryParse(logRegexMatch.Groups["day"].Value, out var day))
-    //                if (int.TryParse(logRegexMatch.Groups["hour"].Value, out var hour))
-    //                    if (int.TryParse(logRegexMatch.Groups["min"].Value, out var min))
-    //                        if (int.TryParse(logRegexMatch.Groups["sec"].Value, out var sec))
-    //                            if (int.TryParse(logRegexMatch.Groups["milli"].Value, out var fraction))
-    //                                this.Timestamp = new DateTime(2000 + year, month, day, hour, min, sec,
-    //                                    fraction * 100, DateTimeKind.Local);
-
-    //    if (this.Timestamp == DateTime.MinValue)
-    //        throw new Exception($"Failed to parse {nameof(this.Timestamp)} from Line.");
-
-    //    this.OwnerDisplay = logRegexMatch.Groups["OwnerDisplay"].Value;
-    //    this.OwnerInternal = logRegexMatch.Groups["OwnerInternal"].Value;
-    //    this.SourceDisplay = logRegexMatch.Groups["SourceDisplay"].Value;
-    //    this.SourceInternal = logRegexMatch.Groups["SourceInternal"].Value;
-    //    this.TargetDisplay = logRegexMatch.Groups["TargetDisplay"].Value;
-    //    this.TargetInternal = logRegexMatch.Groups["TargetInternal"].Value;
-    //    this.EventTypeLabel = logRegexMatch.Groups["EventTypeLabel"].Value;
-    //    this.EventTypeId = logRegexMatch.Groups["EventTypeId"].Value;
-    //    this.Type = logRegexMatch.Groups["Type"].Value;
-    //    this.Flags = logRegexMatch.Groups["Flags"].Value;
-
-    //    if (!double.TryParse(logRegexMatch.Groups["Magnitude"].Value, out var magnitudeResult))
-    //        throw new Exception($"Failed to parse {nameof(this.Magnitude)} from Line.");
-
-    //    if (!double.TryParse(logRegexMatch.Groups["MagnitudeBase"].Value, out var magnitudeBaseResult))
-    //        throw new Exception($"Failed to parse {nameof(this.MagnitudeBase)} from Line.");
-
-    //    this.Magnitude = magnitudeResult;
-    //    this.MagnitudeBase = magnitudeBaseResult;
-
-    //    this.OriginalHashCode = this.GetHashCode();
-
-    //    if (string.IsNullOrWhiteSpace(this.OwnerInternal))
-    //    {
-    //        this.OwnerDisplay = this.TargetDisplay;
-    //        this.OwnerInternal = this.TargetInternal;
-    //        this.IsOwnerModified = true;
-    //    }
-
-    //    if (!string.IsNullOrWhiteSpace(this.SourceDisplay) && !this.SourceDisplay.Equals("*"))
-    //        this.IsPetEvent = true;
-
-    //    if (this.OwnerInternal.StartsWith("P["))
-    //        this.IsPlayerEntity = true;
-    //}
 }
