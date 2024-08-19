@@ -70,6 +70,15 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This section allows you to parse the combat logs, and examine a selected combat instance. The data here is meant to assist you in making modifications to the CombatMapEntityList section..
+        /// </summary>
+        public static string combat_analysis {
+            get {
+                return ResourceManager.GetString("combat_analysis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This is a breakdown of event types for the selected Player. If you click on a particular bar, the DataGrid and Magnitude Plot will update with more specific data for the selected event type..
         /// </summary>
         public static string combat_event_type_breakdown {
@@ -132,11 +141,29 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to https://github.com/zxeltor/STOCombatAnalyzer/wiki/Map-Detection.
+        /// </summary>
+        public static string GithubMapDetectionSectionOfWikiUrl {
+            get {
+                return ResourceManager.GetString("GithubMapDetectionSectionOfWikiUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to https://github.com/zxeltor/STOCombatAnalyzer.Settings.
         /// </summary>
         public static string GithubMapDetectRepoUrl {
             get {
                 return ResourceManager.GetString("GithubMapDetectRepoUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to https://github.com/zxeltor/STOCombatAnalyzer/wiki/Application-Tab:-Tools-Settings.
+        /// </summary>
+        public static string GithubMapSettingsSectionOfWikiUrl {
+            get {
+                return ResourceManager.GetString("GithubMapSettingsSectionOfWikiUrl", resourceCulture);
             }
         }
         
@@ -201,6 +228,15 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This displays a collection of configurable map entities. A map can represent a physical map, a TFO, or some other event in the game..
+        /// </summary>
+        public static string map_entity_list {
+            get {
+                return ResourceManager.GetString("map_entity_list", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to When a Player is selected here, the rest of the controls in the UI update with information for the selected Player..
         /// </summary>
         public static string player_select {
@@ -217,6 +253,15 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         public static string reset_detection_json {
             get {
                 return ResourceManager.GetString("reset_detection_json", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This section displays a list of unique non-player entities, and their pets. The Label and Id of each entry, can be added as a MapEntity or MapEntityExclusion, to a map in the CombatMapEntityList section..
+        /// </summary>
+        public static string selected_combat_unique_list {
+            get {
+                return ResourceManager.GetString("selected_combat_unique_list", resourceCulture);
             }
         }
     }

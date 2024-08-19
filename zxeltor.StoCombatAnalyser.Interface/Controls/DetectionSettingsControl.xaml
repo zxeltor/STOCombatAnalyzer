@@ -1,0 +1,717 @@
+﻿<UserControl x:Class="zxeltor.StoCombatAnalyzer.Interface.Controls.DetectionSettingsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:classes="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes"
+             xmlns:properties="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Properties"
+             d:DataContext="{d:DesignInstance Type={x:Type classes:CombatLogManager}}"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" d:Background="AliceBlue">
+    <Grid Margin="10,10,10,10">
+        <Grid.Resources>
+            <classes:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
+            <classes:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
+            <classes:TypeToVisibilityConverterInverted x:Key="typeToVisibilityConverterInverted" />
+            <classes:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
+            <classes:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
+            <classes:CombatTimeSpanToHumanizedStringMaxMinuteMinSecondsConverter x:Key="timeSpanMinSeconds" />
+            <classes:CombatTimeSpanToHumanizedStringMaxMinuteMinMilliSecondsConverter x:Key="timeSpanMinMilliSeconds" />
+            <classes:MapNameStringConverter x:Key="mapNameStringConverter" />
+            <classes:MapNameColorConverter x:Key="mapNameColorConverter" />
+            <classes:InvertBooleanConverter x:Key="invertBooleanConverter" />
+            <Brush x:Key="colorEventTypeMetricLabel">Green</Brush>
+            <Brush x:Key="colorEventTypeMetricValue">Blue</Brush>
+            <Style TargetType="Border" x:Key="combatTypeLabelStyle">
+                <Setter Property="BorderBrush" Value="Black"></Setter>
+                <Setter Property="BorderThickness" Value="1"></Setter>
+                <Setter Property="CornerRadius" Value="4"></Setter>
+                <Setter Property="Margin" Value="0,0,2,2"></Setter>
+            </Style>
+            <Style TargetType="{x:Type TreeViewItem}" x:Key="combatEntityTreeViewItem">
+                <Style.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="4"/>
+                        <Setter Property="Margin" Value="0,2,0,2"/>
+                    </Style>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="White" />
+                </Style.Resources>
+                <Setter Property="BorderBrush" Value="Black"></Setter>
+                <Setter Property="BorderThickness" Value="4"></Setter>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="Padding" Value="4,4,4,4"></Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="BorderBrush" Value="Green"/>
+                        <Setter Property="BorderThickness" Value="4" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Grid Tag="Version" Grid.Row="0" Grid.Column="0" Margin="4,0,4,4">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Version:" VerticalAlignment="Center" Margin="0,4,0,4"></TextBlock>
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Path=CombatMapDetectionSettings.JsonVersion}" 
+                VerticalAlignment="Center" Margin="4,4,0,4" Width="200" HorizontalAlignment="Left"></TextBox>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Description:" VerticalAlignment="Center" Margin="0,4,0,4"></TextBlock>
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=CombatMapDetectionSettings.JsonVersionDescription}" 
+                VerticalAlignment="Center" Margin="4,4,0,4"></TextBox>
+        </Grid>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1">
+            <Image Tag="export_detection_json" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,0,0"
+                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp"
+                ToolTip="Click for more details."/>
+            <Button Tag="export_detection_json" Name="uiButtonExportMapEntities" Content="Export w/Indents" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                    Click="UiButtonExportMapEntities_OnClick"/>
+
+            <Image Tag="export_detection_json_no_indents" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="8,0,0,0"
+                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details."/>
+            <Button Tag="export_detection_json_no_indents" Name="uiButtonExportMapEntitiesNoIndent" Content="Export" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                    Click="UiButtonExportMapEntities_OnClick"/>
+
+            <Button Name="uiButtonSaveDetectionSettings" Content="Save Changes" Margin="16,0,0,0" Padding="4,4,4,4" VerticalAlignment="Center"
+                    Click="UiButtonSaveDetectionSettings_OnClick"></Button>
+
+            <Button Name="uiButtonCancelDetectionSettings" Content="Cancel Changes" Margin="8,0,0,0" Padding="4,4,4,4" VerticalAlignment="Center"
+                    Click="UiButtonCancelDetectionSettings_OnClick" IsEnabled="{Binding Path=CombatMapDetectionSettings.HasChanges}"></Button>
+
+            <Button Margin="18,0,0,0" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent"
+                    Click="Browse_OnMouseLeftButtonUp">
+                <Image Source="../Images/glyphicons-195-question-sign.png" ToolTip="Attempt to open the Map Detection section of the Wiki in your default browser."
+                       VerticalAlignment="Center" Stretch="Fill" Height="24" Margin="0,0,0,0"/>
+            </Button>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20*"></ColumnDefinition>
+                <ColumnDefinition Width="30*"></ColumnDefinition>
+                <ColumnDefinition Width="50*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Row="0" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <GroupBox Header="GenericGroundMap" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                            <Button Tag="EditGroundMapName" Margin="0,0,0,0" ToolTip="Edit map name" 
+                    Click="MapDetectButton_OnClick" CommandParameter="{Binding Path=CombatMapDetectionSettings.GenericGroundMap}">
+                                <Image Source="../Images/glyphicons-151-edit.png" Height="8" />
+                            </Button>
+                            <TextBlock Text="{Binding Path=CombatMapDetectionSettings.GenericGroundMap.Name}" Margin="4,0,0,0"></TextBlock>
+                        </StackPanel>
+
+                        <GroupBox Grid.Row="1" Grid.Column="0">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="MapEntities" VerticalAlignment="Center"></TextBlock>
+                                    <Button Tag="AddGroundEntity" Margin="4,0,0,0" ToolTip="Add a new entity" 
+                                Click="MapDetectButton_OnClick" CommandParameter="{Binding Path=CombatMapDetectionSettings.GenericGroundMap}"
+                                VerticalAlignment="Center">
+                                        <Image Source="../Images/glyphicons-433-plus.png" Height="8" />
+                                    </Button>
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <ListView ItemsSource="{Binding Path=CombatMapDetectionSettings.GenericGroundMap.MapEntitiesOrderByPattern}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Vertical">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Tag="EditGroundEntity" Margin="0,0,0,0" ToolTip="Edit pattern" 
+                                            Click="MapDetectButton_OnClick" CommandParameter="{Binding}"
+                                         VerticalAlignment="Center">
+                                                    <Image Source="../Images/glyphicons-151-edit.png" Height="8" />
+                                                </Button>
+                                                <Button Tag="DeleteGroundEntity" Margin="4,0,0,0" ToolTip="Delete pattern"
+                                         VerticalAlignment="Center"
+                                         Click="MapDetectButton_OnClick" CommandParameter="{Binding}">
+                                                    <Image Source="../Images/glyphicons-257-delete.png" Height="8" />
+                                                </Button>
+                                                <CheckBox ToolTip="IsUniqueToMap" Margin="4,0,0,0" 
+                                        VerticalAlignment="Center"
+                                        IsChecked="{Binding Path=IsUniqueToMap}"></CheckBox>
+                                                <TextBlock Text="{Binding Path=Pattern}" Margin="4,0,0,0" MouseDown="UIElement_OnMouseDown">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Path=IsEnabled}" Value="false">
+                                                                    <Setter Property="Foreground" Value="Red"></Setter>
+                                                                    <Setter Property="ToolTip" Value="This map is DISABLED, and will NOT be used in map detection."></Setter>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Path=IsEnabled}" Value="true">
+                                                                    <Setter Property="Foreground" Value="Green"></Setter>
+                                                                    <Setter Property="ToolTip" Value="This map is enabled, and will be used in map detection."></Setter>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </GroupBox>
+
+                        <GroupBox Grid.Row="1" Grid.Column="1">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="MapEntityExclusions" VerticalAlignment="Center"></TextBlock>
+                                    <Button Tag="AddGroundExceptionEntity" Margin="4,0,0,0" ToolTip="Add a new entity" 
+                                Click="MapDetectButton_OnClick" 
+                            VerticalAlignment="Center">
+                                        <Image Source="../Images/glyphicons-433-plus.png" Height="8" />
+                                    </Button>
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <ListView ItemsSource="{Binding Path=CombatMapDetectionSettings.GenericGroundMap.MapEntityExclusionsOrderByPattern}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Vertical">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Tag="EditGroundExceptionEntity" Margin="0,0,0,0" ToolTip="Edit pattern" 
+                                            Click="MapDetectButton_OnClick" CommandParameter="{Binding}"
+                                            VerticalAlignment="Center">
+                                                    <Image Source="../Images/glyphicons-151-edit.png" Height="8" />
+                                                </Button>
+                                                <Button Tag="DeleteGroundExceptionEntity" Margin="4,0,0,0" ToolTip="Delete pattern"
+                                                    VerticalAlignment="Center"
+                                                    Click="MapDetectButton_OnClick" CommandParameter="{Binding}">
+                                                    <Image Source="../Images/glyphicons-257-delete.png" Height="8" />
+                                                </Button>
+                                                <CheckBox ToolTip="IsUniqueToMap" Margin="4,0,0,0" 
+                                        VerticalAlignment="Center"
+                                        IsChecked="{Binding Path=IsUniqueToMap}"></CheckBox>
+                                                <TextBlock Text="{Binding Path=Pattern}" Margin="4,0,0,0" MouseDown="UIElement_OnMouseDown">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Path=IsEnabled}" Value="false">
+                                                                    <Setter Property="Foreground" Value="Red"></Setter>
+                                                                    <Setter Property="ToolTip" Value="This map is DISABLED, and will NOT be used in map detection."></Setter>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Path=IsEnabled}" Value="true">
+                                                                    <Setter Property="Foreground" Value="Green"></Setter>
+                                                                    <Setter Property="ToolTip" Value="This map is enabled, and will be used in map detection."></Setter>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </GroupBox>
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Header="GenericSpaceMap" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                            <Button Tag="EditSpaceMapName" Margin="0,0,0,0" ToolTip="Edit map name" 
+                        Click="MapDetectButton_OnClick" CommandParameter="{Binding Path=CombatMapDetectionSettings.GenericSpaceMap}">
+                                <Image Source="../Images/glyphicons-151-edit.png" Height="8" />
+                            </Button>
+                            <TextBlock Text="{Binding Path=CombatMapDetectionSettings.GenericSpaceMap.Name}" Margin="4,0,0,0"></TextBlock>
+                        </StackPanel>
+
+                        <GroupBox Grid.Row="1" Grid.Column="0">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="MapEntities" VerticalAlignment="Center"></TextBlock>
+                                    <Button Tag="AddSpaceEntity" Margin="4,0,0,0" ToolTip="Add a new entity" 
+                                Click="MapDetectButton_OnClick" CommandParameter="{Binding Path=CombatMapDetectionSettings.GenericSpaceMap}"
+                                    VerticalAlignment="Center">
+                                        <Image Source="../Images/glyphicons-433-plus.png" Height="8" />
+                                    </Button>
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <ListView ItemsSource="{Binding Path=CombatMapDetectionSettings.GenericSpaceMap.MapEntitiesOrderByPattern}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Vertical">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Tag="EditSpaceEntity" Margin="0,0,0,0" ToolTip="Edit pattern" 
+                                            Click="MapDetectButton_OnClick" CommandParameter="{Binding}" VerticalAlignment="Center">
+                                                    <Image Source="../Images/glyphicons-151-edit.png" Height="8" />
+                                                </Button>
+                                                <Button Tag="DeleteSpaceEntity" Margin="4,0,0,0" ToolTip="Delete pattern"
+                                        VerticalAlignment="Center"  Click="MapDetectButton_OnClick" CommandParameter="{Binding}">
+                                                    <Image Source="../Images/glyphicons-257-delete.png" Height="8" />
+                                                </Button>
+                                                <CheckBox ToolTip="IsUniqueToMap" Margin="4,0,0,0" 
+                                            VerticalAlignment="Center" IsChecked="{Binding Path=IsUniqueToMap}"></CheckBox>
+                                                <TextBlock Text="{Binding Path=Pattern}" Margin="4,0,0,0" MouseDown="UIElement_OnMouseDown">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Path=IsEnabled}" Value="false">
+                                                                    <Setter Property="Foreground" Value="Red"></Setter>
+                                                                    <Setter Property="ToolTip" Value="This map is DISABLED, and will NOT be used in map detection."></Setter>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Path=IsEnabled}" Value="true">
+                                                                    <Setter Property="Foreground" Value="Green"></Setter>
+                                                                    <Setter Property="ToolTip" Value="This map is enabled, and will be used in map detection."></Setter>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </GroupBox>
+
+                        <GroupBox Grid.Row="1" Grid.Column="1">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="MapEntityExclusions" VerticalAlignment="Center"></TextBlock>
+                                    <Button Tag="AddSpaceExceptionEntity" Margin="4,0,0,0" ToolTip="Add a new entity" 
+                                Click="MapDetectButton_OnClick"  VerticalAlignment="Center">
+                                        <Image Source="../Images/glyphicons-433-plus.png" Height="8" />
+                                    </Button>
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <ListView ItemsSource="{Binding Path=CombatMapDetectionSettings.GenericSpaceMap.MapEntityExclusionsOrderByPattern}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Vertical">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Tag="EditSpaceExceptionEntity" Margin="0,0,0,0" ToolTip="Edit pattern" 
+                                            Click="MapDetectButton_OnClick" CommandParameter="{Binding}"
+                                            VerticalAlignment="Center">
+                                                    <Image Source="../Images/glyphicons-151-edit.png" Height="8" />
+                                                </Button>
+                                                <Button Tag="DeleteSpaceExceptionEntity" Margin="4,0,0,0" ToolTip="Delete pattern"
+                                                    VerticalAlignment="Center"
+                                                    Click="MapDetectButton_OnClick" CommandParameter="{Binding}">
+                                                    <Image Source="../Images/glyphicons-257-delete.png" Height="8" />
+                                                </Button>
+                                                <CheckBox ToolTip="IsUniqueToMap" Margin="4,0,0,0" 
+                                        VerticalAlignment="Center"
+                                        IsChecked="{Binding Path=IsUniqueToMap}"></CheckBox>
+                                                <TextBlock Text="{Binding Path=Pattern}" Margin="4,0,0,0" MouseDown="UIElement_OnMouseDown">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Path=IsEnabled}" Value="false">
+                                                                    <Setter Property="Foreground" Value="Red"></Setter>
+                                                                    <Setter Property="ToolTip" Value="This map is DISABLED, and will NOT be used in map detection."></Setter>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Path=IsEnabled}" Value="true">
+                                                                    <Setter Property="Foreground" Value="Green"></Setter>
+                                                                    <Setter Property="ToolTip" Value="This map is enabled, and will be used in map detection."></Setter>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </GroupBox>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+
+            <GroupBox Grid.Row="2" Grid.Column="0">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="EntityExclusionList" VerticalAlignment="Center"></TextBlock>
+                        <Button Tag="AddExceptionEntity" Margin="4,0,0,0" ToolTip="Add a new entity" 
+                    Click="MapDetectButton_OnClick" 
+                    VerticalAlignment="Center">
+                            <Image Source="../Images/glyphicons-433-plus.png" Height="8" />
+                        </Button>
+                    </StackPanel>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <ListView Grid.Row="0" ItemsSource="{Binding Path=CombatMapDetectionSettings.EntityExclusionListOrderedByPattern}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Tag="EditExceptionEntity" Margin="4,0,0,0" ToolTip="Edit pattern"
+                                Click="MapDetectButton_OnClick" CommandParameter="{Binding}">
+                                        <Image Source="../Images/glyphicons-151-edit.png" Height="8" />
+                                    </Button>
+                                    <Button Tag="DeleteExceptionEntity" Margin="4,0,0,0" ToolTip="Delete pattern"
+                                Click="MapDetectButton_OnClick" CommandParameter="{Binding}">
+                                        <Image Source="../Images/glyphicons-257-delete.png" Height="8" />
+                                    </Button>
+                                    <TextBlock Text="{Binding Path=Pattern}" Margin="4,0,0,0" MouseDown="UIElement_OnMouseDown">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=IsEnabled}" Value="false">
+                                                        <Setter Property="Foreground" Value="Red"></Setter>
+                                                        <Setter Property="ToolTip" Value="This map is DISABLED, and will NOT be used in map detection."></Setter>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Path=IsEnabled}" Value="true">
+                                                        <Setter Property="Foreground" Value="Green"></Setter>
+                                                        <Setter Property="ToolTip" Value="This map is enabled, and will be used in map detection."></Setter>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </GroupBox>
+
+            <GridSplitter Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Background="Gray" 
+                          Width="2"
+                          Margin="0,12,0,4" 
+                          Padding="0,0,0,0"
+                          HorizontalAlignment="Right"  VerticalAlignment="Stretch"></GridSplitter>
+
+            <GroupBox Grid.Row="0" Grid.RowSpan="2" Grid.Column="1">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Tag="map_entity_list" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,4,0"
+                               MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp"
+                               ToolTip="Click for more details." />
+                        <TextBlock Text="CombatMapEntityList" VerticalAlignment="Center"></TextBlock>
+                        <Button Tag="AddMap" Margin="4,0,0,0" ToolTip="Add a new map"  VerticalAlignment="Center" Click="MapDetectButton_OnClick">
+                            <Image Source="../Images/glyphicons-433-plus.png" Height="8" />
+                        </Button>
+                        <Button Tag="Expand all maps" Margin="32,0,0,0" ToolTip="Expand all maps"  VerticalAlignment="Center" Click="MapDetectButton_OnClick">
+                            <Image Source="../Images/glyphicons-602-chevron-down.png" Height="8" />
+                        </Button>
+                        <Button Tag="Collapse all maps" Margin="4,0,0,0" ToolTip="Collapse all maps"  VerticalAlignment="Center" Click="MapDetectButton_OnClick">
+                            <Image Source="../Images/glyphicons-224-chevron-right.png" Height="8" />
+                        </Button>
+                    </StackPanel>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <TreeView Name="uiTreeViewMapDetectMapList" Grid.Row="0" ItemsSource="{Binding Path=CombatMapDetectionSettings.CombatMapEntityListOrderedByMapName}">
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate>
+                                <TreeViewItem Tag="Map" Margin="0,2,0,2">
+                                    <TreeViewItem.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Tag="EditMapName" Margin="4,0,0,0" ToolTip="Edit map name" 
+                            Click="MapDetectButton_OnClick" CommandParameter="{Binding}">
+                                                <Image Source="../Images/glyphicons-151-edit.png" Height="8" />
+                                            </Button>
+                                            <Button Tag="DeleteMap" Margin="0,0,0,0" ToolTip="Delete map" 
+                            Click="MapDetectButton_OnClick" CommandParameter="{Binding}">
+                                                <Image Source="../Images/glyphicons-257-delete.png" Height="8" />
+                                            </Button>
+                                            <TextBlock Text="{Binding Path=Name}" Margin="2,0,0,0" MouseDown="UIElement_OnMouseDown">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Path=IsEnabled}" Value="false">
+                                                                <Setter Property="Foreground" Value="Red"></Setter>
+                                                                <Setter Property="ToolTip" Value="This map is DISABLED, and will NOT be used in map detection."></Setter>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Path=IsEnabled}" Value="true">
+                                                                <Setter Property="Foreground" Value="Green"></Setter>
+                                                                <Setter Property="ToolTip" Value="This map is enabled, and will be used in map detection."></Setter>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </TreeViewItem.Header>
+                                    <StackPanel Orientation="Vertical">
+                                        <TreeViewItem Tag="MapEntity" ItemsSource="{Binding Path=MapEntitiesOrderByPattern}" IsExpanded="True">
+                                            <TreeViewItem.Header>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                    <Button Tag="AddMapEntity" Margin="0,0,0,0" ToolTip="Add map entity" 
+                                    Click="MapDetectButton_OnClick" CommandParameter="{Binding}">
+                                                        <Image Source="../Images/glyphicons-433-plus.png" Height="8" />
+                                                    </Button>
+                                                    <TextBlock Text="MapEntities" Margin="4,0,0,0"></TextBlock>
+                                                </StackPanel>
+                                            </TreeViewItem.Header>
+                                            <TreeViewItem.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Button Tag="EditMapEntity" Margin="0,0,0,0" ToolTip="Edit pattern" 
+                                        Click="MapDetectButton_OnClick" CommandParameter="{Binding}"
+                                        VerticalAlignment="Center">
+                                                            <Image Source="../Images/glyphicons-151-edit.png" Height="8" />
+                                                        </Button>
+                                                        <Button Tag="DeleteMapEntity" Margin="4,0,0,0" ToolTip="Delete pattern"
+                                    VerticalAlignment="Center"
+                                    Click="MapDetectButton_OnClick" CommandParameter="{Binding}">
+                                                            <Image Source="../Images/glyphicons-257-delete.png" Height="8" />
+                                                        </Button>
+                                                        <CheckBox ToolTip="IsUniqueToMap" Margin="4,0,0,0" 
+                                    VerticalAlignment="Center"
+                                    IsChecked="{Binding Path=IsUniqueToMap}"></CheckBox>
+                                                        <TextBlock Text="{Binding Path=Pattern}" Margin="4,0,0,0" MouseDown="UIElement_OnMouseDown">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Path=IsEnabled}" Value="false">
+                                                                            <Setter Property="Foreground" Value="Red"></Setter>
+                                                                            <Setter Property="ToolTip" Value="This map is DISABLED, and will NOT be used in map detection."></Setter>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Path=IsEnabled}" Value="true">
+                                                                            <Setter Property="Foreground" Value="Green"></Setter>
+                                                                            <Setter Property="ToolTip" Value="This map is enabled, and will be used in map detection."></Setter>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </TreeViewItem.ItemTemplate>
+                                        </TreeViewItem>
+                                        <TreeViewItem Tag="MapEntityExclusion" ItemsSource="{Binding Path=MapEntityExclusionsOrderByPattern}" IsExpanded="True">
+                                            <TreeViewItem.Header>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                    <Button Tag="AddMapExceptionEntity" Margin="0,0,0,0" ToolTip="Add map entity exclusion"
+                                    Click="MapDetectButton_OnClick" CommandParameter="{Binding}">
+                                                        <Image Source="../Images/glyphicons-433-plus.png" Height="8" />
+                                                    </Button>
+                                                    <TextBlock Margin="4,0,0,0" Text="MapEntityExclusions"></TextBlock>
+                                                </StackPanel>
+                                            </TreeViewItem.Header>
+                                            <TreeViewItem.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Button Tag="EditMapExceptionEntity" Margin="0,0,0,0" ToolTip="Edit pattern" 
+                                        Click="MapDetectButton_OnClick" CommandParameter="{Binding}"
+                                        VerticalAlignment="Center">
+                                                            <Image Source="../Images/glyphicons-151-edit.png" Height="8" />
+                                                        </Button>
+                                                        <Button Tag="DeleteMapExceptionEntity" Margin="4,0,0,0" ToolTip="Delete pattern"
+                                    VerticalAlignment="Center"
+                                    Click="MapDetectButton_OnClick" CommandParameter="{Binding}">
+                                                            <Image Source="../Images/glyphicons-257-delete.png" Height="8" />
+                                                        </Button>
+                                                        <CheckBox ToolTip="IsUniqueToMap" Margin="4,0,0,0" 
+                                    VerticalAlignment="Center"
+                                    IsChecked="{Binding Path=IsUniqueToMap}"></CheckBox>
+                                                        <TextBlock Text="{Binding Path=Pattern}" Margin="4,0,0,0" MouseDown="UIElement_OnMouseDown">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Path=IsEnabled}" Value="false">
+                                                                            <Setter Property="Foreground" Value="Red"></Setter>
+                                                                            <Setter Property="ToolTip" Value="This map is DISABLED, and will NOT be used in map detection."></Setter>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Path=IsEnabled}" Value="true">
+                                                                            <Setter Property="Foreground" Value="Green"></Setter>
+                                                                            <Setter Property="ToolTip" Value="This map is enabled, and will be used in map detection."></Setter>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </TreeViewItem.ItemTemplate>
+                                        </TreeViewItem>
+                                    </StackPanel>
+                                </TreeViewItem>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </Grid>
+            </GroupBox>
+
+            <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Background="Gray" 
+                          Width="2"
+                          Margin="0,12,0,4" 
+                          Padding="0,0,0,0"
+                          HorizontalAlignment="Right"  VerticalAlignment="Stretch"></GridSplitter>
+
+            <GroupBox Grid.Row="0" Grid.RowSpan="2" Grid.Column="2">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Tag="selected_combat" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,4,0"
+                               MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp"
+                               ToolTip="Click for more details." />
+                        <TextBlock Text="Combat Analysis"></TextBlock>
+                    </StackPanel>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,4,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0" x:Name="uiButtonParseLog" Width="32" Height="32" Margin="0,0,0,0" Padding="4,4,4,4"
+                    VerticalAlignment="Center" Click="UiButtonParseLog_OnClick"
+                    ToolTip="Parse Log File(s)" IsEnabled="{Binding Path=IsExecutingBackgroundProcess, Converter={StaticResource invertBooleanConverter}}">
+                            <Image Source="../Images/glyphicons-82-refresh.png"></Image>
+                        </Button>
+
+                        <GroupBox Grid.Column="1" HorizontalAlignment="Stretch"  Margin="4,0,0,0" VerticalAlignment="Center"
+                      Visibility="{Binding Path=Combats.Count, Converter={StaticResource typeToVisibilityConverter}}">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <TextBlock Text="Combat Select: " VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Path=Combats.Count}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <ComboBox Name="uiComboBoxCombats" Text="Help" ItemsSource="{Binding Path=Combats}" IsSynchronizedWithCurrentItem="True" 
+                          VerticalAlignment="Top"  HorizontalAlignment="Stretch"
+                          SelectedItem="{Binding Path=SelectedCombat}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Vertical">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Start: " />
+                                                <TextBlock Text="{Binding Path=CombatStart}" />
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Duration: " Margin="0,0,0,0" />
+                                                <TextBlock Text="{Binding Path=CombatDuration}" />
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Map: " />
+                                                <TextBlock Text="{Binding Path=Map, Converter={StaticResource mapNameStringConverter}}" 
+                                               Foreground="{Binding Path=Map, Converter={StaticResource mapNameColorConverter}}" FontWeight="Bold" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </GroupBox>
+
+                        <GroupBox Grid.Row="0" Grid.Column="2" Margin="4,0,4,0" Visibility="{Binding Path=SelectedCombat, Converter={StaticResource typeToVisibilityConverter}}">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Selected Combat" />
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <Grid Visibility="{Binding Path=SelectedCombat, Converter={StaticResource typeToVisibilityConverter}}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Margin="0,0,0,0">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                        <TextBlock Text="Started: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombat.CombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" 
+                           Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                        <TextBlock Text="Ended: " Margin="8,0,0,0" Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombat.CombatEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" 
+                           Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                        <TextBlock Text="Duration: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombat.CombatDuration}" Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                        <TextBlock Text="Map: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombat.Map, Converter={StaticResource mapNameStringConverter}}" Foreground="{Binding Path=SelectedCombat.Map, Converter={StaticResource mapNameColorConverter}}" FontWeight="Bold" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                        <TextBlock Text="Players: " Margin="0,0,0,0" Visibility="{Binding Path=SelectedCombat.PlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" 
+                           Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombat.PlayerEntities.Count}" Visibility="{Binding Path=SelectedCombat.PlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" 
+                           Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                        <TextBlock Text="Non-Players: " Margin="4,0,0,0" Visibility="{Binding Path=SelectedCombat.NonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" 
+                           Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombat.NonPlayerEntities.Count}" Visibility="{Binding Path=SelectedCombat.NonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" 
+                           Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                        <TextBlock Text="Events: " Margin="4,0,0,0" Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                        <TextBlock Text="{Binding Path=SelectedCombat.EventsCount}" Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+
+                    <GroupBox Grid.Row="1">
+                        <GroupBox.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Tag="selected_combat_unique_list" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,4,0"
+                                       MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp"
+                                       ToolTip="Click for more details." />
+                                <TextBlock Text="Selected Combat: Unique list of Non-Player entities"></TextBlock>
+                            </StackPanel>
+                        </GroupBox.Header>
+                        <DataGrid ItemsSource="{Binding Path=SelectedCombat.UniqueEntityIds}" AutoGenerateColumns="False"
+                                  CanUserReorderColumns="False" CanUserSortColumns="True"
+                                  CanUserResizeColumns="True" SelectionUnit="Cell" SelectionMode="Single">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="IsPet" Binding="{Binding Path=IsPet, Mode=OneWay}" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Label" Binding="{Binding Path=Label, Mode=OneWay}" IsReadOnly="True" SortMemberPath="Label" SortDirection="Ascending" />
+                                <DataGridTextColumn Header="Id" Binding="{Binding Path=Id, Mode=OneWay}" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Pet Owner" Binding="{Binding Path=OwnerLabel, Mode=OneWay}" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Pet Owner Id" Binding="{Binding Path=OwnerId, Mode=OneWay}" IsReadOnly="True" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+                </Grid>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -27,6 +27,7 @@
     <None Remove="CombatMapDetectionSettings.json" />
     <None Remove="Images\glyphicons-151-edit.png" />
     <None Remove="Images\glyphicons-152-new-window.png" />
+    <None Remove="Images\glyphicons-195-question-sign.png" />
     <None Remove="Images\glyphicons-196-info-sign.png" />
     <None Remove="Images\glyphicons-224-chevron-right.png" />
     <None Remove="Images\glyphicons-257-delete.png" />
@@ -64,6 +65,7 @@
   <ItemGroup>
     <Resource Include="Images\glyphicons-151-edit.png" />
     <Resource Include="Images\glyphicons-152-new-window.png" />
+    <Resource Include="Images\glyphicons-195-question-sign.png" />
     <Resource Include="Images\glyphicons-196-info-sign.png" />
     <Resource Include="Images\glyphicons-224-chevron-right.png" />
     <Resource Include="Images\glyphicons-257-delete.png" />

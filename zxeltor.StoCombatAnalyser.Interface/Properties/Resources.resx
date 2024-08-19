@@ -120,6 +120,9 @@
   <data name="ApplicationName" xml:space="preserve">
     <value>STO Combat Log Analyzer</value>
   </data>
+  <data name="combat_analysis" xml:space="preserve">
+    <value>This section allows you to parse the combat logs, and examine a selected combat instance. The data here is meant to assist you in making modifications to the CombatMapEntityList section.</value>
+  </data>
   <data name="combat_events_datagrid" xml:space="preserve">
     <value>This displays the raw STO combat log data for the selected event type. By default, not all data columns from the combat log are displayed. You can enable/disable the columns in the display by right clicking on the datagrid and interacting with the context menu that’s displayed.
 
@@ -146,8 +149,14 @@ Note: A Combat entity needs to be selected in the "Log File Analyzer" tab for th
   <data name="export_detection_json_no_indents" xml:space="preserve">
     <value>Export map detection settings to a JSON file without indentation.</value>
   </data>
+  <data name="GithubMapDetectionSectionOfWikiUrl" xml:space="preserve">
+    <value>https://github.com/zxeltor/STOCombatAnalyzer/wiki/Map-Detection</value>
+  </data>
   <data name="GithubMapDetectRepoUrl" xml:space="preserve">
     <value>https://github.com/zxeltor/STOCombatAnalyzer.Settings</value>
+  </data>
+  <data name="GithubMapSettingsSectionOfWikiUrl" xml:space="preserve">
+    <value>https://github.com/zxeltor/STOCombatAnalyzer/wiki/Application-Tab:-Tools-Settings</value>
   </data>
   <data name="GithubRepoUrl" xml:space="preserve">
     <value>https://github.com/zxeltor/STOCombatAnalyzer</value>
@@ -173,6 +182,9 @@ Note: The new settings won't be reflected in the interface until you run "Parse 
   <data name="is_display_pets_only" xml:space="preserve">
     <value>If selected, display a breakdown of Pet Only events in the Event Type Breakdown barchart.</value>
   </data>
+  <data name="map_entity_list" xml:space="preserve">
+    <value>This displays a collection of configurable map entities. A map can represent a physical map, a TFO, or some other event in the game.</value>
+  </data>
   <data name="player_select" xml:space="preserve">
     <value>When a Player is selected here, the rest of the controls in the UI update with information for the selected Player.</value>
   </data>
@@ -180,5 +192,8 @@ Note: The new settings won't be reflected in the interface until you run "Parse 
     <value>Reset map detection settings to application default.
 
 Note: The new settings won't be reflected in the interface until you run "Parse Log(s)".</value>
+  </data>
+  <data name="selected_combat_unique_list" xml:space="preserve">
+    <value>This section displays a list of unique non-player entities, and their pets. The Label and Id of each entry, can be added as a MapEntity or MapEntityExclusion, to a map in the CombatMapEntityList section.</value>
   </data>
 </root>
