@@ -5,6 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 using Newtonsoft.Json;
+using zxeltor.ConfigUtilsHelpers.Extensions;
 
 namespace zxeltor.ConfigUtilsHelpers.Helpers;
 
@@ -14,15 +15,18 @@ namespace zxeltor.ConfigUtilsHelpers.Helpers;
 /// </summary>
 public static class SerializationHelper
 {
+    #region Public Members
+
     /// <summary>
     ///     Deserialize a JSON string as a chosen type.
     /// </summary>
     /// <typeparam name="T">The chosen type</typeparam>
     /// <param name="data">The JSON string to deserialize.</param>
+    /// <param name="removeSpecialCharacters">True to remove special characters. False otherwise.</param>
     /// <returns>An object of the chosen type.</returns>
-    public static T Deserialize<T>(string data)
+    public static T? Deserialize<T>(string data, bool removeSpecialCharacters = true)
     {
-        return JsonConvert.DeserializeObject<T>(data);
+        return JsonConvert.DeserializeObject<T>(removeSpecialCharacters ? data.RemoveSpecialChars() : data);
     }
 
     /// <summary>
@@ -48,8 +52,9 @@ public static class SerializationHelper
     /// <typeparam name="T">The chosen type</typeparam>
     /// <param name="data">The JSON string to deserialize.</param>
     /// <param name="output">An object of the chosen type.</param>
+    /// <param name="removeSpecialCharacters">True to remove special characters. False otherwise.</param>
     /// <returns>True if successful. False otherwise.</returns>
-    public static bool TryDeserializeString<T>(string data, out T output)
+    public static bool TryDeserializeString<T>(string? data, out T? output, bool removeSpecialCharacters = true)
         where T : class
     {
         output = null;
@@ -59,7 +64,7 @@ public static class SerializationHelper
 
         try
         {
-            output = JsonConvert.DeserializeObject<T>(data);
+            output = JsonConvert.DeserializeObject<T>(removeSpecialCharacters ? data.RemoveSpecialChars() : data);
             return true;
         }
         catch
@@ -98,4 +103,6 @@ public static class SerializationHelper
 
         return false;
     }
+
+    #endregion
 }
