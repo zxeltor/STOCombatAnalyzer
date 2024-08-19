@@ -24,7 +24,7 @@ public class CombatTimeSpanToHumanizedStringMaxMinuteMinSecondsConverter : IValu
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is TimeSpan timeSpan)
-            return timeSpan.Humanize(3, maxUnit: TimeUnit.Minute, minUnit: TimeUnit.Second);
+            return timeSpan.Humanize(2, maxUnit: TimeUnit.Minute, minUnit: TimeUnit.Second);
 
         return 0;
     }

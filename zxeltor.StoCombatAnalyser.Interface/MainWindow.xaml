@@ -14,6 +14,7 @@
     <Grid x:Name="uiGridMain">
         <Grid.Resources>
             <classes:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
+            <classes:BoolToGridLengthConverter x:Key="boolToGridLengthConverter" />
             <classes:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
             <classes:TypeToVisibilityConverterInverted x:Key="typeToVisibilityConverterInverted" />
             <classes:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
@@ -363,8 +364,9 @@
                             
                             <Grid Grid.Row="1" Margin="0,4,0,0" Name="uiGridPlayerEntities">
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="50*" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{Binding Source={x:Static properties:Settings.Default}, Path=IsIncludeNonPlayerEntities, Converter={StaticResource boolToGridLengthConverter}}" />
                                 </Grid.RowDefinitions>
                                 
                                 <GroupBox Grid.Row="0" Margin="0,0,0,0">
@@ -374,31 +376,39 @@
                                             <TextBlock Text="{Binding Path=SelectedCombat.PlayerEntities.Count}"></TextBlock>
                                         </StackPanel>
                                     </GroupBox.Header>
-                                    <ListView ItemsSource="{Binding Path=SelectedCombat.PlayerEntitiesOrderByName}"
-                                                SelectedItem="{Binding Path=SelectedCombatEntity, Mode=TwoWay}"
-                                                SelectionChanged="Selector_OnSelectionChanged">
-                                        <ListView.View>
-                                            <GridView>
-                                                <GridViewColumn Header="Name" Width="Auto"
-                                                                DisplayMemberBinding="{Binding Path=OwnerDisplay}"/>
-                                                <GridViewColumn Header="Attacks" Width="Auto"
-                                                                DisplayMemberBinding="{Binding Path=EntityCombatAttacks}" />
-                                                <GridViewColumn Header="Kills" Width="Auto"
-                                                                DisplayMemberBinding="{Binding Path=EntityCombatKills}" />
-                                                <GridViewColumn Header="Damage" Width="Auto"
-                                                                DisplayMemberBinding="{Binding Path=EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" />
-                                                <GridViewColumn Header="DPS" Width="Auto"
-                                                                DisplayMemberBinding="{Binding Path=EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}" />
-                                                <GridViewColumn Header="Inactive" Width="Auto"
-                                                                DisplayMemberBinding="{Binding Path=EntityCombatInActive, Converter={StaticResource timeSpanMinSeconds}}" />
-                                                <GridViewColumn Header="Duration" Width="Auto"
-                                                                DisplayMemberBinding="{Binding Path=EntityCombatDuration, Converter={StaticResource timeSpanMinSeconds}}" />
-                                            </GridView>
-                                        </ListView.View>
-                                    </ListView>
+                                    <DataGrid ItemsSource="{Binding Path=SelectedCombat.PlayerEntitiesOrderByName}"
+                                              SelectedItem="{Binding Path=SelectedCombatEntity, Mode=TwoWay}"
+                                              SelectionChanged="Selector_OnSelectionChanged"
+                                              CanUserReorderColumns="True" CanUserSortColumns="True" AutoGenerateColumns="False"
+                                              CanUserResizeColumns="True" SelectionUnit="FullRow" SelectionMode="Single" IsReadOnly="True">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Name"
+                                                                Binding="{Binding Path=OwnerDisplay, Mode=OneTime}"
+                                                                IsReadOnly="True" SortDirection="Ascending" />
+                                            <DataGridTextColumn Header="Attacks"
+                                                                Binding="{Binding Path=EntityCombatAttacks, Mode=OneTime}"
+                                                                IsReadOnly="True" />
+                                            <DataGridTextColumn Header="Kills"
+                                                                Binding="{Binding Path=EntityCombatKills, Mode=OneTime}"
+                                                                IsReadOnly="True" />
+                                            <DataGridTextColumn Header="Damage"
+                                                                Binding="{Binding Path=EntityTotalMagnitude, Mode=OneTime, Converter={StaticResource doubleToThousandsStringConverter}}"
+                                                                IsReadOnly="True" />
+                                            <DataGridTextColumn Header="DPS"
+                                                                Binding="{Binding Path=EntityMagnitudePerSecond, Mode=OneTime, Converter={StaticResource doubleToThousandsStringConverter}}"
+                                                                IsReadOnly="True" />
+                                            <DataGridTextColumn Header="Inactive"
+                                                                Binding="{Binding Path=EntityCombatInActive, Mode=OneTime, Converter={StaticResource timeSpanMinSeconds}}"
+                                                                IsReadOnly="True" />
+                                            <DataGridTextColumn Header="Duration"
+                                                                Binding="{Binding Path=EntityCombatDuration, Mode=OneTime, Converter={StaticResource timeSpanMinSeconds}}"
+                                                                IsReadOnly="True" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
                                 </GroupBox>
 
-                                <CheckBox Name="uiCheckBoxDisplayNonPlayerEntities" Grid.Row="1" Margin="0,4,0,0" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsIncludeNonPlayerEntities}" 
+                                <CheckBox Name="uiCheckBoxDisplayNonPlayerEntities" Grid.Row="1" Margin="0,4,0,0" 
+                                          IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsIncludeNonPlayerEntities, Mode=TwoWay}" 
                                           Content="Display Non-Players" HorizontalAlignment="Left"
                                           Click="UiCheckBoxDisplayNonPlayerEntities_OnClick" />
 
@@ -410,19 +420,29 @@
                                             <TextBlock Text="{Binding Path=SelectedCombat.NonPlayerEntities.Count}"></TextBlock>
                                         </StackPanel>
                                     </GroupBox.Header>
-                                    <ListView ItemsSource="{Binding Path=SelectedCombat.NonPlayerEntitiesOrderByName}" Margin="0,0,0,0"
+                                    <DataGrid ItemsSource="{Binding Path=SelectedCombat.NonPlayerEntitiesOrderByName}"
                                               SelectedItem="{Binding Path=SelectedCombatEntity, Mode=TwoWay}"
-                                              SelectionChanged="Selector_OnSelectionChanged">
-                                        <ListView.View>
-                                            <GridView>
-                                                <GridViewColumn Header="Name" Width="Auto" DisplayMemberBinding="{Binding Path=OwnerDisplay}" />
-                                                <GridViewColumn Header="Attacks" Width="Auto" DisplayMemberBinding="{Binding Path=EntityCombatAttacks}" />
-                                                <GridViewColumn Header="Kills" Width="Auto" DisplayMemberBinding="{Binding Path=EntityCombatKills}" />
-                                                <GridViewColumn Header="Damage" Width="Auto" DisplayMemberBinding="{Binding Path=EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}" />
-                                                <GridViewColumn Header="DPS" Width="Auto" DisplayMemberBinding="{Binding Path=EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}" />
-                                            </GridView>
-                                        </ListView.View>
-                                    </ListView>
+                                              SelectionChanged="Selector_OnSelectionChanged"
+                                              CanUserReorderColumns="True" CanUserSortColumns="True" AutoGenerateColumns="False"
+                                              CanUserResizeColumns="True" SelectionUnit="FullRow" SelectionMode="Single" IsReadOnly="True">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Name"
+                                                                Binding="{Binding Path=OwnerDisplay, Mode=OneTime}"
+                                                                IsReadOnly="True" SortDirection="Ascending" />
+                                            <DataGridTextColumn Header="Attacks"
+                                                                Binding="{Binding Path=EntityCombatAttacks, Mode=OneTime}"
+                                                                IsReadOnly="True" />
+                                            <DataGridTextColumn Header="Kills"
+                                                                Binding="{Binding Path=EntityCombatKills, Mode=OneTime}"
+                                                                IsReadOnly="True" />
+                                            <DataGridTextColumn Header="Damage"
+                                                                Binding="{Binding Path=EntityTotalMagnitude, Mode=OneTime, Converter={StaticResource doubleToThousandsStringConverter}}"
+                                                                IsReadOnly="True" />
+                                            <DataGridTextColumn Header="DPS"
+                                                                Binding="{Binding Path=EntityMagnitudePerSecond, Mode=OneTime, Converter={StaticResource doubleToThousandsStringConverter}}"
+                                                                IsReadOnly="True" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
                                 </GroupBox>
                             </Grid>
                         </Grid>

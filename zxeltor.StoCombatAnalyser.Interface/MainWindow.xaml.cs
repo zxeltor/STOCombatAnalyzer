@@ -1701,28 +1701,15 @@ public partial class MainWindow
     {
         if (this.uiCheckBoxDisplayNonPlayerEntities.IsChecked.HasValue &&
             this.uiCheckBoxDisplayNonPlayerEntities.IsChecked.Value)
-            this.ToggleDisplayNonPlayerEntities(true);
-        else
-            this.ToggleDisplayNonPlayerEntities(false);
+            this.ToggleDisplayNonPlayerEntities(this.uiCheckBoxDisplayNonPlayerEntities.IsChecked.Value);
     }
 
     private void ToggleDisplayNonPlayerEntities(bool display)
     {
-        if (display)
+        if (Settings.Default.IsIncludeNonPlayerEntities != display)
         {
-            if (this.uiGridPlayerEntities.RowDefinitions.Count == 2)
-            {
-                this.uiGridPlayerEntities.RowDefinitions.Add(new RowDefinition());
-                Settings.Default.Save();
-            }
-        }
-        else
-        {
-            if (this.uiGridPlayerEntities.RowDefinitions.Count == 3)
-            {
-                this.uiGridPlayerEntities.RowDefinitions.RemoveAt(2);
-                Settings.Default.Save();
-            }
+            Settings.Default.IsIncludeNonPlayerEntities = display;
+            Settings.Default.Save();
         }
     }
 
