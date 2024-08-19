@@ -61,6 +61,7 @@ public partial class MainWindow
     #endregion
 
     #region Other Members
+
     private void Browse_OnMouseLeftButtonUp(object sender, RoutedEventArgs e)
     {
         if (!(e.Source is Button button))
@@ -324,10 +325,11 @@ public partial class MainWindow
                     .Select(ev => new { Mag = ev.Magnitude, DateTimeDouble = ev.Timestamp.ToOADate() }).ToList();
 
                 var inactiveLegendAdded = false;
-                foreach (var deadZone in CombatLogManagerContext.SelectedCombatEntity.DeadZones)
+                foreach (var deadZone in this.CombatLogManagerContext.SelectedCombatEntity.DeadZones)
                 {
                     var deadZoneSignal = this.uiScottScatterPlotEntityEvents.Plot.Add.Rectangle(
-                        deadZone.StartTime.ToOADate(), deadZone.EndTime.ToOADate(), magnitudeDataList.Min(mag => mag.Mag),
+                        deadZone.StartTime.ToOADate(), deadZone.EndTime.ToOADate(),
+                        magnitudeDataList.Min(mag => mag.Mag),
                         magnitudeDataList.Max(mag => mag.Mag));
 
                     deadZoneSignal.FillStyle.Color = Colors.Black.WithAlpha(.2);
@@ -335,7 +337,7 @@ public partial class MainWindow
                     deadZoneSignal.LineStyle.Width = 3;
                     deadZoneSignal.LineStyle.Pattern = LinePattern.Solid;
 
-                    if(!inactiveLegendAdded)
+                    if (!inactiveLegendAdded)
                         deadZoneSignal.LegendText = "Inactive";
 
                     inactiveLegendAdded = true;
@@ -344,7 +346,7 @@ public partial class MainWindow
                 var signal = this.uiScottScatterPlotEntityEvents.Plot.Add.SignalXY(
                     magnitudeDataList.Select(pd => pd.DateTimeDouble).ToArray(),
                     magnitudeDataList.Select(pd => pd.Mag).ToArray());
-                
+
                 signal.MarkerSize = 15;
                 signal.LegendText = "Magnitude";
                 signal.Color = Color.FromHex("00bdff");
@@ -463,8 +465,18 @@ public partial class MainWindow
         if (plotPlottableList.Count == 0)
             return;
 
-        var mousePixel = this.uiScottScatterPlotEntityEvents.GetCurrentPlotPixelPosition();
-        var mouseLocation = this.uiScottScatterPlotEntityEvents.Plot.GetCoordinates(mousePixel);
+        var position = e.GetPosition(this.uiScottScatterPlotEntityEvents);
+
+        if (this.uiScottScatterPlotEntityEvents.DisplayScale != this.uiScottScatterPlotEntityEvents.Plot.ScaleFactor)
+        {
+            var scale = this.uiScottScatterPlotEntityEvents.DisplayScale /
+                        this.uiScottScatterPlotEntityEvents.Plot.ScaleFactor;
+
+            position.X *= scale;
+            position.Y *= scale;
+        }
+
+        var mouseLocation = this.uiScottScatterPlotEntityEvents.Plot.GetCoordinates(new Pixel(position.X, position.Y));
 
         var scatterPlots = plotPlottableList.OfType<SignalXY>().ToList();
 
@@ -674,8 +686,18 @@ public partial class MainWindow
         if (plotPlottableList.Count == 0)
             return;
 
-        var mousePixel = this.uiScottBarChartEntityEventTypes.GetCurrentPlotPixelPosition();
-        var mouseLocation = this.uiScottBarChartEntityEventTypes.Plot.GetCoordinates(mousePixel);
+        var position = e.GetPosition(this.uiScottBarChartEntityEventTypes);
+
+        if (this.uiScottBarChartEntityEventTypes.DisplayScale != this.uiScottBarChartEntityEventTypes.Plot.ScaleFactor)
+        {
+            var scale = this.uiScottBarChartEntityEventTypes.DisplayScale /
+                        this.uiScottBarChartEntityEventTypes.Plot.ScaleFactor;
+
+            position.X *= scale;
+            position.Y *= scale;
+        }
+
+        var mouseLocation = this.uiScottBarChartEntityEventTypes.Plot.GetCoordinates(new Pixel(position.X, position.Y));
 
         var barPlots = plotPlottableList.OfType<BarPlot>().ToList();
 
@@ -790,13 +812,18 @@ public partial class MainWindow
                         if (combatEventTypeSelector.EventTypeId.Equals("PETS OVERALL",
                                 StringComparison.CurrentCultureIgnoreCase))
                             this.CombatLogManagerContext.SelectedCombatEventType = new CombatEventType(this
-                                .CombatLogManagerContext.SelectedCombatEntity.CombatEventsList.Where(ev => ev.IsPetEvent)
-                                .ToList(), "PETS OVERALL", inactiveTimeSpan: this.CombatLogManagerContext.SelectedCombatEntity.EntityCombatInActive);
+                                    .CombatLogManagerContext.SelectedCombatEntity.CombatEventsList
+                                    .Where(ev => ev.IsPetEvent)
+                                    .ToList(), "PETS OVERALL",
+                                inactiveTimeSpan: this.CombatLogManagerContext.SelectedCombatEntity
+                                    .EntityCombatInActive);
                         else
                             this.CombatLogManagerContext.SelectedCombatEventType =
                                 new CombatEventType(
                                     this.CombatLogManagerContext.SelectedCombatEntity.CombatEventsList.ToList(),
-                                    "OVERALL", inactiveTimeSpan: this.CombatLogManagerContext.SelectedCombatEntity.EntityCombatInActive);
+                                    "OVERALL",
+                                    inactiveTimeSpan: this.CombatLogManagerContext.SelectedCombatEntity
+                                        .EntityCombatInActive);
                     }
                 }
                 else
@@ -979,10 +1006,13 @@ public partial class MainWindow
                     new StringBuilder(
                         $"Successfully imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
                 successStorage.Append(Environment.NewLine).Append(Environment.NewLine)
-                    .Append("Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
+                    .Append(
+                        "Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
 
-                Log.Info($"Successfully imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
-                MessageBox.Show(this, successStorage.ToString(), "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                Log.Info(
+                    $"Successfully imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
+                MessageBox.Show(this, successStorage.ToString(), "Success", MessageBoxButton.OK,
+                    MessageBoxImage.Information);
 
                 this.CombatLogManagerContext.Combats.Clear();
             }
@@ -993,7 +1023,7 @@ public partial class MainWindow
                 MessageBox.Show(this, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
     }
-    
+
     private void UiButtonExportCombat_OnClick(object sender, RoutedEventArgs e)
     {
         if (this.CombatLogManagerContext.SelectedCombat == null)
@@ -1733,23 +1763,28 @@ public partial class MainWindow
                 this.SetBarChartForEntity();
     }
 
-    #endregion
-
     private void UiButtonCopyPlayerCombatStats_OnClick(object sender, RoutedEventArgs e)
     {
-        if(this.CombatLogManagerContext.SelectedCombat == null) return;
+        if (this.CombatLogManagerContext.SelectedCombat == null) return;
 
-        ResponseDialog.Show(this, string.Empty, detailsBoxCaption: "Combat Details", detailsBoxList: this.CombatLogManagerContext.SelectedCombat.PlayerEntities.Select(player => player.ToCombatStats).ToList());
+        ResponseDialog.Show(this, string.Empty, detailsBoxCaption: "Combat Details",
+            detailsBoxList: this.CombatLogManagerContext.SelectedCombat.PlayerEntities
+                .Select(player => player.ToCombatStats).ToList());
     }
 
     private void UiButtonDownloadMapDetectionEntities_OnClick(object sender, RoutedEventArgs e)
     {
-        var messageToUser = new StringBuilder("This action will download and install the latest Map Detection Settings file from the official site. ");
-        messageToUser.Append("This will replace your existing Map Detection Settings. If you have made any manual changes, they will be lost.")
+        var messageToUser =
+            new StringBuilder(
+                "This action will download and install the latest Map Detection Settings file from the official site. ");
+        messageToUser
+            .Append(
+                "This will replace your existing Map Detection Settings. If you have made any manual changes, they will be lost.")
             .Append(Environment.NewLine).Append(Environment.NewLine)
             .Append("Are you sure you want to do this?");
 
-        var dialogResult = MessageBox.Show(this, messageToUser.ToString(), "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        var dialogResult = MessageBox.Show(this, messageToUser.ToString(), "Warning", MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
 
         if (dialogResult != MessageBoxResult.Yes)
             return;
@@ -1765,14 +1800,18 @@ public partial class MainWindow
 
                 if (!taskResult.IsCompletedSuccessfully)
                 {
-                    Log.Error($"Failed to download latest Map Detection Settings. Status={taskResult.Status}", taskResult.Exception);
+                    Log.Error($"Failed to download latest Map Detection Settings. Status={taskResult.Status}",
+                        taskResult.Exception);
 
                     var uiErrorMessage =
-                        new StringBuilder($"Failed to download the latest Map Detection Settings. Status:{taskResult.Status}.");
+                        new StringBuilder(
+                            $"Failed to download the latest Map Detection Settings. Status:{taskResult.Status}.");
                     uiErrorMessage.Append(Environment.NewLine)
-                    .Append("Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open Log File button in the Tools/Settings tab.");
+                        .Append(
+                            "Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open Log File button in the Tools/Settings tab.");
 
-                    MessageBox.Show(this, uiErrorMessage.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(this, uiErrorMessage.ToString(), "Error", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
 
                     return;
                 }
@@ -1787,9 +1826,11 @@ public partial class MainWindow
                     var uiErrorMessage =
                         new StringBuilder(errorMessage);
                     uiErrorMessage.Append(Environment.NewLine)
-                        .Append("Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open Log File button in the Tools/Settings tab.");
+                        .Append(
+                            "Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open Log File button in the Tools/Settings tab.");
 
-                    MessageBox.Show(this, uiErrorMessage.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(this, uiErrorMessage.ToString(), "Error", MessageBoxButton.OK,
+                        MessageBoxImage.Error);
 
                     return;
                 }
@@ -1804,10 +1845,13 @@ public partial class MainWindow
                 new StringBuilder(
                     $"Successfully downloaded and imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
             successStorage.Append(Environment.NewLine).Append(Environment.NewLine)
-                .Append("Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
+                .Append(
+                    "Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
 
-            Log.Info($"Successfully downloaded and imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
-            MessageBox.Show(this, successStorage.ToString(), "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            Log.Info(
+                $"Successfully downloaded and imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
+            MessageBox.Show(this, successStorage.ToString(), "Success", MessageBoxButton.OK,
+                MessageBoxImage.Information);
 
             this.CombatLogManagerContext.Combats.Clear();
         }
@@ -1819,9 +1863,12 @@ public partial class MainWindow
             var uiErrorMessage =
                 new StringBuilder(errorMessage);
             uiErrorMessage.Append(Environment.NewLine).Append(Environment.NewLine)
-                .Append("Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open Log File button in the Tools/Settings tab.");
+                .Append(
+                    "Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open Log File button in the Tools/Settings tab.");
 
             MessageBox.Show(this, uiErrorMessage.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+
+    #endregion
 }
