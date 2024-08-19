@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using Humanizer;
 using Humanizer.Localisation;
 using Newtonsoft.Json;
+using zxeltor.StoCombatAnalyzer.Interface.Classes;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
@@ -31,7 +32,7 @@ public class Combat : INotifyPropertyChanged
 
     private bool _isObjectLocked;
 
-    private List<string>? _uniqueEntityIds;
+    private List<CombatEntityLabel>? _uniqueEntityIds;
 
     #endregion
 
@@ -155,42 +156,36 @@ public class Combat : INotifyPropertyChanged
     /// <summary>
     ///     Return a unique list of Ids and Labels from our combat entities.
     /// </summary>
-    public List<string> UniqueEntityIds
+    public List<CombatEntityLabel> UniqueEntityIds
     {
         get
         {
             if (this._uniqueEntityIds != null && this._isObjectLocked)
                 return this._uniqueEntityIds;
 
-            if (this.NonPlayerEntities.Count == 0 || this.PlayerEntities.Count == 0)
-                return [];
-
-            // Get a combined collection of player and non-player entities.
-            var allEntities = this.NonPlayerEntities.Union(this.PlayerEntities).ToList();
+            if (this.NonPlayerEntities.Count == 0 && this.PlayerEntities.Count == 0)
+                return this._uniqueEntityIds = [];
 
             // Gather a unique list of Ids and Labels from our combat entities we 
             // can use for map detection.
-            this._uniqueEntityIds = (
-                    from entity in allEntities
-                    from eve in entity.CombatEventsList
-                    where !string.IsNullOrWhiteSpace(eve.OwnerInternalStripped)
-                    select eve.OwnerInternalStripped
-                ).Union(
-                    from entity in allEntities
-                    from eve in entity.CombatEventsList
-                    where !string.IsNullOrWhiteSpace(eve.OwnerDisplay)
-                    select eve.OwnerDisplay
-                ).Union(
-                    from entity in allEntities
-                    from eve in entity.CombatEventsList
-                    where !string.IsNullOrWhiteSpace(eve.TargetInternalStripped)
-                    select eve.TargetInternalStripped
-                ).Union(
-                    from entity in allEntities
-                    from eve in entity.CombatEventsList
-                    where !string.IsNullOrWhiteSpace(eve.TargetDisplay)
-                    select eve.TargetDisplay)
-                .Distinct().ToList();
+            this._uniqueEntityIds =
+                (from entity in this.PlayerEntities
+                    from evt in entity.CombatEventsList
+                    where !evt.IsTargetPlayer && !string.IsNullOrWhiteSpace(evt.TargetDisplay)
+                    select new CombatEntityLabel(evt.TargetInternalStripped, evt.TargetDisplay))
+                .Union(
+                    from entity in this.NonPlayerEntities
+                    from evt in entity.CombatEventsList
+                    where !evt.IsPetEvent
+                    select new CombatEntityLabel(evt.OwnerInternalStripped, evt.OwnerDisplay))
+                .Union(
+                    from entity in this.NonPlayerEntities
+                    from evt in entity.CombatEventsList
+                    where evt.IsPetEvent
+                    select new CombatEntityLabel(evt.SourceInternalStripped, evt.SourceDisplay, true,
+                        evt.OwnerInternalStripped, evt.OwnerDisplay))
+                .Distinct().OrderBy(ent => ent.Label).ToList();
+
 
             return this._uniqueEntityIds;
         }

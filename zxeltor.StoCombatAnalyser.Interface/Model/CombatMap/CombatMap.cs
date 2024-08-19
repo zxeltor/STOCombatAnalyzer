@@ -16,17 +16,31 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
 /// </summary>
 public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
 {
+    #region Private Fields
+
     private bool _hasChanges;
-    private string _name;
+    private bool _isEnabled = true;
+    private string? _name;
+
+    #endregion
+
+    #region Constructors
 
     public CombatMap()
     {
         this.Id = Guid.NewGuid();
 
-        this.MapEntities.CollectionChanged += (sender, args) => this.OnPropertyChanged("MapEntitiesOrderByPattern");
+        this.MapEntities.CollectionChanged +=
+            (sender, args) => this.OnPropertyChanged(nameof(this.MapEntitiesOrderByPattern));
         this.MapEntityExclusions.CollectionChanged +=
-            (sender, args) => this.OnPropertyChanged("MapEntityExclusionsOrderByPattern");
+            (sender, args) =>
+                this.OnPropertyChanged(
+                    nameof(this.MapEntityExclusionsOrderByPattern));
     }
+
+    #endregion
+
+    #region Public Properties
 
     [JsonIgnore] public Guid Id { get; }
 
@@ -41,10 +55,19 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
     ///     A label for the map
     /// </summary>
     [JsonRequired]
-    public string Name
+    public string? Name
     {
         get => this._name;
         set => this.SetField(ref this._name, value);
+    }
+
+    /// <summary>
+    ///     If true, this map will be included in Map Detection logic. False otherwise.
+    /// </summary>
+    public bool IsEnabled
+    {
+        get => this._isEnabled;
+        set => this.SetField(ref this._isEnabled, value);
     }
 
     /// <summary>
@@ -79,6 +102,10 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
 
     [JsonIgnore] public bool IsAnException { get; set; }
 
+    #endregion
+
+    #region Public Members
+
     /// <inheritdoc />
     public bool Equals(CombatMap? other)
     {
@@ -105,6 +132,24 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
         return $"Name={this.Name}, Entities={this.MapEntities.Count}, Matches={this.CombatMatchCountForMap}";
     }
 
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return this.Equals((CombatMap)obj);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(this._name, this.Id);
+    }
+
+    #endregion
+
+    #region Other Members
 
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
@@ -128,18 +173,5 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
         this.HasChanges = true;
     }
 
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return this.Equals((CombatMap)obj);
-    }
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(this._name, this.Id);
-    }
+    #endregion
 }

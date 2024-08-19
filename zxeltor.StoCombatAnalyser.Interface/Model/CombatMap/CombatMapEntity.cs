@@ -15,13 +15,36 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
 /// </summary>
 public class CombatMapEntity : INotifyPropertyChanged, IEquatable<CombatMapEntity>
 {
+    #region Private Fields
+
     private bool _hasChanges;
+    private bool _isEnabled = true;
     private bool _isUniqueToMap;
     private string _pattern;
 
-    public CombatMapEntity()
+    #endregion
+
+    #region Constructors
+    /// <summary>
+    ///     Init a map entity with the given pattern.
+    /// </summary>
+    /// <param name="pattern">A pattern for the map entity.</param>
+    public CombatMapEntity(string pattern)
     {
         this.Id = Guid.NewGuid();
+        this._pattern = pattern;
+    }
+
+    #endregion
+
+    #region Public Properties
+    /// <summary>
+    ///     If true, this map will be included in Map Detection logic. False otherwise.
+    /// </summary>
+    public bool IsEnabled
+    {
+        get => this._isEnabled;
+        set => this.SetField(ref this._isEnabled, value);
     }
 
     [JsonIgnore]
@@ -32,7 +55,7 @@ public class CombatMapEntity : INotifyPropertyChanged, IEquatable<CombatMapEntit
     }
 
     /// <summary>
-    ///     A pattern used to match and entity.
+    ///     A pattern used to match an entity.
     /// </summary>
     [JsonRequired]
     [JsonProperty(Order = 1)]
@@ -55,6 +78,10 @@ public class CombatMapEntity : INotifyPropertyChanged, IEquatable<CombatMapEntit
     [JsonIgnore] public int CombatMatchCount { get; set; }
 
     [JsonIgnore] public Guid Id { get; }
+
+    #endregion
+
+    #region Public Members
 
     /// <inheritdoc />
     public bool Equals(CombatMapEntity? other)
@@ -79,6 +106,25 @@ public class CombatMapEntity : INotifyPropertyChanged, IEquatable<CombatMapEntit
         return $"Pattern={this.Pattern}, Count={this.CombatMatchCount}";
     }
 
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return this.Equals((CombatMapEntity)obj);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(this.Pattern, this.Id);
+    }
+
+    #endregion
+
+    #region Other Members
+
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
     /// </summary>
@@ -101,18 +147,5 @@ public class CombatMapEntity : INotifyPropertyChanged, IEquatable<CombatMapEntit
         this.HasChanges = true;
     }
 
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return this.Equals((CombatMapEntity)obj);
-    }
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(this._pattern, this.Id);
-    }
+    #endregion
 }

@@ -374,7 +374,7 @@ public class CombatLogManager : INotifyPropertyChanged
     #region Public Members
 
     public event PropertyChangedEventHandler? PropertyChanged;
-
+    
     /// <summary>
     ///     Purge the sto combat logs folder.
     ///     <para>Note: If there's only one log found, it won't be purged.</para>
@@ -750,11 +750,15 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         CombatMap? combatMap = null;
 
+        var uniqueIds = combat.UniqueEntityIds.Where(id => !string.IsNullOrWhiteSpace(id.Id)).Select(id => id.Id)
+            .Union(combat.UniqueEntityIds.Where(id => !string.IsNullOrWhiteSpace(id.Label)).Select(id => id.Label))
+            .Distinct().ToList();
+
         var idsFoundInMapList = false;
         var idsFoundInGenericList = false;
 
         // Find a match in our CombatMapDetectionSettings object based on our entity ids.
-        foreach (var currentEntityId in combat.UniqueEntityIds)
+        foreach (var currentEntity in uniqueIds)
         {
             // If the currentEntityId is found in a map exclusion list,
             // then it gets thrown out of the rest of the detection logic,
@@ -762,9 +766,9 @@ public class CombatLogManager : INotifyPropertyChanged
             // current combat entity being checked.
             var mapExceptions =
                 (from map in this.CombatMapDetectionSettings.CombatMapEntityList
-                    from ent in map.MapEntityExclusions
-                    where currentEntityId.Contains(ent.Pattern)
-                    select map).ToList();
+                 from ent in map.MapEntityExclusions
+                 where map.IsEnabled && ent.IsEnabled && currentEntity.Contains(ent.Pattern)
+                 select map).ToList();
             if (mapExceptions.Count > 0)
             {
                 mapExceptions.ForEach(map => map.IsAnException = true);
@@ -774,8 +778,8 @@ public class CombatLogManager : INotifyPropertyChanged
             // If the currentEntityId is found in main exclusion list,
             // then it gets thrown out of the rest of the detection logic.
             var isException =
-                this.CombatMapDetectionSettings.EntityExclusionList.FirstOrDefault(ent =>
-                    currentEntityId.Contains(ent.Pattern));
+                this.CombatMapDetectionSettings.EntityExclusionList.Where(ent => ent.IsEnabled).FirstOrDefault(ent =>
+                    currentEntity.Contains(ent.Pattern));
             if (isException != null)
                 continue;
 
@@ -783,17 +787,17 @@ public class CombatLogManager : INotifyPropertyChanged
             // is found we return without doing further logic.
             var uniqueToMap =
                 (from map in this.CombatMapDetectionSettings.CombatMapEntityList
-                    from ent in map.MapEntities
-                    where !map.IsAnException && currentEntityId.Contains(ent.Pattern) && ent.IsUniqueToMap
-                    select map).FirstOrDefault();
+                 from ent in map.MapEntities
+                 where map.IsEnabled && ent.IsEnabled && !map.IsAnException && currentEntity.Contains(ent.Pattern) && ent.IsUniqueToMap
+                 select map).FirstOrDefault();
             if (uniqueToMap != null) return uniqueToMap;
 
             // Get any match counts from our map list.
             var entitiesFoundInMap =
                 (from map in this.CombatMapDetectionSettings.CombatMapEntityList
-                    from ent in map.MapEntities
-                    where !map.IsAnException && currentEntityId.Contains(ent.Pattern)
-                    select ent).ToList();
+                 from ent in map.MapEntities
+                 where map.IsEnabled && ent.IsEnabled && !map.IsAnException && currentEntity.Contains(ent.Pattern)
+                 select ent).ToList();
             if (entitiesFoundInMap.Count > 0)
             {
                 entitiesFoundInMap.ForEach(ent => ent.IncrementCombatMatchCount());
@@ -809,8 +813,8 @@ public class CombatLogManager : INotifyPropertyChanged
             // Get any match counts from our generic ground map.
             var entitiesFoundInGenericGroundMap =
                 (from ent in this.CombatMapDetectionSettings.GenericGroundMap.MapEntities
-                    where currentEntityId.Contains(ent.Pattern)
-                    select ent).ToList();
+                 where ent.IsEnabled && currentEntity.Contains(ent.Pattern)
+                 select ent).ToList();
             if (entitiesFoundInGenericGroundMap.Count > 0)
             {
                 entitiesFoundInGenericGroundMap.ForEach(ent => ent.IncrementCombatMatchCount());
@@ -820,8 +824,8 @@ public class CombatLogManager : INotifyPropertyChanged
             // Get any match counts from our generic space map.
             var entitiesFoundInGenericSpacedMap =
                 (from ent in this.CombatMapDetectionSettings.GenericSpaceMap.MapEntities
-                    where currentEntityId.Contains(ent.Pattern)
-                    select ent).ToList();
+                 where ent.IsEnabled && currentEntity.Contains(ent.Pattern)
+                 select ent).ToList();
             if (entitiesFoundInGenericSpacedMap.Count > 0)
             {
                 entitiesFoundInGenericSpacedMap.ForEach(ent => ent.IncrementCombatMatchCount());
@@ -832,7 +836,7 @@ public class CombatLogManager : INotifyPropertyChanged
         // If we found any matches from our map list, we pick the one with the highest match count.
         if (idsFoundInMapList)
         {
-            var mapResult = this.CombatMapDetectionSettings.CombatMapEntityList.Where(map => !map.IsAnException)
+            var mapResult = this.CombatMapDetectionSettings.CombatMapEntityList.Where(map => map.IsEnabled && !map.IsAnException)
                 .OrderByDescending(map => map.CombatMatchCountForMap).First();
             return mapResult;
         }
