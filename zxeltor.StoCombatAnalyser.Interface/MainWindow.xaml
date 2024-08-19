@@ -58,8 +58,8 @@
                 <Grid Name="uiGridTabLogAnalyzer">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="50*" />
+                        <RowDefinition Height="{Binding Source={x:Static properties:Settings.Default}, Path=IsEnableAnalysisTools, Converter={StaticResource boolToGridLengthConverter}}" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="30*"></ColumnDefinition>
@@ -85,11 +85,6 @@
                             </Button>
 
                             <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" Margin="4,0,4,0">
-                                <CheckBox Name="uiCheckBoxDisplayAnalysisTools" Content="Display Analysis Tools" Margin="0,2,0,0"
-                                          IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsEnableAnalysisTools}"
-                                          HorizontalAlignment="Left" Click="UiCheckBoxDisplayAnalysisTools_OnClick" 
-                                          ToolTip="{x:Static properties:Resources.is_display_analysis_tools}"/>
-
                                 <GroupBox HorizontalAlignment="Center" Margin="0,4,0,0"
                                           Visibility="{Binding Path=Combats.Count, Converter={StaticResource typeToVisibilityConverter}}">
                                     <GroupBox.Header>
@@ -201,6 +196,11 @@
                             </GroupBox>
 
                             <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,0,0">
+                                <CheckBox Name="uiCheckBoxDisplayAnalysisTools" Content="Display Enhanced Tools" Margin="2,0,18,0"
+                                          IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsEnableAnalysisTools, Mode=TwoWay}"
+                                          Click="UiCheckBoxDisplayAnalysisTools_OnClick"
+                                          VerticalAlignment="Center" ToolTip="{x:Static properties:Resources.is_display_analysis_tools}"/>
+
                                 <Button Tag="GithubRepoWikiUrl" Background="Transparent" BorderBrush="Transparent" 
                                         Click="Browse_OnMouseLeftButtonUp">
                                     <Image Source="/Images/glyphicons-195-question-sign.png" 
@@ -409,8 +409,7 @@
 
                                 <CheckBox Name="uiCheckBoxDisplayNonPlayerEntities" Grid.Row="1" Margin="0,4,0,0" 
                                           IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsIncludeNonPlayerEntities, Mode=TwoWay}" 
-                                          Content="Display Non-Players" HorizontalAlignment="Left"
-                                          Click="UiCheckBoxDisplayNonPlayerEntities_OnClick" />
+                                          Content="Display Non-Players" HorizontalAlignment="Left" />
 
                                 <GroupBox Grid.Row="2" Margin="0,4,0,0" 
                                           Visibility="{Binding Source={x:Static properties:Settings.Default}, Path=IsIncludeNonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}">
@@ -651,17 +650,18 @@
                                     </ComboBox>
 
                                     <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                        <CheckBox x:Name="uiCheckboxPlotDisplayMagnitude" Content="Display Magnitude" Margin="8,0,0,0" 
-                                                  IsChecked="{Binding Path=MainCombatEventGridContext.IsDisplayPlotMagnitude, Mode=TwoWay}"
-                                                  Tag="PlotDisplayMagnitude"
-                                                  Visibility="Collapsed"
+                                        <CheckBox x:Name="uiCheckboxPlotPlayerInactive" Content="Player InActive Times" Margin="8,0,0,0" 
+                                                  IsChecked="{Binding Path=MainCombatEventGridContext.IsDisplayPlotPlayerInactive, Mode=TwoWay}"
+                                                  Tag="PlotDisplayDisplayPlotPlayerInactive"
                                                   Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
-                                                  Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
-                                        <CheckBox x:Name="uiCheckboxPlotDisplayMagnitudeBase" Content="MagnitudeBase" Margin="8,0,0,0"
+                                                  Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
+                                                  ToolTip="Display player overall inactive times on the plot."/>
+                                        <CheckBox x:Name="uiCheckboxPlotDisplayMagnitudeBase" Content="Event MagnitudeBase" Margin="8,0,0,0"
                                                   IsChecked="{Binding Path=MainCombatEventGridContext.IsDisplayPlotMagnitudeBase, Mode=TwoWay}"
                                                   Tag="PlotDisplayMagnitudeBase"
                                                   Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
-                                                  Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
+                                                  Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
+                                                  ToolTip="Display select event type MagnitudeBase values on the plot."/>
                                     </StackPanel>
 
                                     <Button Name="uiButtonResetScatterPlot" ToolTip="Reset" Margin="16,0,0,0" Width="16" Height="16"

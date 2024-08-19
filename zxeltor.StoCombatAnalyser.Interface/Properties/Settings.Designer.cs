@@ -339,5 +339,29 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
                 return ((string)(this["MapDetctionSettingsDownloadUrl"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsDisplayPlotPlayerInactive {
+            get {
+                return ((bool)(this["IsDisplayPlotPlayerInactive"]));
+            }
+            set {
+                this["IsDisplayPlotPlayerInactive"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsDisplayPlotMagnitudeBase {
+            get {
+                return ((bool)(this["IsDisplayPlotMagnitudeBase"]));
+            }
+            set {
+                this["IsDisplayPlotMagnitudeBase"] = value;
+            }
+        }
     }
 }

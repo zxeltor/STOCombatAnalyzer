@@ -69,6 +69,8 @@ public class CombatLogManager : INotifyPropertyChanged
                  SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
                      Settings.Default.DefaultCombatMapList, out var combatMapSettingsDefault))
             this.CombatMapDetectionSettings = combatMapSettingsDefault;
+
+        Settings.Default.PropertyChanged += this.DefaultOnPropertyChanged;
     }
 
     #endregion
@@ -150,8 +152,9 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         get
         {
-            if (this.SelectedCombatEntity?.CombatEventTypeListForEntity == null || this.SelectedCombatEntity.CombatEventTypeListForEntity.Count == 0) return null;
-            
+            if (this.SelectedCombatEntity?.CombatEventTypeListForEntity == null ||
+                this.SelectedCombatEntity.CombatEventTypeListForEntity.Count == 0) return null;
+
             return this.SelectedCombatEntity.CombatEventTypeListForEntity.Sum(ev => ev.Damage);
         }
     }
@@ -163,8 +166,9 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         get
         {
-            if (this.SelectedCombatEntity?.CombatEventTypeListForEntity == null || this.SelectedCombatEntity.CombatEventTypeListForEntity.Count == 0) return null;
-            
+            if (this.SelectedCombatEntity?.CombatEventTypeListForEntity == null ||
+                this.SelectedCombatEntity.CombatEventTypeListForEntity.Count == 0) return null;
+
             return this.SelectedCombatEntity?.CombatEventTypeListForEntity.Max(ev => ev.MaxDamageHit);
         }
     }
@@ -176,9 +180,11 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         get
         {
-            if (this.SelectedCombatEntity?.CombatEventTypeListForEntityPets == null || this.SelectedCombatEntity.CombatEventTypeListForEntityPets.Count == 0) return null;
+            if (this.SelectedCombatEntity?.CombatEventTypeListForEntityPets == null ||
+                this.SelectedCombatEntity.CombatEventTypeListForEntityPets.Count == 0) return null;
 
-            return this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Sum(ev => ev.CombatEventTypes.Sum(evt => evt.Damage));
+            return this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Sum(ev =>
+                ev.CombatEventTypes.Sum(evt => evt.Damage));
         }
     }
 
@@ -189,9 +195,11 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         get
         {
-            if (this.SelectedCombatEntity?.CombatEventTypeListForEntityPets == null || this.SelectedCombatEntity.CombatEventTypeListForEntityPets.Count == 0) return null;
+            if (this.SelectedCombatEntity?.CombatEventTypeListForEntityPets == null ||
+                this.SelectedCombatEntity.CombatEventTypeListForEntityPets.Count == 0) return null;
 
-            return this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Max(ev => ev.CombatEventTypes.Max(evt => evt.MaxDamageHit));
+            return this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Max(ev =>
+                ev.CombatEventTypes.Max(evt => evt.MaxDamageHit));
         }
     }
 
@@ -240,7 +248,8 @@ public class CombatLogManager : INotifyPropertyChanged
             else if (this.EventTypeDisplayFilter.EventTypeId.Equals("PETS OVERALL"))
             {
                 results = new ObservableCollection<CombatEvent>(
-                    this.SelectedCombatEntity.CombatEventsList?.Where(evt => evt.IsPetEvent) ?? Array.Empty<CombatEvent>());
+                    this.SelectedCombatEntity.CombatEventsList?.Where(evt => evt.IsPetEvent) ??
+                    Array.Empty<CombatEvent>());
             }
             // Return a list of events specific to a Pet
             else if (this.EventTypeDisplayFilter.IsPetEvent)
@@ -272,8 +281,10 @@ public class CombatLogManager : INotifyPropertyChanged
                 results = new ObservableCollection<CombatEvent>(
                     this.SelectedCombatEntity.CombatEventsList?.Where(evt => !evt.IsPetEvent &&
                                                                              evt.EventInternal.Equals(
-                                                                                 this.EventTypeDisplayFilter.EventTypeId,
-                                                                                 StringComparison.CurrentCultureIgnoreCase)) ??
+                                                                                 this.EventTypeDisplayFilter
+                                                                                     .EventTypeId,
+                                                                                 StringComparison
+                                                                                     .CurrentCultureIgnoreCase)) ??
                     Array.Empty<CombatEvent>());
             }
 
@@ -374,7 +385,7 @@ public class CombatLogManager : INotifyPropertyChanged
     #region Public Members
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    
+
     /// <summary>
     ///     Purge the sto combat logs folder.
     ///     <para>Note: If there's only one log found, it won't be purged.</para>
@@ -468,9 +479,9 @@ public class CombatLogManager : INotifyPropertyChanged
                         $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder.",
                         isError: true);
 
-                    MessageBox.Show(Application.Current.MainWindow!,
+                    DetailsDialog.Show(Application.Current.MainWindow!,
                         $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder.",
-                        "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        "Folder Select Error");
 
                     return;
                 }
@@ -481,9 +492,9 @@ public class CombatLogManager : INotifyPropertyChanged
 
                 if (filesToParse.Count == 0)
                 {
-                    MessageBox.Show(Application.Current.MainWindow!,
+                    DetailsDialog.Show(Application.Current.MainWindow!,
                         $"No combat log files we're found in the selected folder.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder, and check \"CombatLogPathFilePattern\".",
-                        "Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        "Not Found");
                     return;
                 }
 
@@ -493,9 +504,9 @@ public class CombatLogManager : INotifyPropertyChanged
 
                 if (filesToParse.Count == 0)
                 {
-                    MessageBox.Show(Application.Current.MainWindow!,
+                    DetailsDialog.Show(Application.Current.MainWindow!,
                         $"Combat log(s) were found, but they're too old.{Environment.NewLine}{Environment.NewLine}They fell outside the timespan defined by the \"HowFarBackForCombat\" setting.",
-                        "Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        "Not Found");
                     return;
                 }
             }
@@ -505,12 +516,8 @@ public class CombatLogManager : INotifyPropertyChanged
                     $"Failed to get log files using pattern=\"{combatLogPath}\" and path=\"{combatLogFilePattern}\"";
                 this.AddToLogAndLogSummaryInUi(errorMessageString, ex, true);
 
-                if (Application.Current.MainWindow != null)
-                    MessageBox.Show(Application.Current.MainWindow,
-                        errorMessageString, "Folder Select Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                else
-                    MessageBox.Show(errorMessageString, "Folder Select Error", MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                DetailsDialog.Show(Application.Current.MainWindow,
+                    errorMessageString, "Folder Select Error");
 
                 return;
             }
@@ -564,8 +571,7 @@ public class CombatLogManager : INotifyPropertyChanged
         {
             var message =
                 $"No combat data was returned.{Environment.NewLine}{Environment.NewLine}Combat log data was found, but it fell outside the timespan defined by the \"HowFarBackForCombat\" setting.";
-            MessageBox.Show(Application.Current.MainWindow!, message, "Warning", MessageBoxButton.OK,
-                MessageBoxImage.Warning);
+            DetailsDialog.Show(Application.Current.MainWindow!, message, "Warning");
         }
 
         try
@@ -585,12 +591,7 @@ public class CombatLogManager : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            if (Application.Current.MainWindow != null)
-                MessageBox.Show(Application.Current.MainWindow, "Failed to parse combat logs.", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            else
-                MessageBox.Show("Failed to parse combat logs.", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+            DetailsDialog.Show(Application.Current.MainWindow, "Failed to parse combat logs.", "Error");
 
             this.AddToLogAndLogSummaryInUi("Failed to parse log file(s).", ex, true);
         }
@@ -638,6 +639,14 @@ public class CombatLogManager : INotifyPropertyChanged
     #endregion
 
     #region Other Members
+
+    /// <summary>
+    ///     Event handler used to save changes to the main app settings when a property changes.
+    /// </summary>
+    private void DefaultOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        Settings.Default.Save();
+    }
 
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
@@ -722,7 +731,7 @@ public class CombatLogManager : INotifyPropertyChanged
             combatList.OrderByDescending(com => com.CombatStart).ToList().ForEach(combat => this.Combats.Add(combat));
 
         this.DetermineMapsForCombatList();
-        
+
         this.OnPropertyChanged(nameof(this.Combats));
     }
 
@@ -766,9 +775,9 @@ public class CombatLogManager : INotifyPropertyChanged
             // current combat entity being checked.
             var mapExceptions =
                 (from map in this.CombatMapDetectionSettings.CombatMapEntityList
-                 from ent in map.MapEntityExclusions
-                 where map.IsEnabled && ent.IsEnabled && currentEntity.Contains(ent.Pattern)
-                 select map).ToList();
+                    from ent in map.MapEntityExclusions
+                    where map.IsEnabled && ent.IsEnabled && currentEntity.Contains(ent.Pattern)
+                    select map).ToList();
             if (mapExceptions.Count > 0)
             {
                 mapExceptions.ForEach(map => map.IsAnException = true);
@@ -787,17 +796,18 @@ public class CombatLogManager : INotifyPropertyChanged
             // is found we return without doing further logic.
             var uniqueToMap =
                 (from map in this.CombatMapDetectionSettings.CombatMapEntityList
-                 from ent in map.MapEntities
-                 where map.IsEnabled && ent.IsEnabled && !map.IsAnException && currentEntity.Contains(ent.Pattern) && ent.IsUniqueToMap
-                 select map).FirstOrDefault();
+                    from ent in map.MapEntities
+                    where map.IsEnabled && ent.IsEnabled && !map.IsAnException && currentEntity.Contains(ent.Pattern) &&
+                          ent.IsUniqueToMap
+                    select map).FirstOrDefault();
             if (uniqueToMap != null) return uniqueToMap;
 
             // Get any match counts from our map list.
             var entitiesFoundInMap =
                 (from map in this.CombatMapDetectionSettings.CombatMapEntityList
-                 from ent in map.MapEntities
-                 where map.IsEnabled && ent.IsEnabled && !map.IsAnException && currentEntity.Contains(ent.Pattern)
-                 select ent).ToList();
+                    from ent in map.MapEntities
+                    where map.IsEnabled && ent.IsEnabled && !map.IsAnException && currentEntity.Contains(ent.Pattern)
+                    select ent).ToList();
             if (entitiesFoundInMap.Count > 0)
             {
                 entitiesFoundInMap.ForEach(ent => ent.IncrementCombatMatchCount());
@@ -813,8 +823,8 @@ public class CombatLogManager : INotifyPropertyChanged
             // Get any match counts from our generic ground map.
             var entitiesFoundInGenericGroundMap =
                 (from ent in this.CombatMapDetectionSettings.GenericGroundMap.MapEntities
-                 where ent.IsEnabled && currentEntity.Contains(ent.Pattern)
-                 select ent).ToList();
+                    where ent.IsEnabled && currentEntity.Contains(ent.Pattern)
+                    select ent).ToList();
             if (entitiesFoundInGenericGroundMap.Count > 0)
             {
                 entitiesFoundInGenericGroundMap.ForEach(ent => ent.IncrementCombatMatchCount());
@@ -824,8 +834,8 @@ public class CombatLogManager : INotifyPropertyChanged
             // Get any match counts from our generic space map.
             var entitiesFoundInGenericSpacedMap =
                 (from ent in this.CombatMapDetectionSettings.GenericSpaceMap.MapEntities
-                 where ent.IsEnabled && currentEntity.Contains(ent.Pattern)
-                 select ent).ToList();
+                    where ent.IsEnabled && currentEntity.Contains(ent.Pattern)
+                    select ent).ToList();
             if (entitiesFoundInGenericSpacedMap.Count > 0)
             {
                 entitiesFoundInGenericSpacedMap.ForEach(ent => ent.IncrementCombatMatchCount());
@@ -836,7 +846,8 @@ public class CombatLogManager : INotifyPropertyChanged
         // If we found any matches from our map list, we pick the one with the highest match count.
         if (idsFoundInMapList)
         {
-            var mapResult = this.CombatMapDetectionSettings.CombatMapEntityList.Where(map => map.IsEnabled && !map.IsAnException)
+            var mapResult = this.CombatMapDetectionSettings.CombatMapEntityList
+                .Where(map => map.IsEnabled && !map.IsAnException)
                 .OrderByDescending(map => map.CombatMatchCountForMap).First();
             return mapResult;
         }

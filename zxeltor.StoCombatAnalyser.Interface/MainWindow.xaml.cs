@@ -119,9 +119,9 @@ public partial class MainWindow
                 ResponseDialog.Show(Application.Current.MainWindow, errorReason, "Combat log purge error");
         }
 
-        // Utilize config params which affect the layout of the UI.
-        this.ToggleDisplayNonPlayerEntities(Settings.Default.IsIncludeNonPlayerEntities);
-        this.ToggleDisplayAnalysisTools(Settings.Default.IsEnableAnalysisTools);
+        //// Utilize config params which affect the layout of the UI.
+        //this.ToggleDisplayNonPlayerEntities(Settings.Default.IsIncludeNonPlayerEntities);
+        //this.ToggleDisplayAnalysisTools(Settings.Default.IsEnableAnalysisTools);
     }
 
     /// <summary>
@@ -323,24 +323,28 @@ public partial class MainWindow
                 var magnitudeDataList = filteredCombatEventList
                     .OrderBy(ev => ev.Timestamp)
                     .Select(ev => new { Mag = ev.Magnitude, DateTimeDouble = ev.Timestamp.ToOADate() }).ToList();
-
+                
                 var inactiveLegendAdded = false;
-                foreach (var deadZone in this.CombatLogManagerContext.SelectedCombatEntity.DeadZones)
+
+                if(this.CombatLogManagerContext.MainCombatEventGridContext.IsDisplayPlotPlayerInactive)
                 {
-                    var deadZoneSignal = this.uiScottScatterPlotEntityEvents.Plot.Add.Rectangle(
-                        deadZone.StartTime.ToOADate(), deadZone.EndTime.ToOADate(),
-                        magnitudeDataList.Min(mag => mag.Mag),
-                        magnitudeDataList.Max(mag => mag.Mag));
+                    foreach (var deadZone in this.CombatLogManagerContext.SelectedCombatEntity.DeadZones)
+                    {
+                        var deadZoneSignal = this.uiScottScatterPlotEntityEvents.Plot.Add.Rectangle(
+                            deadZone.StartTime.ToOADate(), deadZone.EndTime.ToOADate(),
+                            magnitudeDataList.Min(mag => mag.Mag),
+                            magnitudeDataList.Max(mag => mag.Mag));
 
-                    deadZoneSignal.FillStyle.Color = Colors.Black.WithAlpha(.2);
-                    deadZoneSignal.LineStyle.Color = Colors.Black;
-                    deadZoneSignal.LineStyle.Width = 3;
-                    deadZoneSignal.LineStyle.Pattern = LinePattern.Solid;
+                        deadZoneSignal.FillStyle.Color = Colors.Black.WithAlpha(.2);
+                        deadZoneSignal.LineStyle.Color = Colors.Black;
+                        deadZoneSignal.LineStyle.Width = 3;
+                        deadZoneSignal.LineStyle.Pattern = LinePattern.Solid;
 
-                    if (!inactiveLegendAdded)
-                        deadZoneSignal.LegendText = "Inactive";
+                        if (!inactiveLegendAdded)
+                            deadZoneSignal.LegendText = "Inactive";
 
-                    inactiveLegendAdded = true;
+                        inactiveLegendAdded = true;
+                    }
                 }
 
                 var signal = this.uiScottScatterPlotEntityEvents.Plot.Add.SignalXY(
@@ -999,7 +1003,7 @@ public partial class MainWindow
                     this.CombatLogManagerContext.CombatMapDetectionSettings = serializationResult;
 
                     Settings.Default.UserCombatMapList = jsonString;
-                    Settings.Default.Save();
+                    //Settings.Default.Save();
                 }
 
                 var successStorage =
@@ -1073,7 +1077,7 @@ public partial class MainWindow
         try
         {
             Settings.Default.UserCombatMapList = null;
-            Settings.Default.Save();
+            //Settings.Default.Save();
 
             this.CombatLogManagerContext.CombatMapDetectionSettings =
                 SerializationHelper.Deserialize<CombatMapDetectionSettings>(Settings.Default.DefaultCombatMapList);
@@ -1697,51 +1701,42 @@ public partial class MainWindow
         this.SetPlots();
     }
 
-    private void UiCheckBoxDisplayNonPlayerEntities_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (this.uiCheckBoxDisplayNonPlayerEntities.IsChecked.HasValue &&
-            this.uiCheckBoxDisplayNonPlayerEntities.IsChecked.Value)
-            this.ToggleDisplayNonPlayerEntities(this.uiCheckBoxDisplayNonPlayerEntities.IsChecked.Value);
-    }
+    //private void UiCheckBoxDisplayNonPlayerEntities_OnClick(object sender, RoutedEventArgs e)
+    //{
+    //    //if (this.uiCheckBoxDisplayNonPlayerEntities.IsChecked.HasValue)
+    //    //    this.ToggleDisplayNonPlayerEntities(this.uiCheckBoxDisplayNonPlayerEntities.IsChecked.Value);
+    //    Settings.Default.Save();
+    //}
 
-    private void ToggleDisplayNonPlayerEntities(bool display)
-    {
-        if (Settings.Default.IsIncludeNonPlayerEntities != display)
-        {
-            Settings.Default.IsIncludeNonPlayerEntities = display;
-            Settings.Default.Save();
-        }
-    }
+    //private void ToggleDisplayNonPlayerEntities(bool display)
+    //{
+    //    //if (Settings.Default.IsIncludeNonPlayerEntities != display)
+    //    //{
+    //    //    Settings.Default.IsIncludeNonPlayerEntities = display;
+    //    //    Settings.Default.Save();
+    //    //}
+    //    Settings.Default.Save();
+    //}
 
     private void UiCheckBoxDisplayAnalysisTools_OnClick(object sender, RoutedEventArgs e)
     {
-        if (this.uiCheckBoxDisplayAnalysisTools.IsChecked.HasValue &&
-            this.uiCheckBoxDisplayAnalysisTools.IsChecked.Value)
-            this.ToggleDisplayAnalysisTools(true);
-        else
-            this.ToggleDisplayAnalysisTools(false);
+        if (this.uiCheckBoxDisplayAnalysisTools.IsChecked.HasValue)
+        {
+            this.CombatLogManagerContext!.EventTypeDisplayFilter = this.CombatLogManagerContext!.EventTypeDisplayFilter;
+            this.SetPlots();
+        }
     }
 
-    private void ToggleDisplayAnalysisTools(bool display)
-    {
-        if (display)
-        {
-            if (this.uiGridTabLogAnalyzer.RowDefinitions.Count != 2) return;
+    //private void ToggleDisplayAnalysisTools(bool display)
+    //{
+    //    this.CombatLogManagerContext!.EventTypeDisplayFilter = this.CombatLogManagerContext!.EventTypeDisplayFilter;
+    //    this.SetPlots();
+    //}
 
-            this.uiGridTabLogAnalyzer.RowDefinitions.Add(new RowDefinition());
-            Settings.Default.Save();
-        }
-        else
-        {
-            if (this.uiGridTabLogAnalyzer.RowDefinitions.Count != 3) return;
-
-            this.uiGridTabLogAnalyzer.RowDefinitions.RemoveAt(2);
-            Settings.Default.Save();
-        }
-
-        this.CombatLogManagerContext!.EventTypeDisplayFilter = this.CombatLogManagerContext!.EventTypeDisplayFilter;
-        this.SetPlots();
-    }
+    //private void UiElement_SaveSettings_OnClick(object sender, EventArgs e)
+    //{
+    //    //Settings.Default.Save();
+    //}
 
     private void UiComboBoxMetricSelect_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -1825,7 +1820,7 @@ public partial class MainWindow
                 this.CombatLogManagerContext.CombatMapDetectionSettings = combatMapDetectionSettings;
 
                 Settings.Default.UserCombatMapList = SerializationHelper.Serialize(combatMapDetectionSettings);
-                Settings.Default.Save();
+                //Settings.Default.Save();
             }
 
             var successStorage =

@@ -4,7 +4,6 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-using System.Printing;
 using System.Windows;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
@@ -15,8 +14,14 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 /// </summary>
 public partial class DetailsDialog : Window
 {
+    #region Private Fields
+
     // Determines if the dialog should block when opened.
     private readonly bool _isModalDialog;
+
+    #endregion
+
+    #region Constructors
 
     /// <summary>
     ///     The main constructor. Made private so only the static <see cref="Show" /> and <see cref="ShowDialog" /> methods
@@ -41,7 +46,7 @@ public partial class DetailsDialog : Window
     ///     A caption to use for the detail box inside the dialog.
     ///     <para>If not provided, a default is used, assuming details are provided.</para>
     /// </param>
-    private DetailsDialog(Window? owner, bool isModalDialog, string header, string message, string? caption = null,
+    private DetailsDialog(Window? owner, bool isModalDialog, string? header, string message, string? caption = null,
         bool includeCancel = false,
         string? detailsBoxCaption = null, List<string>? detailsBoxList = null)
     {
@@ -54,59 +59,17 @@ public partial class DetailsDialog : Window
 
         this._isModalDialog = isModalDialog;
 
-        this.uiTextBlockHeader.Text = header;
+        this.uiTextBlockHeader.Text = header ?? string.Empty;
         this.uiTextBlockMessage.Text = message;
 
-        //this.uiButtonCancel.Visibility = !includeCancel ? Visibility.Collapsed : Visibility.Visible;
-
-        //if (detailsBoxList == null || !detailsBoxList.Any())
-        //{
-        //    this.uiGroupBoxDetails.Visibility = Visibility.Collapsed;
-        //}
-        //else
-        //{
-        //    this.uiGroupBoxDetails.Header =
-        //        string.IsNullOrWhiteSpace(detailsBoxCaption) ? $"{this.Title} Details" : detailsBoxCaption;
-
-        //    var detailLineCounter = 1;
-        //    this.uiTextBoxDetails.Text = string.Empty;
-
-        //    detailsBoxList?.ForEach(detail =>
-        //    {
-        //        this.uiTextBoxDetails.Text =
-        //            $"{this.uiTextBoxDetails.Text}{detailLineCounter++}: {detail}{Environment.NewLine}";
-        //    });
-        //}
-
         this.uiButtonOk.Click += this.UiButtonOk_Click;
-        //this.uiButtonCancel.Click += this.UiButtonCancel_Click;
-
-        //this.uiButtonCancel.Visibility = !includeCancel ? Visibility.Collapsed : Visibility.Visible;
 
         this.Closed += this.OnClosed;
     }
 
-    private void UiButtonOk_Click(object sender, RoutedEventArgs e)
-    {
-        if (this._isModalDialog) this.DialogResult = true;
+    #endregion
 
-        this.Close();
-    }
-
-    //private void UiButtonCancel_Click(object sender, RoutedEventArgs e)
-    //{
-    //    if (this._isModalDialog) this.DialogResult = false;
-
-    //    this.Close();
-    //}
-
-    private void OnClosed(object? sender, EventArgs e)
-    {
-        this.Closed -= this.OnClosed;
-
-        this.uiButtonOk.Click -= this.UiButtonOk_Click;
-        //this.uiButtonCancel.Click -= this.UiButtonCancel_Click;
-    }
+    #region Public Members
 
     /// <summary>
     ///     Show the dialog, without blocking the caller.
@@ -129,7 +92,7 @@ public partial class DetailsDialog : Window
     ///     A caption to use for the detail box inside the dialog.
     ///     <para>If not provided, a default is used, assuming details are provided.</para>
     /// </param>
-    public static void Show(Window? owner, string header, string message, string? caption = null)
+    public static void Show(Window? owner, string message, string? caption = null, string? header = null)
     {
         var dialog = new DetailsDialog(owner, false, header, message, caption);
         dialog.Show();
@@ -167,4 +130,24 @@ public partial class DetailsDialog : Window
 
         return false;
     }
+
+    #endregion
+
+    #region Other Members
+
+    private void UiButtonOk_Click(object sender, RoutedEventArgs e)
+    {
+        if (this._isModalDialog) this.DialogResult = true;
+
+        this.Close();
+    }
+
+    private void OnClosed(object? sender, EventArgs e)
+    {
+        this.Closed -= this.OnClosed;
+
+        this.uiButtonOk.Click -= this.UiButtonOk_Click;
+    }
+
+    #endregion
 }

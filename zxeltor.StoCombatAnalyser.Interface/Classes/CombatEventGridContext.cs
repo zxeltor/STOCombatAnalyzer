@@ -6,6 +6,7 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using zxeltor.StoCombatAnalyzer.Interface.Properties;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
 
@@ -20,6 +21,7 @@ public class CombatEventGridContext : INotifyPropertyChanged
 
     private bool _isPlotDisplayMagnitude = true;
     private bool _isPlotDisplayMagnitudeBase;
+    private bool _isDisplayPlotPlayerInactive = true;
     private bool _lineNumber;
     private bool _magnitude = true;
     private bool _magnitudeBase = true;
@@ -46,8 +48,30 @@ public class CombatEventGridContext : INotifyPropertyChanged
     /// </summary>
     public bool IsDisplayPlotMagnitudeBase
     {
-        get => this._isPlotDisplayMagnitudeBase;
-        set => this.SetField(ref this._isPlotDisplayMagnitudeBase, value);
+        get => this._isPlotDisplayMagnitudeBase = Settings.Default.IsDisplayPlotMagnitudeBase;
+        set
+        {
+            this.SetField(ref this._isPlotDisplayMagnitudeBase, value);
+            if (Settings.Default.IsDisplayPlotMagnitudeBase != value)
+            {
+                Settings.Default.IsDisplayPlotMagnitudeBase = value;
+                //Settings.Default.Save();
+            }
+        }
+    }
+
+    public bool IsDisplayPlotPlayerInactive
+    {
+        get => this._isDisplayPlotPlayerInactive = Settings.Default.IsDisplayPlotPlayerInactive;
+        set
+        {
+            this.SetField(ref this._isDisplayPlotPlayerInactive, value);
+            if (Settings.Default.IsDisplayPlotPlayerInactive != value)
+            {
+                Settings.Default.IsDisplayPlotPlayerInactive = value;
+                //Settings.Default.Save();
+            }
+        }
     }
 
     /// <summary>

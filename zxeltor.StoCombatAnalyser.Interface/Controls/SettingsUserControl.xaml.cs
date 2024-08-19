@@ -316,11 +316,11 @@ public partial class SettingsUserControl : UserControl
         this.SetLog4netLogLevelFromSettings();
     }
 
-    private void SaveSettings_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (e.Source != null)
-            Settings.Default.Save();
-    }
+    //private void SaveSettings_OnClick(object sender, RoutedEventArgs e)
+    //{
+    //    if (e.Source != null)
+    //        Settings.Default.Save();
+    //}
 
     private void UiCheckBoxEnableInactiveTimeCalculations_OnClick(object sender, RoutedEventArgs e)
     {
@@ -393,9 +393,9 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         get => this._enableInActiveCalc = Settings.Default.IsEnableInactiveTimeCalculations;
         set
         {
-            Settings.Default.IsEnableInactiveTimeCalculations = value;
-            Settings.Default.Save();
+            //Settings.Default.Save();
             this.SetField(ref this._enableInActiveCalc, value);
+            Settings.Default.IsEnableInactiveTimeCalculations = value;
         }
     }
 
@@ -404,9 +404,9 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         get => this._minInActiveInSeconds = Settings.Default.MinInActiveInSeconds;
         set
         {
-            Settings.Default.MinInActiveInSeconds = value;
-            Settings.Default.Save();
+            //Settings.Default.Save();
             this.SetField(ref this._minInActiveInSeconds, value);
+            Settings.Default.MinInActiveInSeconds = value;
         }
     }
 
@@ -419,9 +419,9 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         get => this._enableCombinePets = Settings.Default.IsCombinePets;
         set
         {
-            Settings.Default.IsCombinePets = value;
-            Settings.Default.Save();
+            //Settings.Default.Save();
             this.SetField(ref this._enableCombinePets, value);
+            Settings.Default.IsCombinePets = value;
         }
     }
 
@@ -433,9 +433,9 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         get => this._purgeCombatLogs = Settings.Default.PurgeCombatLogs;
         set
         {
-            Settings.Default.PurgeCombatLogs = value;
-            Settings.Default.Save();
+            //Settings.Default.Save();
             this.SetField(ref this._purgeCombatLogs, value);
+            Settings.Default.PurgeCombatLogs = value;
         }
     }
 
@@ -448,9 +448,9 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         get => this._howLongToKeepLogs = Settings.Default.HowLongToKeepLogs;
         set
         {
-            Settings.Default.HowLongToKeepLogs = value;
-            Settings.Default.Save();
+            //Settings.Default.Save();
             this.SetField(ref this._howLongToKeepLogs, value);
+            Settings.Default.HowLongToKeepLogs = value;
         }
     }
 
@@ -462,9 +462,9 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         get => this._combatLogPath = Settings.Default.CombatLogPath;
         set
         {
-            Settings.Default.CombatLogPath = value;
-            Settings.Default.Save();
+            //Settings.Default.Save();
             this.SetField(ref this._combatLogPath, value);
+            Settings.Default.CombatLogPath = value;
         }
     }
 
@@ -476,9 +476,9 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         get => this._combatLogPathFilePattern = Settings.Default.CombatLogPathFilePattern;
         set
         {
-            Settings.Default.CombatLogPathFilePattern = value;
-            Settings.Default.Save();
+            //Settings.Default.Save();
             this.SetField(ref this._combatLogPathFilePattern, value);
+            Settings.Default.CombatLogPathFilePattern = value;
         }
     }
 
@@ -490,9 +490,9 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         get => this._enableDebugLogging = Settings.Default.DebugLogging;
         set
         {
-            Settings.Default.DebugLogging = value;
-            Settings.Default.Save();
+            //Settings.Default.DebugLogging = value;
             this.SetField(ref this._enableDebugLogging, value);
+            Settings.Default.DebugLogging = value;
         }
     }
 
@@ -504,9 +504,9 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         get => this._enableDetectionSettingsInUi = Settings.Default.IsDetectionsSettingsVisibleInUi;
         set
         {
-            Settings.Default.IsDetectionsSettingsVisibleInUi = value;
-            Settings.Default.Save();
+            //Settings.Default.Save();
             this.SetField(ref this._enableDetectionSettingsInUi, value);
+            Settings.Default.IsDetectionsSettingsVisibleInUi = value;
         }
     }
 
@@ -519,9 +519,10 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         get => this._howLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombat;
         set
         {
-            Settings.Default.HowLongBeforeNewCombat = value;
-            Settings.Default.Save();
+            //Settings.Default.HowLongBeforeNewCombat = value;
+            //Settings.Default.Save();
             this.SetField(ref this._howLongBeforeNewCombat, value);
+            Settings.Default.HowLongBeforeNewCombat = value;
         }
     }
 
@@ -530,9 +531,9 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         get => this._howFarBackForCombat = Settings.Default.HowFarBackForCombat;
         set
         {
-            Settings.Default.HowFarBackForCombat = value;
-            Settings.Default.Save();
+            //Settings.Default.Save();
             this.SetField(ref this._howFarBackForCombat, value);
+            Settings.Default.HowFarBackForCombat = value;
         }
     }
 
@@ -544,9 +545,9 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         get => this._myCharacter = Settings.Default.MyCharacter;
         set
         {
-            Settings.Default.MyCharacter = value;
-            Settings.Default.Save();
+            //Settings.Default.Save();
             this.SetField(ref this._myCharacter, value);
+            Settings.Default.MyCharacter = value;
         }
     }
 

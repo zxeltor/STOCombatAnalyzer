@@ -120,7 +120,6 @@ public partial class DetectionSettingsControl : UserControl
                     Settings.Default.DefaultCombatMapList;
 
             Settings.Default.UserCombatMapList = serializedString;
-            Settings.Default.Save();
 
             var successMessage =
                 $"Successfully saved {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.";
@@ -161,7 +160,6 @@ public partial class DetectionSettingsControl : UserControl
         {
             this.CombatLogManagerContext.CombatMapDetectionSettings = canceledCombatMapSettingsUser;
             Settings.Default.UserCombatMapList = this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave;
-            Settings.Default.Save();
             this.SetMapDetectionSettingsChanged(false);
         }
         else if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatMapList) &&
