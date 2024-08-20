@@ -4,6 +4,8 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using System.Text.RegularExpressions;
+using log4net;
 using zxeltor.ConfigUtilsHelpers.Extensions;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
@@ -13,6 +15,22 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 /// </summary>
 public class CombatEvent : IEquatable<CombatEvent>
 {
+    #region Static Fields and Constants
+
+    private static readonly Regex RegexPlayerInternalStripper =
+        new(@"P\[[\w#]+@[\w#]+\s+(?<stripped_name>[\S ]+@[\S]+)\]", RegexOptions.Compiled);
+
+    private static readonly Regex RegexNonPlayerInternalStripper =
+        new(@"C\[[\w#]+\s+(?<stripped_name>[\w#]+)]", RegexOptions.Compiled);
+
+    #endregion
+
+    #region Private Fields
+
+    private readonly ILog _log = LogManager.GetLogger(nameof(CombatEvent));
+
+    #endregion
+
     #region Constructors
 
     /// <summary>
@@ -57,12 +75,12 @@ public class CombatEvent : IEquatable<CombatEvent>
     /// <summary>
     ///     If true this event was from a Player. False it was for a Non-Player.
     /// </summary>
-    public bool IsPlayerEntity { get; private set; }
+    public bool IsOwnerPlayer { get; private set; }
 
     /// <summary>
     ///     True if the damage from this event came from an entities pet. False otherwise.
     /// </summary>
-    public bool IsPetEvent { get; private set; }
+    public bool IsOwnerPetEvent { get; private set; }
 
     /// <summary>
     ///     True if this event had no owner assigned to it originally. False otherwise.
@@ -313,36 +331,99 @@ public class CombatEvent : IEquatable<CombatEvent>
             this.IsOwnerModified = true;
         }
 
-        if (!string.IsNullOrWhiteSpace(this.SourceDisplay))
+        if (!string.IsNullOrWhiteSpace(this.SourceDisplay) && !this.SourceInternal.Equals("*"))
         {
-            this.IsPetEvent = true;
-            var splitResult = this.SourceInternal.Split(" ");
-            if (splitResult.Length == 2) this.SourceInternalStripped = splitResult[1].Replace("]", "");
+            this.IsOwnerPetEvent = true;
+
+            if (this.TryStripInternalId(this.SourceInternal, out var sourceInternalIdToStrip,
+                    out var sourceInternalIsPlayer))
+                this.SourceInternalStripped = sourceInternalIdToStrip;
         }
 
-        if (this.OwnerInternal.StartsWith("C[") || this.OwnerInternal.StartsWith("P["))
-        {
-            var splitResult = this.OwnerInternal.Split(" ");
-            if (splitResult.Length == 2) this.OwnerInternalStripped = splitResult[1].Replace("]", "");
-        }
-
-        if (this.TargetInternal.StartsWith("P["))
-        {
-            var splitResult = this.TargetInternal.Split(" ");
-            if (splitResult.Length == 2)
+        if (!string.IsNullOrWhiteSpace(this.OwnerDisplay) && !this.OwnerInternal.Equals("*"))
+            if (this.TryStripInternalId(this.OwnerInternal, out var ownerInternalIdToStrip,
+                    out var ownerInternalIsPlayer))
             {
-                this.IsTargetPlayer = true;
-                this.TargetInternalStripped = splitResult[1].Replace("]", "");
+                this.IsOwnerPlayer = ownerInternalIsPlayer;
+                this.OwnerInternalStripped = ownerInternalIdToStrip;
             }
-        }
-        else
+
+        if (!string.IsNullOrWhiteSpace(this.TargetDisplay) && !this.TargetInternal.Equals("*"))
+            if (this.TryStripInternalId(this.TargetInternal, out var targetInternalIdToStrip,
+                    out var targetInternalIsPlayer))
+            {
+                this.IsTargetPlayer = targetInternalIsPlayer;
+                this.TargetInternalStripped = targetInternalIdToStrip;
+            }
+    }
+
+    /// <summary>
+    ///     Strip an internal id of its wrapper.
+    /// </summary>
+    /// <param name="internalIdToStrip">The internal id to strip</param>
+    /// <param name="strippedInternalId">The stripped internal id</param>
+    /// <param name="isPlayer">True is the internalId is for a player. False otherwise.</param>
+    /// <returns>True if successfully stripped internal id. False otherwise.</returns>
+    /// <exception cref="ArgumentException">internalIdToStrip is null/empty</exception>
+    private bool TryStripInternalId(string internalIdToStrip, out string strippedInternalId, out bool isPlayer)
+    {
+        strippedInternalId = null;
+        isPlayer = false;
+
+        try
         {
-            var splitResult = this.TargetInternal.Split(" ");
-            if (splitResult.Length == 2) this.TargetInternalStripped = splitResult[1].Replace("]", "");
+            /*
+             Example internal ids
+             P[2117915@4455101 zxeltor@zxeltor]
+             P[12121895@25092315 Darjekt Haan@vaultcultist#9414]
+             C[62 Space_Tzenkethi_Frigate_Carrier_Pet]
+            */
+            if (string.IsNullOrWhiteSpace(internalIdToStrip))
+                throw new ArgumentException(
+                    $"Failed to parse stripped_name for internal id as player: \"{internalIdToStrip}\"");
+
+            if (internalIdToStrip.StartsWith("P[", StringComparison.CurrentCultureIgnoreCase))
+            {
+                if (!RegexPlayerInternalStripper.IsMatch(internalIdToStrip))
+                    throw new Exception($"Failed to match internal id as player: \"{internalIdToStrip}\"");
+
+                var groups = RegexPlayerInternalStripper.Match(internalIdToStrip).Groups;
+
+                if (groups.TryGetValue("stripped_name", out var value) && value.Success)
+                    strippedInternalId = value.Value;
+                else
+                    throw new Exception(
+                        $"Failed to parse stripped_name for internal id as player: \"{internalIdToStrip}\"");
+
+                isPlayer = true;
+                return true;
+            }
+
+            if (internalIdToStrip.StartsWith("C[", StringComparison.CurrentCultureIgnoreCase))
+            {
+                if (!RegexNonPlayerInternalStripper.IsMatch(internalIdToStrip))
+                    throw new Exception($"Failed to match internal id as non-player: \"{internalIdToStrip}\"");
+
+                var groups = RegexNonPlayerInternalStripper.Match(internalIdToStrip).Groups;
+
+                if (groups.TryGetValue("stripped_name", out var value) && value.Success)
+                    strippedInternalId = value.Value;
+                else
+                    throw new Exception(
+                        $"Failed to parse stripped_name for internal id as non-player: \"{internalIdToStrip}\"");
+
+                isPlayer = false;
+                return true;
+            }
+
+            this._log.Error($"Failed to parse internal id: \"{internalIdToStrip}\"");
+        }
+        catch (Exception e)
+        {
+            this._log.Error($"Failed to parse internal id: \"{internalIdToStrip}\"", e);
         }
 
-        if (this.OwnerInternal.StartsWith("P["))
-            this.IsPlayerEntity = true;
+        return false;
     }
 
     #endregion

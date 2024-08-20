@@ -208,7 +208,7 @@ public partial class MainWindow
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                     break;
-                case "IsPetEvent":
+                case "IsOwnerPetEvent":
                     col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.IsPetEventVisible
                         ? Visibility.Visible
                         : Visibility.Collapsed;
@@ -817,7 +817,7 @@ public partial class MainWindow
                                 StringComparison.CurrentCultureIgnoreCase))
                             this.CombatLogManagerContext.SelectedCombatEventType = new CombatEventType(this
                                     .CombatLogManagerContext.SelectedCombatEntity.CombatEventsList
-                                    .Where(ev => ev.IsPetEvent)
+                                    .Where(ev => ev.IsOwnerPetEvent)
                                     .ToList(), "PETS OVERALL",
                                 inactiveTimeSpan: this.CombatLogManagerContext.SelectedCombatEntity
                                     .EntityCombatInActive);

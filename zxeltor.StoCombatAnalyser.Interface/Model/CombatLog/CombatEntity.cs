@@ -124,9 +124,9 @@ public class CombatEntity : INotifyPropertyChanged
             if (this._combatEventTypeListForEntity != null && this._isObjectLocked)
                 return this._combatEventTypeListForEntity;
 
-            if (this._combatEventList.All(ev => ev.IsPetEvent)) return new List<CombatEventType>(0);
+            if (this._combatEventList.All(ev => ev.IsOwnerPetEvent)) return new List<CombatEventType>(0);
 
-            this._combatEventTypeListForEntity = this._combatEventList.Where(ev => !ev.IsPetEvent)
+            this._combatEventTypeListForEntity = this._combatEventList.Where(ev => !ev.IsOwnerPetEvent)
                 .GroupBy(ev => new { ev.EventInternal, ev.EventDisplay })
                 .OrderBy(evg => evg.Key.EventDisplay)
                 .Select(evg => new CombatEventType(evg.ToList(), inactiveTimeSpan: this.EntityCombatInActive)).ToList();
@@ -146,11 +146,11 @@ public class CombatEntity : INotifyPropertyChanged
             if (this._combatEventTypeListForEntityPets != null && this._isObjectLocked)
                 return this._combatEventTypeListForEntityPets;
 
-            if (!this._combatEventList.Any(ev => ev.IsPetEvent)) return new List<CombatPetEventType>();
+            if (!this._combatEventList.Any(ev => ev.IsOwnerPetEvent)) return new List<CombatPetEventType>();
 
             if (Settings.Default.IsCombinePets)
             {
-                var myEvents = this._combatEventList.Where(ev => ev.IsPetEvent)
+                var myEvents = this._combatEventList.Where(ev => ev.IsOwnerPetEvent)
                     .GroupBy(ev => new { ev.SourceDisplay, ev.EventInternal, ev.EventDisplay })
                     .OrderBy(evg => evg.Key.EventDisplay)
                     .Select(evg => new CombatEventType(evg.ToList(), inactiveTimeSpan: this.EntityCombatInActive))
@@ -163,7 +163,7 @@ public class CombatEntity : INotifyPropertyChanged
             }
             else
             {
-                var myEvents = this._combatEventList.Where(ev => ev.IsPetEvent)
+                var myEvents = this._combatEventList.Where(ev => ev.IsOwnerPetEvent)
                     .GroupBy(ev => new { ev.SourceInternal, ev.EventInternal, ev.EventDisplay })
                     .OrderBy(evg => evg.Key.EventDisplay)
                     .Select(evg => new CombatEventType(evg.ToList(), inactiveTimeSpan: this.EntityCombatInActive))
@@ -325,7 +325,7 @@ public class CombatEntity : INotifyPropertyChanged
                 return this._petsMagnitudePerSecond.Value;
 
             var petEvents = this._combatEventList.Where(ev =>
-                ev.IsPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+                ev.IsOwnerPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
             if (petEvents.Count == 0 || this.EntityCombatDuration == null)
                 return this._petsMagnitudePerSecond = 0;
@@ -369,7 +369,7 @@ public class CombatEntity : INotifyPropertyChanged
                 return this._petsMaxMagnitude.Value;
 
             var petEvents = this._combatEventList.Where(ev =>
-                ev.IsPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+                ev.IsOwnerPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
             if (petEvents.Count == 0) return this._petsMaxMagnitude = 0;
 
@@ -407,7 +407,7 @@ public class CombatEntity : INotifyPropertyChanged
                 return this._petsTotalMagnitude.Value;
 
             var petEvents = this._combatEventList.Where(ev =>
-                ev.IsPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+                ev.IsOwnerPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
             if (petEvents.Count == 0) return this._petsTotalMagnitude = 0;
 

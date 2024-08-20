@@ -176,12 +176,12 @@ public class Combat : INotifyPropertyChanged
                 .Union(
                     from entity in this.NonPlayerEntities
                     from evt in entity.CombatEventsList
-                    where !evt.IsPetEvent
+                    where !evt.IsOwnerPetEvent && evt.IsTargetPlayer
                     select new CombatEntityLabel(evt.OwnerInternalStripped, evt.OwnerDisplay))
                 .Union(
                     from entity in this.NonPlayerEntities
                     from evt in entity.CombatEventsList
-                    where evt.IsPetEvent
+                    where evt.IsOwnerPetEvent && evt.IsTargetPlayer
                     select new CombatEntityLabel(evt.SourceInternalStripped, evt.SourceDisplay, true,
                         evt.OwnerInternalStripped, evt.OwnerDisplay))
                 .Distinct().OrderBy(ent => ent.Label).ToList();
@@ -222,7 +222,7 @@ public class Combat : INotifyPropertyChanged
         if (this._isObjectLocked)
             throw new Exception("Trying to add new events to a locked object");
 
-        if (combatEvent.IsPlayerEntity)
+        if (combatEvent.IsOwnerPlayer)
         {
             // Insert the incoming event under an existing player combat entity, or create a new one if we need too.
             var existingPlayer =

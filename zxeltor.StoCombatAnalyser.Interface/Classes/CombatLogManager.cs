@@ -248,7 +248,7 @@ public class CombatLogManager : INotifyPropertyChanged
             else if (this.EventTypeDisplayFilter.EventTypeId.Equals("PETS OVERALL"))
             {
                 results = new ObservableCollection<CombatEvent>(
-                    this.SelectedCombatEntity.CombatEventsList?.Where(evt => evt.IsPetEvent) ??
+                    this.SelectedCombatEntity.CombatEventsList?.Where(evt => evt.IsOwnerPetEvent) ??
                     Array.Empty<CombatEvent>());
             }
             // Return a list of events specific to a Pet
@@ -279,7 +279,7 @@ public class CombatLogManager : INotifyPropertyChanged
             {
                 // Return a list of events for a specific non-pet event.
                 results = new ObservableCollection<CombatEvent>(
-                    this.SelectedCombatEntity.CombatEventsList?.Where(evt => !evt.IsPetEvent &&
+                    this.SelectedCombatEntity.CombatEventsList?.Where(evt => !evt.IsOwnerPetEvent &&
                                                                              evt.EventInternal.Equals(
                                                                                  this.EventTypeDisplayFilter
                                                                                      .EventTypeId,

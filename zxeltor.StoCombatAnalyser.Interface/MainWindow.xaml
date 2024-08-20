@@ -567,8 +567,8 @@
                                                               Tag="Magnitude" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
                                                     <CheckBox Content="MagnitudeBase" IsChecked="{Binding Path=MainCombatEventGridContext.MagnitudeBaseVisible, Mode=TwoWay}" 
                                                               Tag="MagnitudeBase" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
-                                                    <CheckBox Content="IsPetEvent" IsChecked="{Binding Path=MainCombatEventGridContext.IsPetEventVisible, Mode=TwoWay}" 
-                                                              Tag="IsPetEvent" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
+                                                    <CheckBox Content="IsOwnerPetEvent" IsChecked="{Binding Path=MainCombatEventGridContext.IsPetEventVisible, Mode=TwoWay}" 
+                                                              Tag="IsOwnerPetEvent" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
                                                     <CheckBox Content="IsOwnerModified" IsChecked="{Binding Path=MainCombatEventGridContext.IsOwnerModifiedVisible, Mode=TwoWay}" 
                                                               Tag="IsOwnerModified" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnUnchecked" />
                                                 </StackPanel>
@@ -610,8 +610,8 @@
                                         <DataGridTextColumn Header="MagnitudeBase"
                                                             Binding="{Binding MagnitudeBase, Mode=OneTime}" 
                                                             IsReadOnly="True" />
-                                        <DataGridTextColumn Header="IsPetEvent"
-                                                            Binding="{Binding IsPetEvent, Mode=OneTime}" 
+                                        <DataGridTextColumn Header="IsOwnerPetEvent"
+                                                            Binding="{Binding IsOwnerPetEvent, Mode=OneTime}" 
                                                             IsReadOnly="True" />
                                         <DataGridTextColumn Header="IsOwnerModified"
                                                             Binding="{Binding IsOwnerModified, Mode=OneTime}" 
