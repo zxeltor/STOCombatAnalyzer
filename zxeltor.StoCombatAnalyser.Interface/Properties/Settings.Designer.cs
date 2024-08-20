@@ -121,7 +121,7 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("{\"JsonVersion\":\"1.3.5\",\"JsonVersionDescription\":\"\",\"Comments\":[\"JsonVersion: Uses" +
+        [global::System.Configuration.DefaultSettingValueAttribute("{\"JsonVersion\":\"1.4.0\",\"JsonVersionDescription\":\"\",\"Comments\":[\"JsonVersion: Uses" +
             " Semantic Versioning 2.0.0 (Major,Minor,Patch)\",\"GenericGroundMap: When a map is" +
             "n\'t detected when checking CombatMapEntityList, we use this to determine if the " +
             "Combat entity is on a ground based map.\",\"GenericSpaceMap: When a map isn\'t dete" +
