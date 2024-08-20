@@ -330,10 +330,16 @@ public partial class MainWindow
                 {
                     foreach (var deadZone in this.CombatLogManagerContext.SelectedCombatEntity.DeadZones)
                     {
+                        var minValue = magnitudeDataList.Min(mag => mag.Mag);
+                        var maxValue = magnitudeDataList.Max(mag => mag.Mag);
+                        if (Math.Abs(minValue - maxValue) < 100)
+                        {
+                            minValue = -50;
+                            maxValue = 50;
+                        }
+
                         var deadZoneSignal = this.uiScottScatterPlotEntityEvents.Plot.Add.Rectangle(
-                            deadZone.StartTime.ToOADate(), deadZone.EndTime.ToOADate(),
-                            magnitudeDataList.Min(mag => mag.Mag),
-                            magnitudeDataList.Max(mag => mag.Mag));
+                            deadZone.StartTime.ToOADate(), deadZone.EndTime.ToOADate(), minValue, maxValue);
 
                         deadZoneSignal.FillStyle.Color = Colors.Black.WithAlpha(.2);
                         deadZoneSignal.LineStyle.Color = Colors.Black;
