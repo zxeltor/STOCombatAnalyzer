@@ -74,10 +74,10 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="50"></ColumnDefinition>
+                                <ColumnDefinition Width="25*"></ColumnDefinition>
                                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                                 <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="75*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Button Grid.Row="0" Grid.Column="0" x:Name="uiButtonParseLog" Width="32" Height="32" Margin="0,0,0,0" Padding="4,4,4,4"
                                     ToolTip="Parse Log File(s)" Click="uiButtonParseLog_Click" IsEnabled="{Binding Path=IsExecutingBackgroundProcess, Converter={StaticResource invertBooleanConverter}}">
@@ -85,7 +85,7 @@
                             </Button>
 
                             <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" Margin="4,0,4,0">
-                                <GroupBox HorizontalAlignment="Center" Margin="0,4,0,0"
+                                <GroupBox HorizontalAlignment="Stretch" Margin="0,4,0,0"
                                           Visibility="{Binding Path=Combats.Count, Converter={StaticResource typeToVisibilityConverter}}">
                                     <GroupBox.Header>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
@@ -94,7 +94,7 @@
                                         </StackPanel>
                                     </GroupBox.Header>
                                     <ComboBox Name="uiComboBoxCombats" Text="Help" ItemsSource="{Binding Path=Combats}" IsSynchronizedWithCurrentItem="True" 
-                                              VerticalAlignment="Center" HorizontalAlignment="Center" MinWidth="100"
+                                              VerticalAlignment="Center" HorizontalAlignment="Stretch" MinWidth="100"
                                               SelectedItem="{Binding Path=SelectedCombat}" SelectionChanged="UiComboBoxCombats_OnSelectionChanged">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate>
