@@ -11,6 +11,7 @@ using Humanizer;
 using Humanizer.Localisation;
 using Newtonsoft.Json;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
+using zxeltor.StoCombatAnalyzer.Interface.Classes.UI;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 

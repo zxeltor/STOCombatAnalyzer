@@ -4,42 +4,32 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-using System.Collections;
 using System.Globalization;
-using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
+namespace zxeltor.StoCombatAnalyzer.Interface.Classes.Converters;
 
 /// <summary>
-///     Used to convert and object type into a boolean value.
+///     Used to convert and object type into a UI Visibility value.
 ///     <para>This doesn't support ConvertBack</para>
 /// </summary>
-[ValueConversion(typeof(object), typeof(Boolean))]
-public class TypeToBooleanConverter : IValueConverter
+[ValueConversion(typeof(string), typeof(Brush))]
+public class MapNameColorConverter : IValueConverter
 {
+    private Brush _colorFound = new SolidColorBrush(Color.FromArgb(255, 100, 149, 237));
+    private Brush _colorNotFound = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
+
     /// <inheritdoc />
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null)
-            return false;
-
-        if(value is Int32 intResult)
-            return intResult > 0;
+            return this._colorNotFound;
 
         if (value is string stringResult)
-            return !string.IsNullOrWhiteSpace(stringResult);
+            return !string.IsNullOrWhiteSpace(stringResult) ? this._colorFound : this._colorNotFound;
 
-        if (value is IList listResult)
-            return listResult.Count > 0;
-
-        if (bool.TryParse(value.ToString(), out var boolResult))
-            return boolResult;
-
-        if (decimal.TryParse(value.ToString(), out var decimalResult))
-            return decimalResult > 0;
-
-        return false;
+        return this._colorNotFound;
     }
 
     /// <summary>

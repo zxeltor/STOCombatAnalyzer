@@ -18,6 +18,7 @@ using ScottPlot;
 using ScottPlot.Plottables;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
+using zxeltor.StoCombatAnalyzer.Interface.Classes.UI;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;

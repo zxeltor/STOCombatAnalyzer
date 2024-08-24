@@ -721,4 +721,15 @@ public partial class DetectionSettingsControl : UserControl
     }
 
     #endregion
+
+    private void EditMapDetectionSettings_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button buttonResult) return;
+
+        if(buttonResult.CommandParameter is not CombatMap combatMapResult) return;
+
+        var dialog = new DetectionSettingsMadpEditor();
+        dialog.Owner = MainWindow;
+        dialog.ShowDialog(combatMapResult);
+    }
 }

@@ -7,7 +7,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
+namespace zxeltor.StoCombatAnalyzer.Interface.Classes.Converters;
 
 /// <summary>
 ///     Used to convert a datetime to a string which includes milliseconds.

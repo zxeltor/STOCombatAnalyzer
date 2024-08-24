@@ -6,30 +6,29 @@
 
 using System.Globalization;
 using System.Windows.Data;
-using System.Windows.Media;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
+namespace zxeltor.StoCombatAnalyzer.Interface.Classes.Converters;
 
 /// <summary>
 ///     Used to convert and object type into a UI Visibility value.
 ///     <para>This doesn't support ConvertBack</para>
 /// </summary>
-[ValueConversion(typeof(string), typeof(Brush))]
-public class MapNameColorConverter : IValueConverter
+[ValueConversion(typeof(bool), typeof(bool))]
+public class InvertBooleanConverter : IValueConverter
 {
-    private Brush _colorFound = new SolidColorBrush(Color.FromArgb(255, 100, 149, 237));
-    private Brush _colorNotFound = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
-
     /// <inheritdoc />
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null)
-            return _colorNotFound;
+            return false;
 
-        if (value is string stringResult)
-            return !string.IsNullOrWhiteSpace(stringResult) ? _colorFound : _colorNotFound;
+        if (value is bool boolValue)
+            return !boolValue;
 
-        return _colorNotFound;
+        if (bool.TryParse(value.ToString(), out var boolResult))
+            return !boolResult;
+
+        return false;
     }
 
     /// <summary>

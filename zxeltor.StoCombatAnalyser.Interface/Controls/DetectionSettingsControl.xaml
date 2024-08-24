@@ -5,21 +5,22 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:classes="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes"
              xmlns:properties="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Properties"
+             xmlns:converters="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes.Converters"
              d:DataContext="{d:DesignInstance Type={x:Type classes:CombatLogManager}}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" d:Background="AliceBlue">
     <Grid Margin="10,10,10,10">
         <Grid.Resources>
-            <classes:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
-            <classes:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
-            <classes:TypeToVisibilityConverterInverted x:Key="typeToVisibilityConverterInverted" />
-            <classes:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
-            <classes:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
-            <classes:CombatTimeSpanToHumanizedStringMaxMinuteMinSecondsConverter x:Key="timeSpanMinSeconds" />
-            <classes:CombatTimeSpanToHumanizedStringMaxMinuteMinMilliSecondsConverter x:Key="timeSpanMinMilliSeconds" />
-            <classes:MapNameStringConverter x:Key="mapNameStringConverter" />
-            <classes:MapNameColorConverter x:Key="mapNameColorConverter" />
-            <classes:InvertBooleanConverter x:Key="invertBooleanConverter" />
+            <converters:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
+            <converters:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
+            <converters:TypeToVisibilityConverterInverted x:Key="typeToVisibilityConverterInverted" />
+            <converters:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
+            <converters:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
+            <converters:CombatTimeSpanToHumanizedStringMaxMinuteMinSecondsConverter x:Key="timeSpanMinSeconds" />
+            <converters:CombatTimeSpanToHumanizedStringMaxMinuteMinMilliSecondsConverter x:Key="timeSpanMinMilliSeconds" />
+            <converters:MapNameStringConverter x:Key="mapNameStringConverter" />
+            <converters:MapNameColorConverter x:Key="mapNameColorConverter" />
+            <converters:InvertBooleanConverter x:Key="invertBooleanConverter" />
             <Brush x:Key="colorEventTypeMetricLabel">Green</Brush>
             <Brush x:Key="colorEventTypeMetricValue">Blue</Brush>
             <Style TargetType="Border" x:Key="combatTypeLabelStyle">
@@ -475,6 +476,14 @@
                                         </StackPanel>
                                     </TreeViewItem.Header>
                                     <StackPanel Orientation="Vertical">
+                                        <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
+                                            <Button Click="EditMapDetectionSettings_OnClick" CommandParameter="{Binding}"
+                                                    ToolTip="Click for more Map Settings">
+                                                <Image Source="../Images/glyphicons-281-settings.png" Height="8" Width="8" />
+                                            </Button>
+                                            <TextBlock Margin="8,0,0,0" Text="Max Players:"></TextBlock>
+                                            <TextBlock Margin="4,0,0,0" Text="{Binding Path=MaxPlayers}"></TextBlock>
+                                        </StackPanel>
                                         <TreeViewItem Tag="MapEntity" ItemsSource="{Binding Path=MapEntitiesOrderByPattern}" IsExpanded="True">
                                             <TreeViewItem.Header>
                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

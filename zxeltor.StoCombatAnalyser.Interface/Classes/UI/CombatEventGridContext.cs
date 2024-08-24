@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
+namespace zxeltor.StoCombatAnalyzer.Interface.Classes.UI;
 
 public class CombatEventGridContext : INotifyPropertyChanged
 {

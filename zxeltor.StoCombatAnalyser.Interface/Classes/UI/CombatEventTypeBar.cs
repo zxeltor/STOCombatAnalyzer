@@ -6,7 +6,7 @@
 
 using ScottPlot;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes
+namespace zxeltor.StoCombatAnalyzer.Interface.Classes.UI
 {
     /// <summary>
     ///     A class extending Scott Plot Bar with CombatEventType information

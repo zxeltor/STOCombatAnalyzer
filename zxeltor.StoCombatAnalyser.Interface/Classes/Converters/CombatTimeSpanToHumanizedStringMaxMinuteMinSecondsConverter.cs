@@ -7,25 +7,24 @@
 using System.Globalization;
 using System.Windows.Data;
 using Humanizer;
-using Microsoft.VisualBasic;
+using Humanizer.Localisation;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
+namespace zxeltor.StoCombatAnalyzer.Interface.Classes.Converters;
 
 /// <summary>
 ///     Used to convert a datetime to a string which includes milliseconds.
 ///     <para>This supports two-way conversion.</para>
 /// </summary>
 [ValueConversion(typeof(DateTime), typeof(string))]
-public class CombatDamageNumberToHumanizedStringConverter : IValueConverter
+public class CombatTimeSpanToHumanizedStringMaxMinuteMinSecondsConverter : IValueConverter
 {
+    #region Public Members
+
     /// <inheritdoc />
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value != null && Information.IsNumeric(value))
-            if (value is double dblValue)
-                return dblValue.ToMetric(decimals: 2);
-            else if (value is int intValue)
-                return intValue.ToMetric(decimals: 2);
+        if (value is TimeSpan timeSpan)
+            return timeSpan.Humanize(2, maxUnit: TimeUnit.Minute, minUnit: TimeUnit.Second);
 
         return 0;
     }
@@ -35,4 +34,6 @@ public class CombatDamageNumberToHumanizedStringConverter : IValueConverter
     {
         throw new NotImplementedException();
     }
+
+    #endregion
 }

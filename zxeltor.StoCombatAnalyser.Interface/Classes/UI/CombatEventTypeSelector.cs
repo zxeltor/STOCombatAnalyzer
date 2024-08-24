@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
+namespace zxeltor.StoCombatAnalyzer.Interface.Classes.UI;
 
 public class CombatEventTypeSelector : INotifyPropertyChanged, IEquatable<CombatEventTypeSelector>, IEquatable<string>
 {
@@ -37,8 +37,8 @@ public class CombatEventTypeSelector : INotifyPropertyChanged, IEquatable<Combat
 
     public CombatEventType? CombatEventType
     {
-        get => _combatEventType;
-        set => SetField(ref this._combatEventType, value);
+        get => this._combatEventType;
+        set => this.SetField(ref this._combatEventType, value);
     }
 
     public string EventTypeId

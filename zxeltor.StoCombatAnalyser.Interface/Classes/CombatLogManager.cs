@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using log4net;
 using zxeltor.ConfigUtilsHelpers.Helpers;
+using zxeltor.StoCombatAnalyzer.Interface.Classes.UI;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
@@ -499,7 +500,7 @@ public class CombatLogManager : INotifyPropertyChanged
                 }
 
                 // Filter out files based on LastWriteTime and howFarBack
-                filesToParse = filesToParse.Where(fileInfo => dateTimeTest - fileInfo.LastWriteTime <= howFarBackInTime)
+                filesToParse = filesToParse.OrderBy(fileInfo => fileInfo.LastWriteTime).Where(fileInfo => dateTimeTest - fileInfo.LastWriteTime <= howFarBackInTime)
                     .ToList();
 
                 if (filesToParse.Count == 0)
@@ -759,7 +760,12 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         CombatMap? combatMap = null;
 
-        var uniqueIds = combat.UniqueEntityIds.Where(id => !string.IsNullOrWhiteSpace(id.Id)).Select(id => id.Id)
+        var currentCombatPlayerCount = combat.PlayerEntities.Count;
+
+        var filteredMapList = this.CombatMapDetectionSettings.CombatMapEntityList
+            .Where(map => map.MaxPlayers == 0 || currentCombatPlayerCount <= map.MaxPlayers).ToList();
+
+        var currentCombatUniqueIds = combat.UniqueEntityIds.Where(id => !string.IsNullOrWhiteSpace(id.Id)).Select(id => id.Id)
             .Union(combat.UniqueEntityIds.Where(id => !string.IsNullOrWhiteSpace(id.Label)).Select(id => id.Label))
             .Distinct().ToList();
 
@@ -767,15 +773,15 @@ public class CombatLogManager : INotifyPropertyChanged
         var idsFoundInGenericList = false;
 
         // Find a match in our CombatMapDetectionSettings object based on our entity ids.
-        foreach (var currentEntity in uniqueIds)
+        foreach (var currentEntity in currentCombatUniqueIds)
         {
             // If the currentEntityId is found in a map exclusion list,
             // then it gets thrown out of the rest of the detection logic,
             // and the maps with the ID are marked as exceptions for the
             // current combat entity being checked.
             var mapExceptions =
-                (from map in this.CombatMapDetectionSettings.CombatMapEntityList
-                    from ent in map.MapEntityExclusions
+                (from map in filteredMapList
+                 from ent in map.MapEntityExclusions
                     where map.IsEnabled && ent.IsEnabled && currentEntity.Contains(ent.Pattern)
                     select map).ToList();
             if (mapExceptions.Count > 0)
@@ -795,17 +801,18 @@ public class CombatLogManager : INotifyPropertyChanged
             // Check to see if the currentEntityId is unique to a map. If a map
             // is found we return without doing further logic.
             var uniqueToMap =
-                (from map in this.CombatMapDetectionSettings.CombatMapEntityList
-                    from ent in map.MapEntities
+                (from map in filteredMapList
+                 from ent in map.MapEntities
                     where map.IsEnabled && ent.IsEnabled && !map.IsAnException && currentEntity.Contains(ent.Pattern) &&
                           ent.IsUniqueToMap
                     select map).FirstOrDefault();
-            if (uniqueToMap != null) return uniqueToMap;
+            if (uniqueToMap != null) 
+                return uniqueToMap;
 
             // Get any match counts from our map list.
             var entitiesFoundInMap =
-                (from map in this.CombatMapDetectionSettings.CombatMapEntityList
-                    from ent in map.MapEntities
+                (from map in filteredMapList
+                 from ent in map.MapEntities
                     where map.IsEnabled && ent.IsEnabled && !map.IsAnException && currentEntity.Contains(ent.Pattern)
                     select ent).ToList();
             if (entitiesFoundInMap.Count > 0)
@@ -846,9 +853,10 @@ public class CombatLogManager : INotifyPropertyChanged
         // If we found any matches from our map list, we pick the one with the highest match count.
         if (idsFoundInMapList)
         {
-            var mapResult = this.CombatMapDetectionSettings.CombatMapEntityList
+            var mapResult = filteredMapList
                 .Where(map => map.IsEnabled && !map.IsAnException)
                 .OrderByDescending(map => map.CombatMatchCountForMap).First();
+
             return mapResult;
         }
 

@@ -4,19 +4,18 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-using System.Collections;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
+namespace zxeltor.StoCombatAnalyzer.Interface.Classes.Converters;
 
 /// <summary>
 ///     Used to convert and object type into a UI Visibility value.
 ///     <para>This doesn't support ConvertBack</para>
 /// </summary>
 [ValueConversion(typeof(object), typeof(Visibility))]
-public class TypeToVisibilityConverter : IValueConverter
+public class BoolToGridLengthConverter : IValueConverter
 {
     /// <inheritdoc />
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -24,20 +23,11 @@ public class TypeToVisibilityConverter : IValueConverter
         if (value == null)
             return Visibility.Collapsed;
 
-        if(value is Int32 intResult)
-            return intResult > 0 ? Visibility.Visible : Visibility.Collapsed;
-
-        if (value is string stringResult)
-            return !string.IsNullOrWhiteSpace(stringResult) ? Visibility.Visible : Visibility.Collapsed;
-
-        if (value is IList listResult)
-            return listResult.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-
         if (bool.TryParse(value.ToString(), out var boolResult))
-            return boolResult ? Visibility.Visible : Visibility.Collapsed;
-
-        if (decimal.TryParse(value.ToString(), out var decimalResult))
-            return decimalResult > 0 ? Visibility.Visible : Visibility.Collapsed;
+            if(parameter is int gridLengthValue)
+                return boolResult ? new GridLength(gridLengthValue, GridUnitType.Star) : new GridLength(0, GridUnitType.Star);
+            else
+                return boolResult ? new GridLength(50, GridUnitType.Star) : new GridLength(0, GridUnitType.Star);
 
         return false;
     }

@@ -9,26 +9,35 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
+namespace zxeltor.StoCombatAnalyzer.Interface.Classes.Converters;
 
 /// <summary>
 ///     Used to convert and object type into a UI Visibility value.
 ///     <para>This doesn't support ConvertBack</para>
 /// </summary>
-[ValueConversion(typeof(bool), typeof(bool))]
-public class InvertBooleanConverter : IValueConverter
+[ValueConversion(typeof(object), typeof(Visibility))]
+public class TypeToVisibilityConverter : IValueConverter
 {
     /// <inheritdoc />
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null)
-            return false;
+            return Visibility.Collapsed;
 
-        if (value is bool boolValue)
-            return !boolValue;
+        if(value is Int32 intResult)
+            return intResult > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        if (value is string stringResult)
+            return !string.IsNullOrWhiteSpace(stringResult) ? Visibility.Visible : Visibility.Collapsed;
+
+        if (value is IList listResult)
+            return listResult.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         if (bool.TryParse(value.ToString(), out var boolResult))
-            return !boolResult;
+            return boolResult ? Visibility.Visible : Visibility.Collapsed;
+
+        if (decimal.TryParse(value.ToString(), out var decimalResult))
+            return decimalResult > 0 ? Visibility.Visible : Visibility.Collapsed;
 
         return false;
     }

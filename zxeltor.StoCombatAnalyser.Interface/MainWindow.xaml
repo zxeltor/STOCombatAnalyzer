@@ -7,23 +7,24 @@
     xmlns:classes="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes"
     xmlns:controls="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Controls"
     xmlns:scottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
+    xmlns:converters="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes.Converters"
     x:Class="zxeltor.StoCombatAnalyzer.Interface.MainWindow"
     d:DataContext="{d:DesignInstance Type={x:Type classes:CombatLogManager}}"
     mc:Ignorable="d"
     Title="{Binding Path=MainWindowTitle}" Height="980" MinHeight="800" Width="1820" MinWidth="1000" WindowStartupLocation="CenterScreen">
     <Grid x:Name="uiGridMain">
         <Grid.Resources>
-            <classes:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
-            <classes:BoolToGridLengthConverter x:Key="boolToGridLengthConverter" />
-            <classes:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
-            <classes:TypeToVisibilityConverterInverted x:Key="typeToVisibilityConverterInverted" />
-            <classes:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
-            <classes:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
-            <classes:CombatTimeSpanToHumanizedStringMaxMinuteMinSecondsConverter x:Key="timeSpanMinSeconds" />
-            <classes:CombatTimeSpanToHumanizedStringMaxMinuteMinMilliSecondsConverter x:Key="timeSpanMinMilliSeconds" />
-            <classes:MapNameStringConverter x:Key="mapNameStringConverter" />
-            <classes:MapNameColorConverter x:Key="mapNameColorConverter" />
-            <classes:InvertBooleanConverter x:Key="invertBooleanConverter" />
+            <converters:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
+            <converters:BoolToGridLengthConverter x:Key="boolToGridLengthConverter" />
+            <converters:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
+            <converters:TypeToVisibilityConverterInverted x:Key="typeToVisibilityConverterInverted" />
+            <converters:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
+            <converters:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
+            <converters:CombatTimeSpanToHumanizedStringMaxMinuteMinSecondsConverter x:Key="timeSpanMinSeconds" />
+            <converters:CombatTimeSpanToHumanizedStringMaxMinuteMinMilliSecondsConverter x:Key="timeSpanMinMilliSeconds" />
+            <converters:MapNameStringConverter x:Key="mapNameStringConverter" />
+            <converters:MapNameColorConverter x:Key="mapNameColorConverter" />
+            <converters:InvertBooleanConverter x:Key="invertBooleanConverter" />
             <Brush x:Key="colorEventTypeMetricLabel">Green</Brush>
             <Brush x:Key="colorEventTypeMetricValue">Blue</Brush>
             <Style TargetType="Border" x:Key="combatTypeLabelStyle">

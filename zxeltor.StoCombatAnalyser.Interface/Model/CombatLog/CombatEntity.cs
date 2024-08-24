@@ -261,8 +261,13 @@ public class CombatEntity : INotifyPropertyChanged
             if (this._entityCombatKills != null && this._isObjectLocked)
                 return this._entityCombatKills;
 
-            return this._entityCombatKills = this._combatEventList.Count(ev =>
-                ev.Flags.Contains("kill", StringComparison.CurrentCultureIgnoreCase));
+            var killList = this._combatEventList.Where(ev => ev.Flags.Contains("kill", StringComparison.CurrentCultureIgnoreCase))
+                .ToList();
+
+            if (killList.Count == 0)
+                return this._entityCombatKills = 0;
+
+            return killList.Count;
         }
     }
 

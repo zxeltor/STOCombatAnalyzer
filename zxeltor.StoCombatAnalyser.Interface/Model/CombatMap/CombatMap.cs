@@ -20,6 +20,7 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
 
     private bool _hasChanges;
     private bool _isEnabled = true;
+    private int _maxPlayers = 5;
     private string? _name;
 
     #endregion
@@ -41,6 +42,15 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
     #endregion
 
     #region Public Properties
+
+    /// <summary>
+    ///     The maximum number of players for the map/event
+    /// </summary>
+    public int MaxPlayers
+    {
+        get => this._maxPlayers;
+        set => this.SetField(ref this._maxPlayers, value);
+    }
 
     [JsonIgnore] public Guid Id { get; }
 

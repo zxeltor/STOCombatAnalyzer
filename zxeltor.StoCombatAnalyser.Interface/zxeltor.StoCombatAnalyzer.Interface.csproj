@@ -32,6 +32,7 @@
     <None Remove="Images\glyphicons-224-chevron-right.png" />
     <None Remove="Images\glyphicons-257-delete.png" />
     <None Remove="Images\glyphicons-28-search.png" />
+    <None Remove="Images\glyphicons-281-settings.png" />
     <None Remove="Images\glyphicons-366-restart.png" />
     <None Remove="Images\glyphicons-433-plus.png" />
     <None Remove="Images\glyphicons-436-undo.png" />
@@ -70,6 +71,7 @@
     <Resource Include="Images\glyphicons-224-chevron-right.png" />
     <Resource Include="Images\glyphicons-257-delete.png" />
     <Resource Include="Images\glyphicons-28-search.png" />
+    <Resource Include="Images\glyphicons-281-settings.png" />
     <Resource Include="Images\glyphicons-366-restart.png" />
     <Resource Include="Images\glyphicons-433-plus.png" />
     <Resource Include="Images\glyphicons-436-undo.png" />

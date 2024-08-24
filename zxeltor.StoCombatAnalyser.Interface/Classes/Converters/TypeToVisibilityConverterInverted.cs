@@ -6,42 +6,40 @@
 
 using System.Collections;
 using System.Globalization;
-using System.Windows.Controls;
+using System.Windows;
 using System.Windows.Data;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
+namespace zxeltor.StoCombatAnalyzer.Interface.Classes.Converters;
 
 /// <summary>
-///     Used to convert and object type into a GridSelectUnit value.
+///     Used to convert and object type into a UI Visibility value.
 ///     <para>This doesn't support ConvertBack</para>
 /// </summary>
-[ValueConversion(typeof(object), typeof(DataGridSelectionUnit))]
-public class TypeToDataGridSelectUnitConverter : IValueConverter
+[ValueConversion(typeof(object), typeof(Visibility))]
+public class TypeToVisibilityConverterInverted : IValueConverter
 {
     /// <inheritdoc />
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value == null)
-            return DataGridSelectionUnit.FullRow;
+            return Visibility.Visible;
 
-        if (value is int intResult)
-            return intResult > 0 ? DataGridSelectionUnit.Cell : DataGridSelectionUnit.FullRow;
+        if(value is Int32 intResult)
+            return intResult == 0 ? Visibility.Visible : Visibility.Collapsed;
 
         if (value is string stringResult)
-            return !string.IsNullOrWhiteSpace(stringResult)
-                ? DataGridSelectionUnit.Cell
-                : DataGridSelectionUnit.FullRow;
+            return string.IsNullOrWhiteSpace(stringResult) ? Visibility.Visible : Visibility.Collapsed;
 
         if (value is IList listResult)
-            return listResult.Count > 0 ? DataGridSelectionUnit.Cell : DataGridSelectionUnit.FullRow;
+            return listResult.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
         if (bool.TryParse(value.ToString(), out var boolResult))
-            return boolResult ? DataGridSelectionUnit.Cell : DataGridSelectionUnit.FullRow;
+            return !boolResult ? Visibility.Visible : Visibility.Collapsed;
 
         if (decimal.TryParse(value.ToString(), out var decimalResult))
-            return decimalResult > 0 ? DataGridSelectionUnit.Cell : DataGridSelectionUnit.FullRow;
+            return decimalResult == 0 ? Visibility.Visible : Visibility.Collapsed;
 
-        return false;
+        return true;
     }
 
     /// <summary>
