@@ -10,7 +10,6 @@ using System.Runtime.CompilerServices;
 using Humanizer;
 using Humanizer.Localisation;
 using Newtonsoft.Json;
-using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Classes.UI;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
@@ -22,6 +21,8 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 public class Combat : INotifyPropertyChanged
 {
     #region Private Fields
+
+    private List<CombatEvent>? _allCombatEvents;
 
     private string? _combatDuration;
 
@@ -38,6 +39,12 @@ public class Combat : INotifyPropertyChanged
     #endregion
 
     #region Constructors
+    /// <summary>
+    ///     Constructor need for JSON deserialization
+    /// </summary>
+    public Combat()
+    {
+    }
 
     /// <summary>
     ///     The main constructor
@@ -68,7 +75,14 @@ public class Combat : INotifyPropertyChanged
             return this._eventsCount = this.PlayerEntities.Sum(en => en.CombatEventsList.Count) +
                                        this.NonPlayerEntities.Sum(en => en.CombatEventsList.Count);
         }
+        set => this._eventsCount = value;
     }
+
+    [JsonIgnore]
+    public DateTime? ImportedDate { get; set; }
+
+    [JsonIgnore]
+    public string? ImportedFileName { get; set; }
 
     /// <summary>
     ///     Used to establish the start time for this combat instance.
@@ -90,6 +104,7 @@ public class Combat : INotifyPropertyChanged
 
             return this._combatStart = results.Count > 0 ? results.Min() : DateTime.MinValue;
         }
+        set => this._combatStart = value;
     }
 
     /// <summary>
@@ -112,6 +127,7 @@ public class Combat : INotifyPropertyChanged
 
             return this._combatEnd = results.Count > 0 ? results.Max() : DateTime.MaxValue;
         }
+        set => this._combatEnd = value;
     }
 
     /// <summary>
@@ -129,6 +145,7 @@ public class Combat : INotifyPropertyChanged
                     (this.CombatEnd.Value - this.CombatStart.Value).Humanize(2, maxUnit: TimeUnit.Minute);
             return this._combatDuration = "0";
         }
+        set => this._combatDuration = value;
     }
 
     /// <summary>
@@ -137,9 +154,32 @@ public class Combat : INotifyPropertyChanged
     public string? Map { get; set; }
 
     /// <summary>
+    ///     A list of all events for this combat instance.
+    /// </summary>
+    [JsonIgnore]
+    public List<CombatEvent> AllCombatEvents
+    {
+        get
+        {
+            if (this._allCombatEvents != null && this._isObjectLocked)
+                return this._allCombatEvents;
+
+            var allEntities = new List<CombatEvent>();
+
+            if (this.PlayerEntities.Count > 0)
+                allEntities.AddRange(this.PlayerEntities.SelectMany(ent => ent.CombatEventsList));
+
+            if (this.NonPlayerEntities.Count > 0)
+                allEntities.AddRange(this.NonPlayerEntities.SelectMany(ent => ent.CombatEventsList));
+
+            return this._allCombatEvents = allEntities.Count > 0 ? allEntities.OrderBy(ev => ev.Timestamp).ToList() : null;
+        }
+    }
+
+    /// <summary>
     ///     A list of player <see cref="CombatEntity" /> objects.
     /// </summary>
-    public ObservableCollection<CombatEntity> PlayerEntities { get; } = new();
+    public ObservableCollection<CombatEntity> PlayerEntities { get; } = [];
 
     [JsonIgnore]
     public ObservableCollection<CombatEntity> PlayerEntitiesOrderByName =>
@@ -148,7 +188,7 @@ public class Combat : INotifyPropertyChanged
     /// <summary>
     ///     A list of non-player <see cref="CombatEntity" /> objects.
     /// </summary>
-    public ObservableCollection<CombatEntity> NonPlayerEntities { get; } = new();
+    public ObservableCollection<CombatEntity> NonPlayerEntities { get; } = [];
 
     [JsonIgnore]
     public ObservableCollection<CombatEntity> NonPlayerEntitiesOrderByName =>

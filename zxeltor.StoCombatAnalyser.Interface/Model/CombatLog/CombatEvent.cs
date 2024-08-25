@@ -34,6 +34,13 @@ public class CombatEvent : IEquatable<CombatEvent>
     #region Constructors
 
     /// <summary>
+    ///     Constructor need for JSON deserialization
+    /// </summary>
+    public CombatEvent()
+    {
+    }
+
+    /// <summary>
     ///     The main constructor
     /// </summary>
     /// <param name="filename">The source file where this entry came from.</param>
@@ -55,32 +62,32 @@ public class CombatEvent : IEquatable<CombatEvent>
     /// <summary>
     ///     The source file where this entry came from.
     /// </summary>
-    public string OriginalFileName { get; }
+    public string OriginalFileName { get; set; }
 
     /// <summary>
     ///     The line from the source file.
     /// </summary>
-    public long OriginalFileLineNumber { get; }
+    public long OriginalFileLineNumber { get; set; }
 
     /// <summary>
     ///     The file line number where this entry originated from.
     /// </summary>
-    public string OriginalFileLineString { get; }
+    public string OriginalFileLineString { get; set; }
 
     /// <summary>
     ///     A hashcode derived from properties in this class. An attempt to create a unique id.
     /// </summary>
-    public int OriginalHashCode { get; private set; }
+    public int OriginalHashCode { get; set; }
 
     /// <summary>
     ///     If true this event was from a Player. False it was for a Non-Player.
     /// </summary>
-    public bool IsOwnerPlayer { get; private set; }
+    public bool IsOwnerPlayer { get; set; }
 
     /// <summary>
     ///     True if the damage from this event came from an entities pet. False otherwise.
     /// </summary>
-    public bool IsOwnerPetEvent { get; private set; }
+    public bool IsOwnerPetEvent { get; set; }
 
     /// <summary>
     ///     True if this event had no owner assigned to it originally. False otherwise.
@@ -89,7 +96,7 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         was something the entity cast on itself?
     ///     </para>
     /// </summary>
-    public bool IsOwnerModified { get; private set; }
+    public bool IsOwnerModified { get; set; }
 
     /// <summary>
     ///     Timestamp
@@ -98,7 +105,7 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         This was part of entry 0 in the CSV.
     ///     </para>
     /// </summary>
-    public DateTime Timestamp { get; private set; }
+    public DateTime Timestamp { get; set; }
 
     /// <summary>
     ///     Display name of owner.
@@ -107,7 +114,7 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         This was part of entry 0 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string OwnerDisplay { get; private set; }
+    public string OwnerDisplay { get; set; }
 
     /// <summary>
     ///     Internal name of owner
@@ -116,12 +123,12 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         This was entry 1 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string OwnerInternal { get; private set; }
+    public string OwnerInternal { get; set; }
 
     /// <summary>
     ///     The OwnerInternal id stripped of it's ID wrapper.
     /// </summary>
-    public string OwnerInternalStripped { get; private set; }
+    public string OwnerInternalStripped { get; set; }
 
     /// <summary>
     ///     Display name of source(only appears if Pet/Gravity Well etc.)
@@ -130,7 +137,7 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         This was entry 2 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string SourceDisplay { get; private set; }
+    public string SourceDisplay { get; set; }
 
     /// <summary>
     ///     Internal name of source
@@ -139,12 +146,12 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         This was entry 3 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string SourceInternal { get; private set; }
+    public string SourceInternal { get; set; }
 
     /// <summary>
     ///     The SourceInternal id stripped of it's ID wrapper.
     /// </summary>
-    public string SourceInternalStripped { get; private set; }
+    public string SourceInternalStripped { get; set; }
 
     /// <summary>
     ///     Display name of target
@@ -153,7 +160,7 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         This was entry 4 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string TargetDisplay { get; private set; }
+    public string TargetDisplay { get; set; }
 
     /// <summary>
     ///     Internal name of target
@@ -162,17 +169,17 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         This was entry 5 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string TargetInternal { get; private set; }
+    public string TargetInternal { get; set; }
 
     /// <summary>
     ///     True if the target is a non-player. False otherwise.
     /// </summary>
-    public bool IsTargetPlayer { get; private set; }
+    public bool IsTargetPlayer { get; set; }
 
     /// <summary>
     ///     The TargetInternal id stripped of it's ID wrapper.
     /// </summary>
-    public string TargetInternalStripped { get; private set; }
+    public string TargetInternalStripped { get; set; }
 
     /// <summary>
     ///     Display name of event
@@ -181,7 +188,7 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         This was entry 6 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string EventDisplay { get; private set; }
+    public string EventDisplay { get; set; }
 
     /// <summary>
     ///     Internal name of event
@@ -190,7 +197,7 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         This was entry 7 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string EventInternal { get; private set; }
+    public string EventInternal { get; set; }
 
     /// <summary>
     ///     Type (Shield or Plasma/Antiproton etc.)
@@ -199,7 +206,7 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         This was entry 8 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string Type { get; private set; }
+    public string Type { get; set; }
 
     /// <summary>
     ///     Flags (Critical, Flank, Dodge, Miss etc.)
@@ -208,7 +215,7 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         This was entry 9 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public string Flags { get; private set; }
+    public string Flags { get; set; }
 
     /// <summary>
     ///     Magnitude
@@ -217,7 +224,7 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         This was entry 10 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public double Magnitude { get; private set; }
+    public double Magnitude { get; set; }
 
     /// <summary>
     ///     Base magnitude
@@ -226,7 +233,7 @@ public class CombatEvent : IEquatable<CombatEvent>
     ///         This was entry 11 in the CSV. Entries are zero based.
     ///     </para>
     /// </summary>
-    public double MagnitudeBase { get; private set; }
+    public double MagnitudeBase { get; set; }
 
     #endregion
 

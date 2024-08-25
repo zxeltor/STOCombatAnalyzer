@@ -375,7 +375,7 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
     private string? _combatLogPathFilePattern = Settings.Default.CombatLogPathFilePattern;
     private bool _enableCombinePets = Settings.Default.IsCombinePets;
     private bool _enableDebugLogging = Settings.Default.DebugLogging;
-    private bool _enableDetectionSettingsInUi = Settings.Default.IsDetectionsSettingsVisibleInUi;
+    private bool _enableDetectionSettingsInUi = Settings.Default.IsDetectionsSettingsTabEnabled;
     private bool _enableInActiveCalc = Settings.Default.IsEnableInactiveTimeCalculations;
     private int _howFarBackForCombat = Settings.Default.HowFarBackForCombat;
     private int _howLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombat;
@@ -501,12 +501,12 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
     /// </summary>
     public bool EnableDetectionSettingsInUi
     {
-        get => this._enableDetectionSettingsInUi = Settings.Default.IsDetectionsSettingsVisibleInUi;
+        get => this._enableDetectionSettingsInUi = Settings.Default.IsDetectionsSettingsTabEnabled;
         set
         {
             //Settings.Default.Save();
             this.SetField(ref this._enableDetectionSettingsInUi, value);
-            Settings.Default.IsDetectionsSettingsVisibleInUi = value;
+            Settings.Default.IsDetectionsSettingsTabEnabled = value;
         }
     }
 

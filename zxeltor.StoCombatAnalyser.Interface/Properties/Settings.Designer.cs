@@ -258,12 +258,12 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool IsDetectionsSettingsVisibleInUi {
+        public bool IsDetectionsSettingsTabEnabled {
             get {
-                return ((bool)(this["IsDetectionsSettingsVisibleInUi"]));
+                return ((bool)(this["IsDetectionsSettingsTabEnabled"]));
             }
             set {
-                this["IsDetectionsSettingsVisibleInUi"] = value;
+                this["IsDetectionsSettingsTabEnabled"] = value;
             }
         }
         
@@ -396,6 +396,30 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
             }
             set {
                 this["IsDisplayPlotMagnitudeBase"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CombatControlGridDisplayList {
+            get {
+                return ((string)(this["CombatControlGridDisplayList"]));
+            }
+            set {
+                this["CombatControlGridDisplayList"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsCombatDetailsTabEnabled {
+            get {
+                return ((bool)(this["IsCombatDetailsTabEnabled"]));
+            }
+            set {
+                this["IsCombatDetailsTabEnabled"] = value;
             }
         }
     }

@@ -57,6 +57,13 @@ public class CombatEntity : INotifyPropertyChanged
     #region Constructors
 
     /// <summary>
+    ///     Constructor needed for JSON deserialization
+    /// </summary>
+    public CombatEntity()
+    {
+    }
+
+    /// <summary>
     ///     The main constructor
     /// </summary>
     public CombatEntity(CombatEvent combatEvent)
@@ -261,7 +268,8 @@ public class CombatEntity : INotifyPropertyChanged
             if (this._entityCombatKills != null && this._isObjectLocked)
                 return this._entityCombatKills;
 
-            var killList = this._combatEventList.Where(ev => ev.Flags.Contains("kill", StringComparison.CurrentCultureIgnoreCase))
+            var killList = this._combatEventList
+                .Where(ev => ev.Flags.Contains("kill", StringComparison.CurrentCultureIgnoreCase))
                 .ToList();
 
             if (killList.Count == 0)
@@ -440,6 +448,32 @@ public class CombatEntity : INotifyPropertyChanged
     /// </summary>
     private List<CombatEvent> _combatEventList { get; } = new();
 
+    public string ToCombatStats
+    {
+        get
+        {
+            var str = new StringBuilder($"{this.OwnerDisplay}: ");
+            str.Append($"Attacks={this.EntityCombatAttacks ?? 0}, ");
+
+            if (this.EntityTotalMagnitude == null)
+                str.Append("Dam=0, ");
+            else
+                str.Append($"Dam={this.EntityTotalMagnitude.Value.ToMetric(decimals: 2)}, ");
+
+            if (this.EntityMagnitudePerSecond == null)
+                str.Append("DPS=0, ");
+            else
+                str.Append($"DPS={this.EntityMagnitudePerSecond.Value.ToMetric(decimals: 2)}, ");
+
+            if (this.EntityCombatInActive == null)
+                str.Append("InActive=0");
+            else
+                str.Append($"InActive={this.EntityCombatInActive.Value.ToString("g")}");
+
+            return str.ToString();
+        }
+    }
+
     #endregion
 
     #region Public Members
@@ -479,32 +513,6 @@ public class CombatEntity : INotifyPropertyChanged
     #endregion
 
     #region Other Members
-
-    public string ToCombatStats
-    {
-        get
-        {
-            var str = new StringBuilder($"{this.OwnerDisplay}: ");
-            str.Append($"Attacks={this.EntityCombatAttacks??0}, ");
-            
-            if(EntityTotalMagnitude == null)
-                str.Append("Dam=0, ");
-            else
-                str.Append($"Dam={this.EntityTotalMagnitude.Value.ToMetric(decimals: 2)}, ");
-
-            if (EntityMagnitudePerSecond == null)
-                str.Append("DPS=0, ");
-            else
-                str.Append($"DPS={this.EntityMagnitudePerSecond.Value.ToMetric(decimals: 2)}, ");
-
-            if(EntityCombatInActive == null)
-                str.Append("InActive=0");
-            else
-                str.Append($"InActive={this.EntityCombatInActive.Value.ToString("g")}");
-
-            return str.ToString();
-        }
-    }
 
     private void RefreshProperties()
     {

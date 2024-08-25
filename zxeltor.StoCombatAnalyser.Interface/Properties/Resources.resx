@@ -164,6 +164,9 @@ Note: A Combat entity needs to be selected in the "Log File Analyzer" tab for th
   <data name="GithubRepoWikiUrl" xml:space="preserve">
     <value>https://github.com/zxeltor/STOCombatAnalyzer/wiki</value>
   </data>
+  <data name="import_combat_json" xml:space="preserve">
+    <value>Used to import a Combat entity from a JSON file.</value>
+  </data>
   <data name="import_detection_json" xml:space="preserve">
     <value>Import a new or modified CombatMapDetectionSettings.json file. These settings affect how a map is determined for a Combat entity.
 

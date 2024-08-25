@@ -16,6 +16,13 @@ public class CombatEventType
     #region Constructors
 
     /// <summary>
+    ///     Constructor need for JSON deserialization
+    /// </summary>
+    public CombatEventType()
+    {
+    }
+
+    /// <summary>
     /// </summary>
     /// <param name="combatEventList">A list of events for a particular event type, for a parent entity.</param>
     /// <param name="sourceInternal">A unique id given to a pet entity from the STO combat log.</param>
@@ -225,32 +232,39 @@ public class CombatEventType
          * It's possible to only have one log entry, or multiple with the same timestamp.
          */
         TimeSpan eventTypeDuration;
-        if (this.CombatEvents.Count == 1)
+
+        if (this.CombatEvents.Count <= 1)
             eventTypeDuration = Constants.MINCOMBATDURATION;
         else
             eventTypeDuration = this.CombatEvents.Max(ev => ev.Timestamp) - this.CombatEvents.Min(ev => ev.Timestamp);
+
         if (eventTypeDuration < Constants.MINCOMBATDURATION) eventTypeDuration = Constants.MINCOMBATDURATION;
 
         var damageEvents = this.CombatEvents
             .Where(ev => !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-        this.Damage = damageEvents.Sum(ev => Math.Abs(ev.Magnitude));
-
         if (damageEvents.Count == 0)
-            this.Dps = 0;
+            this.Damage = 0;
+        else
+            this.Damage = damageEvents.Sum(ev => Math.Abs(ev.Magnitude));
+
+        if (damageEvents.Count == 0) this.Dps = 0;
         else if (damageEvents.Count == 1 || eventTypeDuration <= this.InactiveTimeSpan)
             this.Dps = this.Damage / eventTypeDuration.TotalSeconds;
-        else
-            this.Dps = this.Damage / (eventTypeDuration - this.InactiveTimeSpan).TotalSeconds;
+        else this.Dps = this.Damage / (eventTypeDuration - this.InactiveTimeSpan).TotalSeconds;
 
         this.MaxDamageHit = damageEvents.Count == 0 ? 0 : damageEvents.Max(ev => Math.Abs(ev.Magnitude));
 
-        this.HullDamage = damageEvents.Where(ev => !ev.Type.Equals("Shield", StringComparison.CurrentCultureIgnoreCase))
-            .Sum(ev => Math.Abs(ev.Magnitude));
+        var hullDamageEvents = damageEvents
+            .Where(ev => !ev.Type.Equals("Shield", StringComparison.CurrentCultureIgnoreCase)).ToList();
+        var shieldDamageEvents = damageEvents
+            .Where(ev => ev.Type.Equals("Shield", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-        this.ShieldDamage = damageEvents
-            .Where(ev => ev.Type.Equals("Shield", StringComparison.CurrentCultureIgnoreCase))
-            .Sum(ev => Math.Abs(ev.Magnitude));
+        if (hullDamageEvents.Count == 0) this.HullDamage = 0;
+        else this.HullDamage = hullDamageEvents.Sum(ev => Math.Abs(ev.Magnitude));
+
+        if (shieldDamageEvents.Count == 0) this.ShieldDamage = 0;
+        else this.ShieldDamage = shieldDamageEvents.Sum(ev => Math.Abs(ev.Magnitude));
 
         this.Attacks = damageEvents.Where(ev => !ev.Type.Equals("Shield", StringComparison.CurrentCultureIgnoreCase))
             .ToList().Count;
@@ -275,7 +289,8 @@ public class CombatEventType
         var healEvents = this.CombatEvents
             .Where(ev => ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
 
-        this.Heals = healEvents.Sum(ev => Math.Abs(ev.Magnitude));
+        if (healEvents.Count == 0) this.Heals = 0;
+        else this.Heals = healEvents.Sum(ev => Math.Abs(ev.Magnitude));
 
         if (healEvents.Count == 0)
             this.Hps = 0;

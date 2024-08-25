@@ -16,6 +16,7 @@ using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
+using Image = System.Windows.Controls.Image;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 
@@ -26,9 +27,7 @@ public partial class DetectionSettingsControl : UserControl
 {
     #region Private Fields
 
-    private readonly ILog Log = LogManager.GetLogger(typeof(DetectionSettingsControl));
-
-    private const string details_dialog = "";
+    private readonly ILog _log = LogManager.GetLogger(typeof(DetectionSettingsControl));
 
     #endregion
 
@@ -63,7 +62,7 @@ public partial class DetectionSettingsControl : UserControl
             {
                 if (string.IsNullOrWhiteSpace(saveFile.FileName))
                 {
-                    MessageBox.Show(MainWindow, "You need to select a file name.", "Error",
+                    MessageBox.Show(this.MainWindow, "You need to select a file name.", "Error",
                         MessageBoxButton.OK,
                         MessageBoxImage.Exclamation);
                     return;
@@ -81,22 +80,22 @@ public partial class DetectionSettingsControl : UserControl
                 }
 
                 var successStorage = "Successfully exported MapDetectionSettings to JSON";
-                this.Log.Info(successStorage);
-                MessageBox.Show(MainWindow, successStorage, "Success", MessageBoxButton.OK,
+                this._log.Info(successStorage);
+                MessageBox.Show(this.MainWindow, successStorage, "Success", MessageBoxButton.OK,
                     MessageBoxImage.Information);
             }
             catch (Exception exception)
             {
                 var errorMessage = $"Failed to export MapDetectionSettings to JSON. Reason={exception.Message}";
-                this.Log.Error(errorMessage, exception);
-                MessageBox.Show(MainWindow, errorMessage, "Error", MessageBoxButton.OK,
+                this._log.Error(errorMessage, exception);
+                MessageBox.Show(this.MainWindow, errorMessage, "Error", MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
     }
 
     private void UiButtonSaveDetectionSettings_OnClick(object sender, RoutedEventArgs e)
     {
-        var dialogResult = MessageBox.Show(MainWindow,
+        var dialogResult = MessageBox.Show(this.MainWindow,
             "Are you sure you want to save changes to MapDetectionSettings?",
             "Question",
             MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -129,17 +128,17 @@ public partial class DetectionSettingsControl : UserControl
                 .Append(
                     "Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
 
-            this.Log.Info(successMessage);
-            MessageBox.Show(MainWindow, successMessageForDisplay.ToString(), "Success",
+            this._log.Info(successMessage);
+            MessageBox.Show(this.MainWindow, successMessageForDisplay.ToString(), "Success",
                 MessageBoxButton.OK, MessageBoxImage.Information);
 
             this.CombatLogManagerContext.Combats.Clear();
         }
         catch (Exception exception)
         {
-            this.Log.Error("Failed to save MapDetectionSettings.", exception);
+            this._log.Error("Failed to save MapDetectionSettings.", exception);
 
-            MessageBox.Show(MainWindow,
+            MessageBox.Show(this.MainWindow,
                 $"Failed to save MapDetectionSettings. Reason={exception.Message}", "Error",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -147,7 +146,7 @@ public partial class DetectionSettingsControl : UserControl
 
     private void UiButtonCancelDetectionSettings_OnClick(object sender, RoutedEventArgs e)
     {
-        var dialogResult = MessageBox.Show(MainWindow,
+        var dialogResult = MessageBox.Show(this.MainWindow,
             "Are you sure you want to cancel your changes to MapDetectionSettings?", "Question",
             MessageBoxButton.YesNo, MessageBoxImage.Question);
 
@@ -180,8 +179,8 @@ public partial class DetectionSettingsControl : UserControl
         else
         {
             var error = "Failed to cancel MapDetectionSettings changes. No previous settings found.";
-            this.Log.Error(error);
-            MessageBox.Show(MainWindow, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            this._log.Error(error);
+            MessageBox.Show(this.MainWindow, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -197,18 +196,18 @@ public partial class DetectionSettingsControl : UserControl
 
         if (buttonResult.Tag.Equals("Expand all maps"))
         {
-            var treeViewItemList = AppHelper.FindVisualChildren<TreeViewItem>(uiTreeViewMapDetectMapList);
+            var treeViewItemList = AppHelper.FindVisualChildren<TreeViewItem>(this.uiTreeViewMapDetectMapList);
             treeViewItemList.ToList().ForEach(item => item.IsExpanded = true);
         }
         else if (buttonResult.Tag.Equals("Collapse all maps"))
         {
-            var treeViewItemList = AppHelper.FindVisualChildren<TreeViewItem>(uiTreeViewMapDetectMapList);
+            var treeViewItemList = AppHelper.FindVisualChildren<TreeViewItem>(this.uiTreeViewMapDetectMapList);
             treeViewItemList.ToList().ForEach(item => item.IsExpanded = false);
         }
 
         else if (buttonResult.Tag.Equals("AddMap"))
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = string.Empty;
             var dialogResult = dialog.ShowDialog("Add Map", ref name);
@@ -223,7 +222,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("EditMapName") &&
                  buttonResult.CommandParameter is CombatMap combatMapRenameResult)
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = combatMapRenameResult.Name;
             var dialogResult = dialog.ShowDialog("Edit Map Name", ref name);
@@ -237,7 +236,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("DeleteMap") &&
                  buttonResult.CommandParameter is CombatMap combatMapDeleteResult)
         {
-            var dialogResult = MessageBox.Show(MainWindow,
+            var dialogResult = MessageBox.Show(this.MainWindow,
                 $"Are you sure you want to delete Map: \"{combatMapDeleteResult.Name}\"?", "Question",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
 
@@ -252,7 +251,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("AddMapEntity") &&
                  buttonResult.CommandParameter is CombatMap combatMapAddEntityResult)
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = string.Empty;
             var dialogResult = dialog.ShowDialog("Add Map Entity Pattern", ref name);
@@ -266,7 +265,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("EditMapEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatMapEntityEditResult)
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = combatMapEntityEditResult.Pattern;
             var dialogResult = dialog.ShowDialog("Edit Map Entity Pattern", ref name);
@@ -280,7 +279,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("DeleteMapEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatMapEntityDeleteResult)
         {
-            var messageBoxResult = MessageBox.Show(MainWindow,
+            var messageBoxResult = MessageBox.Show(this.MainWindow,
                 $"Are you sure you want to delete this MapEntity: \"{combatMapEntityDeleteResult.Pattern}\"?",
                 "Confirm Deletion",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -299,9 +298,9 @@ public partial class DetectionSettingsControl : UserControl
                     return;
                 }
 
-                this.Log.Error($"Failed tp delete MapEntity={combatMapEntityDeleteResult.Pattern}.");
+                this._log.Error($"Failed tp delete MapEntity={combatMapEntityDeleteResult.Pattern}.");
 
-                MessageBox.Show(MainWindow, "Failed to delete the MapEntity", "Error",
+                MessageBox.Show(this.MainWindow, "Failed to delete the MapEntity", "Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -310,7 +309,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("AddMapExceptionEntity") &&
                  buttonResult.CommandParameter is CombatMap combatMapAddExceptionEntityResult)
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = string.Empty;
             var dialogResult = dialog.ShowDialog("Add Map Exception Pattern", ref name);
@@ -324,7 +323,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("EditMapExceptionEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatMapEntityExceptionEditResult)
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = combatMapEntityExceptionEditResult.Pattern;
             var dialogResult = dialog.ShowDialog("Edit Map Exception Pattern", ref name);
@@ -338,7 +337,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("DeleteMapExceptionEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatMapEntityExceptionDeleteResult)
         {
-            var messageBoxResult = MessageBox.Show(MainWindow,
+            var messageBoxResult = MessageBox.Show(this.MainWindow,
                 $"Are you sure you want to delete this MapEntityExclusion: \"{combatMapEntityExceptionDeleteResult.Pattern}\"?",
                 "Confirm Deletion",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -357,9 +356,9 @@ public partial class DetectionSettingsControl : UserControl
                     return;
                 }
 
-                this.Log.Error($"Failed tp delete MapEntityExclusion={combatMapEntityExceptionDeleteResult.Pattern}.");
+                this._log.Error($"Failed tp delete MapEntityExclusion={combatMapEntityExceptionDeleteResult.Pattern}.");
 
-                MessageBox.Show(MainWindow, "Failed to delete the MapEntityExclusion", "Error",
+                MessageBox.Show(this.MainWindow, "Failed to delete the MapEntityExclusion", "Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -367,21 +366,22 @@ public partial class DetectionSettingsControl : UserControl
 
         else if (buttonResult.Tag.Equals("AddExceptionEntity"))
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = string.Empty;
             var dialogResult = dialog.ShowDialog("Add Exception Pattern", ref name);
 
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
-                this.CombatLogManagerContext.CombatMapDetectionSettings.EntityExclusionList.Add(new CombatMapEntity(name));
+                this.CombatLogManagerContext.CombatMapDetectionSettings.EntityExclusionList.Add(
+                    new CombatMapEntity(name));
                 this.SetMapDetectionSettingsChanged();
             }
         }
         else if (buttonResult.Tag.Equals("EditExceptionEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatEntityExceptionEditResult)
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = combatEntityExceptionEditResult.Pattern;
             var dialogResult = dialog.ShowDialog("Edit Exception Pattern", ref name);
@@ -395,7 +395,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("DeleteExceptionEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatEntityExceptionDeleteResult)
         {
-            var messageBoxResult = MessageBox.Show(MainWindow,
+            var messageBoxResult = MessageBox.Show(this.MainWindow,
                 $"Are you sure you want to delete this EntityExclusion: \"{combatEntityExceptionDeleteResult.Pattern}\"?",
                 "Confirm Deletion",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -411,7 +411,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("EditGroundMapName") &&
                  buttonResult.CommandParameter is CombatMap combatGroundMapRenameResult)
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = combatGroundMapRenameResult.Name;
             var dialogResult = dialog.ShowDialog("Edit Map Name", ref name);
@@ -424,7 +424,7 @@ public partial class DetectionSettingsControl : UserControl
         }
         else if (buttonResult.Tag.Equals("AddGroundEntity"))
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = string.Empty;
             var dialogResult = dialog.ShowDialog("Add a new entity", ref name);
@@ -439,7 +439,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("EditGroundEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatEntityGroundEditResult)
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = combatEntityGroundEditResult.Pattern;
             var dialogResult = dialog.ShowDialog("Edit entity name", ref name);
@@ -453,7 +453,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("DeleteGroundEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatEntityGroundDeleteResult)
         {
-            var messageBoxResult = MessageBox.Show(MainWindow,
+            var messageBoxResult = MessageBox.Show(this.MainWindow,
                 $"Are you sure you want to delete this Entity: \"{combatEntityGroundDeleteResult.Pattern}\"?",
                 "Confirm Deletion",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -468,7 +468,7 @@ public partial class DetectionSettingsControl : UserControl
 
         else if (buttonResult.Tag.Equals("AddGroundExceptionEntity"))
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = string.Empty;
             var dialogResult = dialog.ShowDialog("Add a new exclusion", ref name);
@@ -483,7 +483,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("EditGroundExceptionEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatEntityGroundExceptionEditResult)
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = combatEntityGroundExceptionEditResult.Pattern;
             var dialogResult = dialog.ShowDialog("Edit exclusion name", ref name);
@@ -497,7 +497,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("DeleteGroundExceptionEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatEntityGroundExceptionDeleteResult)
         {
-            var messageBoxResult = MessageBox.Show(MainWindow,
+            var messageBoxResult = MessageBox.Show(this.MainWindow,
                 $"Are you sure you want to delete this Entity: \"{combatEntityGroundExceptionDeleteResult.Pattern}\"?",
                 "Confirm Deletion",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -513,7 +513,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("EditSpaceMapName") &&
                  buttonResult.CommandParameter is CombatMap combatSpaceMapRenameResult)
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = combatSpaceMapRenameResult.Name;
             var dialogResult = dialog.ShowDialog("Edit Map Name", ref name);
@@ -526,7 +526,7 @@ public partial class DetectionSettingsControl : UserControl
         }
         else if (buttonResult.Tag.Equals("AddSpaceEntity"))
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = string.Empty;
             var dialogResult = dialog.ShowDialog("Add a new entity", ref name);
@@ -541,7 +541,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("EditSpaceEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatEntitySpaceEditResult)
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = combatEntitySpaceEditResult.Pattern;
             var dialogResult = dialog.ShowDialog("Edit entity name", ref name);
@@ -555,7 +555,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("DeleteSpaceEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatEntitySpaceDeleteResult)
         {
-            var messageBoxResult = MessageBox.Show(MainWindow,
+            var messageBoxResult = MessageBox.Show(this.MainWindow,
                 $"Are you sure you want to delete this Entity: \"{combatEntitySpaceDeleteResult.Pattern}\"?",
                 "Confirm Deletion",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -570,7 +570,7 @@ public partial class DetectionSettingsControl : UserControl
 
         else if (buttonResult.Tag.Equals("AddSpaceExceptionEntity"))
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = string.Empty;
             var dialogResult = dialog.ShowDialog("Add a new exclusion", ref name);
@@ -585,7 +585,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("EditSpaceExceptionEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatEntitySpaceExceptionEditResult)
         {
-            var dialog = new EditTextFieldDialog(MainWindow);
+            var dialog = new EditTextFieldDialog(this.MainWindow);
 
             var name = combatEntitySpaceExceptionEditResult.Pattern;
             var dialogResult = dialog.ShowDialog("Edit exclusion name", ref name);
@@ -599,7 +599,7 @@ public partial class DetectionSettingsControl : UserControl
         else if (buttonResult.Tag.Equals("DeleteSpaceExceptionEntity") &&
                  buttonResult.CommandParameter is CombatMapEntity combatEntitySpaceExceptionDeleteResult)
         {
-            var messageBoxResult = MessageBox.Show(MainWindow,
+            var messageBoxResult = MessageBox.Show(this.MainWindow,
                 $"Are you sure you want to delete this Entity: \"{combatEntitySpaceExceptionDeleteResult.Pattern}\"?",
                 "Confirm Deletion",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -621,56 +621,56 @@ public partial class DetectionSettingsControl : UserControl
         switch (image.Tag)
         {
             case "map_entity_list":
-                DetailsDialog.ShowDialog(MainWindow, "CombatMapEntityList",
+                DetailsDialog.ShowDialog(this.MainWindow, "CombatMapEntityList",
                     Properties.Resources.map_entity_list);
                 break;
             case "selected_combat":
-                DetailsDialog.ShowDialog(MainWindow, "Combat Analysis",
+                DetailsDialog.ShowDialog(this.MainWindow, "Combat Analysis",
                     Properties.Resources.combat_analysis);
                 break;
             case "selected_combat_unique_list":
-                DetailsDialog.ShowDialog(MainWindow, "Selected Combat: Entity List",
+                DetailsDialog.ShowDialog(this.MainWindow, "Selected Combat: Entity List",
                     Properties.Resources.selected_combat_unique_list);
                 break;
             case "combat_details":
-                DetailsDialog.ShowDialog(MainWindow, "Player Select",
+                DetailsDialog.ShowDialog(this.MainWindow, "Player Select",
                     Properties.Resources.player_select);
                 break;
             case "combat_event_type_breakdown":
-                DetailsDialog.ShowDialog(MainWindow, "Event Type Breakdown",
+                DetailsDialog.ShowDialog(this.MainWindow, "Event Type Breakdown",
                     Properties.Resources.combat_event_type_breakdown);
                 break;
             case "combat_events_datagrid":
-                DetailsDialog.ShowDialog(MainWindow, "Event(s) DataGrid",
+                DetailsDialog.ShowDialog(this.MainWindow, "Event(s) DataGrid",
                     Properties.Resources.combat_events_datagrid);
                 break;
             case "combat_events_plot":
-                DetailsDialog.ShowDialog(MainWindow, "Event(s) Magnitude Plot",
+                DetailsDialog.ShowDialog(this.MainWindow, "Event(s) Magnitude Plot",
                     Properties.Resources.combat_events_scatterplot);
                 break;
             case "import_detection_json_from_url":
-                DetailsDialog.ShowDialog(MainWindow,
+                DetailsDialog.ShowDialog(this.MainWindow,
                     "Download and Install the latest Map Detection Settings",
                     Properties.Resources.import_detection_json_from_url);
                 break;
             case "import_detection_json":
-                DetailsDialog.ShowDialog(MainWindow, "Import Map Detection Settings",
+                DetailsDialog.ShowDialog(this.MainWindow, "Import Map Detection Settings",
                     Properties.Resources.import_detection_json);
                 break;
             case "export_detection_json":
-                DetailsDialog.ShowDialog(MainWindow, "Export Map Detection Settings",
+                DetailsDialog.ShowDialog(this.MainWindow, "Export Map Detection Settings",
                     Properties.Resources.export_detection_json);
                 break;
             case "export_detection_json_no_indents":
-                DetailsDialog.ShowDialog(MainWindow, "Export Map Detection Settings",
+                DetailsDialog.ShowDialog(this.MainWindow, "Export Map Detection Settings",
                     Properties.Resources.export_detection_json_no_indents);
                 break;
             case "reset_detection_json":
-                DetailsDialog.ShowDialog(MainWindow, "Reset Map Detection Settings",
+                DetailsDialog.ShowDialog(this.MainWindow, "Reset Map Detection Settings",
                     Properties.Resources.reset_detection_json);
                 break;
             case "export_combat_json":
-                DetailsDialog.ShowDialog(MainWindow, "Export Selected Combat Entity",
+                DetailsDialog.ShowDialog(this.MainWindow, "Export Selected Combat Entity",
                     Properties.Resources.export_combat_json);
                 break;
         }
@@ -705,6 +705,13 @@ public partial class DetectionSettingsControl : UserControl
         if (!(e.Source is Button button))
             return;
 
+        if (Keyboard.IsKeyDown(Key.LeftCtrl))
+        {
+            Settings.Default.IsCombatDetailsTabEnabled = !Settings.Default.IsCombatDetailsTabEnabled;
+            Settings.Default.Save();
+            return;
+        }
+
         var url = string.Empty;
 
         try
@@ -715,21 +722,21 @@ public partial class DetectionSettingsControl : UserControl
         catch (Exception exception)
         {
             var errorMessage = $"Failed to open default browser for url={url}.";
-            Log.Error(errorMessage, exception);
-            MessageBox.Show(MainWindow, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            this._log.Error(errorMessage, exception);
+            MessageBox.Show(this.MainWindow, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
-
-    #endregion
 
     private void EditMapDetectionSettings_OnClick(object sender, RoutedEventArgs e)
     {
         if (sender is not Button buttonResult) return;
 
-        if(buttonResult.CommandParameter is not CombatMap combatMapResult) return;
+        if (buttonResult.CommandParameter is not CombatMap combatMapResult) return;
 
-        var dialog = new DetectionSettingsMadpEditor();
-        dialog.Owner = MainWindow;
+        var dialog = new DetectionSettingsMapEditor();
+        dialog.Owner = this.MainWindow;
         dialog.ShowDialog(combatMapResult);
     }
+
+    #endregion
 }

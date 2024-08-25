@@ -13,6 +13,13 @@ public class CombatEntityDeadZone
 {
     #region Constructors
 
+    /// <summary>
+    ///     Constructor need for JSON deserialization
+    /// </summary>
+    public CombatEntityDeadZone()
+    {
+    }
+
     public CombatEntityDeadZone(DateTime startTime, DateTime endTime)
     {
         this.StartTime = startTime;

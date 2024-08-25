@@ -25,9 +25,9 @@ public class CombatEventGridContext : INotifyPropertyChanged
     private bool _lineNumber;
     private bool _magnitude = true;
     private bool _magnitudeBase = true;
-    private bool _ownerDisplay;
+    private bool _ownerDisplay = true;
     private bool _ownerInternal;
-    private bool _sourceDisplay;
+    private bool _sourceDisplay = true;
     private bool _sourceInternal;
     private bool _targetDisplay = true;
     private bool _targetInternal;

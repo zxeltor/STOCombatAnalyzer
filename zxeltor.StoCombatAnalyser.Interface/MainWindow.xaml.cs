@@ -4,6 +4,7 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using System.ComponentModel;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -49,6 +50,8 @@ public partial class MainWindow
         this.CombatLogManagerContext = new CombatLogManager();
         this.DataContext = this.CombatLogManagerContext;
 
+        Settings.Default.PropertyChanged += this.OnApplicationSettingsPropertyChanged;
+
         this.Loaded += this.OnLoaded;
         this.Unloaded += this.OnUnloaded;
     }
@@ -62,6 +65,40 @@ public partial class MainWindow
     #endregion
 
     #region Other Members
+
+    private void OnApplicationSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != null && e.PropertyName.Equals(nameof(Settings.IsDetectionsSettingsTabEnabled)))
+            this.EnableDetectionSettingsEditor(Settings.Default.IsDetectionsSettingsTabEnabled);
+        else if (e.PropertyName != null && e.PropertyName.Equals(nameof(Settings.IsCombatDetailsTabEnabled)))
+            this.EnableCombatAnalyzer(Settings.Default.IsCombatDetailsTabEnabled);
+    }
+
+    private void EnableCombatAnalyzer(bool enable = false)
+    {
+        if (enable)
+        {
+            if (this.uiGridCombatAnalyzer.Children.Count == 0)
+                this.uiGridCombatAnalyzer.Children.Add(new CombatDetailsControl());
+        }
+        else
+        {
+            this.uiGridCombatAnalyzer.Children.Clear();
+        }
+    }
+
+    private void EnableDetectionSettingsEditor(bool enable = false)
+    {
+        if (enable)
+        {
+            if (this.uiGridDetectionSettingsEditor.Children.Count == 0)
+                this.uiGridDetectionSettingsEditor.Children.Add(new DetectionSettingsControl());
+        }
+        else
+        {
+            this.uiGridDetectionSettingsEditor.Children.Clear();
+        }
+    }
 
     private void Browse_OnMouseLeftButtonUp(object sender, RoutedEventArgs e)
     {
@@ -105,6 +142,8 @@ public partial class MainWindow
         LoggingHelper.ConfigureLog4NetLogging();
 
         this.ToggleDataGridColumnVisibility();
+        this.EnableDetectionSettingsEditor(Settings.Default.IsDetectionsSettingsTabEnabled);
+        this.EnableCombatAnalyzer(Settings.Default.IsCombatDetailsTabEnabled);
 
         if (!Settings.Default.PurgeCombatLogs) return;
 
@@ -119,10 +158,6 @@ public partial class MainWindow
             if (!string.IsNullOrWhiteSpace(errorReason))
                 ResponseDialog.Show(Application.Current.MainWindow, errorReason, "Combat log purge error");
         }
-
-        //// Utilize config params which affect the layout of the UI.
-        //this.ToggleDisplayNonPlayerEntities(Settings.Default.IsIncludeNonPlayerEntities);
-        //this.ToggleDisplayAnalysisTools(Settings.Default.IsEnableAnalysisTools);
     }
 
     /// <summary>
@@ -324,35 +359,34 @@ public partial class MainWindow
                 var magnitudeDataList = filteredCombatEventList
                     .OrderBy(ev => ev.Timestamp)
                     .Select(ev => new { Mag = ev.Magnitude, DateTimeDouble = ev.Timestamp.ToOADate() }).ToList();
-                
+
                 var inactiveLegendAdded = false;
 
-                if(this.CombatLogManagerContext.MainCombatEventGridContext.IsDisplayPlotPlayerInactive)
-                {
-                    foreach (var deadZone in this.CombatLogManagerContext.SelectedCombatEntity.DeadZones)
-                    {
-                        var minValue = magnitudeDataList.Min(mag => mag.Mag);
-                        var maxValue = magnitudeDataList.Max(mag => mag.Mag);
-                        if (Math.Abs(minValue - maxValue) < 100)
+                if (this.CombatLogManagerContext.MainCombatEventGridContext.IsDisplayPlotPlayerInactive)
+                    if (this.CombatLogManagerContext.SelectedCombatEntity != null)
+                        foreach (var deadZone in this.CombatLogManagerContext.SelectedCombatEntity.DeadZones)
                         {
-                            minValue = -50;
-                            maxValue = 50;
+                            var minValue = magnitudeDataList.Min(mag => mag.Mag);
+                            var maxValue = magnitudeDataList.Max(mag => mag.Mag);
+                            if (Math.Abs(minValue - maxValue) < 100)
+                            {
+                                minValue = -50;
+                                maxValue = 50;
+                            }
+
+                            var deadZoneSignal = this.uiScottScatterPlotEntityEvents.Plot.Add.Rectangle(
+                                deadZone.StartTime.ToOADate(), deadZone.EndTime.ToOADate(), minValue, maxValue);
+
+                            deadZoneSignal.FillStyle.Color = Colors.Black.WithAlpha(.2);
+                            deadZoneSignal.LineStyle.Color = Colors.Black;
+                            deadZoneSignal.LineStyle.Width = 3;
+                            deadZoneSignal.LineStyle.Pattern = LinePattern.Solid;
+
+                            if (!inactiveLegendAdded)
+                                deadZoneSignal.LegendText = "Inactive";
+
+                            inactiveLegendAdded = true;
                         }
-
-                        var deadZoneSignal = this.uiScottScatterPlotEntityEvents.Plot.Add.Rectangle(
-                            deadZone.StartTime.ToOADate(), deadZone.EndTime.ToOADate(), minValue, maxValue);
-
-                        deadZoneSignal.FillStyle.Color = Colors.Black.WithAlpha(.2);
-                        deadZoneSignal.LineStyle.Color = Colors.Black;
-                        deadZoneSignal.LineStyle.Width = 3;
-                        deadZoneSignal.LineStyle.Pattern = LinePattern.Solid;
-
-                        if (!inactiveLegendAdded)
-                            deadZoneSignal.LegendText = "Inactive";
-
-                        inactiveLegendAdded = true;
-                    }
-                }
 
                 var signal = this.uiScottScatterPlotEntityEvents.Plot.Add.SignalXY(
                     magnitudeDataList.Select(pd => pd.DateTimeDouble).ToArray(),

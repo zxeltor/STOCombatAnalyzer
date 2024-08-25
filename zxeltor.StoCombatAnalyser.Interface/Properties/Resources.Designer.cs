@@ -186,6 +186,15 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Used to import a Combat entity from a JSON file..
+        /// </summary>
+        public static string import_combat_json {
+            get {
+                return ResourceManager.GetString("import_combat_json", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Import a new or modified CombatMapDetectionSettings.json file. These settings affect how a map is determined for a Combat entity.
         ///
         ///Note: The new settings won&apos;t be reflected in the interface until you run &quot;Parse Log(s)&quot;..

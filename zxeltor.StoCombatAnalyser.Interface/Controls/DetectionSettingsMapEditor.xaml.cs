@@ -10,13 +10,13 @@ using zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
 namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 
 /// <summary>
-///     Interaction logic for DetectionSettingsMadpEditor.xaml
+///     Interaction logic for DetectionSettingsMapEditor.xaml
 /// </summary>
-public partial class DetectionSettingsMadpEditor : Window
+public partial class DetectionSettingsMapEditor : Window
 {
     #region Constructors
 
-    public DetectionSettingsMadpEditor()
+    public DetectionSettingsMapEditor()
     {
         this.InitializeComponent();
     }

@@ -55,7 +55,7 @@
             </Style>
         </Grid.Resources>
         <TabControl x:Name="uiTableControlMain" Margin="0">
-            <TabItem x:Name="uiTabLogAnalyzer" Header="Log File Analyzer">
+            <TabItem x:Name="uiTabLogAnalyzer" Header="Combat Metrics">
                 <Grid Name="uiGridTabLogAnalyzer">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -685,10 +685,13 @@
             </TabItem>
 
             <TabItem Header="Detection Settings Editor" Visibility="{Binding Source={x:Static properties:Settings.Default}, 
-                    Path=IsDetectionsSettingsVisibleInUi, Converter={StaticResource typeToVisibilityConverter}}">
-                <Grid>
-                    <controls:DetectionSettingsControl Margin="0,0,0,0" VerticalAlignment="Stretch"  VerticalContentAlignment="Stretch" />
-                </Grid>
+                    Path=IsDetectionsSettingsTabEnabled, Converter={StaticResource typeToVisibilityConverter}}">
+                <Grid Name="uiGridDetectionSettingsEditor" />
+            </TabItem>
+
+            <TabItem Header="Combat Viewer" Visibility="{Binding Source={x:Static properties:Settings.Default}, 
+                    Path=IsCombatDetailsTabEnabled, Converter={StaticResource typeToVisibilityConverter}}">
+                <Grid Name="uiGridCombatAnalyzer" />
             </TabItem>
 
             <TabItem Header="Tools/Settings">
