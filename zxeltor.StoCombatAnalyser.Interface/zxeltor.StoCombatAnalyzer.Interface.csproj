@@ -17,10 +17,6 @@
 
   <ItemGroup>
     <Compile Remove="AppConstants.cs" />
-    <Compile Remove="Model\CombatLog\CombatLogEntry.cs" />
-    <Compile Remove="Model\CombatLog\NonPlayerCombatEntity.cs" />
-    <Compile Remove="Model\CombatLog\PlayerCombatEntity.cs" />
-    <Compile Remove="Model\CombatLog\Target.cs" />
     <Compile Remove="Settings.cs" />
   </ItemGroup>
 
@@ -62,6 +58,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\zxeltor.ConfigUtilsHelpers\zxeltor.ConfigUtilsHelpers.csproj" />
+    <ProjectReference Include="..\zxeltor.StoCombatAnalyzer.Lib\zxeltor.StoCombatAnalyzer.Lib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

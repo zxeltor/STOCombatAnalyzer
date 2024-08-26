@@ -17,6 +17,8 @@ using Microsoft.Win32;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
+using zxeltor.StoCombatAnalyzer.Lib.Helpers;
+using zxeltor.StoCombatAnalyzer.Lib.Model;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 
@@ -168,9 +170,9 @@ public partial class SettingsUserControl : UserControl
     /// </summary>
     private void UiButtonBoxCombatLogPathDetect_OnClick(object sender, RoutedEventArgs e)
     {
-        if (AppHelper.TryGetStoBaseFolder(out var stoBaseFolder))
+        if (LibHelper.TryGetStoBaseFolder(out var stoBaseFolder))
         {
-            var stoLogFolderPath = Path.Combine(stoBaseFolder, AppHelper.StoCombatLogSubFolder);
+            var stoLogFolderPath = Path.Combine(stoBaseFolder, LibHelper.StoCombatLogSubFolder);
             if (Directory.Exists(stoLogFolderPath))
             {
                 this.MyPrivateContext.CombatLogPath = stoLogFolderPath;
@@ -242,7 +244,7 @@ public partial class SettingsUserControl : UserControl
         {
             this._log.Debug("Purging log files.");
 
-            if (CombatLogManager.TryPurgeCombatLogFolder(out var filesPurged, out var errorReason))
+            if (CombatLogHelper.TryPurgeCombatLogFolder(new CombatLogParseSettings(Settings.Default), out var filesPurged, out var errorReason))
             {
                 if (filesPurged.Any())
                     ResponseDialog.Show(Application.Current.MainWindow, "Combat logs were purged.",
@@ -375,11 +377,11 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
     private string? _combatLogPathFilePattern = Settings.Default.CombatLogPathFilePattern;
     private bool _enableCombinePets = Settings.Default.IsCombinePets;
     private bool _enableDebugLogging = Settings.Default.DebugLogging;
-    private bool _enableDetectionSettingsInUi = Settings.Default.IsDetectionsSettingsTabEnabled;
+    private bool _enableDetectionSettingsInUi = Settings.Default.IsDetectionsSettingsVisibleInUi;
     private bool _enableInActiveCalc = Settings.Default.IsEnableInactiveTimeCalculations;
-    private int _howFarBackForCombat = Settings.Default.HowFarBackForCombat;
-    private int _howLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombat;
-    private long _howLongToKeepLogs = Settings.Default.HowLongToKeepLogs;
+    private int _howFarBackForCombat = Settings.Default.HowFarBackForCombatInHours;
+    private int _howLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombatInSeconds;
+    private int _howLongToKeepLogs = Settings.Default.HowLongToKeepLogsInDays;
     private double _minInActiveInSeconds = Settings.Default.MinInActiveInSeconds;
     private string _myCharacter = Settings.Default.MyCharacter;
     private bool _purgeCombatLogs = Settings.Default.PurgeCombatLogs;
@@ -443,14 +445,14 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
     ///     How long to keep combat logs since they were last written too.
     ///     <para>If only one log exists, it won't be deleted.</para>
     /// </summary>
-    public long HowLongToKeepLogs
+    public int HowLongToKeepLogs
     {
-        get => this._howLongToKeepLogs = Settings.Default.HowLongToKeepLogs;
+        get => this._howLongToKeepLogs = Settings.Default.HowLongToKeepLogsInDays;
         set
         {
             //Settings.Default.Save();
             this.SetField(ref this._howLongToKeepLogs, value);
-            Settings.Default.HowLongToKeepLogs = value;
+            Settings.Default.HowLongToKeepLogsInDays = value;
         }
     }
 
@@ -516,24 +518,24 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
     /// </summary>
     public int HowLongBeforeNewCombat
     {
-        get => this._howLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombat;
+        get => this._howLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombatInSeconds;
         set
         {
             //Settings.Default.HowLongBeforeNewCombat = value;
             //Settings.Default.Save();
             this.SetField(ref this._howLongBeforeNewCombat, value);
-            Settings.Default.HowLongBeforeNewCombat = value;
+            Settings.Default.HowLongBeforeNewCombatInSeconds = value;
         }
     }
 
     public int HowFarBackForCombat
     {
-        get => this._howFarBackForCombat = Settings.Default.HowFarBackForCombat;
+        get => this._howFarBackForCombat = Settings.Default.HowFarBackForCombatInHours;
         set
         {
             //Settings.Default.Save();
             this.SetField(ref this._howFarBackForCombat, value);
-            Settings.Default.HowFarBackForCombat = value;
+            Settings.Default.HowFarBackForCombatInHours = value;
         }
     }
 

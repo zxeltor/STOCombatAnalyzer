@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 using System.Windows;
-using zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
+using zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 

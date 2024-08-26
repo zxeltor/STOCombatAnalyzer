@@ -4,7 +4,7 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes.UI;
+namespace zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 
 /// <summary>
 ///     A wrapper class for combat entity identifiers, used by Map Detection logic.

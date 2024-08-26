@@ -6,7 +6,7 @@
 
 using Humanizer;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
+namespace zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 
 /// <summary>
 ///     This represents a particular ability used by a specific player or non-player entity.

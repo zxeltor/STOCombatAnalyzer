@@ -62,12 +62,12 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("20")]
-        public int HowLongBeforeNewCombat {
+        public int HowLongBeforeNewCombatInSeconds {
             get {
-                return ((int)(this["HowLongBeforeNewCombat"]));
+                return ((int)(this["HowLongBeforeNewCombatInSeconds"]));
             }
             set {
-                this["HowLongBeforeNewCombat"] = value;
+                this["HowLongBeforeNewCombatInSeconds"] = value;
             }
         }
         
@@ -86,12 +86,12 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("7")]
-        public long HowLongToKeepLogs {
+        public int HowLongToKeepLogsInDays {
             get {
-                return ((long)(this["HowLongToKeepLogs"]));
+                return ((int)(this["HowLongToKeepLogsInDays"]));
             }
             set {
-                this["HowLongToKeepLogs"] = value;
+                this["HowLongToKeepLogsInDays"] = value;
             }
         }
         
@@ -225,45 +225,45 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
             "n\":\"Ground_\",\"IsUniqueToMap\":false}],\"MapEntityExclusions\":[]},\"GenericSpaceMap\"" +
             ":{\"Name\":\"Generic Space\",\"IsEnabled\":true,\"MapEntities\":[{\"IsEnabled\":true,\"Patt" +
             "ern\":\"Space_\",\"IsUniqueToMap\":false}],\"MapEntityExclusions\":[]}}")]
-        public string DefaultCombatMapList {
+        public string DefaultCombatDetectionSettings {
             get {
-                return ((string)(this["DefaultCombatMapList"]));
+                return ((string)(this["DefaultCombatDetectionSettings"]));
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string UserCombatMapList {
+        public string UserCombatDetectionSettings {
             get {
-                return ((string)(this["UserCombatMapList"]));
+                return ((string)(this["UserCombatDetectionSettings"]));
             }
             set {
-                this["UserCombatMapList"] = value;
+                this["UserCombatDetectionSettings"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("48")]
-        public int HowFarBackForCombat {
+        public int HowFarBackForCombatInHours {
             get {
-                return ((int)(this["HowFarBackForCombat"]));
+                return ((int)(this["HowFarBackForCombatInHours"]));
             }
             set {
-                this["HowFarBackForCombat"] = value;
+                this["HowFarBackForCombatInHours"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool IsDetectionsSettingsTabEnabled {
+        public bool IsDetectionsSettingsVisibleInUi {
             get {
-                return ((bool)(this["IsDetectionsSettingsTabEnabled"]));
+                return ((bool)(this["IsDetectionsSettingsVisibleInUi"]));
             }
             set {
-                this["IsDetectionsSettingsTabEnabled"] = value;
+                this["IsDetectionsSettingsVisibleInUi"] = value;
             }
         }
         
@@ -408,6 +408,30 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
             }
             set {
                 this["CombatControlGridDisplayList"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool DisplayCombatDetailsControl {
+            get {
+                return ((bool)(this["DisplayCombatDetailsControl"]));
+            }
+            set {
+                this["DisplayCombatDetailsControl"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsDetectionsSettingsTabEnabled {
+            get {
+                return ((bool)(this["IsDetectionsSettingsTabEnabled"]));
+            }
+            set {
+                this["IsDetectionsSettingsTabEnabled"] = value;
             }
         }
         

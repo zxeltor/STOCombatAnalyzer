@@ -6,16 +6,13 @@
 
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using log4net;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes.UI;
-using zxeltor.StoCombatAnalyzer.Interface.Controls;
-using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
-using zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
+using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
+using zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
 
@@ -35,7 +32,7 @@ public class CombatLogManager : INotifyPropertyChanged
 
     #region Static Fields and Constants
 
-    private static readonly ILog Log = LogManager.GetLogger(typeof(CombatLogManager));
+    private static readonly ILog _log = LogManager.GetLogger(typeof(CombatLogManager));
 
     #endregion
 
@@ -62,13 +59,13 @@ public class CombatLogManager : INotifyPropertyChanged
     public CombatLogManager()
     {
         // Pull our map detection settings from the config
-        if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatMapList) &&
-            SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(Settings.Default.UserCombatMapList,
+        if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatDetectionSettings) &&
+            SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(Settings.Default.UserCombatDetectionSettings,
                 out var combatMapSettingsUser))
             this.CombatMapDetectionSettings = combatMapSettingsUser;
-        else if (!string.IsNullOrWhiteSpace(Settings.Default.DefaultCombatMapList) &&
+        else if (!string.IsNullOrWhiteSpace(Settings.Default.DefaultCombatDetectionSettings) &&
                  SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
-                     Settings.Default.DefaultCombatMapList, out var combatMapSettingsDefault))
+                     Settings.Default.DefaultCombatDetectionSettings, out var combatMapSettingsDefault))
             this.CombatMapDetectionSettings = combatMapSettingsDefault;
 
         Settings.Default.PropertyChanged += this.DefaultOnPropertyChanged;
@@ -387,216 +384,255 @@ public class CombatLogManager : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    /// <summary>
-    ///     Purge the sto combat logs folder.
-    ///     <para>Note: If there's only one log found, it won't be purged.</para>
-    /// </summary>
-    /// <param name="filesPurged">A list of files purged.</param>
-    /// <param name="errorResponse">An error to report back to the UI.</param>
-    /// <returns>True if successful. False otherwise</returns>
-    public static bool TryPurgeCombatLogFolder(out List<string> filesPurged, out string errorResponse)
-    {
-        filesPurged = [];
-        errorResponse = string.Empty;
+    ///// <summary>
+    /////     Purge the sto combat logs folder.
+    /////     <para>Note: If there's only one log found, it won't be purged.</para>
+    ///// </summary>
+    ///// <param name="filesPurged">A list of files purged.</param>
+    ///// <param name="errorResponse">An error to report back to the UI.</param>
+    ///// <returns>True if successful. False otherwise</returns>
+    //public static bool TryPurgeCombatLogFolder(out List<string> filesPurged, out string errorResponse)
+    //{
+    //    filesPurged = [];
+    //    errorResponse = string.Empty;
 
-        try
-        {
-            if (!Directory.Exists(Settings.Default.CombatLogPath))
-            {
-                errorResponse =
-                    "Can't purge the combat logs. The folder doesn't exist. Check CombatLogPath in settings.";
-                Log.Error(
-                    $"Can't purge the combat logs. The folder doesn't exist. \"{Settings.Default.CombatLogPath}\"");
-                return false;
-            }
+    //    try
+    //    {
+    //        if (!Directory.Exists(Settings.Default.CombatLogPath))
+    //        {
+    //            errorResponse =
+    //                "Can't purge the combat logs. The folder doesn't exist. Check CombatLogPath in settings.";
+    //            _log.Error(
+    //                $"Can't purge the combat logs. The folder doesn't exist. \"{Settings.Default.CombatLogPath}\"");
+    //            return false;
+    //        }
 
-            var combatLogInfoList = Directory
-                .GetFiles(Settings.Default.CombatLogPath, Settings.Default.CombatLogPathFilePattern,
-                    SearchOption.TopDirectoryOnly).Select(file => new FileInfo(file)).ToList();
+    //        var combatLogInfoList = Directory
+    //            .GetFiles(Settings.Default.CombatLogPath, Settings.Default.CombatLogPathFilePattern,
+    //                SearchOption.TopDirectoryOnly).Select(file => new FileInfo(file)).ToList();
 
-            if (!combatLogInfoList.Any() || combatLogInfoList.Count == 1) return false;
+    //        if (!combatLogInfoList.Any() || combatLogInfoList.Count == 1) return false;
 
-            var tmpFilesPurged = new List<string>();
+    //        var tmpFilesPurged = new List<string>();
 
-            combatLogInfoList.ForEach(fileInfo =>
-            {
-                if (fileInfo.IsReadOnly) return;
+    //        combatLogInfoList.ForEach(fileInfo =>
+    //        {
+    //            if (fileInfo.IsReadOnly) return;
 
-                if (DateTime.Now - fileInfo.LastWriteTime <=
-                    TimeSpan.FromDays(Settings.Default.HowLongToKeepLogs)) return;
+    //            if (DateTime.Now - fileInfo.LastWriteTime <=
+    //                TimeSpan.FromDays(Settings.Default.HowLongToKeepLogsInDays)) return;
 
-                File.Delete(fileInfo.FullName);
-                tmpFilesPurged.Add(fileInfo.Name);
-            });
+    //            File.Delete(fileInfo.FullName);
+    //            tmpFilesPurged.Add(fileInfo.Name);
+    //        });
 
-            filesPurged.AddRange(tmpFilesPurged);
+    //        filesPurged.AddRange(tmpFilesPurged);
 
-            return true;
-        }
-        catch (Exception e)
-        {
-            errorResponse = $"Can't purge the combat logs. Reason={e.Message}";
-            Log.Error("Failed to purge combat logs folder.", e);
-        }
+    //        return true;
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        errorResponse = $"Can't purge the combat logs. Reason={e.Message}";
+    //        _log.Error("Failed to purge combat logs folder.", e);
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
     public event StatusChangeEventHandler? StatusChange;
 
-    /// <summary>
-    ///     Parse a group of STO combat logs, and construct a <see cref="Combat" /> entity hierarchy.
-    /// </summary>
-    /// <param name="filesToParse">A list of combat logs to parse.</param>
-    public void GetCombatLogEntriesFromLogFiles(List<FileInfo>? filesToParse = null)
-    {
-        var results = new LinkedList<CombatEvent>();
+    ///// <summary>
+    /////     Parse a group of STO combat logs, and construct a <see cref="Combat" /> entity hierarchy.
+    ///// </summary>
+    ///// <param name="filesToParse">A list of combat logs to parse.</param>
+    //public static List<Combat>? GetCombatLogEntriesFromLogFiles(string logFolderPath, string logFilePattern, CombatMapDetectionSettings? mapDetectionSettings = null)
+    //{
+    //    List<Combat>? combatListResult = null;
 
-        // A list of objects used to track successful and unsuccessful file log parses.
-        var fileParsedResults = new Dictionary<string, FileParseResults>();
+    //    if (string.IsNullOrWhiteSpace(logFolderPath))
+    //        throw new ArgumentNullException(nameof(logFolderPath));
 
-        Log.Debug("Parsing log files.");
+    //    if (string.IsNullOrWhiteSpace(logFilePattern))
+    //        throw new ArgumentNullException(nameof(logFilePattern));
 
-        var howFarBackInTime = TimeSpan.FromHours(Settings.Default.HowFarBackForCombat);
-        var dateTimeTest = DateTime.Now;
+    //    var results = new LinkedList<CombatEvent>();
 
-        // If no files are provided, we attempt to get a list from our combat log folder.
-        if (filesToParse == null)
-        {
-            this.Combats.Clear();
+    //    // A list of objects used to track successful and unsuccessful file log parses.
+    //    var fileParsedResults = new Dictionary<string, FileParseResults>();
 
-            // The combat log base folder from settings.
-            var combatLogPath = Settings.Default.CombatLogPath;
-            // A search pattern to select log files in the base folder.
-            // This uses standard wildcard conventions, so multiple files can be selected.
-            var combatLogFilePattern = Settings.Default.CombatLogPathFilePattern;
+    //    _log.Debug("Parsing log files.");
 
-            try
-            {
-                // If our configured log folder isn't found, alert the user to do something about it.
-                if (!Directory.Exists(combatLogPath))
-                {
-                    this.AddToLogAndLogSummaryInUi(
-                        $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder.",
-                        isError: true);
+    //    var howFarBackInTime = TimeSpan.FromHours(Settings.Default.HowFarBackForCombat);
+    //    var dateTimeTest = DateTime.Now;
 
-                    DetailsDialog.Show(Application.Current.MainWindow!,
-                        $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder.",
-                        "Folder Select Error");
+    //    List<FileInfo>? filesToParse = null;
 
-                    return;
-                }
+    //    // If no files are provided, we attempt to get a list from our combat log folder.
+    //    if (filesToParse == null)
+    //    {
+    //        // The combat log base folder from settings.
+    //        var combatLogPath = logFolderPath;
+    //        // A search pattern to select log files in the base folder.
+    //        // This uses standard wildcard conventions, so multiple files can be selected.
+    //        var combatLogFilePattern = logFilePattern;
 
-                // Get a list of 1 or more files, if any exist.
-                filesToParse = Directory.GetFiles(combatLogPath, combatLogFilePattern, SearchOption.TopDirectoryOnly)
-                    .ToList().Select(file => new FileInfo(file)).ToList();
+    //        try
+    //        {
+    //            // If our configured log folder isn't found, alert the user to do something about it.
+    //            if (!Directory.Exists(combatLogPath))
+    //            {
+    //                //this.AddToLogAndLogSummaryInUi(
+    //                //    $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder.",
+    //                //    isError: true);
 
-                if (filesToParse.Count == 0)
-                {
-                    DetailsDialog.Show(Application.Current.MainWindow!,
-                        $"No combat log files we're found in the selected folder.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder, and check \"CombatLogPathFilePattern\".",
-                        "Not Found");
-                    return;
-                }
+    //                //DetailsDialog.Show(Application.Current.MainWindow!,
+    //                //    $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder.",
+    //                //    "Folder Select Error");
 
-                // Filter out files based on LastWriteTime and howFarBack
-                filesToParse = filesToParse.OrderBy(fileInfo => fileInfo.LastWriteTime).Where(fileInfo => dateTimeTest - fileInfo.LastWriteTime <= howFarBackInTime)
-                    .ToList();
+    //                var errorString = $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder.";
+    //                _log.Error(errorString);
+    //                throw new Exception(errorString);
+    //            }
 
-                if (filesToParse.Count == 0)
-                {
-                    DetailsDialog.Show(Application.Current.MainWindow!,
-                        $"Combat log(s) were found, but they're too old.{Environment.NewLine}{Environment.NewLine}They fell outside the timespan defined by the \"HowFarBackForCombat\" setting.",
-                        "Not Found");
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                var errorMessageString =
-                    $"Failed to get log files using pattern=\"{combatLogPath}\" and path=\"{combatLogFilePattern}\"";
-                this.AddToLogAndLogSummaryInUi(errorMessageString, ex, true);
+    //            // Get a list of 1 or more files, if any exist.
+    //            filesToParse = Directory.GetFiles(combatLogPath, combatLogFilePattern, SearchOption.TopDirectoryOnly)
+    //                .ToList().Select(file => new FileInfo(file)).ToList();
 
-                DetailsDialog.Show(Application.Current.MainWindow,
-                    errorMessageString, "Folder Select Error");
+    //            if (filesToParse.Count == 0)
+    //            {
+    //                //DetailsDialog.Show(Application.Current.MainWindow!,
+    //                //    $"No combat log files we're found in the selected folder.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder, and check \"CombatLogPathFilePattern\".",
+    //                //    "Not Found");
+    //                //return;
+    //                var errorString = $"No combat log files we're found in the selected folder.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder, and check \"CombatLogPathFilePattern\".";
+    //                _log.Error(errorString);
+    //                throw new Exception(errorString);
+    //            }
 
-                return;
-            }
-        }
+    //            // Filter out files based on LastWriteTime and howFarBack
+    //            filesToParse = filesToParse.OrderBy(fileInfo => fileInfo.LastWriteTime).Where(fileInfo => dateTimeTest - fileInfo.LastWriteTime <= howFarBackInTime)
+    //                .ToList();
 
-        // Loop through each log file found in our log folder.
-        filesToParse.ForEach(fileInfoEntry =>
-        {
-            try
-            {
-                // Since we can read in multiple log files, let's filter out the ones which are too old.
-                using (var sr = File.OpenText(fileInfoEntry.FullName))
-                {
-                    this.AddToLogAndLogSummaryInUi($"Parsing log: {Path.GetFileName(fileInfoEntry.FullName)}");
+    //            if (filesToParse.Count == 0)
+    //            {
+    //                //DetailsDialog.Show(Application.Current.MainWindow!,
+    //                //    $"Combat log(s) were found, but they're too old.{Environment.NewLine}{Environment.NewLine}They fell outside the timespan defined by the \"HowFarBackForCombat\" setting.",
+    //                //    "Not Found");
+    //                //return;
 
-                    fileParsedResults.Add(fileInfoEntry.FullName, new FileParseResults(fileInfoEntry.FullName));
-                    var fileLineCounter = 0;
+    //                var errorString = $"Combat log(s) were found, but they're too old.{Environment.NewLine}{Environment.NewLine}They fell outside the timespan defined by the \"HowFarBackForCombat\" setting.";
+    //                _log.Error(errorString);
+    //                throw new Exception(errorString);
+    //            }
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            //var errorMessageString =
+    //            //    $"Failed to get log files using pattern=\"{combatLogPath}\" and path=\"{combatLogFilePattern}\"";
+    //            //this.AddToLogAndLogSummaryInUi(errorMessageString, ex, true);
 
-                    while (sr.ReadLine() is { } fileLine)
-                    {
-                        fileLineCounter++;
-                        try
-                        {
-                            var combatEvent = new CombatEvent(Path.GetFileName(fileInfoEntry.FullName), fileLine,
-                                fileLineCounter);
+    //            //DetailsDialog.Show(Application.Current.MainWindow,
+    //            //    errorMessageString, "Folder Select Error");
 
-                            // Filter out combat events which are too old.
-                            if (dateTimeTest - combatEvent.Timestamp > howFarBackInTime) continue;
+    //            //return;
 
-                            fileParsedResults[fileInfoEntry.FullName].SuccessfulParses += 1;
-                            results.AddLast(combatEvent);
-                        }
-                        catch (Exception ex)
-                        {
-                            fileParsedResults[fileInfoEntry.FullName].FailedParses += 1;
-                            this.AddToLogAndLogSummaryInUi(
-                                $"Failed to parse log file=\"{fileInfoEntry.FullName}\", at line={fileLineCounter}. File line string={fileLine}",
-                                ex, true);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                this.AddToLogAndLogSummaryInUi($"Failed while parsing log file=\"{fileInfoEntry.FullName}\"", ex, true);
-            }
-        });
+    //            var errorString = $"Failed to get log files using pattern=\"{combatLogPath}\" and path=\"{combatLogFilePattern}\"";
+    //            _log.Error(errorString, ex);
+    //            throw new Exception(errorString);
+    //        }
+    //    }
 
-        // This should never be true, but let's play it safe.
-        if (results.Count == 0)
-        {
-            var message =
-                $"No combat data was returned.{Environment.NewLine}{Environment.NewLine}Combat log data was found, but it fell outside the timespan defined by the \"HowFarBackForCombat\" setting.";
-            DetailsDialog.Show(Application.Current.MainWindow!, message, "Warning");
-        }
+    //    // Loop through each log file found in our log folder.
+    //    filesToParse.ForEach(fileInfoEntry =>
+    //    {
+    //        try
+    //        {
+    //            // Since we can read in multiple log files, let's filter out the ones which are too old.
+    //            using (var sr = File.OpenText(fileInfoEntry.FullName))
+    //            {
+    //                //this.AddToLogAndLogSummaryInUi($"Parsing log: {Path.GetFileName(fileInfoEntry.FullName)}");
+    //                _log.Debug($"Parsing log: {Path.GetFileName(fileInfoEntry.FullName)}");
 
-        try
-        {
-            // Construct our Combat hierarchy
-            this.AddCombatEvents(results.OrderBy(res => res.Timestamp).ToList());
+    //                fileParsedResults.Add(fileInfoEntry.FullName, new FileParseResults(fileInfoEntry.FullName));
+    //                var fileLineCounter = 0;
 
-            var completionMessage =
-                $"Successfully parsed \"{results.Count}\" events from \"{fileParsedResults.Keys.Count}\" files for the past \"{howFarBackInTime.TotalHours}\" hours.";
+    //                while (sr.ReadLine() is { } fileLine)
+    //                {
+    //                    fileLineCounter++;
+    //                    try
+    //                    {
+    //                        var combatEvent = new CombatEvent(Path.GetFileName(fileInfoEntry.FullName), fileLine,
+    //                            fileLineCounter);
 
-            this.AddToLogAndLogSummaryInUi(completionMessage);
+    //                        // Filter out combat events which are too old.
+    //                        if (dateTimeTest - combatEvent.Timestamp > howFarBackInTime) continue;
 
-            if (Settings.Default.IsDisplayParseResults)
-                ResponseDialog.Show(Application.Current.MainWindow, completionMessage, "Success",
-                    detailsBoxCaption: "Files parsed",
-                    detailsBoxList: fileParsedResults.Select(file => file.Value.ToLog()).ToList());
-        }
-        catch (Exception ex)
-        {
-            DetailsDialog.Show(Application.Current.MainWindow, "Failed to parse combat logs.", "Error");
+    //                        fileParsedResults[fileInfoEntry.FullName].SuccessfulParses += 1;
+    //                        results.AddLast(combatEvent);
+    //                    }
+    //                    catch (Exception ex)
+    //                    {
+    //                        fileParsedResults[fileInfoEntry.FullName].FailedParses += 1;
+    //                        //this.AddToLogAndLogSummaryInUi(
+    //                        //    $"Failed to parse log file=\"{fileInfoEntry.FullName}\", at line={fileLineCounter}. File line string={fileLine}",
+    //                        //    ex, true);
+    //                        var errorString = $"Failed to parse log file=\"{fileInfoEntry.FullName}\", at line={fileLineCounter}. File line string={fileLine}";
+    //                        _log.Error(errorString,ex);
+    //                    }
+    //                }
+    //            }
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            //this.AddToLogAndLogSummaryInUi($"Failed while parsing log file=\"{fileInfoEntry.FullName}\"", ex, true);
+    //            var errorString = $"Failed while parsing log file=\"{fileInfoEntry.FullName}\"";
+    //            _log.Error(errorString, ex);
+    //            //throw new Exception(errorString);
+    //        }
+    //    });
 
-            this.AddToLogAndLogSummaryInUi("Failed to parse log file(s).", ex, true);
-        }
-    }
+    //    // This should never be true, but let's play it safe.
+    //    if (results.Count == 0)
+    //    {
+    //        //var message =
+    //        //    $"No combat data was returned.{Environment.NewLine}{Environment.NewLine}Combat log data was found, but it fell outside the timespan defined by the \"HowFarBackForCombat\" setting.";
+    //        //DetailsDialog.Show(Application.Current.MainWindow!, message, "Warning");
+
+    //        var errorString = $"No combat data was returned.{Environment.NewLine}{Environment.NewLine}Combat log data was found, but it fell outside the timespan defined by the \"HowFarBackForCombat\" setting.";
+    //        _log.Error(errorString);
+    //        //throw new Exception(errorString);
+    //    }
+
+    //    try
+    //    {
+    //        // Construct our Combat hierarchy
+    //        AddCombatEvents(results.OrderBy(res => res.Timestamp).ToList());
+
+    //        var completionMessage =
+    //            $"Successfully parsed \"{results.Count}\" events from \"{fileParsedResults.Keys.Count}\" files for the past \"{howFarBackInTime.TotalHours}\" hours.";
+
+    //        //this.AddToLogAndLogSummaryInUi(completionMessage);
+
+    //        //if (Settings.Default.IsDisplayParseResults)
+    //        //    ResponseDialog.Show(Application.Current.MainWindow, completionMessage, "Success",
+    //        //        detailsBoxCaption: "Files parsed",
+    //        //        detailsBoxList: fileParsedResults.Select(file => file.Value.ToLog()).ToList());
+
+    //        _log.Info(completionMessage);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        //DetailsDialog.Show(Application.Current.MainWindow, "Failed to parse combat logs.", "Error");
+
+    //        //this.AddToLogAndLogSummaryInUi("Failed to parse log file(s).", ex, true);
+
+    //        var errorString = "Failed to parse combat logs.";
+    //        _log.Error(errorString, ex);
+    //        throw new Exception(errorString, ex);
+    //    }
+
+    //    return combatListResult;
+    //}
 
     /// <summary>
     ///     Populate our <see cref="CombatEvent" /> grid in the UI, using a <see cref="CombatEntity" /> selected by the user in
@@ -663,215 +699,6 @@ public class CombatLogManager : INotifyPropertyChanged
     protected void OnPropertyChanged([CallerMemberName] string? name = null)
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    }
-
-    /// <summary>
-    ///     A helper used for logging, and to send logging summary to the main window.
-    /// </summary>
-    /// <param name="message">Details about the event</param>
-    /// <param name="exception">A related exception, if available.</param>
-    /// <param name="isError">True if this event is an error. False otherwise.</param>
-    private void AddToLogAndLogSummaryInUi(string message, Exception? exception = null, bool isError = false)
-    {
-        this.StatusChange?.Invoke(this, new CombatManagerStatusEventArgs(message, isError));
-
-        if (isError)
-            Log.Error(message, exception);
-        else
-            Log.Info(message, exception);
-    }
-
-    /// <summary>
-    ///     This is called during log file parsing, to group <see cref="CombatEvent" /> objects into our <see cref="Combat" />
-    ///     hierarchy.
-    ///     <para>This method assumes the combat event list is sorted by timestamp.</para>
-    /// </summary>
-    /// <param name="combatEventList">
-    ///     A list of <see cref="CombatEvent" /> used to construct our <see cref="Combat" />
-    ///     hieracrchy.
-    /// </param>
-    private void AddCombatEvents(List<CombatEvent>? combatEventList)
-    {
-        if (combatEventList == null || combatEventList.Count == 0) return;
-
-        var combatList = new List<Combat>();
-
-        combatEventList.ForEach(combatEvent =>
-        {
-            var latestCombat = combatList.LastOrDefault();
-            // Take our first combat event, and use it to create our first combat instance.
-            if (latestCombat == null)
-            {
-                latestCombat = new Combat(combatEvent);
-                combatList.Add(latestCombat);
-            }
-            // We check our current combat event, with the last entry in our current combat instance. If they're more than
-            // 90 seconds apart, we use the new combat event to create a new combat instance.
-            else if (combatEvent.Timestamp - latestCombat.CombatEnd >
-                     TimeSpan.FromSeconds(Settings.Default.HowLongBeforeNewCombat))
-            {
-                latestCombat = new Combat(combatEvent);
-                combatList.Add(latestCombat);
-            }
-            // Go ahead and insert our new combat event into our current combat instance.
-            else
-            {
-                latestCombat.AddCombatEvent(combatEvent);
-            }
-        });
-
-        var takeCount = Settings.Default.MaxNumberOfCombatsToDisplay;
-
-        combatList.ForEach(combat => combat.LockObject());
-
-        // Based on our MaxNumberOfCombatsToDisplay setting, we may want to filter our combat list
-        if (takeCount > 0)
-            combatList.TakeLast(takeCount).OrderByDescending(com => com.CombatStart).ToList()
-                .ForEach(combat => this.Combats.Add(combat));
-        else
-            combatList.OrderByDescending(com => com.CombatStart).ToList().ForEach(combat => this.Combats.Add(combat));
-
-        this.DetermineMapsForCombatList();
-
-        this.OnPropertyChanged(nameof(this.Combats));
-    }
-
-    /// <summary>
-    ///     Make an effort to determine a map for each of our combat instances.
-    /// </summary>
-    private void DetermineMapsForCombatList()
-    {
-        // Go through each Combat object and determine its map
-        this.Combats.ToList().ForEach(combat =>
-        {
-            this.CombatMapDetectionSettings.ResetCombatMatchCountForAllMaps();
-
-            var combatMapFound = this.DetermineMapFromCombatMapDetectionSettings(combat);
-            if (combatMapFound != null) combat.Map = combatMapFound.Name;
-        });
-    }
-
-    /// <summary>
-    ///     Find a map for the provided combat entity from our MapDetectionSettings object.
-    /// </summary>
-    /// <param name="combat">The provided combat entity</param>
-    /// <returns>A combat map</returns>
-    private CombatMap? DetermineMapFromCombatMapDetectionSettings(Combat combat)
-    {
-        CombatMap? combatMap = null;
-
-        var currentCombatPlayerCount = combat.PlayerEntities.Count;
-
-        var filteredMapList = this.CombatMapDetectionSettings.CombatMapEntityList
-            .Where(map => map.MaxPlayers == 0 || currentCombatPlayerCount <= map.MaxPlayers).ToList();
-
-        var currentCombatUniqueIds = combat.UniqueEntityIds.Where(id => !string.IsNullOrWhiteSpace(id.Id)).Select(id => id.Id)
-            .Union(combat.UniqueEntityIds.Where(id => !string.IsNullOrWhiteSpace(id.Label)).Select(id => id.Label))
-            .Distinct().ToList();
-
-        var idsFoundInMapList = false;
-        var idsFoundInGenericList = false;
-
-        // Find a match in our CombatMapDetectionSettings object based on our entity ids.
-        foreach (var currentEntity in currentCombatUniqueIds)
-        {
-            // If the currentEntityId is found in a map exclusion list,
-            // then it gets thrown out of the rest of the detection logic,
-            // and the maps with the ID are marked as exceptions for the
-            // current combat entity being checked.
-            var mapExceptions =
-                (from map in filteredMapList
-                 from ent in map.MapEntityExclusions
-                    where map.IsEnabled && ent.IsEnabled && currentEntity.Contains(ent.Pattern)
-                    select map).ToList();
-            if (mapExceptions.Count > 0)
-            {
-                mapExceptions.ForEach(map => map.IsAnException = true);
-                continue;
-            }
-
-            // If the currentEntityId is found in main exclusion list,
-            // then it gets thrown out of the rest of the detection logic.
-            var isException =
-                this.CombatMapDetectionSettings.EntityExclusionList.Where(ent => ent.IsEnabled).FirstOrDefault(ent =>
-                    currentEntity.Contains(ent.Pattern));
-            if (isException != null)
-                continue;
-
-            // Check to see if the currentEntityId is unique to a map. If a map
-            // is found we return without doing further logic.
-            var uniqueToMap =
-                (from map in filteredMapList
-                 from ent in map.MapEntities
-                    where map.IsEnabled && ent.IsEnabled && !map.IsAnException && currentEntity.Contains(ent.Pattern) &&
-                          ent.IsUniqueToMap
-                    select map).FirstOrDefault();
-            if (uniqueToMap != null) 
-                return uniqueToMap;
-
-            // Get any match counts from our map list.
-            var entitiesFoundInMap =
-                (from map in filteredMapList
-                 from ent in map.MapEntities
-                    where map.IsEnabled && ent.IsEnabled && !map.IsAnException && currentEntity.Contains(ent.Pattern)
-                    select ent).ToList();
-            if (entitiesFoundInMap.Count > 0)
-            {
-                entitiesFoundInMap.ForEach(ent => ent.IncrementCombatMatchCount());
-                idsFoundInMapList = true;
-                continue;
-            }
-
-            // If we find any matches in the main map list, we don't need to bother
-            // with checking our generic ground and space maps for matches.
-            if (idsFoundInMapList)
-                continue;
-
-            // Get any match counts from our generic ground map.
-            var entitiesFoundInGenericGroundMap =
-                (from ent in this.CombatMapDetectionSettings.GenericGroundMap.MapEntities
-                    where ent.IsEnabled && currentEntity.Contains(ent.Pattern)
-                    select ent).ToList();
-            if (entitiesFoundInGenericGroundMap.Count > 0)
-            {
-                entitiesFoundInGenericGroundMap.ForEach(ent => ent.IncrementCombatMatchCount());
-                idsFoundInGenericList = true;
-            }
-
-            // Get any match counts from our generic space map.
-            var entitiesFoundInGenericSpacedMap =
-                (from ent in this.CombatMapDetectionSettings.GenericSpaceMap.MapEntities
-                    where ent.IsEnabled && currentEntity.Contains(ent.Pattern)
-                    select ent).ToList();
-            if (entitiesFoundInGenericSpacedMap.Count > 0)
-            {
-                entitiesFoundInGenericSpacedMap.ForEach(ent => ent.IncrementCombatMatchCount());
-                idsFoundInGenericList = true;
-            }
-        }
-
-        // If we found any matches from our map list, we pick the one with the highest match count.
-        if (idsFoundInMapList)
-        {
-            var mapResult = filteredMapList
-                .Where(map => map.IsEnabled && !map.IsAnException)
-                .OrderByDescending(map => map.CombatMatchCountForMap).First();
-
-            return mapResult;
-        }
-
-        // If we found any matches from the generic ground and space maps, we pick the one with the highest match count.
-        if (idsFoundInGenericList)
-        {
-            var mapResult = this.CombatMapDetectionSettings.GenericGroundMap.CombatMatchCountForMap >=
-                            this.CombatMapDetectionSettings.GenericSpaceMap.CombatMatchCountForMap
-                ? this.CombatMapDetectionSettings.GenericGroundMap
-                : this.CombatMapDetectionSettings.GenericSpaceMap;
-            return mapResult;
-        }
-
-        // If all of our checks fail, we return our null object.
-        return combatMap;
     }
 
     #endregion

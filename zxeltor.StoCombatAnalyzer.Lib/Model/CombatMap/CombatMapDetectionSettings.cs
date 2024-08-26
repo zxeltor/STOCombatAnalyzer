@@ -9,7 +9,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
+namespace zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;
 
 /// <summary>
 ///     A class which represents a non-serialized version of our map detection settings.

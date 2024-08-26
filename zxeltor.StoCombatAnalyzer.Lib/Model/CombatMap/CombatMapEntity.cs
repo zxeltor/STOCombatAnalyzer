@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
+namespace zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;
 
 /// <summary>
 ///     Used to store string patterns to match against non-player entities in map detection.

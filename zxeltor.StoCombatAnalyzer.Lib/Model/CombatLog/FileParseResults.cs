@@ -4,9 +4,7 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-using System.IO;
-
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
+namespace zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 
 /// <summary>
 ///     A container used to track parsing statistics for our combat log files.

@@ -9,9 +9,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Humanizer;
 using Newtonsoft.Json;
-using zxeltor.StoCombatAnalyzer.Interface.Properties;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
+namespace zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 
 /// <summary>
 ///     This object represents a Player or Non-Player entity from the STO combat logs.
@@ -93,14 +92,17 @@ public class CombatEntity : INotifyPropertyChanged
             if (this._deadZones != null && this._isObjectLocked)
                 return this._deadZones;
 
-            if (!Settings.Default.IsEnableInactiveTimeCalculations || this.CombatEventsList.Count == 0)
+            //if (!Settings.Default.IsEnableInactiveTimeCalculations || this.CombatEventsList.Count == 0)
+            if (this.CombatEventsList.Count == 0)
                 return this._deadZones = new List<CombatEntityDeadZone>(0);
 
             var deadZones = new List<CombatEntityDeadZone>();
 
-            var minNoActivity = TimeSpan.FromSeconds(Settings.Default.MinInActiveInSeconds) < TimeSpan.FromSeconds(1)
-                ? TimeSpan.FromSeconds(1)
-                : TimeSpan.FromSeconds(Settings.Default.MinInActiveInSeconds);
+            //var minNoActivity = TimeSpan.FromSeconds(Settings.Default.MinInActiveInSeconds) < TimeSpan.FromSeconds(1)
+            //    ? TimeSpan.FromSeconds(1)
+            //    : TimeSpan.FromSeconds(Settings.Default.MinInActiveInSeconds);
+
+            var minNoActivity = TimeSpan.FromSeconds(4);
 
             var lastTimestamp = this.CombatEventsList.First().Timestamp;
 
@@ -155,7 +157,9 @@ public class CombatEntity : INotifyPropertyChanged
 
             if (!this._combatEventList.Any(ev => ev.IsOwnerPetEvent)) return new List<CombatPetEventType>();
 
-            if (Settings.Default.IsCombinePets)
+            var toddDoBool = true;
+            if (toddDoBool)
+            //if (Settings.Default.IsCombinePets)
             {
                 var myEvents = this._combatEventList.Where(ev => ev.IsOwnerPetEvent)
                     .GroupBy(ev => new { ev.SourceDisplay, ev.EventInternal, ev.EventDisplay })

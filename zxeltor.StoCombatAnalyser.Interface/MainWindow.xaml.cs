@@ -21,9 +21,11 @@ using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Classes.UI;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
-using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
-using zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
+using zxeltor.StoCombatAnalyzer.Lib.Helpers;
+using zxeltor.StoCombatAnalyzer.Lib.Model;
+using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
+using zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;
 using Color = ScottPlot.Color;
 using Colors = ScottPlot.Colors;
 using Image = System.Windows.Controls.Image;
@@ -147,7 +149,7 @@ public partial class MainWindow
 
         if (!Settings.Default.PurgeCombatLogs) return;
 
-        if (CombatLogManager.TryPurgeCombatLogFolder(out var filesPurged, out var errorReason))
+        if (CombatLogHelper.TryPurgeCombatLogFolder(new CombatLogParseSettings(Settings.Default), out var filesPurged, out var errorReason))
         {
             if (filesPurged.Count > 0 && Settings.Default.DebugLogging)
                 ResponseDialog.Show(Application.Current.MainWindow, "The combat logs were automatically purged.",
@@ -280,7 +282,16 @@ public partial class MainWindow
         try
         {
             progressDialog = new ProgressDialog(this,
-                () => this.CombatLogManagerContext.GetCombatLogEntriesFromLogFiles(),
+                () =>
+                {
+                    var settings = new CombatLogParseSettings(Settings.Default);
+                    var combatList = CombatLogHelper.GetCombatLogEntriesFromLogFiles(settings);
+                    
+                    CombatLogManagerContext.Combats.Clear();
+
+                    if(combatList != null)
+                        combatList.OrderByDescending(combat => combat.CombatStart).ToList().ForEach(combat => CombatLogManagerContext.Combats.Add(combat));
+                },
                 "Parsing combat log(s)");
 
             var dialogResult = progressDialog.ShowDialog();
@@ -1043,7 +1054,7 @@ public partial class MainWindow
 
                     this.CombatLogManagerContext.CombatMapDetectionSettings = serializationResult;
 
-                    Settings.Default.UserCombatMapList = jsonString;
+                    Settings.Default.UserCombatDetectionSettings = jsonString;
                     //Settings.Default.Save();
                 }
 
@@ -1117,11 +1128,11 @@ public partial class MainWindow
     {
         try
         {
-            Settings.Default.UserCombatMapList = null;
+            Settings.Default.UserCombatDetectionSettings = null;
             //Settings.Default.Save();
 
             this.CombatLogManagerContext.CombatMapDetectionSettings =
-                SerializationHelper.Deserialize<CombatMapDetectionSettings>(Settings.Default.DefaultCombatMapList);
+                SerializationHelper.Deserialize<CombatMapDetectionSettings>(Settings.Default.DefaultCombatDetectionSettings);
 
             this.CombatLogManagerContext.Combats.Clear();
 
@@ -1860,7 +1871,7 @@ public partial class MainWindow
 
                 this.CombatLogManagerContext.CombatMapDetectionSettings = combatMapDetectionSettings;
 
-                Settings.Default.UserCombatMapList = SerializationHelper.Serialize(combatMapDetectionSettings);
+                Settings.Default.UserCombatDetectionSettings = SerializationHelper.Serialize(combatMapDetectionSettings);
                 //Settings.Default.Save();
             }
 

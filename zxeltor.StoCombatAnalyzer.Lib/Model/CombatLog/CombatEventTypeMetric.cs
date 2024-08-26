@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
+namespace zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 
 public class CombatEventTypeMetric : INotifyPropertyChanged, IEquatable<CombatEventTypeMetric>, IEquatable<string>
 {

@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using log4net;
 using zxeltor.ConfigUtilsHelpers.Extensions;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
+namespace zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 
 /// <summary>
 ///     This class represents a line of data from the STO combat logs.

@@ -14,8 +14,8 @@ using Microsoft.Win32;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Helpers;
-using zxeltor.StoCombatAnalyzer.Interface.Model.CombatMap;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
+using zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;
 using Image = System.Windows.Controls.Image;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
@@ -107,18 +107,18 @@ public partial class DetectionSettingsControl : UserControl
             var serializedString =
                 SerializationHelper.Serialize(this.CombatLogManagerContext.CombatMapDetectionSettings);
 
-            if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatMapList) &&
-                SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(Settings.Default.UserCombatMapList,
+            if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatDetectionSettings) &&
+                SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(Settings.Default.UserCombatDetectionSettings,
                     out _))
-                this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave = Settings.Default.UserCombatMapList;
+                this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave = Settings.Default.UserCombatDetectionSettings;
 
-            else if (!string.IsNullOrWhiteSpace(Settings.Default.DefaultCombatMapList) &&
+            else if (!string.IsNullOrWhiteSpace(Settings.Default.DefaultCombatDetectionSettings) &&
                      SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
-                         Settings.Default.DefaultCombatMapList, out _))
+                         Settings.Default.DefaultCombatDetectionSettings, out _))
                 this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave =
-                    Settings.Default.DefaultCombatMapList;
+                    Settings.Default.DefaultCombatDetectionSettings;
 
-            Settings.Default.UserCombatMapList = serializedString;
+            Settings.Default.UserCombatDetectionSettings = serializedString;
 
             var successMessage =
                 $"Successfully saved {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.";
@@ -158,20 +158,20 @@ public partial class DetectionSettingsControl : UserControl
                 out var canceledCombatMapSettingsUser))
         {
             this.CombatLogManagerContext.CombatMapDetectionSettings = canceledCombatMapSettingsUser;
-            Settings.Default.UserCombatMapList = this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave;
+            Settings.Default.UserCombatDetectionSettings = this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave;
             this.SetMapDetectionSettingsChanged(false);
         }
-        else if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatMapList) &&
+        else if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatDetectionSettings) &&
                  SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
-                     Settings.Default.UserCombatMapList,
+                     Settings.Default.UserCombatDetectionSettings,
                      out var combatMapSettingsUser))
         {
             this.CombatLogManagerContext.CombatMapDetectionSettings = combatMapSettingsUser;
             this.SetMapDetectionSettingsChanged(false);
         }
-        else if (!string.IsNullOrWhiteSpace(Settings.Default.DefaultCombatMapList) &&
+        else if (!string.IsNullOrWhiteSpace(Settings.Default.DefaultCombatDetectionSettings) &&
                  SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
-                     Settings.Default.DefaultCombatMapList, out var combatMapSettingsDefault))
+                     Settings.Default.DefaultCombatDetectionSettings, out var combatMapSettingsDefault))
         {
             this.CombatLogManagerContext.CombatMapDetectionSettings = combatMapSettingsDefault;
             this.SetMapDetectionSettingsChanged(false);

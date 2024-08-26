@@ -10,9 +10,8 @@ using System.Runtime.CompilerServices;
 using Humanizer;
 using Humanizer.Localisation;
 using Newtonsoft.Json;
-using zxeltor.StoCombatAnalyzer.Interface.Classes.UI;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
+namespace zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 
 /// <summary>
 ///     This class represents a collection of <see cref="CombatEntity" /> objects which fall within the time range of

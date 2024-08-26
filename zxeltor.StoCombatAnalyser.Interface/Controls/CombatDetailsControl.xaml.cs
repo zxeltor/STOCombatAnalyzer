@@ -19,7 +19,7 @@ using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Classes.Converters;
 using zxeltor.StoCombatAnalyzer.Interface.Classes.UI.GridContext;
-using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
+using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 

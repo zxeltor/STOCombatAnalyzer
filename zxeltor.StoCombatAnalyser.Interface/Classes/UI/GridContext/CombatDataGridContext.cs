@@ -5,8 +5,8 @@
 // LICENSE file in the root directory of this source tree.
 
 using zxeltor.ConfigUtilsHelpers.Helpers;
-using zxeltor.StoCombatAnalyzer.Interface.Model.CombatLog;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
+using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Classes.UI.GridContext;
 
