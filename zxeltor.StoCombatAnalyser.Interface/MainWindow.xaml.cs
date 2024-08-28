@@ -39,9 +39,9 @@ namespace zxeltor.StoCombatAnalyzer.Interface;
 /// </summary>
 public partial class MainWindow
 {
-    #region Static Fields and Constants
+    #region Private Fields
 
-    private static readonly ILog Log = LogManager.GetLogger(typeof(MainWindow));
+    private readonly ILog _log = LogManager.GetLogger(typeof(MainWindow));
 
     #endregion
 
@@ -72,24 +72,13 @@ public partial class MainWindow
 
     private void OnApplicationSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != null && e.PropertyName.Equals(nameof(Settings.IsDetectionsSettingsTabEnabled)))
+        if (e.PropertyName != null && e.PropertyName.Equals(nameof(Settings.Default.IsDetectionsSettingsTabEnabled)))
             this.EnableDetectionSettingsEditor(Settings.Default.IsDetectionsSettingsTabEnabled);
         //else if (e.PropertyName != null && e.PropertyName.Equals(nameof(Settings.IsCombatDetailsTabEnabled)))
         //    this.EnableCombatAnalyzer(Settings.Default.IsCombatDetailsTabEnabled);
+        else if (e.PropertyName != null && e.PropertyName.Equals(nameof(Settings.Default.DebugLogging)))
+            LoggingHelper.TrySettingLog4NetLogLevel(Settings.Default.DebugLogging);
     }
-
-    //private void EnableCombatAnalyzer(bool enable = false)
-    //{
-    //    if (enable)
-    //    {
-    //        if (this.uiGridCombatAnalyzer.Children.Count == 0)
-    //            this.uiGridCombatAnalyzer.Children.Add(new CombatDetailsControl());
-    //    }
-    //    else
-    //    {
-    //        this.uiGridCombatAnalyzer.Children.Clear();
-    //    }
-    //}
 
     private void EnableDetectionSettingsEditor(bool enable = false)
     {
@@ -113,73 +102,7 @@ public partial class MainWindow
 
         AppHelper.DisplayHelpUrlInBrowser(this, tagString);
     }
-
-    private void UiButtonImportCombat_OnClick(object sender, RoutedEventArgs e)
-    {
-        //if (this.CombatLogManagerContext.SelectedCombat == null)
-        //{
-        //    MessageBox.Show(this.MainWindow, "Need to select a Combat from the CombatList dropdown.", "Error",
-        //        MessageBoxButton.OK,
-        //        MessageBoxImage.Exclamation);
-        //    return;
-        //}
-
-        var openFile = new OpenFileDialog();
-        openFile.Filter = "Combat JSON|*.json";
-        openFile.Multiselect = true;
-
-        string? currentFile = null;
-
-        var result = openFile.ShowDialog();
-
-        if (result.HasValue && result.Value)
-            try
-            {
-                if (openFile.FileNames == null || openFile.FileNames.Length == 0)
-                {
-                    MessageBox.Show(this, "You need to select a file name.", "Error", MessageBoxButton.OK,
-                        MessageBoxImage.Exclamation);
-                    return;
-                }
-
-                Combat? lastCombat = null;
-
-                openFile.FileNames.ToList().ForEach(file =>
-                {
-                    currentFile = Path.GetFileName(file);
-
-                    Combat? combatFromFile;
-                    using (var sr = new StreamReader(file))
-                    {
-                        combatFromFile = SerializationHelper.Deserialize<Combat>(sr.ReadToEnd());
-                    }
-
-                    if (combatFromFile == null)
-                        throw new Exception("Failed to deserialize combat JSON.");
-
-                    combatFromFile.LockObject();
-                    combatFromFile.ImportedDate = DateTime.Now;
-                    combatFromFile.ImportedFileName = currentFile;
-                    this.CombatLogManagerContext.Combats.Insert(0, combatFromFile);
-
-                    lastCombat = combatFromFile;
-                });
-
-                this.CombatLogManagerContext.SelectedCombat = lastCombat;
-
-                var successStorage = "Successfully imported Combat(s) from JSON";
-                Log.Info(successStorage);
-                MessageBox.Show(this, successStorage, "Success", MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
-            catch (Exception exception)
-            {
-                var errorMessage = $"Failed to import Combat from JSON {currentFile}. Reason={exception.Message}";
-                Log.Error(errorMessage, exception);
-                MessageBox.Show(this, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-    }
-
+    
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
         this.Unloaded += this.OnUnloaded;
@@ -192,8 +115,12 @@ public partial class MainWindow
         // Initialize log4net settings based on log4net.config
         LoggingHelper.ConfigureLog4NetLogging();
 
+        AppHelper.TryVerifyApplicationsSettingsPostVersionUpdate();
+
+        LoggingHelper.TrySettingLog4NetLogLevel(Settings.Default.DebugLogging);
+
         this.ToggleDataGridColumnVisibility();
-        this.EnableDetectionSettingsEditor(Settings.Default.IsDetectionsSettingsTabEnabled);
+        this.EnableDetectionSettingsEditor(Settings.Default.IsDetectionsSettingsVisibleInUi);
         //this.EnableCombatAnalyzer(Settings.Default.IsCombatDetailsTabEnabled);
 
         if (!Settings.Default.PurgeCombatLogs) return;
@@ -374,7 +301,7 @@ public partial class MainWindow
         }
         catch (Exception exception)
         {
-            Log.Error("Error while parsing log files.", exception);
+            this._log.Error("Error while parsing log files.", exception);
             ResponseDialog.Show(Application.Current.MainWindow,
                 "Error while parsing the combat logs. Check the logs for more details.", "Error",
                 detailsBoxCaption: "Reason", detailsBoxList: new List<string> { exception.Message });
@@ -1052,7 +979,7 @@ public partial class MainWindow
                     .Append(
                         "Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
 
-                Log.Info(
+                this._log.Info(
                     $"Successfully imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
                 MessageBox.Show(this, successStorage.ToString(), "Success", MessageBoxButton.OK,
                     MessageBoxImage.Information);
@@ -1062,7 +989,7 @@ public partial class MainWindow
             catch (Exception exception)
             {
                 var errorMessage = $"Failed to import MapEntities JSON. Reason={exception.Message}";
-                Log.Error(errorMessage, exception);
+                this._log.Error(errorMessage, exception);
                 MessageBox.Show(this, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
     }
@@ -1100,13 +1027,13 @@ public partial class MainWindow
                 }
 
                 var successStorage = "Successfully exported Combat to JSON";
-                Log.Info(successStorage);
+                this._log.Info(successStorage);
                 MessageBox.Show(this, successStorage, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception exception)
             {
                 var errorMessage = $"Failed to export Combat to JSON. Reason={exception.Message}";
-                Log.Error(errorMessage, exception);
+                this._log.Error(errorMessage, exception);
                 MessageBox.Show(this, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
     }
@@ -1125,14 +1052,14 @@ public partial class MainWindow
             this.CombatLogManagerContext.Combats.Clear();
 
             var message = "Map detection settings have been set to application default.";
-            Log.Info(message);
+            this._log.Info(message);
             MessageBox.Show(this, $"{message} You'll need to parse your logs again.", "Info",
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception exception)
         {
             var error = "Failed to switch map detection setting to application default.";
-            Log.Error(error, exception);
+            this._log.Error(error, exception);
             MessageBox.Show(this, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
@@ -1238,7 +1165,7 @@ public partial class MainWindow
 
                 if (!taskResult.IsCompletedSuccessfully)
                 {
-                    Log.Error($"Failed to download latest Map Detection Settings. Status={taskResult.Status}",
+                    this._log.Error($"Failed to download latest Map Detection Settings. Status={taskResult.Status}",
                         taskResult.Exception);
 
                     var uiErrorMessage =
@@ -1246,7 +1173,7 @@ public partial class MainWindow
                             $"Failed to download the latest Map Detection Settings. Status:{taskResult.Status}.");
                     uiErrorMessage.Append(Environment.NewLine)
                         .Append(
-                            "Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open Log File button in the Tools/Settings tab.");
+                            "Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open _log File button in the Tools/Settings tab.");
 
                     MessageBox.Show(this, uiErrorMessage.ToString(), "Error", MessageBoxButton.OK,
                         MessageBoxImage.Error);
@@ -1259,13 +1186,13 @@ public partial class MainWindow
                     var errorMessage =
                         "The CombatMapDetectionSettings.json successfully downloaded, however it appears to have failed the validation process.";
 
-                    Log.Error(errorMessage, taskResult.Exception);
+                    this._log.Error(errorMessage, taskResult.Exception);
 
                     var uiErrorMessage =
                         new StringBuilder(errorMessage);
                     uiErrorMessage.Append(Environment.NewLine)
                         .Append(
-                            "Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open Log File button in the Tools/Settings tab.");
+                            "Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open _log File button in the Tools/Settings tab.");
 
                     MessageBox.Show(this, uiErrorMessage.ToString(), "Error", MessageBoxButton.OK,
                         MessageBoxImage.Error);
@@ -1287,7 +1214,7 @@ public partial class MainWindow
                 .Append(
                     "Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
 
-            Log.Info(
+            this._log.Info(
                 $"Successfully downloaded and imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
             MessageBox.Show(this, successStorage.ToString(), "Success", MessageBoxButton.OK,
                 MessageBoxImage.Information);
@@ -1297,13 +1224,13 @@ public partial class MainWindow
         catch (Exception exception)
         {
             var errorMessage = $"Failed to import MapEntities JSON. Reason={exception.Message}.";
-            Log.Error(errorMessage + $" Url={Settings.Default.MapDetctionSettingsDownloadUrl}", exception);
+            this._log.Error(errorMessage + $" Url={Settings.Default.MapDetctionSettingsDownloadUrl}", exception);
 
             var uiErrorMessage =
                 new StringBuilder(errorMessage);
             uiErrorMessage.Append(Environment.NewLine).Append(Environment.NewLine)
                 .Append(
-                    "Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open Log File button in the Tools/Settings tab.");
+                    "Try again in a few minutes. If not successful after repeated attempts, check the log for more details. See the Open _log File button in the Tools/Settings tab.");
 
             MessageBox.Show(this, uiErrorMessage.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }

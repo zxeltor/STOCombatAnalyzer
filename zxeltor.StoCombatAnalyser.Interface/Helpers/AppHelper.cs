@@ -185,5 +185,33 @@ public static class AppHelper
         }
     }
 
+    /// <summary>
+    ///     A check to move previous version settings into the latest version.
+    /// </summary>
+    /// <returns>True if successful. False otherwise.</returns>
+    public static bool TryVerifyApplicationsSettingsPostVersionUpdate()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(Settings.Default.CombatLogPath))
+            {
+                var previousVersion = Settings.Default.GetPreviousVersion(nameof(Settings.Default.CombatLogPath));
+                if (previousVersion != null && previousVersion is string resultString)
+                {
+                    // If setting for the current version aren't found, let's look for a previous version.
+                    Settings.Default.Upgrade();
+                }
+            }
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            Log.Error("Failed to verify application settings.", e);
+        }
+
+        return false;
+    }
+
     #endregion
 }

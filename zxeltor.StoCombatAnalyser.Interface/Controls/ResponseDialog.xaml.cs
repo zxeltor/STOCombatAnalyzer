@@ -127,7 +127,7 @@ public partial class ResponseDialog : Window
     ///     <para>If not provided, a default is used, assuming details are provided.</para>
     /// </param>
     public static void Show(Window? owner, string message, string? caption = null, bool includeCancel = false,
-        List<string>? detailsBoxList = null, string? detailsBoxCaption = null)
+        List<string?> detailsBoxList = null, string? detailsBoxCaption = null)
     {
         var dialog = new ResponseDialog(owner, false, message, caption, includeCancel, detailsBoxCaption,
             detailsBoxList);

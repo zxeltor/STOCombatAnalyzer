@@ -61,7 +61,7 @@
                                 <ColumnDefinition Width="75*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Button Grid.Row="0" Grid.Column="0" x:Name="uiButtonParseLog" Width="32" Height="32" Margin="0,0,0,0" Padding="4,4,4,4"
-                                    ToolTip="Parse Log File(s)" Click="uiButtonParseLog_Click" IsEnabled="{Binding Path=IsExecutingBackgroundProcess, Converter={StaticResource invertBooleanConverter}}">
+                                    ToolTip="Parse _log File(s)" Click="uiButtonParseLog_Click" IsEnabled="{Binding Path=IsExecutingBackgroundProcess, Converter={StaticResource invertBooleanConverter}}">
                                 <Image Source="Images/glyphicons-82-refresh.png"></Image>
                             </Button>
 
@@ -675,7 +675,7 @@
             </TabItem>
 
             <TabItem Header="Event/Map Detection" Visibility="{Binding Source={x:Static properties:Settings.Default}, 
-                    Path=IsDetectionsSettingsTabEnabled, Converter={StaticResource typeToVisibilityConverter}}">
+                    Path=IsDetectionsSettingsVisibleInUi, Converter={StaticResource typeToVisibilityConverter}}">
                 <Grid Name="uiGridDetectionSettingsEditor" />
             </TabItem>
 
@@ -721,15 +721,11 @@
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox Header="Settings" Grid.Row="1" Margin="10,10,10,10">
-                        <Grid>
-                            <controls:SettingsUserControl Margin="0,0,0,0" VerticalAlignment="Top" VerticalContentAlignment="Top" />
-                        </Grid>
-                    </GroupBox>
+                    <controls:SettingsUserControl Grid.Row="1" Margin="10,10,10,10" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" />
                 </Grid>
             </TabItem>
 
-            <TabItem Header="About" Height="20" VerticalAlignment="Top">
+            <TabItem Header="About" Height="20" VerticalAlignment="Top" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
                 <Grid>
                     <controls:AboutControl Margin="0,0,0,0" VerticalAlignment="Stretch"  VerticalContentAlignment="Stretch" />
                 </Grid>

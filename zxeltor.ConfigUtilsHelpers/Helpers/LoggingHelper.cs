@@ -4,7 +4,10 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using log4net;
 using log4net.Config;
+using log4net.Core;
+using log4net.Repository.Hierarchy;
 
 namespace zxeltor.ConfigUtilsHelpers.Helpers;
 
@@ -13,6 +16,14 @@ namespace zxeltor.ConfigUtilsHelpers.Helpers;
 /// </summary>
 public class LoggingHelper
 {
+    #region Static Fields and Constants
+
+    private static readonly ILog Log = LogManager.GetLogger(typeof(LoggingHelper));
+
+    #endregion
+
+    #region Public Members
+
     /// <summary>
     ///     Configure log4net by setting a log4net.config from the root application folder, if it's available.
     ///     <para>
@@ -24,7 +35,7 @@ public class LoggingHelper
     public static void ConfigureLog4NetLogging()
     {
 #if DEBUG
-        const bool isDevelopment = true;
+        var isDevelopment = true;
 #else
         var isDevelopment = false;
 #endif
@@ -50,4 +61,35 @@ public class LoggingHelper
             if (File.Exists(settingsFilePath)) XmlConfigurator.ConfigureAndWatch(new FileInfo(settingsFilePath));
         }
     }
+
+    /// <summary>
+    ///     Attempt to change the log4net logging level programmatically.
+    /// </summary>
+    /// <param name="enableDebugLogging">True to enable debug logging. False otherwise.</param>
+    /// <returns>True of successful. False otherwise.</returns>
+    public static bool TrySettingLog4NetLogLevel(bool enableDebugLogging)
+    {
+        try
+        {
+            LogManager.GetAllRepositories().ToList().ForEach(repository =>
+            {
+                var hier = (Hierarchy)repository;
+                hier.GetCurrentLoggers().ToList().ForEach(logger =>
+                {
+                    var tmpLogger = (Logger)logger;
+                    tmpLogger.Level = enableDebugLogging ? Level.Debug : Level.Warn;
+                });
+            });
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            Log.Error("Failed to set application log level", e);
+        }
+
+        return false;
+    }
+
+    #endregion
 }
