@@ -102,7 +102,7 @@ public partial class MainWindow
 
         AppHelper.DisplayHelpUrlInBrowser(this, tagString);
     }
-    
+
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
         this.Unloaded += this.OnUnloaded;
@@ -383,6 +383,14 @@ public partial class MainWindow
                             deadZoneSignal.LineStyle.Color = Colors.Black;
                             deadZoneSignal.LineStyle.Width = 3;
                             deadZoneSignal.LineStyle.Pattern = LinePattern.Solid;
+
+                            var text = this.uiScottScatterPlotEntityEvents.Plot.Add.Text(
+                                $"{deadZone.Duration.TotalSeconds} seconds",
+                                (deadZone.StartTime.ToOADate() + deadZone.EndTime.ToOADate()) / 2, maxValue);
+
+                            text.LabelFontSize = 18;
+                            text.LabelFontColor = Colors.Blue;
+                            text.Alignment = Alignment.UpperCenter;
 
                             if (!inactiveLegendAdded)
                                 deadZoneSignal.LegendText = "Inactive";
