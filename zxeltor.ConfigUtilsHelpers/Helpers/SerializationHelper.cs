@@ -38,7 +38,7 @@ public static class SerializationHelper
     ///     string.
     /// </param>
     /// <returns>A JSON string representation of the data object.</returns>
-    public static string Serialize(object data, bool useJsonIndentation = false)
+    public static string Serialize(object? data, bool useJsonIndentation = false)
     {
         if (useJsonIndentation)
             return JsonConvert.SerializeObject(data, Formatting.Indented);
