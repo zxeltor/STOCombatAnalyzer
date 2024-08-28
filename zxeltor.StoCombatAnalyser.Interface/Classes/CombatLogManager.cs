@@ -44,8 +44,11 @@ public class CombatLogManager : INotifyPropertyChanged
     private string? _dataGridSearchString;
 
     private CombatEventTypeSelector _eventTypeDisplayFilter = new("OVERALL");
+    private bool _isDisplayPlotPlayerInactive = true;
 
     private bool _isExecutingBackgroundProcess;
+    private bool _isPlotDisplayMagnitude = true;
+    private bool _isPlotDisplayMagnitudeBase;
     private Combat? _selectedCombat;
 
     private CombatEntity? _selectedCombatEntity;
@@ -69,7 +72,7 @@ public class CombatLogManager : INotifyPropertyChanged
                      Settings.Default.DefaultCombatDetectionSettings, out var combatMapSettingsDefault))
             this.CombatMapDetectionSettings = combatMapSettingsDefault;
 
-        if(this.CombatMapDetectionSettings != null)
+        if (this.CombatMapDetectionSettings != null)
             this.CombatMapDetectionSettings.SetChange(false);
 
         Settings.Default.PropertyChanged += this.DefaultOnPropertyChanged;
@@ -78,6 +81,42 @@ public class CombatLogManager : INotifyPropertyChanged
     #endregion
 
     #region Public Properties
+
+    /// <summary>
+    ///     Display Magnitude in the main Plot control
+    /// </summary>
+    public bool IsDisplayPlotMagnitude
+    {
+        get => this._isPlotDisplayMagnitude;
+        set => this.SetField(ref this._isPlotDisplayMagnitude, value);
+    }
+
+    /// <summary>
+    ///     Display BaseMagnitude in the main Plot control
+    /// </summary>
+    public bool IsDisplayPlotMagnitudeBase
+    {
+        get => this._isPlotDisplayMagnitudeBase = Settings.Default.IsDisplayPlotMagnitudeBase;
+        set
+        {
+            this.SetField(ref this._isPlotDisplayMagnitudeBase, value);
+            if (Settings.Default.IsDisplayPlotMagnitudeBase != value)
+                Settings.Default.IsDisplayPlotMagnitudeBase = value;
+            //Settings.Default.Save();
+        }
+    }
+
+    public bool IsDisplayPlotPlayerInactive
+    {
+        get => this._isDisplayPlotPlayerInactive = Settings.Default.IsDisplayPlotPlayerInactive;
+        set
+        {
+            this.SetField(ref this._isDisplayPlotPlayerInactive, value);
+            if (Settings.Default.IsDisplayPlotPlayerInactive != value)
+                Settings.Default.IsDisplayPlotPlayerInactive = value;
+            //Settings.Default.Save();
+        }
+    }
 
     /// <summary>
     ///     A databind to disable the main UI while an expensive background process is running
@@ -117,8 +156,6 @@ public class CombatLogManager : INotifyPropertyChanged
             return $"{version.Major}.{version.Minor}.{version.Revision}";
         }
     }
-
-    public CombatEventGridContext MainCombatEventGridContext { get; } = new();
 
     /// <summary>
     ///     The currently selected Combat instance from <see cref="Combats" />
@@ -293,24 +330,16 @@ public class CombatLogManager : INotifyPropertyChanged
             // Filter our final result set, if we have a filter string set.
             if (results != null && results.Count > 0 && !string.IsNullOrWhiteSpace(this.DataGridSearchString))
                 results = new ObservableCollection<CombatEvent>(results.Where(ev =>
-                    (this.MainCombatEventGridContext.OwnerInternalVisible &&
-                     ev.OwnerInternal.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase))
-                    || (this.MainCombatEventGridContext.OwnerDisplayVisible &&
-                        ev.OwnerDisplay.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase))
-                    || (this.MainCombatEventGridContext.TargetInternalVisible &&
-                        ev.TargetInternal.Contains(this.DataGridSearchString,
-                            StringComparison.CurrentCultureIgnoreCase))
-                    || (this.MainCombatEventGridContext.TargetDisplayVisible &&
-                        ev.TargetDisplay.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase))
-                    || (this.MainCombatEventGridContext.SourceInternalVisible &&
-                        ev.SourceInternal.Contains(this.DataGridSearchString,
-                            StringComparison.CurrentCultureIgnoreCase))
-                    || (this.MainCombatEventGridContext.SourceDisplayVisible &&
-                        ev.SourceDisplay.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase))
-                    || (this.MainCombatEventGridContext.TypeVisible && ev.Type.Contains(this.DataGridSearchString,
-                        StringComparison.CurrentCultureIgnoreCase))
-                    || (this.MainCombatEventGridContext.FlagsVisible && ev.Flags.Contains(this.DataGridSearchString,
-                        StringComparison.CurrentCultureIgnoreCase))
+                    ev.OwnerInternal.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase)
+                    || ev.OwnerDisplay.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase)
+                    || ev.TargetInternal.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase)
+                    || ev.TargetDisplay.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase)
+                    || ev.SourceInternal.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase)
+                    || ev.SourceDisplay.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase)
+                    || ev.EventDisplay.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase)
+                    || ev.EventInternal.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase)
+                    || ev.Type.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase)
+                    || ev.Flags.Contains(this.DataGridSearchString, StringComparison.CurrentCultureIgnoreCase)
                 ).ToList());
 
             return results;
@@ -404,10 +433,10 @@ public class CombatLogManager : INotifyPropertyChanged
         else
         {
             this.SelectedCombatEntity = combatEntity;
-            if(combatEntity.CombatEventTypeListForEntity != null)
+            if (combatEntity.CombatEventTypeListForEntity != null)
                 this.SelectedEntityCombatEventTypeList =
                     new ObservableCollection<CombatEventType>(combatEntity.CombatEventTypeListForEntity);
-            if(combatEntity.CombatEventTypeListForEntityPets != null)
+            if (combatEntity.CombatEventTypeListForEntityPets != null)
                 this.SelectedEntityPetCombatEventTypeList =
                     new ObservableCollection<CombatPetEventType>(combatEntity.CombatEventTypeListForEntityPets);
         }

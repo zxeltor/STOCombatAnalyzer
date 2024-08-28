@@ -35,9 +35,6 @@
     <Setting Name="HowFarBackForCombatInHours" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">48</Value>
     </Setting>
-    <Setting Name="IsDetectionsSettingsVisibleInUi" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="IsCombinePets" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -85,6 +82,9 @@
     </Setting>
     <Setting Name="IsCombatDetailsTabEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="CombatEventTypeGridContext" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

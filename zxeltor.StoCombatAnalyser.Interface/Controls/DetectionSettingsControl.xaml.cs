@@ -150,13 +150,10 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
                 _unfilteredList.ToList().Where(ev =>
                     (!string.IsNullOrWhiteSpace(ev.OwnerInternal) && ev.OwnerInternal.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
-                     || (!string.IsNullOrWhiteSpace(ev.OwnerInternalStripped) && ev.OwnerInternalStripped.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
                      || (!string.IsNullOrWhiteSpace(ev.OwnerDisplay) && ev.OwnerDisplay.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
                          || (!string.IsNullOrWhiteSpace(ev.TargetInternal) && ev.TargetInternal.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
-                             || (!string.IsNullOrWhiteSpace(ev.TargetInternalStripped) && ev.TargetInternalStripped.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
                                  || (!string.IsNullOrWhiteSpace(ev.TargetDisplay) && ev.TargetDisplay.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
                                      || (!string.IsNullOrWhiteSpace(ev.SourceInternal) && ev.SourceInternal.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
-                                         || (!string.IsNullOrWhiteSpace(ev.SourceInternalStripped) && ev.SourceInternalStripped.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
                                              || (!string.IsNullOrWhiteSpace(ev.SourceDisplay) && ev.SourceDisplay.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
                                                  || (!string.IsNullOrWhiteSpace(ev.EventInternal) && ev.EventInternal.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
                                                      || (!string.IsNullOrWhiteSpace(ev.EventDisplay) && ev.EventDisplay.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))

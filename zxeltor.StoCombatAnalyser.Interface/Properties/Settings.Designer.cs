@@ -257,18 +257,6 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool IsDetectionsSettingsVisibleInUi {
-            get {
-                return ((bool)(this["IsDetectionsSettingsVisibleInUi"]));
-            }
-            set {
-                this["IsDetectionsSettingsVisibleInUi"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool IsCombinePets {
             get {
@@ -444,6 +432,18 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
             }
             set {
                 this["IsCombatDetailsTabEnabled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CombatEventTypeGridContext {
+            get {
+                return ((string)(this["CombatEventTypeGridContext"]));
+            }
+            set {
+                this["CombatEventTypeGridContext"] = value;
             }
         }
     }

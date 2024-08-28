@@ -11,6 +11,8 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 using Humanizer;
 using log4net;
@@ -19,7 +21,9 @@ using ScottPlot;
 using ScottPlot.Plottables;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
+using zxeltor.StoCombatAnalyzer.Interface.Classes.Converters;
 using zxeltor.StoCombatAnalyzer.Interface.Classes.UI;
+using zxeltor.StoCombatAnalyzer.Interface.Classes.UI.GridContext;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
 using zxeltor.StoCombatAnalyzer.Interface.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
@@ -54,6 +58,8 @@ public partial class MainWindow
         this.CombatLogManagerContext = new CombatLogManager();
         this.DataContext = this.CombatLogManagerContext;
 
+        this.EstablishGridColumns();
+
         Settings.Default.PropertyChanged += this.OnApplicationSettingsPropertyChanged;
 
         this.Loaded += this.OnLoaded;
@@ -64,11 +70,71 @@ public partial class MainWindow
 
     #region Public Properties
 
+    public CombatEventTypeDataGridContext? MyGridContext { get; set; }
+
     private CombatLogManager CombatLogManagerContext { get; }
 
     #endregion
 
     #region Other Members
+
+    private void EstablishGridColumns()
+    {
+        this.MyGridContext = CombatEventTypeDataGridContext.GetDefaultContext();
+        if (this.MyGridContext == null || this.MyGridContext.GridColumns.Count == 0) return;
+
+        var propertyInfoList = typeof(CombatEvent).GetProperties().ToList();
+        if (propertyInfoList.Count == 0)
+            return;
+
+        foreach (var propInConfig in this.MyGridContext.GridColumns)
+        {
+            var propInfoFound =
+                propertyInfoList.FirstOrDefault(propInfo => propInfo.Name.Equals(propInConfig.Name));
+
+            if (propInfoFound != null)
+            {
+                var column = new DataGridTextColumn
+                {
+                    Header = propInConfig.Name,
+                    IsReadOnly = propInConfig.IsReadOnly,
+                    Binding = new Binding(propInConfig.Name)
+                };
+
+                var bindingIsVisible = new Binding(nameof(DataGridColumnConfig.IsVisible))
+                {
+                    Mode = BindingMode.TwoWay,
+                    Source = propInConfig,
+                    Converter = new TypeToVisibilityConverter()
+                };
+
+                BindingOperations.SetBinding(
+                    column,
+                    DataGridColumn.VisibilityProperty,
+                    bindingIsVisible);
+
+                this.uiDataGridAllEvents.Columns.Add(column);
+
+                var checkBox = new CheckBox
+                {
+                    Content = propInConfig.Name
+                };
+
+                var bindingIsChecked = new Binding(nameof(DataGridColumnConfig.IsVisible))
+                {
+                    Mode = BindingMode.TwoWay,
+                    Source = propInConfig
+                };
+
+                BindingOperations.SetBinding(
+                    checkBox,
+                    ToggleButton.IsCheckedProperty,
+                    bindingIsChecked);
+
+                this.uiStackPanelColumns.Children.Add(checkBox);
+            }
+        }
+    }
 
     private void OnApplicationSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -118,9 +184,8 @@ public partial class MainWindow
         AppHelper.TryVerifyApplicationsSettingsPostVersionUpdate();
 
         LoggingHelper.TrySettingLog4NetLogLevel(Settings.Default.DebugLogging);
-
-        this.ToggleDataGridColumnVisibility();
-        this.EnableDetectionSettingsEditor(Settings.Default.IsDetectionsSettingsVisibleInUi);
+        
+        this.EnableDetectionSettingsEditor(Settings.Default.IsDetectionsSettingsTabEnabled);
         //this.EnableCombatAnalyzer(Settings.Default.IsCombatDetailsTabEnabled);
 
         if (!Settings.Default.PurgeCombatLogs) return;
@@ -143,105 +208,7 @@ public partial class MainWindow
                         .Select(res => res.Message).ToList());
         }
     }
-
-    /// <summary>
-    ///     Setup which columns are displayed in the main data grid.
-    /// </summary>
-    private void ToggleDataGridColumnVisibility()
-    {
-        this.uiDataGridAllEvents.Columns.ToList().ForEach(col =>
-        {
-            switch (col.Header)
-            {
-                case "Filename":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.FilenameVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "LineNumber":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.LineNumberVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "Timestamp":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.TimestampVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "OwnerDisplay":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.OwnerDisplayVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "OwnerInternal":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.OwnerInternalVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "SourceDisplay":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.SourceDisplayVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "SourceInternal":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.SourceInternalVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "TargetDisplay":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.TargetDisplayVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "TargetInternal":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.TargetInternalVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "EventDisplay":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.EventDisplayVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "EventInternal":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.EventInternalVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "Type":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.TypeVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "Flags":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.FlagsVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "Magnitude":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.MagnitudeVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "MagnitudeBase":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.MagnitudeBaseVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "IsOwnerPetEvent":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.IsPetEventVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-                case "IsOwnerModified":
-                    col.Visibility = this.CombatLogManagerContext.MainCombatEventGridContext.IsOwnerModifiedVisible
-                        ? Visibility.Visible
-                        : Visibility.Collapsed;
-                    break;
-            }
-        });
-    }
-
+    
     private void uiButtonParseLog_Click(object sender, RoutedEventArgs e)
     {
         e.Handled = true;
@@ -340,7 +307,7 @@ public partial class MainWindow
 
         if (filteredCombatEventList != null && filteredCombatEventList.Count > 0)
         {
-            if (this.CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitudeBase: true })
+            if (this.CombatLogManagerContext.IsDisplayPlotMagnitudeBase)
             {
                 var magnitudeBaseDataList = filteredCombatEventList
                     .OrderBy(ev => ev.Timestamp)
@@ -356,7 +323,7 @@ public partial class MainWindow
                 signal.LegendText = "MagnitudeBase";
             }
 
-            if (this.CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitude: true })
+            if (this.CombatLogManagerContext.IsDisplayPlotMagnitude)
             {
                 var magnitudeDataList = filteredCombatEventList
                     .OrderBy(ev => ev.Timestamp)
@@ -364,7 +331,7 @@ public partial class MainWindow
 
                 var inactiveLegendAdded = false;
 
-                if (this.CombatLogManagerContext.MainCombatEventGridContext.IsDisplayPlotPlayerInactive)
+                if (this.CombatLogManagerContext.IsDisplayPlotPlayerInactive)
                     if (this.CombatLogManagerContext.SelectedCombatEntity != null)
                         foreach (var deadZone in this.CombatLogManagerContext.SelectedCombatEntity.DeadZones)
                         {
@@ -574,14 +541,14 @@ public partial class MainWindow
 
         if (combatEntity != null && combatEntity.CombatEventsList.Any())
         {
-            if (this.CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitudeBase: true })
+            if (this.CombatLogManagerContext.IsDisplayPlotMagnitudeBase)
             {
                 var marker = this.uiScottScatterPlotEntityEvents.Plot.Add.Marker(combatEvent.Timestamp.ToOADate(),
                     combatEvent.MagnitudeBase, MarkerShape.OpenTriangleDown, 40, Color.FromHex("ff0000"));
                 marker.MarkerLineWidth = 4;
             }
 
-            if (this.CombatLogManagerContext is { MainCombatEventGridContext.IsDisplayPlotMagnitude: true })
+            if (this.CombatLogManagerContext.IsDisplayPlotMagnitude)
             {
                 var marker = this.uiScottScatterPlotEntityEvents.Plot.Add.Marker(combatEvent.Timestamp.ToOADate(),
                     combatEvent.Magnitude, MarkerShape.OpenTriangleDown, 30, Color.FromHex("ff0000"));
@@ -820,16 +787,6 @@ public partial class MainWindow
         this.SetPlots();
     }
 
-    private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
-    {
-        if (e.Source is CheckBox) this.ToggleDataGridColumnVisibility();
-    }
-
-    private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
-    {
-        if (e.Source is CheckBox) this.ToggleDataGridColumnVisibility();
-    }
-
     private void UiCheckbox_OnCheckedOrUnCheckedForPlots(object sender, RoutedEventArgs e)
     {
         if (e.Source is CheckBox checkBox)
@@ -1001,51 +958,7 @@ public partial class MainWindow
                 MessageBox.Show(this, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
     }
-
-    private void UiButtonExportCombat_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (this.CombatLogManagerContext.SelectedCombat == null)
-        {
-            MessageBox.Show(this, "Need to select a Combat from the CombatList dropdown.", "Error", MessageBoxButton.OK,
-                MessageBoxImage.Exclamation);
-            return;
-        }
-
-        var saveFile = new SaveFileDialog();
-        saveFile.Filter = "Combat JSON|*.json";
-
-        var result = saveFile.ShowDialog();
-
-        if (result.HasValue && result.Value)
-            try
-            {
-                if (string.IsNullOrWhiteSpace(saveFile.FileName))
-                {
-                    MessageBox.Show(this, "You need to select a file name.", "Error", MessageBoxButton.OK,
-                        MessageBoxImage.Exclamation);
-                    return;
-                }
-
-                using (var sw = new StreamWriter(saveFile.FileName))
-                {
-                    var serializationResult =
-                        SerializationHelper.Serialize(this.CombatLogManagerContext.SelectedCombat, true);
-                    sw.Write(serializationResult);
-                    sw.Flush();
-                }
-
-                var successStorage = "Successfully exported Combat to JSON";
-                this._log.Info(successStorage);
-                MessageBox.Show(this, successStorage, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception exception)
-            {
-                var errorMessage = $"Failed to export Combat to JSON. Reason={exception.Message}";
-                this._log.Error(errorMessage, exception);
-                MessageBox.Show(this, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-    }
-
+    
     private void UiButtonResetMapEntities_OnClick(object sender, RoutedEventArgs e)
     {
         try
