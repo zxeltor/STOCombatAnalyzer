@@ -7,6 +7,7 @@
 using System.Windows;
 using System.Windows.Threading;
 using log4net;
+using zxeltor.Types.Lib.Result;
 
 //using System.Windows.Threading;
 
@@ -17,10 +18,16 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 /// </summary>
 public partial class ProgressDialog : Window
 {
-    private readonly ILog _log = LogManager.GetLogger(typeof(ProgressDialog));
-    private Action _actionToRun;
+    #region Private Fields
 
-    public ProgressDialog(Window parent, Action actionToRun, string? message = "Processing data")
+    private readonly ILog _log = LogManager.GetLogger(typeof(ProgressDialog));
+    private Func<Result> _funcToRun;
+
+    #endregion
+
+    #region Constructors
+
+    public ProgressDialog(Window parent, Func<Result> funcToRun, string? message = "Processing data")
     {
         this.InitializeComponent();
 
@@ -32,8 +39,18 @@ public partial class ProgressDialog : Window
         this.ContentRendered += this.ProgressDialog_ContentRendered;
         this.Closed += this.OnClosed;
 
-        this._actionToRun = actionToRun ?? throw new ArgumentNullException(nameof(actionToRun));
+        this._funcToRun = funcToRun ?? throw new ArgumentNullException(nameof(funcToRun));
     }
+
+    #endregion
+
+    #region Public Properties
+
+    public Result? ParseResult { get; set; }
+
+    #endregion
+
+    #region Other Members
 
     private void ProgressDialog_ContentRendered(object? sender, EventArgs e)
     {
@@ -41,13 +58,16 @@ public partial class ProgressDialog : Window
         try
         {
             // Run the action in background. This gives the UI chance to update.
-            var dispatchOp = this.Dispatcher.BeginInvoke(this._actionToRun, DispatcherPriority.Background);
+            var dispatchOp = this.Dispatcher.BeginInvoke(this._funcToRun, DispatcherPriority.Background);
             dispatchOp.Wait();
+
+            this.ParseResult = dispatchOp.Result as Result;
+
             this.DialogResult = true;
         }
         catch (Exception exception)
         {
-            this._log.Error($"Failed to run background task: {this._actionToRun.Method}", exception);
+            this._log.Error($"Failed to run background task: {this._funcToRun.Method}", exception);
             this.DialogResult = false;
         }
     }
@@ -55,6 +75,8 @@ public partial class ProgressDialog : Window
     private void OnClosed(object? sender, EventArgs e)
     {
         this.Closed -= this.OnClosed;
-        this._actionToRun = null;
+        this._funcToRun = null;
     }
+
+    #endregion
 }

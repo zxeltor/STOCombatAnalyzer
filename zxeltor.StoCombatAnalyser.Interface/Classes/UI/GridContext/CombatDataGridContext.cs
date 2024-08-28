@@ -4,6 +4,7 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+using log4net;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
 using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
@@ -11,24 +12,47 @@ using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 namespace zxeltor.StoCombatAnalyzer.Interface.Classes.UI.GridContext;
 
 /// <summary>
-///     A DataGridContext for <see cref="CombatEntity"/>
+///     A DataGridContext for <see cref="CombatEntity" />
 /// </summary>
 public class CombatDataGridContext : DataGridContext<Combat>
 {
+    #region Static Fields and Constants
+
+    private static readonly ILog Log = LogManager.GetLogger(typeof(CombatDataGridContext));
+
+    #endregion
+
     #region Constructors
 
     /// <inheritdoc />
-    public CombatDataGridContext(string name) : base(name)
+    public CombatDataGridContext() : base()
     {
     }
 
     #endregion
 
     #region Public Members
-
-    public new static CombatDataGridContext GetDefaultContext(string name)
+    /// <summary>
+    ///     Get the default context from application settings, or create a new one.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public new static CombatDataGridContext? GetDefaultContext()
     {
-        var newConfig = new CombatDataGridContext(name)
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(Settings.Default.CombatControlGridDisplayList))
+                if (SerializationHelper.TryDeserializeString(
+                        Settings.Default.CombatControlGridDisplayList, out CombatDataGridContext? context))
+                    if (context != null)
+                        return context;
+        }
+        catch (Exception e)
+        {
+            Log.Error("Failed to deserialize map detection settings from app config.", e);
+        }
+
+        var newConfig = new CombatDataGridContext()
         {
             GridColumns =
             {

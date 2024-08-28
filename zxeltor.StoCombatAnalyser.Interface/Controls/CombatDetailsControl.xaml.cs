@@ -19,6 +19,7 @@ using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Classes.Converters;
 using zxeltor.StoCombatAnalyzer.Interface.Classes.UI.GridContext;
+using zxeltor.StoCombatAnalyzer.Interface.Helpers;
 using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
@@ -198,7 +199,7 @@ public partial class CombatDetailsControl : UserControl, INotifyPropertyChanged
 
     private void EstablishGridColumns()
     {
-        this.MyGridContext = CombatDataGridContext.GetDefaultContext("CombatGrid");
+        this.MyGridContext = CombatDataGridContext.GetDefaultContext();
         if (this.MyGridContext == null || this.MyGridContext.GridColumns.Count == 0) return;
 
         var propertyInfoList = typeof(CombatEvent).GetProperties().ToList();
@@ -426,20 +427,8 @@ public partial class CombatDetailsControl : UserControl, INotifyPropertyChanged
     {
         if (!(e.Source is Button button))
             return;
-
-        var url = string.Empty;
-
-        try
-        {
-            url = Properties.Resources.GithubRepoWikiUrl;
-            UrlHelper.LaunchUrlInDefaultBrowser(url);
-        }
-        catch (Exception exception)
-        {
-            var errorMessage = $"Failed to open default browser for url={url}.";
-            this._log.Error(errorMessage, exception);
-            MessageBox.Show(this.MainWindow, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
+        
+        AppHelper.DisplayHelpUrlInBrowser(MainWindow, Properties.Resources.GithubRepoWikiUrl);
     }
 
     private void MenuItemRemoveCombat_OnClick(object sender, RoutedEventArgs e)

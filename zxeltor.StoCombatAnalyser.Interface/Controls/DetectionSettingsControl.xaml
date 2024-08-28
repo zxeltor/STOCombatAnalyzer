@@ -3,52 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Controls"
              xmlns:classes="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes"
-             xmlns:properties="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Properties"
              xmlns:converters="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes.Converters"
              d:DataContext="{d:DesignInstance Type={x:Type classes:CombatLogManager}}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" d:Background="AliceBlue">
-    <Grid Margin="10,10,10,10">
+    <Grid Margin="2,2,2,2">
         <Grid.Resources>
             <converters:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
             <converters:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
-            <converters:TypeToVisibilityConverterInverted x:Key="typeToVisibilityConverterInverted" />
-            <converters:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
-            <converters:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
-            <converters:CombatTimeSpanToHumanizedStringMaxMinuteMinSecondsConverter x:Key="timeSpanMinSeconds" />
-            <converters:CombatTimeSpanToHumanizedStringMaxMinuteMinMilliSecondsConverter x:Key="timeSpanMinMilliSeconds" />
             <converters:MapNameStringConverter x:Key="mapNameStringConverter" />
             <converters:MapNameColorConverter x:Key="mapNameColorConverter" />
             <converters:InvertBooleanConverter x:Key="invertBooleanConverter" />
+            <converters:CombatTimeSpanToHumanizedStringMaxMinuteMinSecondsConverter x:Key="timeSpanMinSeconds" />
+            <converters:CombatTimeSpanToHumanizedStringMaxMinuteMinMilliSecondsConverter x:Key="timeSpanMinMilliSeconds" />
             <Brush x:Key="colorEventTypeMetricLabel">Green</Brush>
             <Brush x:Key="colorEventTypeMetricValue">Blue</Brush>
-            <Style TargetType="Border" x:Key="combatTypeLabelStyle">
-                <Setter Property="BorderBrush" Value="Black"></Setter>
-                <Setter Property="BorderThickness" Value="1"></Setter>
-                <Setter Property="CornerRadius" Value="4"></Setter>
-                <Setter Property="Margin" Value="0,0,2,2"></Setter>
-            </Style>
-            <Style TargetType="{x:Type TreeViewItem}" x:Key="combatEntityTreeViewItem">
-                <Style.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="4"/>
-                        <Setter Property="Margin" Value="0,2,0,2"/>
-                    </Style>
-                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black" />
-                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="White" />
-                </Style.Resources>
-                <Setter Property="BorderBrush" Value="Black"></Setter>
-                <Setter Property="BorderThickness" Value="4"></Setter>
-                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                <Setter Property="Padding" Value="4,4,4,4"></Setter>
-                <Style.Triggers>
-                    <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="BorderBrush" Value="Green"/>
-                        <Setter Property="BorderThickness" Value="4" />
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
+            <Brush x:Key="colorImported">DarkOrange</Brush>
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -77,22 +49,49 @@
         </Grid>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1">
-            <Image Tag="export_detection_json" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,0,0"
+            <GroupBox Header="Combat Tools">
+                <StackPanel Orientation="Horizontal">
+                    <Image Tag="import_combat_json" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="8,0,0,0"
+                           MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details."/>
+                    <Button Name="uiButtonImportCombat" Content="Import" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                        Click="UiButtonImportCombat_OnClick"/>
+                    <Image Tag="export_combat_json" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="8,0,0,0"
+                       MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details."/>
+                    <Button Name="uiButtonExportCombat" Content="Export" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                        Click="UiButtonExportCombat_OnClick"/>
+                </StackPanel>
+            </GroupBox>
+            
+            <GroupBox Header="Detection Settings" Margin="4,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <Image Tag="import_detection_json" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="4,0,0,0"
+                           MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details." />
+                    <Button Name="uiButtonImportMapEntities" Content="Import" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                            Click="UiButtonImportMapEntities_OnClick"/>
+
+                    <Image Tag="export_detection_json" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="8,0,0,0"
+                           MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp"
+                           ToolTip="Click for more details."/>
+            <Button Tag="export_detection_json" Name="uiButtonExportMapEntities" Content="Export" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                    Click="UiButtonExportMapEntities_OnClick"/>
+
+            <Image Tag="save_detection_settings" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="8,0,0,0"
                    MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp"
-                ToolTip="Click for more details."/>
-            <Button Tag="export_detection_json" Name="uiButtonExportMapEntities" Content="Export w/Indents" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
-                    Click="UiButtonExportMapEntities_OnClick"/>
-
-            <Image Tag="export_detection_json_no_indents" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="8,0,0,0"
-                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details."/>
-            <Button Tag="export_detection_json_no_indents" Name="uiButtonExportMapEntitiesNoIndent" Content="Export" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
-                    Click="UiButtonExportMapEntities_OnClick"/>
-
-            <Button Name="uiButtonSaveDetectionSettings" Content="Save Changes" Margin="16,0,0,0" Padding="4,4,4,4" VerticalAlignment="Center"
+                   ToolTip="Click for more details."/>
+            <Button Name="uiButtonSaveDetectionSettings" Content="Save" Margin="4,0,0,0" Padding="4,4,4,4" VerticalAlignment="Center"
                     Click="UiButtonSaveDetectionSettings_OnClick"></Button>
 
-            <Button Name="uiButtonCancelDetectionSettings" Content="Cancel Changes" Margin="8,0,0,0" Padding="4,4,4,4" VerticalAlignment="Center"
-                    Click="UiButtonCancelDetectionSettings_OnClick" IsEnabled="{Binding Path=CombatMapDetectionSettings.HasChanges}"></Button>
+            <Image Tag="cancel_detection_settings_changes" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="8,0,0,0"
+                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details."/>
+            <Button Name="uiButtonCancelDetectionSettings" Content="Cancel" Margin="8,0,0,0" Padding="4,4,4,4" VerticalAlignment="Center"
+                    Click="UiButtonCancelDetectionSettings_OnClick"></Button>
+
+            <Image Tag="reset_detection_json" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="8,0,0,0"
+                   MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details."/>
+            <Button Name="uiButtonResetMapEntities" Content="Reset" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
+                    Click="UiButtonResetMapEntities_OnClick"/>
+                    </StackPanel>
+            </GroupBox>
 
             <Button Margin="18,0,0,0" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent"
                     Click="Browse_OnMouseLeftButtonUp">
@@ -107,9 +106,9 @@
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="20*"></ColumnDefinition>
-                <ColumnDefinition Width="30*"></ColumnDefinition>
-                <ColumnDefinition Width="50*"></ColumnDefinition>
+                <ColumnDefinition Width="12*"></ColumnDefinition>
+                <ColumnDefinition Width="28*"></ColumnDefinition>
+                <ColumnDefinition Width="60*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Row="0" Grid.Column="0">
@@ -123,15 +122,11 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"></RowDefinition>
                             <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
                         </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
                             <Button Tag="EditGroundMapName" Margin="0,0,0,0" ToolTip="Edit map name" 
-                    Click="MapDetectButton_OnClick" CommandParameter="{Binding Path=CombatMapDetectionSettings.GenericGroundMap}">
+                                Click="MapDetectButton_OnClick" CommandParameter="{Binding Path=CombatMapDetectionSettings.GenericGroundMap}">
                                 <Image Source="../Images/glyphicons-151-edit.png" Height="8" />
                             </Button>
                             <TextBlock Text="{Binding Path=CombatMapDetectionSettings.GenericGroundMap.Name}" Margin="4,0,0,0"></TextBlock>
@@ -189,7 +184,7 @@
                             </ListView>
                         </GroupBox>
 
-                        <GroupBox Grid.Row="1" Grid.Column="1">
+                        <GroupBox Grid.Row="2">
                             <GroupBox.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="MapEntityExclusions" VerticalAlignment="Center"></TextBlock>
@@ -243,18 +238,15 @@
                     </Grid>
                 </GroupBox>
 
-                <GroupBox Header="GenericSpaceMap" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2">
+                <GroupBox Header="GenericSpaceMap" Grid.Row="1">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"></RowDefinition>
                             <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
                         </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                        
+                        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
                             <Button Tag="EditSpaceMapName" Margin="0,0,0,0" ToolTip="Edit map name" 
                         Click="MapDetectButton_OnClick" CommandParameter="{Binding Path=CombatMapDetectionSettings.GenericSpaceMap}">
                                 <Image Source="../Images/glyphicons-151-edit.png" Height="8" />
@@ -311,7 +303,7 @@
                             </ListView>
                         </GroupBox>
 
-                        <GroupBox Grid.Row="1" Grid.Column="1">
+                        <GroupBox Grid.Row="2">
                             <GroupBox.Header>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="MapEntityExclusions" VerticalAlignment="Center"></TextBlock>
@@ -365,7 +357,7 @@
                 </GroupBox>
             </Grid>
 
-            <GroupBox Grid.Row="2" Grid.Column="0">
+            <GroupBox Grid.Row="1" Grid.Column="0">
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="EntityExclusionList" VerticalAlignment="Center"></TextBlock>
@@ -589,91 +581,52 @@
                           Margin="0,12,0,4" 
                           Padding="0,0,0,0"
                           HorizontalAlignment="Right"  VerticalAlignment="Stretch"></GridSplitter>
-
-            <GroupBox Grid.Row="0" Grid.RowSpan="2" Grid.Column="2">
-                <GroupBox.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Tag="selected_combat" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,4,0"
-                               MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp"
-                               ToolTip="Click for more details." />
-                        <TextBlock Text="Combat Analysis"></TextBlock>
-                    </StackPanel>
-                </GroupBox.Header>
-                <Grid>
+            
+            <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
-
-                    <Grid Grid.Row="0" Margin="0,4,0,4">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                            <ColumnDefinition Width="*"></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-
-                        <Button Grid.Column="0" x:Name="uiButtonParseLog" Width="32" Height="32" Margin="0,0,0,0" Padding="4,4,4,4"
-                    VerticalAlignment="Center" Click="UiButtonParseLog_OnClick"
-                    ToolTip="Parse _log File(s)" IsEnabled="{Binding Path=IsExecutingBackgroundProcess, Converter={StaticResource invertBooleanConverter}}">
-                            <Image Source="../Images/glyphicons-82-refresh.png"></Image>
-                        </Button>
-
-                        <GroupBox Grid.Column="1" HorizontalAlignment="Stretch"  Margin="4,0,0,0" VerticalAlignment="Center"
-                      Visibility="{Binding Path=Combats.Count, Converter={StaticResource typeToVisibilityConverter}}">
-                            <GroupBox.Header>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                    <TextBlock Text="Combat Select: " VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding Path=Combats.Count}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </GroupBox.Header>
-                            <ComboBox Name="uiComboBoxCombats" Text="Help" ItemsSource="{Binding Path=Combats}" IsSynchronizedWithCurrentItem="True" 
-                          VerticalAlignment="Top"  HorizontalAlignment="Stretch"
-                          SelectedItem="{Binding Path=SelectedCombat}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Vertical">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Start: " />
-                                                <TextBlock Text="{Binding Path=CombatStart}" />
-                                            </StackPanel>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Duration: " Margin="0,0,0,0" />
-                                                <TextBlock Text="{Binding Path=CombatDuration}" />
-                                            </StackPanel>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Map: " />
-                                                <TextBlock Text="{Binding Path=Map, Converter={StaticResource mapNameStringConverter}}" 
-                                               Foreground="{Binding Path=Map, Converter={StaticResource mapNameColorConverter}}" FontWeight="Bold" />
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </GroupBox>
-
-                        <GroupBox Grid.Row="0" Grid.Column="2" Margin="4,0,4,0" Visibility="{Binding Path=SelectedCombat, Converter={StaticResource typeToVisibilityConverter}}">
-                            <GroupBox.Header>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Selected Combat" />
-                                </StackPanel>
-                            </GroupBox.Header>
-                            <Grid Visibility="{Binding Path=SelectedCombat, Converter={StaticResource typeToVisibilityConverter}}">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"></RowDefinition>
-                                    <RowDefinition Height="*"></RowDefinition>
-                                </Grid.RowDefinitions>
-
-                                <StackPanel Grid.Row="0" Margin="0,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <GroupBox Grid.Row="0" Grid.Column="0" Margin="4,0,4,0" Visibility="{Binding Path=SelectedCombat, Converter={StaticResource typeToVisibilityConverter}}">
+                        <GroupBox.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Selected Combat" />
+                            </StackPanel>
+                        </GroupBox.Header>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                           
+                            <StackPanel Grid.Row="0" Margin="0,0,0,0" Visibility="{Binding Path=SelectedCombat, Converter={StaticResource typeToVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Visibility="{Binding Path=SelectedCombat.ImportedDate, Converter={StaticResource typeToVisibilityConverter}}">
+                                        <TextBlock Text="Imported: " Foreground="{StaticResource colorImported}" FontWeight="Bold" />
+                                        <TextBlock Text="{Binding Path=SelectedCombat.ImportedDate}" Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                        <TextBlock Text="File: " Foreground="{StaticResource colorImported}" Margin="4,0,0,0" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Path=SelectedCombat.ImportedFileName}" Foreground="{StaticResource colorEventTypeMetricValue}"/>
+                                    </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                                         <TextBlock Text="Started: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
                                         <TextBlock Text="{Binding Path=SelectedCombat.CombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" 
-                           Foreground="{StaticResource colorEventTypeMetricValue}" />
-                                        <TextBlock Text="Ended: " Margin="8,0,0,0" Foreground="{StaticResource colorEventTypeMetricLabel}" />
+            Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                        <TextBlock Text="Ended: " Margin="4,0,0,0" Foreground="{StaticResource colorEventTypeMetricLabel}" />
                                         <TextBlock Text="{Binding Path=SelectedCombat.CombatEnd, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" 
-                           Foreground="{StaticResource colorEventTypeMetricValue}" />
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                        <TextBlock Text="Duration: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+            Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                        <TextBlock Text="Duration: " Margin="4,0,0,0" Foreground="{StaticResource colorEventTypeMetricLabel}" />
                                         <TextBlock Text="{Binding Path=SelectedCombat.CombatDuration}" Foreground="{StaticResource colorEventTypeMetricValue}" />
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -682,45 +635,198 @@
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                                         <TextBlock Text="Players: " Margin="0,0,0,0" Visibility="{Binding Path=SelectedCombat.PlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" 
-                           Foreground="{StaticResource colorEventTypeMetricLabel}" />
+            Foreground="{StaticResource colorEventTypeMetricLabel}" />
                                         <TextBlock Text="{Binding Path=SelectedCombat.PlayerEntities.Count}" Visibility="{Binding Path=SelectedCombat.PlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" 
-                           Foreground="{StaticResource colorEventTypeMetricValue}" />
+            Foreground="{StaticResource colorEventTypeMetricValue}" />
                                         <TextBlock Text="Non-Players: " Margin="4,0,0,0" Visibility="{Binding Path=SelectedCombat.NonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" 
-                           Foreground="{StaticResource colorEventTypeMetricLabel}" />
+            Foreground="{StaticResource colorEventTypeMetricLabel}" />
                                         <TextBlock Text="{Binding Path=SelectedCombat.NonPlayerEntities.Count}" Visibility="{Binding Path=SelectedCombat.NonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" 
-                           Foreground="{StaticResource colorEventTypeMetricValue}" />
+            Foreground="{StaticResource colorEventTypeMetricValue}" />
                                         <TextBlock Text="Events: " Margin="4,0,0,0" Foreground="{StaticResource colorEventTypeMetricLabel}" />
                                         <TextBlock Text="{Binding Path=SelectedCombat.EventsCount}" Foreground="{StaticResource colorEventTypeMetricValue}" />
                                     </StackPanel>
                                 </StackPanel>
 
-                            </Grid>
-                        </GroupBox>
-                    </Grid>
-
-                    <GroupBox Grid.Row="1">
-                        <GroupBox.Header>
-                            <StackPanel Orientation="Horizontal">
+                        </Grid>
+                    </GroupBox>
+                    <Button Grid.Row="0" Grid.Column="1" x:Name="uiButtonParseLog" Width="32" Height="32" Margin="2,8,2,0" Padding="4,4,4,4"
+                            VerticalAlignment="Top" Click="UiButtonParseLog_OnClick"
+                            ToolTip="Parse _log File(s)" IsEnabled="{Binding Path=IsExecutingBackgroundProcess, Converter={StaticResource invertBooleanConverter}}">
+                        <Image Source="../Images/glyphicons-82-refresh.png"></Image>
+                    </Button>
+                    <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70*"></ColumnDefinition>
+                            <ColumnDefinition Width="30*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <GroupBox Grid.Column="0">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
                                 <Image Tag="selected_combat_unique_list" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,4,0"
-                                       MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp"
-                                       ToolTip="Click for more details." />
+                                        MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp"
+                                        ToolTip="Click for more details." />
                                 <TextBlock Text="Selected Combat: Unique list of Non-Player entities"></TextBlock>
                             </StackPanel>
-                        </GroupBox.Header>
-                        <DataGrid ItemsSource="{Binding Path=SelectedCombat.UniqueEntityIds}" AutoGenerateColumns="False"
-                                  CanUserReorderColumns="False" CanUserSortColumns="True"
-                                  CanUserResizeColumns="True" SelectionUnit="Cell" SelectionMode="Single">
+                            </GroupBox.Header>
+                            <DataGrid ItemsSource="{Binding Path=SelectedCombat.UniqueEntityIds}" AutoGenerateColumns="False"
+                                    CanUserReorderColumns="False" CanUserSortColumns="True"
+                                    CanUserResizeColumns="True" SelectionUnit="Cell" SelectionMode="Single">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="IsPet" Binding="{Binding Path=IsPet, Mode=OneWay}" IsReadOnly="True" />
-                                <DataGridTextColumn Header="Label" Binding="{Binding Path=Label, Mode=OneWay}" IsReadOnly="True" SortMemberPath="Label" SortDirection="Ascending" />
-                                <DataGridTextColumn Header="Id" Binding="{Binding Path=Id, Mode=OneWay}" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Entity Label" Binding="{Binding Path=Label, Mode=OneWay}" IsReadOnly="True" SortMemberPath="Label" SortDirection="Ascending" />
+                                <DataGridTextColumn Header="Entity Id" Binding="{Binding Path=Id, Mode=OneWay}" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Pet Owner" Binding="{Binding Path=OwnerLabel, Mode=OneWay}" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Pet Owner Id" Binding="{Binding Path=OwnerId, Mode=OneWay}" IsReadOnly="True" />
                             </DataGrid.Columns>
                         </DataGrid>
+                        </GroupBox>
+                        <GroupBox Grid.Column="1">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Tag="selected_combat_players_list" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,4,0"
+                                           MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp"
+                                           ToolTip="Click for more details." />
+                                    <TextBlock Text="Selected Combat: Player(s): "></TextBlock>
+                                    <TextBlock Text="{Binding Path=SelectedCombat.PlayerEntities.Count}"></TextBlock>
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <ListView Name="uiListViewCombatPlayerList" ItemsSource="{Binding Path=SelectedCombat.PlayerEntities}">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        
+                                        <Setter Property="IsHitTestVisible" Value="False"/>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                    <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="3" BorderThickness="2" BorderBrush="DarkSlateBlue" HorizontalAlignment="Stretch">
+                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                                <TextBlock Text="Name: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                                <TextBlock Text="{Binding Path=OwnerDisplay}" 
+                                                           Foreground="CornflowerBlue" FontWeight="Bold" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                                <TextBlock Text="Duration: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                                <TextBlock Text="{Binding Path=EntityCombatDuration, Converter={StaticResource timeSpanMinSeconds}}" 
+                                                           Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                            </StackPanel>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                                <TextBlock Text="Inactive: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
+                                                <TextBlock Text="{Binding Path=EntityCombatInActive, Converter={StaticResource timeSpanMinSeconds}}" 
+                                                           Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                            </StackPanel>
+                                            
+                                        </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </GroupBox>
+                    </Grid>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="1">
+                    <GroupBox>
+                        <GroupBox.Header>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <TextBlock Text="Combat Select: " VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding Path=Combats.Count}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </GroupBox.Header>
+                        <ListView Name="uiListViewCombatList" ItemsSource="{Binding Path=Combats}" SelectedItem="{Binding Path=SelectedCombat}">
+                            <ListView.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Remove Combat" Click="MenuItemRemoveCombat_OnClick" CommandParameter="{Binding Path=SelectedCombat}"></MenuItem>
+                                </ContextMenu>
+                            </ListView.ContextMenu>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Vertical">
+                                        <StackPanel Orientation="Horizontal" Visibility="{Binding Path=ImportedDate, Converter={StaticResource typeToVisibilityConverter}}">
+                                            <TextBlock Text="Imported: " Foreground="{StaticResource colorImported}" FontWeight="Bold" />
+                                            <TextBlock Text="{Binding Path=ImportedDate}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Visibility="{Binding Path=ImportedDate, Converter={StaticResource typeToVisibilityConverter}}">
+                                            <TextBlock Text="File: " Foreground="{StaticResource colorImported}" Margin="0,0,0,0" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=ImportedFileName}" Foreground="{StaticResource colorEventTypeMetricValue}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Start: " />
+                                            <TextBlock Text="{Binding Path=CombatStart}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Duration: " Margin="0,0,0,0" />
+                                            <TextBlock Text="{Binding Path=CombatDuration}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Map: " />
+                                            <TextBlock Text="{Binding Path=Map, Converter={StaticResource mapNameStringConverter}}" 
+                            Foreground="{Binding Path=Map, Converter={StaticResource mapNameColorConverter}}" FontWeight="Bold" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
                     </GroupBox>
                 </Grid>
-            </GroupBox>
+                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                    <GroupBox x:Name="uiGroupBoxSelectedCombatEntity" Grid.Column="0" Margin="4,4,4,4"
+             Padding="4,4,4,4">
+                        <GroupBox.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Tag="all_combat_events_datagrid" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" 
+                                       ToolTip="Click for more details." VerticalAlignment="Center"/>
+                                <TextBlock Text="Selected Combat: All Event(s): " Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=local:DetectionSettingsControl}, Path=CombatEventList.Count}" Margin="0,0,0,0" VerticalAlignment="Center"
+                            Visibility="{Binding RelativeSource={RelativeSource AncestorType=local:DetectionSettingsControl}, Path=CombatEventList.Count, Converter={StaticResource typeToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </GroupBox.Header>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0" Margin="0,0,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="1" Text="Search:" Margin="8,0,0,0" VerticalAlignment="Center"></TextBlock>
+                                <TextBox Name="uiTextBoxSearchGrid" VerticalAlignment="Center" Grid.Column="2" Margin="4,0,0,0"
+                                    KeyUp="UiTextBoxSearchGrid_OnKeyUp"/>
+                                <Button Name="uiButtonSetDataGridFilter" VerticalAlignment="Center" Grid.Column="3"
+                                    Margin="4,0,0,0"
+                                    ToolTip="Set the search filter"
+                                    Click="UiButtonSetDataGridFilter_OnClick">
+                                    <Image Source="../Images/glyphicons-28-search.png" Stretch="Fill" Height="16" Width="16"></Image>
+                                </Button>
+                                <Button Name="uiButtonResetDataGridFilter" VerticalAlignment="Center" Grid.Column="4"
+                                     Margin="4,0,0,0"
+                                     ToolTip="Clear the search filter"
+                                     Click="UiButtonResetDataGridFilter_OnClick">
+                                    <Image Source="../Images/glyphicons-366-restart.png" Stretch="Fill" Height="16" Width="16"></Image>
+                                </Button>
+                            </Grid>
+
+                            <DataGrid Name="uiDataGridAllEvents" Grid.Row="1" ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=local:DetectionSettingsControl}, Path=CombatEventList}"
+                                AutoGenerateColumns="False" CanUserReorderColumns="True" CanUserSortColumns="True" CanUserResizeColumns="True" SelectionUnit="Cell">
+                                <DataGrid.ContextMenu>
+                                    <ContextMenu>
+                                        <StackPanel Name="uiStackPanelColumns" Orientation="Vertical">
+                                            <TextBlock Text="Columns"></TextBlock>
+                                        </StackPanel>
+                                    </ContextMenu>
+                                </DataGrid.ContextMenu>
+                            </DataGrid>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

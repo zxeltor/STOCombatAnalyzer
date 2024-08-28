@@ -117,8 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="all_combat_events_datagrid" xml:space="preserve">
+    <value>This displays the raw STO combat log data for the selected combat. By default, not all data columns from the combat log are displayed. You can enable/disable the columns in the display by right clicking on the datagrid and interacting with the context menu that’s displayed.
+
+Notes:
+1) If you choose to use the Search field for filtering, keep in mind it will only filters on string based columns.
+2) Keep in mind this shows the raw data from the combat logs.</value>
+  </data>
   <data name="ApplicationName" xml:space="preserve">
     <value>STO Combat Log Analyzer</value>
+  </data>
+  <data name="cancel_detection_settings_changes" xml:space="preserve">
+    <value>Revert to the previous map detection settings, if any are available.
+
+Note: The new settings won't be reflected in the interface until you run "Parse Log(s)".</value>
   </data>
   <data name="combat_analysis" xml:space="preserve">
     <value>This section allows you to parse the combat logs, and examine a selected combat instance. The data here is meant to assist you in making modifications to the CombatMapEntityList section.</value>
@@ -196,7 +208,15 @@ Note: The new settings won't be reflected in the interface until you run "Parse 
 
 Note: The new settings won't be reflected in the interface until you run "Parse Log(s)".</value>
   </data>
+  <data name="save_detection_settings" xml:space="preserve">
+    <value>Save the current map detection settings, and use them as your default in the application.</value>
+  </data>
+  <data name="selected_combat_players_list" xml:space="preserve">
+    <value>This section displays a list of player entities for the currently selected combat instance.
+
+Note: This is a non-selectable list. This is here for informational purposes only.</value>
+  </data>
   <data name="selected_combat_unique_list" xml:space="preserve">
-    <value>This section displays a list of unique non-player entities, and their pets. The Label and Id of each entry, can be added as a MapEntity or MapEntityExclusion, to a map in the CombatMapEntityList section.</value>
+    <value>This section displays a list of unique non-player entities, and their pets. The “Entity Label” and “Entity Id” fields of an entry, can be added as a MapEntity or MapEntityExclusion in the CombatMapEntityList section. These entities are used to improve map/event detection when parsing the combat logs.</value>
   </data>
 </root>

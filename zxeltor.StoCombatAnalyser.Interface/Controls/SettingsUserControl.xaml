@@ -197,7 +197,7 @@
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <TextBlock Text="CombinePets" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="IsCombinePets" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         <CheckBox x:Name="uiCheckBoxEnableCombinePetsUi" Content="Enable" Margin="4,4,0,0"
                                   IsChecked="{Binding Path=EnableCombinePets}" />
                     </StackPanel>

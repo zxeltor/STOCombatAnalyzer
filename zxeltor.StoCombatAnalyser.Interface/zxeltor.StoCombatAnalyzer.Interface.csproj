@@ -80,6 +80,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Controls\DetectionSettingsV2Control.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Controls\ResponseDialog.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -14,11 +14,10 @@ using log4net;
 using log4net.Core;
 using log4net.Repository.Hierarchy;
 using Microsoft.Win32;
-using zxeltor.StoCombatAnalyzer.Interface.Classes;
-using zxeltor.StoCombatAnalyzer.Interface.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
 using zxeltor.StoCombatAnalyzer.Lib.Helpers;
 using zxeltor.StoCombatAnalyzer.Lib.Model;
+using zxeltor.Types.Lib.Result;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 
@@ -59,8 +58,6 @@ public partial class SettingsUserControl : UserControl
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
-        this.Unloaded -= this.OnUnloaded;
-
         this.uiTextBoxHowFarBackForCombat.TextChanged -= this.TextBoxBase_OnTextChanged;
         this.uiTextBoxHowLongBeforeNewCombat.TextChanged -= this.TextBoxBase_OnTextChanged;
         this.uiTextBoxHowLongToKeepLogs.TextChanged -= this.TextBoxBase_OnTextChanged;
@@ -68,13 +65,11 @@ public partial class SettingsUserControl : UserControl
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        this.Loaded -= this.OnLoaded;
-
         this.uiTextBoxHowFarBackForCombat.TextChanged += this.TextBoxBase_OnTextChanged;
         this.uiTextBoxHowLongBeforeNewCombat.TextChanged += this.TextBoxBase_OnTextChanged;
         this.uiTextBoxHowLongToKeepLogs.TextChanged += this.TextBoxBase_OnTextChanged;
 
-        this.SetLog4netLogLevelFromSettings();
+        this.SetLog4NetLogLevelFromSettings();
     }
 
     /// <summary>
@@ -244,7 +239,10 @@ public partial class SettingsUserControl : UserControl
         {
             this._log.Debug("Purging log files.");
 
-            if (CombatLogHelper.TryPurgeCombatLogFolder(new CombatLogParseSettings(Settings.Default), out var filesPurged, out var errorReason))
+            var purgeResult = CombatLogHelper.TryPurgeCombatLogFolder(new CombatLogParseSettings(Settings.Default),
+                out var filesPurged);
+
+            if (purgeResult.SuccessFull)
             {
                 if (filesPurged.Any())
                     ResponseDialog.Show(Application.Current.MainWindow, "Combat logs were purged.",
@@ -255,8 +253,11 @@ public partial class SettingsUserControl : UserControl
             }
             else
             {
-                if (!string.IsNullOrWhiteSpace(errorReason))
-                    ResponseDialog.Show(Application.Current.MainWindow, errorReason, "Combat log purge error");
+                if (purgeResult.Details.Any(res => res.ResultLevel > ResultLevel.Info && res.Message != null))
+                    ResponseDialog.Show(Application.Current.MainWindow, "Combat log purge error", "Error",
+                        detailsBoxList: purgeResult.Details
+                            .Where(res => res.ResultLevel > ResultLevel.Info && res.Message != null)
+                            .Select(res => res.Message).ToList());
             }
         }
         else if (button == this.uiButtonOpenLogFile)
@@ -286,12 +287,12 @@ public partial class SettingsUserControl : UserControl
             {
                 var errorMessage = $"Failed to load log file: {logPath}";
                 this._log.Error(errorMessage, ex);
-                MessageBox.Show(errorMessage, "Eror", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
 
-    private void SetLog4netLogLevelFromSettings()
+    private void SetLog4NetLogLevelFromSettings()
     {
         try
         {
@@ -315,14 +316,8 @@ public partial class SettingsUserControl : UserControl
 
     private void uiCheckBoxEnableDebugLogging_Click(object sender, RoutedEventArgs e)
     {
-        this.SetLog4netLogLevelFromSettings();
+        this.SetLog4NetLogLevelFromSettings();
     }
-
-    //private void SaveSettings_OnClick(object sender, RoutedEventArgs e)
-    //{
-    //    if (e.Source != null)
-    //        Settings.Default.Save();
-    //}
 
     private void UiCheckBoxEnableInactiveTimeCalculations_OnClick(object sender, RoutedEventArgs e)
     {
@@ -346,7 +341,7 @@ public partial class SettingsUserControl : UserControl
 
     private void UiTextBoxMinInActiveInSeconds_OnTextChanged(object sender, TextChangedEventArgs e)
     {
-        if (double.TryParse(this.uiTextBoxMinInActiveInSeconds.Text, out var parseResult))
+        if (int.TryParse(this.uiTextBoxMinInActiveInSeconds.Text, out var parseResult))
         {
             if (parseResult < 1)
             {
@@ -382,7 +377,7 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
     private int _howFarBackForCombat = Settings.Default.HowFarBackForCombatInHours;
     private int _howLongBeforeNewCombat = Settings.Default.HowLongBeforeNewCombatInSeconds;
     private int _howLongToKeepLogs = Settings.Default.HowLongToKeepLogsInDays;
-    private double _minInActiveInSeconds = Settings.Default.MinInActiveInSeconds;
+    private int _minInActiveInSeconds = Settings.Default.MinInActiveInSeconds;
     private string _myCharacter = Settings.Default.MyCharacter;
     private bool _purgeCombatLogs = Settings.Default.PurgeCombatLogs;
 
@@ -401,7 +396,7 @@ internal class SettingsUserControlBindingContext : INotifyPropertyChanged
         }
     }
 
-    public double MinInActiveInSeconds
+    public int MinInActiveInSeconds
     {
         get => this._minInActiveInSeconds = Settings.Default.MinInActiveInSeconds;
         set

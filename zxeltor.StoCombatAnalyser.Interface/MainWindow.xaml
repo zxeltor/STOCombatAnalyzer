@@ -12,50 +12,30 @@
     d:DataContext="{d:DesignInstance Type={x:Type classes:CombatLogManager}}"
     mc:Ignorable="d"
     Title="{Binding Path=MainWindowTitle}" Height="980" MinHeight="800" Width="1820" MinWidth="1000" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <converters:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
+        <converters:BoolToGridLengthConverter x:Key="boolToGridLengthConverter" />
+        <converters:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
+        <converters:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
+        <converters:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
+        <converters:CombatTimeSpanToHumanizedStringMaxMinuteMinSecondsConverter x:Key="timeSpanMinSeconds" />
+        <converters:CombatTimeSpanToHumanizedStringMaxMinuteMinMilliSecondsConverter x:Key="timeSpanMinMilliSeconds" />
+        <converters:MapNameStringConverter x:Key="mapNameStringConverter" />
+        <converters:MapNameColorConverter x:Key="mapNameColorConverter" />
+        <converters:InvertBooleanConverter x:Key="invertBooleanConverter" />
+        <Brush x:Key="colorEventTypeMetricLabel">Green</Brush>
+        <Brush x:Key="colorEventTypeMetricValue">Blue</Brush>
+        <Brush x:Key="colorImported">DarkOrange</Brush>
+        <Style TargetType="Border" x:Key="combatTypeLabelStyle">
+            <Setter Property="BorderBrush" Value="Black"></Setter>
+            <Setter Property="BorderThickness" Value="1"></Setter>
+            <Setter Property="CornerRadius" Value="4"></Setter>
+            <Setter Property="Margin" Value="0,0,2,2"></Setter>
+        </Style>
+    </Window.Resources>
     <Grid x:Name="uiGridMain">
-        <Grid.Resources>
-            <converters:DateTimeToExtendedDateStringConverter x:Key="dateTimeToExtendedDateStringConverter" />
-            <converters:BoolToGridLengthConverter x:Key="boolToGridLengthConverter" />
-            <converters:TypeToVisibilityConverter x:Key="typeToVisibilityConverter" />
-            <converters:TypeToVisibilityConverterInverted x:Key="typeToVisibilityConverterInverted" />
-            <converters:TypeToDataGridSelectUnitConverter x:Key="typeToDataGridSelectUnitConverter" />
-            <converters:CombatDamageNumberToHumanizedStringConverter x:Key="doubleToThousandsStringConverter" />
-            <converters:CombatTimeSpanToHumanizedStringMaxMinuteMinSecondsConverter x:Key="timeSpanMinSeconds" />
-            <converters:CombatTimeSpanToHumanizedStringMaxMinuteMinMilliSecondsConverter x:Key="timeSpanMinMilliSeconds" />
-            <converters:MapNameStringConverter x:Key="mapNameStringConverter" />
-            <converters:MapNameColorConverter x:Key="mapNameColorConverter" />
-            <converters:InvertBooleanConverter x:Key="invertBooleanConverter" />
-            <Brush x:Key="colorEventTypeMetricLabel">Green</Brush>
-            <Brush x:Key="colorEventTypeMetricValue">Blue</Brush>
-            <Style TargetType="Border" x:Key="combatTypeLabelStyle">
-                <Setter Property="BorderBrush" Value="Black"></Setter>
-                <Setter Property="BorderThickness" Value="1"></Setter>
-                <Setter Property="CornerRadius" Value="4"></Setter>
-                <Setter Property="Margin" Value="0,0,2,2"></Setter>
-            </Style>
-            <Style TargetType="{x:Type TreeViewItem}" x:Key="combatEntityTreeViewItem">
-                <Style.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="4"/>
-                        <Setter Property="Margin" Value="0,2,0,2"/>
-                    </Style>
-                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black" />
-                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="White" />
-                </Style.Resources>
-                <Setter Property="BorderBrush" Value="Black"></Setter>
-                <Setter Property="BorderThickness" Value="4"></Setter>
-                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                <Setter Property="Padding" Value="4,4,4,4"></Setter>
-                <Style.Triggers>
-                    <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="BorderBrush" Value="Green"/>
-                        <Setter Property="BorderThickness" Value="4" />
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-        </Grid.Resources>
         <TabControl x:Name="uiTableControlMain" Margin="0">
-            <TabItem x:Name="uiTabLogAnalyzer" Header="Combat Metrics">
+            <TabItem x:Name="uiTabLogAnalyzer" Header="Combat Analyzer">
                 <Grid Name="uiGridTabLogAnalyzer">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -100,6 +80,10 @@
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Vertical">
+                                                    <StackPanel Orientation="Horizontal" Visibility="{Binding Path=ImportedDate, Converter={StaticResource typeToVisibilityConverter}}">
+                                                        <TextBlock Text="Imported: " Foreground="{StaticResource colorImported}" FontWeight="Bold" />
+                                                        <TextBlock Text="{Binding Path=ImportedDate}" />
+                                                    </StackPanel>
                                                     <StackPanel Orientation="Horizontal">
                                                         <TextBlock Text="Start: " />
                                                         <TextBlock Text="{Binding Path=CombatStart}" />
@@ -134,6 +118,12 @@
                                     </Grid.RowDefinitions>
 
                                     <StackPanel Grid.Row="0" Margin="0,0,0,0">
+                                        <StackPanel Orientation="Horizontal" Visibility="{Binding Path=SelectedCombat.ImportedDate, Converter={StaticResource typeToVisibilityConverter}}">
+                                            <TextBlock Text="Imported: " Foreground="{StaticResource colorImported}" FontWeight="Bold" />
+                                            <TextBlock Text="{Binding Path=SelectedCombat.ImportedDate}" Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                            <TextBlock Text="File: " Foreground="{StaticResource colorImported}" Margin="4,0,0,0" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Path=SelectedCombat.ImportedFileName}" Foreground="{StaticResource colorEventTypeMetricValue}"/>
+                                        </StackPanel>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                                             <TextBlock Text="Started: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
                                             <TextBlock Text="{Binding Path=SelectedCombat.CombatStart, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" 
@@ -684,14 +674,9 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Detection Settings Editor" Visibility="{Binding Source={x:Static properties:Settings.Default}, 
+            <TabItem Header="Event/Map Detection" Visibility="{Binding Source={x:Static properties:Settings.Default}, 
                     Path=IsDetectionsSettingsTabEnabled, Converter={StaticResource typeToVisibilityConverter}}">
                 <Grid Name="uiGridDetectionSettingsEditor" />
-            </TabItem>
-
-            <TabItem Header="Combat Viewer" Visibility="{Binding Source={x:Static properties:Settings.Default}, 
-                    Path=IsCombatDetailsTabEnabled, Converter={StaticResource typeToVisibilityConverter}}">
-                <Grid Name="uiGridCombatAnalyzer" />
             </TabItem>
 
             <TabItem Header="Tools/Settings">
@@ -724,11 +709,6 @@
                                        MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details."/>
                                 <Button Name="uiButtonResetMapEntities" Content="Reset Map Detection Settings" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
                                         Click="UiButtonResetMapEntities_OnClick"/>
-
-                                <Image Tag="export_combat_json" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="16,0,0,0"
-                                       MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" ToolTip="Click for more details."/>
-                                <Button Name="uiButtonExportCombat" Content="Export Selected Combat" VerticalAlignment="Center" Padding="4,4,4,4" Margin="4,0,0,0"
-                                        Click="UiButtonExportCombat_OnClick"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Grid.Column="1" VerticalAlignment="Top">
                                 <Button Tag="GithubMapSettingsWikiUrl" Background="Transparent" BorderBrush="Transparent" 

@@ -18,16 +18,13 @@ public class DataGridContext<T> : INotifyPropertyChanged
 {
     #region Constructors
 
-    public DataGridContext(string name)
+    public DataGridContext()
     {
-        this.Name = name;
     }
 
     #endregion
 
     #region Public Properties
-
-    public string Name { get; }
 
     public ObservableCollection<DataGridColumnConfig> GridColumns { get; set; } = [];
 
@@ -37,11 +34,11 @@ public class DataGridContext<T> : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public static DataGridContext<T> GetDefaultContext(string name)
+    public static DataGridContext<T> GetDefaultContext()
     {
         var propertiesList = typeof(T).GetProperties().ToList();
 
-        var defaultContext = new DataGridContext<T>(name);
+        var defaultContext = new DataGridContext<T>();
 
         propertiesList.ForEach(propInfo => new DataGridColumnConfig(propInfo.Name));
 

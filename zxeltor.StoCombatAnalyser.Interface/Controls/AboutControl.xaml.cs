@@ -1,72 +1,56 @@
-﻿using log4net;
+﻿// Copyright (c) 2024, Todd Taylor (https://github.com/zxeltor)
+// All rights reserved.
+// 
+// This source code is licensed under the Apache-2.0-style license found in the
+// LICENSE file in the root directory of this source tree.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
-using zxeltor.ConfigUtilsHelpers.Helpers;
+using log4net;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
+using zxeltor.StoCombatAnalyzer.Interface.Helpers;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Controls
+namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
+
+/// <summary>
+///     Interaction logic for AboutControl.xaml
+/// </summary>
+public partial class AboutControl : UserControl
 {
-    /// <summary>
-    /// Interaction logic for AboutControl.xaml
-    /// </summary>
-    public partial class AboutControl : UserControl
+    #region Private Fields
+
+    private readonly ILog Log = LogManager.GetLogger(typeof(AboutControl));
+
+    #endregion
+
+    #region Constructors
+
+    public AboutControl()
     {
-        private readonly ILog Log = log4net.LogManager.GetLogger(typeof(AboutControl));
-
-        private CombatLogManager? CombatLogManagerContext => this.DataContext as CombatLogManager;
-
-        private MainWindow? MainWindow => Application.Current.MainWindow as MainWindow;
-
-        public AboutControl()
-        {
-            InitializeComponent();
-        }
-
-        private void Browse_OnMouseLeftButtonUp(object sender, RoutedEventArgs e)
-        {
-            if (!(e.Source is Button button))
-                return;
-
-            var url = string.Empty;
-
-            try
-            {
-                switch (button.Tag)
-                {
-                    case "GithubRepoUrl":
-                        url = Properties.Resources.GithubRepoUrl;
-                        UrlHelper.LaunchUrlInDefaultBrowser(url);
-                        break;
-                    case "GithubRepoWikiUrl":
-                        url = Properties.Resources.GithubRepoWikiUrl;
-                        UrlHelper.LaunchUrlInDefaultBrowser(url);
-                        break;
-                    case "GithubMapDetectRepoUrl":
-                        url = Properties.Resources.GithubMapDetectRepoUrl;
-                        UrlHelper.LaunchUrlInDefaultBrowser(url);
-                        break;
-                }
-            }
-            catch (Exception exception)
-            {
-                var errorMessage = $"Failed to open default browser for url={url}.";
-                Log.Error(errorMessage, exception);
-                MessageBox.Show(MainWindow, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+        this.InitializeComponent();
     }
+
+    #endregion
+
+    #region Public Properties
+
+    private CombatLogManager? CombatLogManagerContext => this.DataContext as CombatLogManager;
+
+    private MainWindow? MainWindow => Application.Current.MainWindow as MainWindow;
+
+    #endregion
+
+    #region Other Members
+
+    private void Browse_OnMouseLeftButtonUp(object sender, RoutedEventArgs e)
+    {
+        if (!(e.Source is Button button))
+            return;
+
+        if (button.Tag is not string tagString) return;
+
+        AppHelper.DisplayHelpUrlInBrowser(this.MainWindow, tagString);
+    }
+
+    #endregion
 }

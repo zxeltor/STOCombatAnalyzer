@@ -61,11 +61,35 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This displays the raw STO combat log data for the selected combat. By default, not all data columns from the combat log are displayed. You can enable/disable the columns in the display by right clicking on the datagrid and interacting with the context menu that’s displayed.
+        ///
+        ///Notes:
+        ///1) If you choose to use the Search field for filtering, keep in mind it will only filters on string based columns.
+        ///2) Keep in mind this shows the raw data from the combat logs..
+        /// </summary>
+        public static string all_combat_events_datagrid {
+            get {
+                return ResourceManager.GetString("all_combat_events_datagrid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to STO Combat Log Analyzer.
         /// </summary>
         public static string ApplicationName {
             get {
                 return ResourceManager.GetString("ApplicationName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Revert to the previous map detection settings, if any are available.
+        ///
+        ///Note: The new settings won&apos;t be reflected in the interface until you run &quot;Parse Log(s)&quot;..
+        /// </summary>
+        public static string cancel_detection_settings_changes {
+            get {
+                return ResourceManager.GetString("cancel_detection_settings_changes", resourceCulture);
             }
         }
         
@@ -266,7 +290,27 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This section displays a list of unique non-player entities, and their pets. The Label and Id of each entry, can be added as a MapEntity or MapEntityExclusion, to a map in the CombatMapEntityList section..
+        ///   Looks up a localized string similar to Save the current map detection settings, and use them as your default in the application..
+        /// </summary>
+        public static string save_detection_settings {
+            get {
+                return ResourceManager.GetString("save_detection_settings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This section displays a list of player entities for the currently selected combat instance.
+        ///
+        ///Note: This is a non-selectable list. This is here for informational purposes only..
+        /// </summary>
+        public static string selected_combat_players_list {
+            get {
+                return ResourceManager.GetString("selected_combat_players_list", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This section displays a list of unique non-player entities, and their pets. The “Entity Label” and “Entity Id” fields of an entry, can be added as a MapEntity or MapEntityExclusion in the CombatMapEntityList section. These entities are used to improve map/event detection when parsing the combat logs..
         /// </summary>
         public static string selected_combat_unique_list {
             get {

@@ -344,9 +344,9 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("4")]
-        public double MinInActiveInSeconds {
+        public int MinInActiveInSeconds {
             get {
-                return ((double)(this["MinInActiveInSeconds"]));
+                return ((int)(this["MinInActiveInSeconds"]));
             }
             set {
                 this["MinInActiveInSeconds"] = value;
