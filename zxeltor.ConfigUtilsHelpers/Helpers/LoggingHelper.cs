@@ -5,6 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 using log4net;
+using log4net.Appender;
 using log4net.Config;
 using log4net.Core;
 using log4net.Repository.Hierarchy;
@@ -63,7 +64,7 @@ public class LoggingHelper
     }
 
     /// <summary>
-    ///     Attempt to change the log4net logging level programmatically.
+    ///     Attempt to change the log4net file appender logging level programmatically.
     /// </summary>
     /// <param name="enableDebugLogging">True to enable debug logging. False otherwise.</param>
     /// <returns>True of successful. False otherwise.</returns>
@@ -71,15 +72,19 @@ public class LoggingHelper
     {
         try
         {
-            LogManager.GetAllRepositories().ToList().ForEach(repository =>
-            {
-                var hier = (Hierarchy)repository;
-                hier.GetCurrentLoggers().ToList().ForEach(logger =>
-                {
-                    var tmpLogger = (Logger)logger;
-                    tmpLogger.Level = enableDebugLogging ? Level.Debug : Level.Warn;
-                });
-            });
+            var hierarchy = (Hierarchy)LogManager.GetRepository();
+            if (hierarchy == null) return false;
+
+            var appenders = hierarchy.GetAppenders();
+            if (appenders == null || appenders.Length == 0) return false;
+
+            var appender = appenders.FirstOrDefault(app => app.Name.Equals("file"));
+            if (appender == null) return false;
+
+            var fileAppender = appender as FileAppender;
+            if (fileAppender == null) return false;
+
+            fileAppender.Threshold = enableDebugLogging ? Level.Debug : Level.Info;
 
             return true;
         }
