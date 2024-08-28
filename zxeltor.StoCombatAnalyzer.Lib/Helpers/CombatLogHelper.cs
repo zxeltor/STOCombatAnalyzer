@@ -119,7 +119,7 @@ public static class CombatLogHelper
                 if (!Directory.Exists(combatLogPath))
                 {
                     var errorString =
-                        $"The selected log folder doesn't exist: {combatLogPath}.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder.";
+                        $"The selected log folder doesn't exist: {combatLogPath}. Go to settings and set \"CombatLogPath\" to a valid folder.";
                     Log.Error(errorString);
 
                     return resultFinal.AddLast(new Result(new Exception(errorString), resultLevel: ResultLevel.Halt));
@@ -132,7 +132,7 @@ public static class CombatLogHelper
                 if (filesToParse.Count == 0)
                 {
                     var errorString =
-                        $"No combat log files we're found in the selected folder.{Environment.NewLine}{Environment.NewLine}Go to settings and set \"CombatLogPath\" to a valid folder, and check \"CombatLogPathFilePattern\".";
+                        $"No combat log files we're found in the selected folder. Go to settings and set \"CombatLogPath\" to a valid folder, and check \"CombatLogPathFilePattern\".";
                     Log.Error(errorString);
                     return resultFinal.AddLast(new Result(new Exception(errorString), ResultLevel.Halt));
                 }
@@ -145,7 +145,7 @@ public static class CombatLogHelper
                 if (filesToParse.Count == 0)
                 {
                     var errorString =
-                        $"Combat log(s) were found, but they're too old.{Environment.NewLine}{Environment.NewLine}They fell outside the timespan defined by the \"HowFarBackForCombat\" setting.";
+                        $"Combat log(s) were found, but they're too old. They fell outside the timespan defined by the \"HowFarBackForCombat\" setting.";
                     Log.Error(errorString);
                     return resultFinal.AddLast(new Result(new Exception(errorString), ResultLevel.Halt));
                 }
@@ -211,7 +211,7 @@ public static class CombatLogHelper
         if (combatEventList.Count == 0)
         {
             var errorString =
-                $"No combat data was returned.{Environment.NewLine}{Environment.NewLine}Combat log data was found, but it fell outside the timespan defined by the \"HowFarBackForCombat\" setting.";
+                $"No combat data was returned. Combat log data was found, but it fell outside the timespan defined by the \"HowFarBackForCombat\" setting.";
             Log.Error(errorString);
 
             return resultFinal.AddLast(new Result(errorString, resultLevel: ResultLevel.Halt));
