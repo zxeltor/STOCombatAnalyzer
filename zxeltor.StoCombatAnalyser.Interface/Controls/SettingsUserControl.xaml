@@ -3,259 +3,196 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Controls"
              xmlns:properties="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Properties"
-             d:DataContext="{d:DesignInstance Type=local:SettingsUserControlBindingContext}"
+             xmlns:converters="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="614">
-    <Grid>
-        <ListBox Margin="0,0,0,0" Padding="2,2,2,2" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top" VerticalAlignment="Top">
-            <ListBoxItem Tag="CombatLogPath" BorderThickness="2" BorderBrush="Black"  HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0">
-                        <TextBlock Text="Name:" />
-                        <TextBlock Text="CombatLogPath" Margin="4,0,10,0" />
-                        <TextBox Name="uiTextBoxCombatLogPath" Text="{Binding Path=CombatLogPath, Mode=TwoWay}" Margin="0,0,10,0" MinWidth="100" />
-                        <StackPanel Orientation="Horizontal" Margin="10,0,10,0" HorizontalAlignment="Right">
-                            <Button Name="uiButtonBoxCombatLogPathSelect" Content="select"
-                                    Click="UiButtonBoxCombatLogPath_OnClick" Width="40" />
-                            <Button Name="uiButtonBoxCombatLogPathDetect" Content="detect"
-                                    Click="UiButtonBoxCombatLogPathDetect_OnClick" Width="40" Margin="10,0,0,0" />
+    <UserControl.Resources>
+        <converters:IntToStringValidationConverter x:Key="intToStringValidationConverter" />
+    </UserControl.Resources>
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <GroupBox Header="General Settings" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2">
+            <StackPanel Orientation="Vertical">
+                <Border BorderThickness="1" BorderBrush="DarkSlateBlue" Margin="2" Padding="2">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox Content="Purge Logs at Startup" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=PurgeCombatLogs, Mode=TwoWay}" />
+                            <Button Name="uiButtonPurgeLogsNow" Tag="PurgeLogsNow" Content="Purge Now" Margin="4,0,0,0" Padding="4,0,4,0" 
+                                    Click="ButtonBase_OnClick" />
                         </StackPanel>
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal">
-                        <TextBlock>Description:</TextBlock>
-                        <TextBlock Margin="4,0,10,0">The path to the STO log folder.</TextBlock>
-                    </StackPanel>
-                </Grid>
-            </ListBoxItem>
-            <ListBoxItem Tag="CombatLogPathFilePattern" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" Width="Auto">
-                        <TextBlock Text="Name:" />
-                        <TextBlock Text="CombatLogPathFilePattern" Width="Auto" Margin="4,0,10,0" />
-                        <TextBox Name="uiTextBoxCombatLogPathFilePattern" Width="Auto" Text="{Binding Path=CombatLogPathFilePattern, Mode=TwoWay}" MinWidth="100"/>
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
-                        <TextBlock>Description:</TextBlock>
-                        <TextBlock TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Height="Auto"
-                            Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">A file pattern used to select one or more combat log files from the log folder. This search pattern supports wildcards so one or more files can be selected.</TextBlock>
-                    </StackPanel>
-                </Grid>
-            </ListBoxItem>
-            <ListBoxItem Tag="MyCharacter" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" Width="Auto">
-                        <TextBlock Text="Name:" />
-                        <TextBlock Text="MyCharacter" Width="Auto" Margin="4,0,10,0" />
-                        <TextBox Name="uiTextBoxMyCharacter" Width="Auto" Text="{Binding Path=MyCharacter, Mode=TwoWay}" MinWidth="200"/>
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
-                        <TextBlock>Description:</TextBlock>
-                        <TextBlock TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Height="Auto"
-                                   Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                            An identifier used to select a player when a new combat instance is chosen.
-                        </TextBlock>
-                    </StackPanel>
-                </Grid>
-            </ListBoxItem>
-            <ListBoxItem Tag="HowFarBackForCombat" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock Text="Name:" />
-                        <TextBlock Text="HowFarBackForCombat" Margin="4,0,10,0"/>
-                        <TextBox Name="uiTextBoxHowFarBackForCombat" Text="{Binding Path=HowFarBackForCombat, Mode=OneTime}" 
-                                 Margin="0,0,10,0" MinWidth="100" TextChanged="TextBoxBase_OnTextChanged"/>
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
-                        <TextBlock>Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">How far back in hours to pull combat log data.</TextBlock>
-                    </StackPanel>
-                </Grid>
-            </ListBoxItem>
-            <ListBoxItem Tag="HowLongBeforeNewCombat" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock Text="Name:" />
-                        <TextBlock Text="HowLongBeforeNewCombat" Margin="4,0,10,0"/>
-                        <TextBox Name="uiTextBoxHowLongBeforeNewCombat" Text="{Binding Path=HowLongBeforeNewCombat, Mode=OneTime}" 
-                                 Margin="0,0,10,0" MinWidth="100" TextChanged="TextBoxBase_OnTextChanged" />
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
-                        <TextBlock>Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">How long to wait in seconds between attacks before an event is considered part of a new combat instance. If less than equal to 1, set the parameter to 10 seconds.</TextBlock>
-                    </StackPanel>
-                </Grid>
-            </ListBoxItem>
-            <ListBoxItem Tag="PurgeCombatLogs" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                        <TextBlock Text="PurgeCombatLogs" Margin="4,0,10,0" 
-                                   VerticalAlignment="Center" HorizontalAlignment="Center" />
-                        <CheckBox Content="Enable purge at startup" IsChecked="{Binding Path=PurgeCombatLogs, Mode=TwoWay}" Margin="8,0,0,0" 
-                                  VerticalAlignment="Center" HorizontalAlignment="Center" />
-                        <Button Name="uiButtonPurgeLogsNow" Tag="PurgeLogsNow" Content="Purge Now" Margin="20,0,0,0" Padding="4,0,4,0" 
-                                VerticalAlignment="Center" HorizontalAlignment="Center"
-                                Click="ButtonBase_OnClick" />
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
-                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <TextBlock TextWrapping="Wrap">
                             Enable combat log folder purge at application startup. Note: If only one combat log exists, it won't be purged regardless of how old it is.
                         </TextBlock>
                     </StackPanel>
-                </Grid>
-            </ListBoxItem>
-            <ListBoxItem Tag="HowLongToKeepLogs" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <TextBlock Text="HowLongToKeepLogs" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <TextBox Name="uiTextBoxHowLongToKeepLogs" Text="{Binding Path=HowLongToKeepLogs, Mode=OneTime}" 
-                                 Margin="0,0,10,0" MinWidth="100" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                 TextChanged="TextBoxBase_OnTextChanged"/>
-                        <TextBlock Text="days" />
+                </Border>
+                <Border BorderThickness="1" BorderBrush="DarkSlateBlue" Margin="2" Padding="2">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="HowLongToKeepLogs:" />
+                            <TextBox Name="uiTextBoxHowLongToKeepLogs" 
+                                     Text="{Binding Source={x:Static properties:Settings.Default}, Path=HowLongToKeepLogsInDays, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}}" 
+                                     Margin="4,0,0,0" Width="100" />
+                            <TextBlock Text="days" Margin="4,0,0,0" />
+                        </StackPanel>
+                        <TextBlock TextWrapping="Wrap">How long to keep combat logs in days, before they are purged.</TextBlock>
                     </StackPanel>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
-                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">How long to keep combat logs in days, before they are purged.</TextBlock>
+                </Border>
+                <Border BorderThickness="1" BorderBrush="DarkSlateBlue" Margin="2" Padding="2">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox x:Name="uiCheckBoxEnableDebugLogging" Content="Debug Logging" 
+                                      IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=DebugLogging, Mode=TwoWay}" />
+                            <Button x:Name="uiButtonOpenLogFile" Content="Open Log File" Margin="4,0,0,0" Padding="4,0,4,0"
+                                    Click="ButtonBase_OnClick" />
+                        </StackPanel>
+                        <TextBlock TextWrapping="Wrap">Enable debug logging for this application.</TextBlock>
                     </StackPanel>
-                </Grid>
-            </ListBoxItem>
-            <ListBoxItem Tag="EnableDebugLogging" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <TextBlock Text="DebugLogging" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <CheckBox x:Name="uiCheckBoxEnableDebugLogging" Content="Enable" Margin="4,4,0,0"
-                                  IsChecked="{Binding Path=EnableDebugLogging}"
-                                  Click="uiCheckBoxEnableDebugLogging_Click"/>
-                        <Button x:Name="uiButtonOpenLogFile" Content="Open Log File" Margin="20,0,0,0" Padding="4,0,4,0"
-                                Click="ButtonBase_OnClick" />
+                </Border>
+                <Border BorderThickness="1" BorderBrush="DarkSlateBlue" Margin="2" Padding="2">
+                    <StackPanel Orientation="Vertical">
+                        <CheckBox x:Name="uiCheckBoxEnableDetectionSettingsUi" Content="Display Detection Settings Tab" 
+                                  IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsDetectionsSettingsVisibleInUi, Mode=TwoWay}" />
+                        <TextBlock TextWrapping="Wrap">Enable Detection Settings tab in the UI.</TextBlock>
                     </StackPanel>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
-                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">Enable debug logging for this application.</TextBlock>
+                </Border>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Parser Settings" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <GroupBox Header="General" Grid.Row="0" Grid.Column="0">
+                    <StackPanel Orientation="Vertical" CanVerticallyScroll="True">
+                        <Border BorderThickness="1" BorderBrush="DarkSlateBlue" Margin="2" Padding="2">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Vertical">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="CombatLogPath:" />
+                                        <TextBox Name="uiTextBoxCombatLogPath" Text="{Binding Source={x:Static properties:Settings.Default}, Path=CombatLogPath, Mode=TwoWay}" Margin="4,0,0,0" MinWidth="100" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Name="uiButtonBoxCombatLogPathSelect" Content="select" Click="UiButtonBoxCombatLogPath_OnClick" Width="40" />
+                                        <Button Name="uiButtonBoxCombatLogPathDetect" Content="detect" Click="UiButtonBoxCombatLogPathDetect_OnClick" Width="40" Margin="10,0,0,0" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <TextBlock TextWrapping="Wrap">
+                                    The path to the STO log folder. The detect button will attempt to locate the log folder by searching for the STO install path in the Windows registry.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="DarkSlateBlue" Margin="2" Padding="2">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="CombatLogPathFilePattern:" />
+                                    <TextBox Name="uiTextBoxCombatLogPathFilePattern" Margin="4,0,0,0" 
+                                             Text="{Binding Source={x:Static properties:Settings.Default}, Path=CombatLogPathFilePattern, Mode=TwoWay}" MinWidth="100"/>
+                                </StackPanel>
+                                <TextBlock TextWrapping="Wrap">
+                                    A file pattern used to select one or more combat log files from the log folder. This search pattern supports wildcards so one or more files can be selected.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="DarkSlateBlue" Margin="2" Padding="2">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="MyCharacter:" />
+                                    <TextBox Name="uiTextBoxMyCharacter" Margin="4,0,0,0" Text="{Binding Source={x:Static properties:Settings.Default}, Path=MyCharacter, Mode=TwoWay}" MinWidth="200"/>
+                                </StackPanel>
+                                <TextBlock TextWrapping="Wrap">
+                                    An identifier used to select a player when a new combat instance is chosen.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="DarkSlateBlue" Margin="2" Padding="2">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="HowFarBackForCombat:"/>
+                                    <TextBox Name="uiTextBoxHowFarBackForCombat" 
+                                        Text="{Binding Source={x:Static properties:Settings.Default}, Path=HowFarBackForCombatInHours, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}}" 
+                                        Margin="4,0,0,0" MinWidth="100" />
+                                </StackPanel>
+                                <TextBlock TextWrapping="Wrap">
+                                    How far back in hours to pull combat log data.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="DarkSlateBlue" Margin="2" Padding="2">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="HowLongBeforeNewCombat:" />
+                                    <TextBox Name="uiTextBoxHowLongBeforeNewCombat" 
+                                             Text="{Binding Source={x:Static properties:Settings.Default}, Path=HowLongBeforeNewCombatInSeconds, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}}" 
+                                        Margin="4,0,0,0" MinWidth="100" />
+                                </StackPanel>
+                                <TextBlock TextWrapping="Wrap">
+                                    How long to wait in seconds between attacks before an event is considered part of a new combat instance. If less than equal to 1, set the parameter to 10 seconds.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-                </Grid>
-            </ListBoxItem>
-            <ListBoxItem Tag="EnableDetectionSettingsInUi" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <TextBlock Text="DetectionsSettingsVisibleInUi" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <CheckBox x:Name="uiCheckBoxEnableDetectionSettingsUi" Content="Enable" Margin="4,4,0,0"
-                                  IsChecked="{Binding Path=EnableDetectionSettingsInUi}" />
+                </GroupBox>
+
+                <GroupBox Header="Combat Specific" Grid.Row="1" Grid.Column="0">
+                    <StackPanel Orientation="Vertical" CanVerticallyScroll="True">
+                        <Border BorderThickness="1" BorderBrush="DarkSlateBlue" Margin="2" Padding="2">
+                            <StackPanel Orientation="Vertical">
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
-                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">Enable Detection Settings tab in the UI.</TextBlock>
+                </GroupBox>
+
+                <GroupBox Header="Player Specific" Grid.Row="2" Grid.Column="0">
+                    <StackPanel Orientation="Vertical" CanVerticallyScroll="True">
+                        <Border BorderThickness="1" BorderBrush="DarkSlateBlue" Margin="2" Padding="2">
+                            <StackPanel Orientation="Vertical">
+                                <CheckBox x:Name="uiCheckBoxEnableCombinePetsUi" Content="Combine Pets"
+                                    IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsCombinePets, Mode=TwoWay}" />
+                                <TextBlock TextWrapping="Wrap">
+                                    Combine Pets in the UI. Combine pet types by using SourceDisplay field, instead of showing each unique pet using SourceInternal.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <Border BorderThickness="1" BorderBrush="DarkSlateBlue" Margin="2" Padding="2">
+                            <StackPanel Orientation="Vertical">
+                                <CheckBox Name="uiCheckBoxEnableInactiveTimeCalculations" Content="InactiveTimeAdjustments"
+                                    IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsEnableInactiveTimeCalculations, Mode=TwoWay}" />
+                                <TextBlock TextWrapping="Wrap">
+                                    If enabled, the application will attempt to detect Inactive time(s) for a Player. Inactive time(s) are displayed in the UI, and will be used to adjust DPS and HPS values.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <Border BorderThickness="1" BorderBrush="DarkSlateBlue" Margin="2" Padding="2">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="MinDelayInSecondsBeforeInactive:" />
+                                    <TextBox Name="uiTextBoxMinInActiveInSeconds" Width="40" Margin="4,0,0,0"
+                                             Text="{Binding Source={x:Static properties:Settings.Default}, Path=MinInActiveInSeconds, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}}"/>
+                                </StackPanel>
+                                <TextBlock TextWrapping="Wrap">
+                                    A Player needs to be inactive for so many seconds, before a timespan can be marked as Inactive. Inactive means the user was in combat, and not attacking.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-                </Grid>
-            </ListBoxItem>
-            <ListBoxItem Tag="EnableCombinePetDps" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <TextBlock Text="IsCombinePets" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <CheckBox x:Name="uiCheckBoxEnableCombinePetsUi" Content="Enable" Margin="4,4,0,0"
-                                  IsChecked="{Binding Path=EnableCombinePets}" />
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
-                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">Combine Pets in the UI. Combine pet types by using SourceDisplay field, instead of showing each unique pet using SourceInternal.</TextBlock>
-                    </StackPanel>
-                </Grid>
-            </ListBoxItem>
-            <ListBoxItem Tag="EnableDisplayParseResults" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <TextBlock Text="DisplayParseResults" Margin="4,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <CheckBox x:Name="uiCheckBoxEnableParseResultsInUi" Content="Enable" Margin="4,4,0,0"
-                                  IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsDisplayParseResults}" />
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
-                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">Display the parse results after the user clicks the "Parse Log File(s)" button in the UI.</TextBlock>
-                    </StackPanel>
-                </Grid>
-            </ListBoxItem>
-            <ListBoxItem Tag="EnableLatestCombatSelect" BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch" Padding="0,2,0,2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock Text="Name:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <CheckBox Name="uiCheckBoxEnableInactiveTimeCalculations" Content="EnableInactiveTimeAdjustments" Margin="4,0,0,0"
-                                  IsChecked="{Binding Path=EnableInActiveCalc, Mode=OneWay}"
-                                  Click="UiCheckBoxEnableInactiveTimeCalculations_OnClick" VerticalAlignment="Center"/>
-                        <TextBlock Text="MinDelayInSecondsBeforeInactive:" Margin="16,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <TextBox Name="uiTextBoxMinInActiveInSeconds" Margin="4,0,0,0" MinWidth="100" VerticalAlignment="Center"
-                                 Text="{Binding Path=MinInActiveInSeconds, Mode=OneWay}"
-                                 TextChanged="UiTextBoxMinInActiveInSeconds_OnTextChanged"/>
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Width="Auto">
-                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">EnableInactiveTimeAdjustments Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
-                            If enabled, the application will attempt to detect Inactive time(s) for a Player. Inactive time(s) are displayed in the UI, and will be used to adjust DPS and HPS values.
-                        </TextBlock>
-                    </StackPanel>
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" Width="Auto">
-                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">MinDelayInSecondsBeforeInactive Description:</TextBlock>
-                        <TextBlock Margin="4,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
-                            A Player needs to be inactive for so many seconds, before a timespan can be marked as Inactive. Inactive means the user was in combat, and not attacking.
-                        </TextBlock>
-                    </StackPanel>
-                </Grid>
-            </ListBoxItem>
-        </ListBox>
+                </GroupBox>
+            </Grid>
+        </GroupBox>
     </Grid>
 </UserControl>
