@@ -18,6 +18,8 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
 {
     #region Private Fields
 
+    private int _changeCount;
+
     private bool _hasChanges;
     private bool _isEnabled = true;
     private int _maxPlayers = 5;
@@ -54,12 +56,7 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
 
     [JsonIgnore] public Guid Id { get; }
 
-    [JsonIgnore]
-    public bool HasChanges
-    {
-        get => this._hasChanges;
-        set => this.SetField(ref this._hasChanges, value);
-    }
+    [JsonIgnore] public bool HasChanges => this._changeCount > 0;
 
     /// <summary>
     ///     A label for the map
@@ -180,7 +177,8 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
     protected void OnPropertyChanged([CallerMemberName] string name = null)
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        this.HasChanges = true;
+
+        if (string.IsNullOrWhiteSpace(name) || !name.Equals(nameof(this.HasChanges))) this._changeCount++;
     }
 
     #endregion

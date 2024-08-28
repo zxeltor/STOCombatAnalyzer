@@ -87,52 +87,52 @@ public class CombatEventType
     ///     The total amount of time the player was Inactive.
     ///     <para>If not enabled in config, this will be 0</para>
     /// </summary>
-    public TimeSpan InactiveTimeSpan { get; }
+    public TimeSpan InactiveTimeSpan { get; set; }
 
     /// <summary>
     ///     True if this event type originated from a player pet, and not directly from a player itself.
     /// </summary>
-    public bool IsPetEventType { get; }
+    public bool IsPetEventType { get; set; }
 
     /// <summary>
     ///     A unique id given to a pet entity from the STO combat log.
     /// </summary>
-    public string SourceInternal { get; private set; }
+    public string SourceInternal { get; set; }
 
     /// <summary>
     ///     A display name given to a pet entity from the STO combat log.
     /// </summary>
-    public string SourceDisplay { get; }
+    public string SourceDisplay { get; set; }
 
     /// <summary>
     ///     A unique id given to an event/ability from the STO combat log.
     /// </summary>
-    public string EventInternal { get; private set; }
+    public string EventInternal { get; set; }
 
     /// <summary>
     ///     A display name given to an event/ability from the STO combat log.
     /// </summary>
-    public string EventDisplay { get; private set; }
+    public string EventDisplay { get; set; }
 
     /// <summary>
     ///     An ID derived from eventInternal ?? sourceDisplay ?? sourceInternal;
     /// </summary>
-    public string EventTypeId { get; }
+    public string EventTypeId { get; set; }
 
     /// <summary>
     ///     A label eventDisplay ?? eventInternal ?? sourceDisplay ?? sourceInternal;
     /// </summary>
-    public string EventTypeLabel { get; }
+    public string EventTypeLabel { get; set; }
 
     /// <summary>
     ///     A label to  display for the event in the barchart in the UI.
     /// </summary>
-    public string EventTypeLabelWithTotal { get; private set; }
+    public string EventTypeLabelWithTotal { get; set; }
 
     /// <summary>
     ///     A parsed list of STO combat log file entries for this particular event type.
     /// </summary>
-    public List<CombatEvent> CombatEvents { get; }
+    public List<CombatEvent> CombatEvents { get; set; }
 
     #endregion
 

@@ -16,12 +16,19 @@ namespace zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;
 /// </summary>
 public class CombatMapDetectionSettings : INotifyPropertyChanged
 {
+    #region Private Fields
+
+    private int _changeCount;
     private CombatMap _groundMap = new();
     private bool _hasChanges;
     private bool _isAllMapsExpanded;
     private string _jsonVersion = "1.0.0.0";
     private string _jsonVersionDescription;
     private CombatMap _spaceMap = new();
+
+    #endregion
+
+    #region Constructors
 
     public CombatMapDetectionSettings()
     {
@@ -31,24 +38,13 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
             (sender, args) => this.OnPropertyChanged("EntityExclusionListOrderedByPattern");
     }
 
-    /// <summary>
-    ///     Used the UI to determine if all combat maps should be expanded in the treeview.
-    /// </summary>
-    [JsonIgnore]
-    public bool IsAllMapsExpanded
-    {
-        get => this._isAllMapsExpanded;
-        set => this.SetField(ref this._isAllMapsExpanded, value);
-    }
+    #endregion
+
+    #region Public Properties
 
     [JsonProperty(Order = 4)] public List<string> Comments { get; set; }
 
-    [JsonIgnore]
-    public bool HasChanges
-    {
-        get => this._hasChanges;
-        set => this.SetField(ref this._hasChanges, value);
-    }
+    [JsonIgnore] public bool HasChanges => this._changeCount > 0;
 
     /// <summary>
     ///     The current version of this object.
@@ -121,6 +117,18 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
         get { return new ObservableCollection<CombatMap>(this.CombatMapEntityList.OrderBy(map => map.Name)); }
     }
 
+    #endregion
+
+    #region Public Members
+
+    public void SetChange(bool addChange = true)
+    {
+        if (addChange) this._changeCount++;
+        else this._changeCount = 0;
+
+        this.OnPropertyChanged(nameof(this.HasChanges));
+    }
+
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -133,6 +141,10 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
         this.GenericGroundMap.ResetCombatMatchCountForMap();
         this.GenericSpaceMap.ResetCombatMatchCountForMap();
     }
+
+    #endregion
+
+    #region Other Members
 
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
@@ -153,6 +165,9 @@ public class CombatMapDetectionSettings : INotifyPropertyChanged
     protected void OnPropertyChanged([CallerMemberName] string name = null)
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        //this.HasChanges = true;
+
+        if (string.IsNullOrWhiteSpace(name) || !name.Equals(nameof(this.HasChanges))) this._changeCount++;
     }
+
+    #endregion
 }

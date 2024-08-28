@@ -43,7 +43,13 @@ public class CombatEntity : INotifyPropertyChanged
 
     private double? _entityTotalMagnitude;
 
+    private bool _isCombinePets = true;
+
+    private bool _isEnableInactiveTimeCalculations = true;
+
     private bool _isObjectLocked;
+
+    private int? _minInActiveInSeconds;
 
     private double? _petsMagnitudePerSecond;
 
@@ -65,7 +71,7 @@ public class CombatEntity : INotifyPropertyChanged
     /// <summary>
     ///     The main constructor
     /// </summary>
-    public CombatEntity(CombatEvent combatEvent)
+    public CombatEntity(CombatEvent combatEvent, CombatLogParseSettings combatLogParseSettings)
     {
         // The owner columns of the combat event are what identify a combat entity.
         this.OwnerInternal = combatEvent.OwnerInternal;
@@ -75,12 +81,34 @@ public class CombatEntity : INotifyPropertyChanged
         this.IsPlayer = !string.IsNullOrWhiteSpace(this.OwnerInternal) &&
                         (this.OwnerInternal.StartsWith("P[") ? true : false);
 
+        this.IsCombinePets = combatLogParseSettings.IsCombinePets;
+        this.IsEnableInactiveTimeCalculations = combatLogParseSettings.IsEnableInactiveTimeCalculations;
+        this.MinInActiveInSeconds = combatLogParseSettings.MinInActiveInSeconds;
+
         this.AddCombatEvent(combatEvent);
     }
 
     #endregion
 
     #region Public Properties
+
+    public bool IsEnableInactiveTimeCalculations
+    {
+        get => this._isEnableInactiveTimeCalculations;
+        set => this.SetField(ref this._isEnableInactiveTimeCalculations, value);
+    }
+
+    public bool IsCombinePets
+    {
+        get => this._isCombinePets;
+        set => this.SetField(ref this._isCombinePets, value);
+    }
+
+    public int? MinInActiveInSeconds
+    {
+        get => this._minInActiveInSeconds;
+        set => this.SetField(ref this._minInActiveInSeconds, value);
+    }
 
     /// <summary>
     ///     A list of timespans where the Player is considered Inactive.
@@ -89,20 +117,18 @@ public class CombatEntity : INotifyPropertyChanged
     {
         get
         {
-            if (this._deadZones != null && this._isObjectLocked)
-                return this._deadZones;
+            //if (this._deadZones != null && this._isObjectLocked)
+            //    return this._deadZones;
 
-            //if (!Settings.Default.IsEnableInactiveTimeCalculations || this.CombatEventsList.Count == 0)
-            if (this.CombatEventsList.Count == 0)
+            if (!this.IsEnableInactiveTimeCalculations || this.CombatEventsList.Count == 0)
                 return this._deadZones = new List<CombatEntityDeadZone>(0);
 
             var deadZones = new List<CombatEntityDeadZone>();
 
-            //var minNoActivity = TimeSpan.FromSeconds(Settings.Default.MinInActiveInSeconds) < TimeSpan.FromSeconds(1)
-            //    ? TimeSpan.FromSeconds(1)
-            //    : TimeSpan.FromSeconds(Settings.Default.MinInActiveInSeconds);
-
-            var minNoActivity = TimeSpan.FromSeconds(4);
+            var minNoActivity = this.MinInActiveInSeconds.HasValue &&
+                                TimeSpan.FromSeconds(this.MinInActiveInSeconds.Value) > TimeSpan.FromSeconds(1)
+                ? TimeSpan.FromSeconds(this.MinInActiveInSeconds.Value)
+                : TimeSpan.FromSeconds(1);
 
             var lastTimestamp = this.CombatEventsList.First().Timestamp;
 
@@ -118,6 +144,7 @@ public class CombatEntity : INotifyPropertyChanged
 
             return this._deadZones = deadZones;
         }
+        set => this._deadZones = value;
     }
 
     public IReadOnlyList<CombatEvent> CombatEventsList => this._combatEventList;
@@ -157,9 +184,7 @@ public class CombatEntity : INotifyPropertyChanged
 
             if (!this._combatEventList.Any(ev => ev.IsOwnerPetEvent)) return new List<CombatPetEventType>();
 
-            var toddDoBool = true;
-            if (toddDoBool)
-            //if (Settings.Default.IsCombinePets)
+            if (this.IsCombinePets)
             {
                 var myEvents = this._combatEventList.Where(ev => ev.IsOwnerPetEvent)
                     .GroupBy(ev => new { ev.SourceDisplay, ev.EventInternal, ev.EventDisplay })
@@ -205,6 +230,7 @@ public class CombatEntity : INotifyPropertyChanged
                 ? null // This should be possible, but checking for it anyway.
                 : this._combatEventList.First().Timestamp;
         }
+        set => this._entityCombatStart = value;
     }
 
     /// <summary>
@@ -222,6 +248,7 @@ public class CombatEntity : INotifyPropertyChanged
                 ? null // This should be possible, but checking for it anyway.
                 : this._combatEventList.Last().Timestamp;
         }
+        set => this._entityCombatEnd = value;
     }
 
     /// <summary>
@@ -242,6 +269,7 @@ public class CombatEntity : INotifyPropertyChanged
 
             return this._entityCombatDuration = null;
         }
+        set => this._entityCombatDuration = value;
     }
 
     /// <summary>
@@ -260,6 +288,7 @@ public class CombatEntity : INotifyPropertyChanged
 
             return this._entityCombatInActive = null;
         }
+        set => this._entityCombatInActive = value;
     }
 
     /// <summary>
@@ -281,6 +310,7 @@ public class CombatEntity : INotifyPropertyChanged
 
             return killList.Count;
         }
+        set => this._entityCombatKills = value;
     }
 
     /// <summary>
@@ -304,6 +334,7 @@ public class CombatEntity : INotifyPropertyChanged
 
             return this._entityCombatAttacks;
         }
+        set => this._entityCombatAttacks = value;
     }
 
     /// <summary>
@@ -329,6 +360,7 @@ public class CombatEntity : INotifyPropertyChanged
 
             return this._entityMagnitudePerSecond = this.EntityTotalMagnitude / duration.TotalSeconds;
         }
+        set => this._entityMagnitudePerSecond = value;
     }
 
     /// <summary>
@@ -354,6 +386,7 @@ public class CombatEntity : INotifyPropertyChanged
 
             return this._petsMagnitudePerSecond = this.PetsTotalMagnitude / duration.TotalSeconds;
         }
+        set => this._petsMagnitudePerSecond = value;
     }
 
     /// <summary>
@@ -373,6 +406,7 @@ public class CombatEntity : INotifyPropertyChanged
 
             return this._entityMaxMagnitude = entityEvents.Max(dam => Math.Abs(dam.Magnitude));
         }
+        set => this._entityMaxMagnitude = value;
     }
 
     /// <summary>
@@ -392,6 +426,7 @@ public class CombatEntity : INotifyPropertyChanged
 
             return this._petsMaxMagnitude = petEvents.Max(dam => Math.Abs(dam.Magnitude));
         }
+        set => this._petsMaxMagnitude = value;
     }
 
     /// <summary>
@@ -411,6 +446,7 @@ public class CombatEntity : INotifyPropertyChanged
 
             return this._entityTotalMagnitude = entityEvents.Sum(dam => Math.Abs(dam.Magnitude));
         }
+        set => this._entityTotalMagnitude = value;
     }
 
     /// <summary>
@@ -430,28 +466,30 @@ public class CombatEntity : INotifyPropertyChanged
 
             return this._petsTotalMagnitude = petEvents.Sum(dam => Math.Abs(dam.Magnitude));
         }
+        set => this._petsTotalMagnitude = value;
     }
 
     /// <summary>
     ///     The ID for our entity
     /// </summary>
-    public string OwnerInternal { get; }
+    public string OwnerInternal { get; set; }
 
     /// <summary>
     ///     A label for our entity
     /// </summary>
-    public string OwnerDisplay { get; }
+    public string OwnerDisplay { get; set; }
 
     /// <summary>
     ///     If true this entity is a Player. If false the entity is a Non-Player.
     /// </summary>
-    public bool IsPlayer { get; }
+    public bool IsPlayer { get; set; }
 
     /// <summary>
     ///     A list of combat events for this entity.
     /// </summary>
     private List<CombatEvent> _combatEventList { get; } = new();
 
+    [JsonIgnore]
     public string ToCombatStats
     {
         get

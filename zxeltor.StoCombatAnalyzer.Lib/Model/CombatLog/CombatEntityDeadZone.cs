@@ -30,9 +30,13 @@ public class CombatEntityDeadZone
 
     #region Public Properties
 
-    public DateTime StartTime { get; }
-    public DateTime EndTime { get; }
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime { get; set; }
     public TimeSpan Duration => this.EndTime - this.StartTime;
+
+    #endregion
+
+    #region Public Members
 
     #region Overrides of Object
 

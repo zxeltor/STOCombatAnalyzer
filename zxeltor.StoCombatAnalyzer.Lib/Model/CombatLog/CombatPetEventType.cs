@@ -46,15 +46,15 @@ public class CombatPetEventType
 
     #region Public Properties
 
-    public double Damage { get; }
+    public double Damage { get; set; }
 
-    public double MaxDamage { get; }
+    public double MaxDamage { get; set; }
 
-    public List<CombatEventType> CombatEventTypes { get; }
+    public List<CombatEventType> CombatEventTypes { get; set; }
 
-    public string PetId { get; }
+    public string PetId { get; set; }
 
-    public string PetLabel { get; }
+    public string PetLabel { get; set; }
 
     #endregion
 }

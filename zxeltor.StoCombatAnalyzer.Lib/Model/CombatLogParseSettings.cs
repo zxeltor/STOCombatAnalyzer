@@ -6,15 +6,23 @@
 
 using System.ComponentModel;
 using System.Configuration;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using log4net;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;
 
 namespace zxeltor.StoCombatAnalyzer.Lib.Model;
 
-public class CombatLogParseSettings : INotifyPropertyChanged
+public class CombatLogParseSettings : INotifyPropertyChanged, IDisposable
 {
     #region Private Fields
+
+    private readonly ApplicationSettingsBase? _applicationSettingsBase;
+    private readonly List<PropertyInfo>? _applicationSettingsBaseProperties;
+
+    private readonly ILog _log = LogManager.GetLogger(typeof(CombatLogParseSettings));
+    private readonly List<PropertyInfo>? _propertyInfoList;
 
     private string? _combatLogPath;
     private string _combatLogPathFilePattern = "combatlog*.log";
@@ -24,8 +32,11 @@ public class CombatLogParseSettings : INotifyPropertyChanged
     private int _howFarBackForCombatInHours = 24;
     private int _howLongBeforeNewCombatInSeconds = 20;
     private int _howLongToKeepLogsInDays = 7;
+    private bool _isCombinePets = true;
+    private bool _isEnableInactiveTimeCalculations = true;
 
     private CombatMapDetectionSettings? _mapDetectionSettings;
+    private int _minInActiveInSeconds = 4;
     private string? _userCombatDetectionSettings;
 
     #endregion
@@ -37,25 +48,33 @@ public class CombatLogParseSettings : INotifyPropertyChanged
     /// </summary>
     public CombatLogParseSettings()
     {
+        this._propertyInfoList = typeof(CombatLogParseSettings).GetProperties().ToList();
     }
 
     /// <summary>
     ///     Used to init with <see cref="ApplicationSettingsBase" />
     /// </summary>
     /// <param name="applicationSettingsBase">Application settings</param>
-    public CombatLogParseSettings(ApplicationSettingsBase applicationSettingsBase)
+    public CombatLogParseSettings(ApplicationSettingsBase? applicationSettingsBase) : this()
     {
-        var combatParserProperties = typeof(CombatLogParseSettings).GetProperties().ToList();
-        var appSettingsProperties = applicationSettingsBase.GetType().GetProperties().ToList();
+        if (applicationSettingsBase == null) return;
+        if (this._propertyInfoList == null || this._propertyInfoList.Count == 0) return;
 
-        combatParserProperties.ForEach(combatParserProp =>
+        this._applicationSettingsBase = applicationSettingsBase;
+
+        this._applicationSettingsBaseProperties = this._applicationSettingsBase.GetType().GetProperties().ToList();
+
+        this._propertyInfoList.ForEach(combatParserProp =>
         {
             var appSettingProperty =
-                appSettingsProperties.FirstOrDefault(appSetting => appSetting.Name.Equals(combatParserProp.Name));
+                this._applicationSettingsBaseProperties.FirstOrDefault(appSetting =>
+                    appSetting.Name.Equals(combatParserProp.Name));
 
             if (appSettingProperty != null)
                 combatParserProp.SetValue(this, appSettingProperty.GetValue(applicationSettingsBase));
         });
+
+        this._applicationSettingsBase.PropertyChanged += this.ApplicationSettingsBaseOnPropertyChanged;
     }
 
     /// <summary>
@@ -85,6 +104,24 @@ public class CombatLogParseSettings : INotifyPropertyChanged
     #endregion
 
     #region Public Properties
+
+    public bool IsEnableInactiveTimeCalculations
+    {
+        get => this._isEnableInactiveTimeCalculations;
+        set => this.SetField(ref this._isEnableInactiveTimeCalculations, value);
+    }
+
+    public int MinInActiveInSeconds
+    {
+        get => this._minInActiveInSeconds;
+        set => this.SetField(ref this._minInActiveInSeconds, value);
+    }
+
+    public bool IsCombinePets
+    {
+        get => this._isCombinePets;
+        set => this.SetField(ref this._isCombinePets, value);
+    }
 
     /// <summary>
     ///     Application default <see cref="CombatMapDetectionSettings" />
@@ -177,22 +214,28 @@ public class CombatLogParseSettings : INotifyPropertyChanged
 
     #region Public Members
 
-    #region Overrides of Object
-
-    /// <inheritdoc />
-    public override string ToString()
-    {
-        return
-            $"Path={this.CombatLogPath}, File={this.CombatLogPathFilePattern}, HowFar={this.HowFarBackForCombatInHours}, HowLong={this.HowLongBeforeNewCombatInSeconds}";
-    }
-
-    #endregion
-
     public event PropertyChangedEventHandler? PropertyChanged;
 
     #endregion
 
     #region Other Members
+
+    private void ApplicationSettingsBaseOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.PropertyName)) return;
+        if (this._propertyInfoList == null || this._propertyInfoList.Count == 0) return;
+        if (this._applicationSettingsBase == null || this._applicationSettingsBaseProperties == null ||
+            this._applicationSettingsBaseProperties.Count == 0) return;
+
+        var appPropertyInfo =
+            this._applicationSettingsBaseProperties.FirstOrDefault(setting => setting.Name.Equals(e.PropertyName));
+
+        var thisPropertyInfo = this._propertyInfoList.FirstOrDefault(prop => prop.Name.Equals(e.PropertyName));
+
+        if (appPropertyInfo == null || thisPropertyInfo == null) return;
+
+        thisPropertyInfo.SetValue(this, appPropertyInfo.GetValue(this._applicationSettingsBase));
+    }
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
@@ -205,6 +248,24 @@ public class CombatLogParseSettings : INotifyPropertyChanged
         field = value;
         this.OnPropertyChanged(propertyName);
         return true;
+    }
+
+    #endregion
+
+    #region Overrides of Object
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return
+            $"Path={this.CombatLogPath}, File={this.CombatLogPathFilePattern}, HowFar={this.HowFarBackForCombatInHours}, HowLong={this.HowLongBeforeNewCombatInSeconds}";
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        if (this._applicationSettingsBase != null)
+            this._applicationSettingsBase.PropertyChanged -= this.ApplicationSettingsBaseOnPropertyChanged;
     }
 
     #endregion

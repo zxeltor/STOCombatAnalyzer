@@ -54,9 +54,9 @@ public class CombatEventTypeMetric : INotifyPropertyChanged, IEquatable<CombatEv
 
     #region Public Properties
 
-    public string Name { get; }
-    public string Label { get; }
-    public string Tooltip { get; }
+    public string Name { get; set; }
+    public string Label { get; set; }
+    public string Tooltip { get; set; }
 
     #endregion
 

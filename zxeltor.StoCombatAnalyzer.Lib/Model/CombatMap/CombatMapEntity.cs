@@ -25,6 +25,7 @@ public class CombatMapEntity : INotifyPropertyChanged, IEquatable<CombatMapEntit
     #endregion
 
     #region Constructors
+
     /// <summary>
     ///     Init a map entity with the given pattern.
     /// </summary>
@@ -38,6 +39,7 @@ public class CombatMapEntity : INotifyPropertyChanged, IEquatable<CombatMapEntit
     #endregion
 
     #region Public Properties
+
     /// <summary>
     ///     If true, this map will be included in Map Detection logic. False otherwise.
     /// </summary>
@@ -77,7 +79,7 @@ public class CombatMapEntity : INotifyPropertyChanged, IEquatable<CombatMapEntit
 
     [JsonIgnore] public int CombatMatchCount { get; set; }
 
-    [JsonIgnore] public Guid Id { get; }
+    [JsonIgnore] public Guid Id { get; set; }
 
     #endregion
 

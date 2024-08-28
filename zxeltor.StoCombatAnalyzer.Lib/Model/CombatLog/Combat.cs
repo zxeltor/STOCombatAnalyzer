@@ -33,11 +33,14 @@ public class Combat : INotifyPropertyChanged
 
     private bool _isObjectLocked;
 
+    private string? _map;
+
     private List<CombatEntityLabel>? _uniqueEntityIds;
 
     #endregion
 
     #region Constructors
+
     /// <summary>
     ///     Constructor need for JSON deserialization
     /// </summary>
@@ -52,9 +55,9 @@ public class Combat : INotifyPropertyChanged
     ///     The initial combat event, which establishes our first <see cref="CombatEntity" /> for this
     ///     instance.
     /// </param>
-    public Combat(CombatEvent combatEvent)
+    public Combat(CombatEvent combatEvent, CombatLogParseSettings combatLogParseSettings)
     {
-        this.AddCombatEvent(combatEvent);
+        this.AddCombatEvent(combatEvent, combatLogParseSettings);
     }
 
     #endregion
@@ -77,11 +80,9 @@ public class Combat : INotifyPropertyChanged
         set => this._eventsCount = value;
     }
 
-    [JsonIgnore]
-    public DateTime? ImportedDate { get; set; }
+    [JsonIgnore] public DateTime? ImportedDate { get; set; }
 
-    [JsonIgnore]
-    public string? ImportedFileName { get; set; }
+    [JsonIgnore] public string? ImportedFileName { get; set; }
 
     /// <summary>
     ///     Used to establish the start time for this combat instance.
@@ -150,7 +151,11 @@ public class Combat : INotifyPropertyChanged
     /// <summary>
     ///     The identity of the map related to this combat instance.
     /// </summary>
-    public string? Map { get; set; }
+    public string? Map
+    {
+        get => this._map;
+        set => this.SetField(ref this._map, value);
+    }
 
     /// <summary>
     ///     A list of all events for this combat instance.
@@ -171,14 +176,15 @@ public class Combat : INotifyPropertyChanged
             if (this.NonPlayerEntities.Count > 0)
                 allEntities.AddRange(this.NonPlayerEntities.SelectMany(ent => ent.CombatEventsList));
 
-            return this._allCombatEvents = allEntities.Count > 0 ? allEntities.OrderBy(ev => ev.Timestamp).ToList() : null;
+            return this._allCombatEvents =
+                allEntities.Count > 0 ? allEntities.OrderBy(ev => ev.Timestamp).ToList() : null;
         }
     }
 
     /// <summary>
     ///     A list of player <see cref="CombatEntity" /> objects.
     /// </summary>
-    public ObservableCollection<CombatEntity> PlayerEntities { get; } = [];
+    public ObservableCollection<CombatEntity> PlayerEntities { get; set; } = [];
 
     [JsonIgnore]
     public ObservableCollection<CombatEntity> PlayerEntitiesOrderByName =>
@@ -187,7 +193,7 @@ public class Combat : INotifyPropertyChanged
     /// <summary>
     ///     A list of non-player <see cref="CombatEntity" /> objects.
     /// </summary>
-    public ObservableCollection<CombatEntity> NonPlayerEntities { get; } = [];
+    public ObservableCollection<CombatEntity> NonPlayerEntities { get; set; } = [];
 
     [JsonIgnore]
     public ObservableCollection<CombatEntity> NonPlayerEntitiesOrderByName =>
@@ -229,6 +235,7 @@ public class Combat : INotifyPropertyChanged
 
             return this._uniqueEntityIds;
         }
+        set => this._uniqueEntityIds = value;
     }
 
     #endregion
@@ -257,7 +264,7 @@ public class Combat : INotifyPropertyChanged
     ///     A method used to inject new <see cref="CombatEvent" /> objects into our <see cref="CombatEntity" /> hierarchy.
     /// </summary>
     /// <param name="combatEvent">A new combat event to inject into our hierarchy.</param>
-    public void AddCombatEvent(CombatEvent combatEvent)
+    public void AddCombatEvent(CombatEvent combatEvent, CombatLogParseSettings combatLogParseSettings)
     {
         if (this._isObjectLocked)
             throw new Exception("Trying to add new events to a locked object");
@@ -269,7 +276,7 @@ public class Combat : INotifyPropertyChanged
                 this.PlayerEntities.FirstOrDefault(owner => owner.OwnerInternal.Equals(combatEvent.OwnerInternal));
             if (existingPlayer == null)
             {
-                existingPlayer = new CombatEntity(combatEvent);
+                existingPlayer = new CombatEntity(combatEvent, combatLogParseSettings);
                 this.PlayerEntities.Add(existingPlayer);
             }
             else
@@ -284,7 +291,7 @@ public class Combat : INotifyPropertyChanged
                 this.NonPlayerEntities.FirstOrDefault(owner => owner.OwnerInternal.Equals(combatEvent.OwnerInternal));
             if (existingNonPlayer == null)
             {
-                existingNonPlayer = new CombatEntity(combatEvent);
+                existingNonPlayer = new CombatEntity(combatEvent, combatLogParseSettings);
                 this.NonPlayerEntities.Add(existingNonPlayer);
             }
             else
@@ -326,6 +333,17 @@ public class Combat : INotifyPropertyChanged
     protected void OnPropertyChanged([CallerMemberName] string? name = null)
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
+    /// <summary>
+    ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
+    /// </summary>
+    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        field = value;
+        if (propertyName != null) this.OnPropertyChanged(propertyName);
+        return true;
     }
 
     /// <summary>

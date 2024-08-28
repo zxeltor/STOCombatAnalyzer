@@ -338,30 +338,29 @@ public class CombatEvent : IEquatable<CombatEvent>
             this.IsOwnerModified = true;
         }
 
-        if (!string.IsNullOrWhiteSpace(this.SourceDisplay) && !this.SourceInternal.Equals("*"))
+        if (!string.IsNullOrWhiteSpace(this.SourceDisplay) && !string.IsNullOrWhiteSpace(this.SourceInternal) && !this.SourceInternal.Equals("*"))
         {
             this.IsOwnerPetEvent = true;
 
-            if (this.TryStripInternalId(this.SourceInternal, out var sourceInternalIdToStrip,
-                    out var sourceInternalIsPlayer))
-                this.SourceInternalStripped = sourceInternalIdToStrip;
+            this.StripInternalId(this.SourceInternal, out var sourceInternalIdStripped, out var sourceInternalIsPlayer);
+            this.SourceInternalStripped = sourceInternalIdStripped;
         }
 
-        if (!string.IsNullOrWhiteSpace(this.OwnerDisplay) && !this.OwnerInternal.Equals("*"))
-            if (this.TryStripInternalId(this.OwnerInternal, out var ownerInternalIdToStrip,
-                    out var ownerInternalIsPlayer))
-            {
-                this.IsOwnerPlayer = ownerInternalIsPlayer;
-                this.OwnerInternalStripped = ownerInternalIdToStrip;
-            }
+        if (!string.IsNullOrWhiteSpace(this.OwnerDisplay) && !string.IsNullOrWhiteSpace(this.OwnerInternal) &&
+            !this.OwnerInternal.Equals("*"))
+        {
+            this.StripInternalId(this.OwnerInternal, out var ownerInternalIdStripped, out var ownerInternalIsPlayer);
+            this.IsOwnerPlayer = ownerInternalIsPlayer;
+            this.OwnerInternalStripped = ownerInternalIdStripped;
+        }
 
-        if (!string.IsNullOrWhiteSpace(this.TargetDisplay) && !this.TargetInternal.Equals("*"))
-            if (this.TryStripInternalId(this.TargetInternal, out var targetInternalIdToStrip,
-                    out var targetInternalIsPlayer))
-            {
-                this.IsTargetPlayer = targetInternalIsPlayer;
-                this.TargetInternalStripped = targetInternalIdToStrip;
-            }
+        if (!string.IsNullOrWhiteSpace(this.TargetDisplay) && !string.IsNullOrWhiteSpace(this.TargetInternal) &&
+            !this.TargetInternal.Equals("*"))
+        {
+            this.StripInternalId(this.TargetInternal, out var targetInternalIdToStripped, out var targetInternalIsPlayer);
+            this.IsTargetPlayer = targetInternalIsPlayer;
+            this.TargetInternalStripped = targetInternalIdToStripped;
+        }
     }
 
     /// <summary>
@@ -371,8 +370,7 @@ public class CombatEvent : IEquatable<CombatEvent>
     /// <param name="strippedInternalId">The stripped internal id</param>
     /// <param name="isPlayer">True is the internalId is for a player. False otherwise.</param>
     /// <returns>True if successfully stripped internal id. False otherwise.</returns>
-    /// <exception cref="ArgumentException">internalIdToStrip is null/empty</exception>
-    private bool TryStripInternalId(string internalIdToStrip, out string strippedInternalId, out bool isPlayer)
+    private void StripInternalId(string internalIdToStrip, out string strippedInternalId, out bool isPlayer)
     {
         strippedInternalId = null;
         isPlayer = false;
@@ -385,52 +383,44 @@ public class CombatEvent : IEquatable<CombatEvent>
              P[12121895@25092315 Darjekt Haan@vaultcultist#9414]
              C[62 Space_Tzenkethi_Frigate_Carrier_Pet]
             */
-            if (string.IsNullOrWhiteSpace(internalIdToStrip))
-                throw new ArgumentException(
-                    $"Failed to parse stripped_name for internal id as player: \"{internalIdToStrip}\"");
-
             if (internalIdToStrip.StartsWith("P[", StringComparison.CurrentCultureIgnoreCase))
             {
-                if (!RegexPlayerInternalStripper.IsMatch(internalIdToStrip))
-                    throw new Exception($"Failed to match internal id as player: \"{internalIdToStrip}\"");
-
-                var groups = RegexPlayerInternalStripper.Match(internalIdToStrip).Groups;
-
-                if (groups.TryGetValue("stripped_name", out var value) && value.Success)
-                    strippedInternalId = value.Value;
-                else
-                    throw new Exception(
-                        $"Failed to parse stripped_name for internal id as player: \"{internalIdToStrip}\"");
-
                 isPlayer = true;
-                return true;
+
+                if (RegexPlayerInternalStripper.IsMatch(internalIdToStrip))
+                {
+                    var groups = RegexPlayerInternalStripper.Match(internalIdToStrip).Groups;
+
+                    if (groups.TryGetValue("stripped_name", out var value) && value.Success)
+                    {
+                        strippedInternalId = value.Value;
+                        return;
+                    }
+                }
             }
 
             if (internalIdToStrip.StartsWith("C[", StringComparison.CurrentCultureIgnoreCase))
             {
-                if (!RegexNonPlayerInternalStripper.IsMatch(internalIdToStrip))
-                    throw new Exception($"Failed to match internal id as non-player: \"{internalIdToStrip}\"");
+                if (RegexNonPlayerInternalStripper.IsMatch(internalIdToStrip))
+                {
+                    var groups = RegexNonPlayerInternalStripper.Match(internalIdToStrip).Groups;
 
-                var groups = RegexNonPlayerInternalStripper.Match(internalIdToStrip).Groups;
-
-                if (groups.TryGetValue("stripped_name", out var value) && value.Success)
-                    strippedInternalId = value.Value;
-                else
-                    throw new Exception(
-                        $"Failed to parse stripped_name for internal id as non-player: \"{internalIdToStrip}\"");
-
-                isPlayer = false;
-                return true;
+                    if (groups.TryGetValue("stripped_name", out var value) && value.Success)
+                    {
+                        strippedInternalId = value.Value;
+                        return;
+                    }
+                }
             }
 
-            this._log.Error($"Failed to parse internal id: \"{internalIdToStrip}\"");
+            //this._log.Debug($"Failed to parse internal id: \"{internalIdToStrip}\"");
         }
         catch (Exception e)
         {
             this._log.Error($"Failed to parse internal id: \"{internalIdToStrip}\"", e);
         }
 
-        return false;
+        strippedInternalId = internalIdToStrip;
     }
 
     #endregion
