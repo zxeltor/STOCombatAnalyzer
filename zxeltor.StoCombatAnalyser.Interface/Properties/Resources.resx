@@ -150,6 +150,9 @@ Note: Keep in mind this shows the raw data from the combat logs.</value>
   <data name="combat_event_type_breakdown" xml:space="preserve">
     <value>This is a breakdown of event types for the selected Player. If you click on a particular bar, the DataGrid and Magnitude Plot will update with more specific data for the selected event type.</value>
   </data>
+  <data name="copy_unique_entities_tomap" xml:space="preserve">
+    <value>Copy Unique Entities into a CombatMap.</value>
+  </data>
   <data name="export_combat_json" xml:space="preserve">
     <value>Used to export the currently selected Combat entity to a JSON file. The JSON is primarily used for troubleshooting purposes.
 

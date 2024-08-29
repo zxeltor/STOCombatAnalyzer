@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Controls"
              xmlns:classes="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes"
              xmlns:converters="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Classes.Converters"
+             xmlns:mainAppProp="clr-namespace:zxeltor.StoCombatAnalyzer.Interface.Properties"
              d:DataContext="{d:DesignInstance Type={x:Type classes:CombatLogManager}}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" d:Background="AliceBlue">
@@ -117,7 +118,7 @@
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
 
-                <GroupBox Header="GenericGroundMap" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                <GroupBox Header="GenericGroundMap" Grid.Row="0" Grid.Column="0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"></RowDefinition>
@@ -419,7 +420,7 @@
                         <Image Tag="map_entity_list" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,4,0"
                                MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp"
                                ToolTip="Click for more details." />
-                        <TextBlock Text="CombatMapEntityList" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="Combat Map List" VerticalAlignment="Center"></TextBlock>
                         <Button Tag="AddMap" Margin="4,0,0,0" ToolTip="Add a new map"  VerticalAlignment="Center" Click="MapDetectButton_OnClick">
                             <Image Source="../Images/glyphicons-433-plus.png" Height="8" />
                         </Button>
@@ -435,7 +436,11 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"></RowDefinition>
                     </Grid.RowDefinitions>
-                    <TreeView Name="uiTreeViewMapDetectMapList" Grid.Row="0" ItemsSource="{Binding Path=CombatMapDetectionSettings.CombatMapEntityListOrderedByMapName}">
+                    <TreeView Name="uiTreeViewMapDetectMapList" Grid.Row="0"
+                              ItemsSource="{Binding Path=CombatMapDetectionSettings.CombatMapEntityListOrderedByMapName}">
+                        <TreeView.Resources>
+                            <SolidColorBrush x:Key='{x:Static SystemColors.HighlightBrushKey}' Color="White" />
+                        </TreeView.Resources>
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate>
                                 <TreeViewItem Tag="Map" Margin="0,2,0,2">
@@ -508,11 +513,11 @@
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding Path=IsEnabled}" Value="false">
                                                                             <Setter Property="Foreground" Value="Red"></Setter>
-                                                                            <Setter Property="ToolTip" Value="This map is DISABLED, and will NOT be used in map detection."></Setter>
+                                                                            <Setter Property="ToolTip" Value="This entity is DISABLED, and will NOT be used in map detection."></Setter>
                                                                         </DataTrigger>
                                                                         <DataTrigger Binding="{Binding Path=IsEnabled}" Value="true">
                                                                             <Setter Property="Foreground" Value="Green"></Setter>
-                                                                            <Setter Property="ToolTip" Value="This map is enabled, and will be used in map detection."></Setter>
+                                                                            <Setter Property="ToolTip" Value="This entity is enabled, and will be used in map detection."></Setter>
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>
@@ -662,11 +667,15 @@
                         <GroupBox Grid.Column="0">
                             <GroupBox.Header>
                                 <StackPanel Orientation="Horizontal">
-                                <Image Tag="selected_combat_unique_list" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,4,0"
-                                        MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp"
-                                        ToolTip="Click for more details." />
-                                <TextBlock Text="Selected Combat: Unique list of Non-Player entities"></TextBlock>
-                            </StackPanel>
+                                    <Image Tag="selected_combat_unique_list" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="0,0,4,0"
+                                            MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp"
+                                            ToolTip="Click for more details." />
+                                    <Button Name="uiButtonCopyEntities" Margin="1,1,4,1" ToolTip="{Binding Source={x:Static mainAppProp:Resources.copy_unique_entities_tomap}}" Height="16"
+                                            Click="UiButtonCopyEntities_OnClick">
+                                        <Image Tag="selected_combat_unique_list" Source="../Images/glyphicons-512-copy.png" Stretch="Fill" />
+                                    </Button>
+                                    <TextBlock Text="Selected Combat: Unique list of Non-Player entities" VerticalAlignment="Center"></TextBlock>
+                                </StackPanel>
                             </GroupBox.Header>
                             <DataGrid ItemsSource="{Binding Path=SelectedCombat.UniqueEntityIds}" AutoGenerateColumns="False"
                                     CanUserReorderColumns="False" CanUserSortColumns="True"
@@ -814,7 +823,7 @@
                             </Grid>
 
                             <DataGrid Name="uiDataGridAllEvents" Grid.Row="1" ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=local:DetectionSettingsControl}, Path=CombatEventList}"
-                                AutoGenerateColumns="False" CanUserReorderColumns="True" CanUserSortColumns="True" CanUserResizeColumns="True" SelectionUnit="Cell">
+                                AutoGenerateColumns="False" CanUserReorderColumns="True" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserAddRows="False" SelectionUnit="Cell">
                                 <DataGrid.ContextMenu>
                                     <ContextMenu>
                                         <StackPanel Name="uiStackPanelColumns" Orientation="Vertical">

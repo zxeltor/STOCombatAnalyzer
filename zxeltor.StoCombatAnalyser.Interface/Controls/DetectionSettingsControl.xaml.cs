@@ -4,7 +4,6 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -25,6 +24,8 @@ using zxeltor.StoCombatAnalyzer.Interface.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
 using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 using zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;
+using zxeltor.Types.Lib.Collections;
+
 using Image = System.Windows.Controls.Image;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
@@ -37,7 +38,11 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
     #region Private Fields
 
     private readonly ILog _log = LogManager.GetLogger(typeof(DetectionSettingsControl));
+
+    private readonly LargeObservableCollection<CombatEvent> _combatEventList = [];
     private string? _filterString;
+
+    private readonly LargeObservableCollection<CombatEvent> _unfilteredList = [];
 
     #endregion
 
@@ -54,6 +59,74 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
     }
 
     #endregion
+
+    #region Public Properties
+
+    private CombatLogManager? CombatLogManagerContext => this.DataContext as CombatLogManager;
+
+    private MainWindow? MainWindow => Application.Current.MainWindow as MainWindow;
+
+    public LargeObservableCollection<CombatEvent> CombatEventList
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(this.FilterString))
+            {
+                return this._unfilteredList;
+            }
+
+            this._combatEventList.Clear();
+
+            var filteredList = this._unfilteredList.ToList().Where(ev =>
+                (!string.IsNullOrWhiteSpace(ev.OwnerInternal) &&
+                 ev.OwnerInternal.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(ev.OwnerDisplay) &&
+                    ev.OwnerDisplay.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(ev.TargetInternal) &&
+                    ev.TargetInternal.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(ev.TargetDisplay) &&
+                    ev.TargetDisplay.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(ev.SourceInternal) &&
+                    ev.SourceInternal.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(ev.SourceDisplay) &&
+                    ev.SourceDisplay.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(ev.EventInternal) &&
+                    ev.EventInternal.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(ev.EventDisplay) &&
+                    ev.EventDisplay.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(ev.Type) &&
+                    ev.Type.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(ev.Flags) &&
+                    ev.Flags.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
+            ).ToList();
+
+            this._combatEventList.AddRange(filteredList);
+
+            return this._combatEventList;
+        }
+    }
+
+    public CombatDataGridContext? MyGridContext { get; set; }
+
+    public string? FilterString
+    {
+        get => this._filterString;
+        set
+        {
+            this.SetField(ref this._filterString, value);
+            this.OnPropertyChanged(nameof(this.CombatEventList));
+        }
+    }
+
+    #endregion
+
+    #region Public Members
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    #endregion
+
+    #region Other Members
 
     private void UiButtonImportMapEntities_OnClick(object sender, RoutedEventArgs e)
     {
@@ -87,7 +160,7 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
                 this._log.Info(
                     $"Successfully imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
-                MessageBox.Show(MainWindow, successStorage.ToString(), "Success", MessageBoxButton.OK,
+                MessageBox.Show(this.MainWindow, successStorage.ToString(), "Success", MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
                 this.CombatLogManagerContext.Combats.Clear();
@@ -95,8 +168,8 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
             catch (Exception exception)
             {
                 var errorMessage = $"Failed to import MapEntities JSON. Reason={exception.Message}";
-                _log.Error(errorMessage, exception);
-                MessageBox.Show(MainWindow, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                this._log.Error(errorMessage, exception);
+                MessageBox.Show(this.MainWindow, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
     }
 
@@ -104,107 +177,55 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
     {
         try
         {
-            if(this.CombatLogManagerContext == null) return;
+            if (this.CombatLogManagerContext == null) return;
 
             Settings.Default.UserCombatDetectionSettings = null;
             //Settings.Default.Save();
 
             this.CombatLogManagerContext.CombatMapDetectionSettings =
-                SerializationHelper.Deserialize<CombatMapDetectionSettings>(Settings.Default.DefaultCombatDetectionSettings);
+                SerializationHelper.Deserialize<CombatMapDetectionSettings>(Settings.Default
+                    .DefaultCombatDetectionSettings);
 
             this.CombatLogManagerContext.Combats.Clear();
 
             var message = "Map detection settings have been set to application default.";
             this._log.Info(message);
-            MessageBox.Show(MainWindow, $"{message} You'll need to parse your logs again.", "Info",
+            MessageBox.Show(this.MainWindow, $"{message} You'll need to parse your logs again.", "Info",
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception exception)
         {
             var error = "Failed to switch map detection setting to application default.";
-            _log.Error(error, exception);
-            MessageBox.Show(MainWindow, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            this._log.Error(error, exception);
+            MessageBox.Show(this.MainWindow, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
-
-    #region Public Properties
-
-    private CombatLogManager? CombatLogManagerContext => this.DataContext as CombatLogManager;
-
-    private MainWindow? MainWindow => Application.Current.MainWindow as MainWindow;
-
-    private ObservableCollection<CombatEvent> _unfilteredList = [];
-
-    private ObservableCollection<CombatEvent> _combatEventList = [];
-    public ObservableCollection<CombatEvent> CombatEventList 
-    {
-        get
-        {
-            if (string.IsNullOrWhiteSpace(FilterString))
-            {
-                return _unfilteredList;
-            }
-            else
-            {
-                this._combatEventList.Clear();
-
-                _unfilteredList.ToList().Where(ev =>
-                    (!string.IsNullOrWhiteSpace(ev.OwnerInternal) && ev.OwnerInternal.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
-                     || (!string.IsNullOrWhiteSpace(ev.OwnerDisplay) && ev.OwnerDisplay.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
-                         || (!string.IsNullOrWhiteSpace(ev.TargetInternal) && ev.TargetInternal.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
-                                 || (!string.IsNullOrWhiteSpace(ev.TargetDisplay) && ev.TargetDisplay.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
-                                     || (!string.IsNullOrWhiteSpace(ev.SourceInternal) && ev.SourceInternal.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
-                                             || (!string.IsNullOrWhiteSpace(ev.SourceDisplay) && ev.SourceDisplay.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
-                                                 || (!string.IsNullOrWhiteSpace(ev.EventInternal) && ev.EventInternal.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
-                                                     || (!string.IsNullOrWhiteSpace(ev.EventDisplay) && ev.EventDisplay.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
-                                                         || (!string.IsNullOrWhiteSpace(ev.Type) && ev.Type.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
-                                                             || (!string.IsNullOrWhiteSpace(ev.Flags) && ev.Flags.Contains(this.FilterString, StringComparison.CurrentCultureIgnoreCase))
-                ).ToList().ForEach(ev => this._combatEventList.Add(ev));
-
-                return this._combatEventList;
-            }
-        }
-    }
-
-    public CombatDataGridContext? MyGridContext { get; set; }
-
-    public string? FilterString
-    {
-        get => this._filterString;
-        set
-        {
-            this.SetField(ref this._filterString, value);
-            this.OnPropertyChanged(nameof(this.CombatEventList));
-        }
-    }
-
-    #endregion
-
-    #region Public Members
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    #endregion
-
-    #region Other Members
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
         this._unfilteredList.Clear();
-        this.OnPropertyChanged(nameof(CombatEventList));
+        this._combatEventList.Clear();
+        //this.OnPropertyChanged(nameof(this.CombatEventList));
 
-        if(CombatLogManagerContext != null)
-            CombatLogManagerContext.PropertyChanged -= this.CombatLogManagerContextOnPropertyChanged;
+        if (this.CombatLogManagerContext != null)
+            this.CombatLogManagerContext.PropertyChanged -= this.CombatLogManagerContextOnPropertyChanged;
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (this.CombatLogManagerContext == null) return;
-        
-        if (this.CombatLogManagerContext.SelectedCombat != null)
-            this.CombatLogManagerContext.SelectedCombat.AllCombatEvents.ForEach(ev => this._unfilteredList.Add(ev));
+        if (this.CombatLogManagerContext == null)
+        {
+            MessageBox.Show(this.MainWindow, $"Failed to initialize {nameof(DetectionSettingsControl)}");
+            return;
+        }
 
-        this.OnPropertyChanged(nameof(CombatEventList));
+        if (this.CombatLogManagerContext.SelectedCombat != null)
+        {
+            this._unfilteredList.Clear();
+            this._unfilteredList.AddRange(this.CombatLogManagerContext.SelectedCombat.AllCombatEvents);
+        }
+
+        this.OnPropertyChanged(nameof(this.CombatEventList));
 
         this.CombatLogManagerContext.PropertyChanged += this.CombatLogManagerContextOnPropertyChanged;
     }
@@ -216,9 +237,11 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
             this._unfilteredList.Clear();
 
             if (this.CombatLogManagerContext?.SelectedCombat != null)
-                this.CombatLogManagerContext.SelectedCombat.AllCombatEvents.ForEach(ev => this._unfilteredList.Add(ev));
+            {
+                this._unfilteredList.AddRange(this.CombatLogManagerContext.SelectedCombat.AllCombatEvents);
+            }
 
-            this.OnPropertyChanged(nameof(CombatEventList));
+            this.OnPropertyChanged(nameof(this.CombatEventList));
         }
     }
 
@@ -927,7 +950,7 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
         if (image.Tag is not string tagString) return;
 
-        AppHelper.DisplayDetailsDialog(MainWindow, tagString);
+        AppHelper.DisplayDetailsDialog(this.MainWindow, tagString);
 
         //switch (image.Tag)
         //{
@@ -1021,7 +1044,7 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
         if (!(e.Source is Button button))
             return;
 
-        AppHelper.DisplayHelpUrlInBrowser(MainWindow, Properties.Resources.GithubMapDetectionSectionOfWikiUrl);
+        AppHelper.DisplayHelpUrlInBrowser(this.MainWindow, Properties.Resources.GithubMapDetectionSectionOfWikiUrl);
     }
 
     private void EditMapDetectionSettings_OnClick(object sender, RoutedEventArgs e)
@@ -1145,6 +1168,28 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
                 this._log.Error(errorMessage, exception);
                 MessageBox.Show(this.MainWindow, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+    }
+
+    private void UiButtonCopyEntities_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (this.CombatLogManagerContext?.SelectedCombat == null || this.CombatLogManagerContext.SelectedCombat.UniqueEntityIds == null
+            || this.CombatLogManagerContext.SelectedCombat.UniqueEntityIds.Count == 0)
+        {
+            MessageBox.Show(this.MainWindow,
+                "This feature doesn't do anything if the Unique list of Non-Player entities is empty.", "Notification", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            return;
+        }
+
+        if (this.CombatLogManagerContext.CombatMapDetectionSettings == null || this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count == 0)
+        {
+            MessageBox.Show(this.MainWindow,
+                "This feature doesn't do anything if theirs no maps listed in Combat Map List.", "Notification", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            return;
+        }
+
+        var result = CopyEntityToMapDialog.ShowDialog(this.MainWindow,
+            this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityListOrderedByMapName.ToList(),
+            this.CombatLogManagerContext.SelectedCombat.UniqueEntityIds.ToList());
     }
 
     #endregion

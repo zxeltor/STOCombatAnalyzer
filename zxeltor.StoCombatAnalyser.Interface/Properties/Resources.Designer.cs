@@ -136,6 +136,15 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Copy Unique Entities into a CombatMap..
+        /// </summary>
+        public static string copy_unique_entities_tomap {
+            get {
+                return ResourceManager.GetString("copy_unique_entities_tomap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Used to export the currently selected Combat entity to a JSON file. The JSON is primarily used for troubleshooting purposes.
         ///
         ///Note: A Combat entity needs to be selected in the &quot;Log File Analyzer&quot; tab for this to work..
