@@ -353,7 +353,7 @@ public partial class MainWindow
 
                             var text = this.uiScottScatterPlotEntityEvents.Plot.Add.Text(
                                 $"{deadZone.Duration.TotalSeconds} seconds",
-                                (deadZone.StartTime.ToOADate() + deadZone.EndTime.ToOADate()) / 2, maxValue);
+                                (deadZone.StartTime.ToOADate() + deadZone.EndTime.ToOADate()) / 2, minValue);
 
                             text.LabelFontSize = 18;
                             text.LabelFontColor = Colors.Blue;
