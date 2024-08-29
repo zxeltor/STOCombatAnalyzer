@@ -39,8 +39,7 @@ public partial class CopyEntityToMapDialog : Window
         this.DataContext = this.MyContext = new CopyEntityToMapDialogDataContext();
 
         combatMaps.ForEach(map => this.MyContext.CombatMaps?.Add(map));
-        uniqueEntityIds //.Where(ent => !ent.IsPet)
-            .ToList().ForEach(entityId => this.MyContext.UniqueEntityIds?.Add(new CombatEntityContext(entityId)));
+        uniqueEntityIds.ToList().ForEach(entityId => this.MyContext.UniqueEntityIds?.Add(new CombatEntityContext(entityId)));
     }
 
     #endregion
@@ -103,7 +102,7 @@ public partial class CopyEntityToMapDialog : Window
 
         try
         {
-            var entitiesToAdd = new List<CombatMapEntity>();
+            var entitiesToAdd = new Dictionary<string, CombatMapEntity>();
             this.MyContext.UniqueEntityIds.ToList().ForEach(ent =>
             {
                 if (ent.IsIdSelected)
@@ -111,8 +110,10 @@ public partial class CopyEntityToMapDialog : Window
                     var entityFound =
                         this.MyContext.SelectedCombatMap.MapEntities.FirstOrDefault(mapent =>
                             mapent.Pattern.Equals(ent.Id));
+                    
                     if (entityFound == null)
-                        entitiesToAdd.Add(new CombatMapEntity(ent.Id));
+                        if(!entitiesToAdd.Keys.Contains(ent.Id))
+                            entitiesToAdd.Add(ent.Id, new CombatMapEntity(ent.Id));
                 }
 
                 if (ent.IsLabelSelected)
@@ -120,12 +121,14 @@ public partial class CopyEntityToMapDialog : Window
                     var entityFound =
                         this.MyContext.SelectedCombatMap.MapEntities.FirstOrDefault(mapent =>
                             mapent.Pattern.Equals(ent.Label));
+
                     if (entityFound == null)
-                        entitiesToAdd.Add(new CombatMapEntity(ent.Label));
+                        if (!entitiesToAdd.Keys.Contains(ent.Label))
+                            entitiesToAdd.Add(ent.Label, new CombatMapEntity(ent.Label));
                 }
             });
-
-            if (entitiesToAdd.Count > 0) this.MyContext.SelectedCombatMap.MapEntities.AddRange(entitiesToAdd);
+            
+            if (entitiesToAdd.Count > 0) this.MyContext.SelectedCombatMap.MapEntities.AddRange(entitiesToAdd.Values);
 
             this.DialogResult = true;
             return;
