@@ -202,7 +202,7 @@ public class Combat : INotifyPropertyChanged
     /// <summary>
     ///     Return a unique list of Ids and Labels from our combat entities.
     /// </summary>
-    public List<CombatEntityLabel> UniqueEntityIds
+    public List<CombatEntityLabel>? UniqueEntityIds
     {
         get
         {
@@ -222,12 +222,12 @@ public class Combat : INotifyPropertyChanged
                 .Union(
                     from entity in this.NonPlayerEntities
                     from evt in entity.CombatEventsList
-                    where !evt.IsOwnerPetEvent && evt.IsTargetPlayer
+                    where !evt.IsOwnerPetEvent  && !string.IsNullOrWhiteSpace(evt.OwnerDisplay)
                     select new CombatEntityLabel(evt.OwnerInternalStripped, evt.OwnerDisplay))
                 .Union(
                     from entity in this.NonPlayerEntities
                     from evt in entity.CombatEventsList
-                    where evt.IsOwnerPetEvent && evt.IsTargetPlayer
+                    where evt.IsOwnerPetEvent && !string.IsNullOrWhiteSpace(evt.SourceDisplay)
                     select new CombatEntityLabel(evt.SourceInternalStripped, evt.SourceDisplay, true,
                         evt.OwnerInternalStripped, evt.OwnerDisplay))
                 .Distinct().OrderBy(ent => ent.Label).ToList();
