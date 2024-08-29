@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
+using zxeltor.Types.Lib.Collections;
 
 namespace zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;
 
@@ -81,12 +82,12 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
     ///     The main list of map definitions. This collection is used first when trying to detect a map for a Combat entity
     /// </summary>
     [JsonRequired]
-    public ObservableCollection<CombatMapEntity> MapEntities { get; set; } = [];
+    public LargeObservableCollection<CombatMapEntity> MapEntities { get; set; } = [];
 
     [JsonIgnore]
-    public ObservableCollection<CombatMapEntity> MapEntitiesOrderByPattern
+    public LargeObservableCollection<CombatMapEntity> MapEntitiesOrderByPattern
     {
-        get { return new ObservableCollection<CombatMapEntity>(this.MapEntities.OrderBy(ent => ent.Pattern)); }
+        get { return new LargeObservableCollection<CombatMapEntity>(this.MapEntities.OrderBy(ent => ent.Pattern)); }
     }
 
     /// <summary>
