@@ -13,7 +13,7 @@ using log4net;
 using Microsoft.Win32;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
 using zxeltor.StoCombatAnalyzer.Lib.Helpers;
-using zxeltor.StoCombatAnalyzer.Lib.Model;
+using zxeltor.StoCombatAnalyzer.Lib.Parser;
 using zxeltor.Types.Lib.Result;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
@@ -43,9 +43,68 @@ public partial class SettingsUserControl : UserControl
 
     #region Other Members
 
-    private void OnUnloaded(object sender, RoutedEventArgs e)
+    /// <summary>
+    ///     A generic on click event
+    /// </summary>
+    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
     {
-        Settings.Default.PropertyChanged -= this.DefaultOnPropertyChanged;
+        if (!(sender is Button button)) return;
+
+        if (button == this.uiButtonPurgeLogsNow)
+        {
+            this._log.Debug("Purging log files.");
+
+            var purgeResult = ParserHelper.TryPurgeCombatLogFolder(new CombatLogParseSettings(Settings.Default),
+                out var filesPurged);
+
+            if (purgeResult.SuccessFull)
+            {
+                if (filesPurged.Any())
+                    ResponseDialog.Show(Application.Current.MainWindow, "Combat logs were purged.",
+                        "Combat log purge", detailsBoxCaption: "File(s) purged", detailsBoxList: filesPurged);
+                else
+                    ResponseDialog.Show(Application.Current.MainWindow, "No combat logs available to purge.",
+                        "Combat log purge");
+            }
+            else
+            {
+                if (purgeResult.Details.Any(res => res.ResultLevel > ResultLevel.Info && res.Message != null))
+                    ResponseDialog.Show(Application.Current.MainWindow, "Combat log purge error", "Error",
+                        detailsBoxList: purgeResult.Details
+                            .Where(res => res.ResultLevel > ResultLevel.Info && res.Message != null)
+                            .Select(res => res.Message).ToList());
+            }
+        }
+        else if (button == this.uiButtonOpenLogFile)
+        {
+            var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "StoCombatAnalyzer\\logs\\StoCombatAnalyzer.log");
+            if (!File.Exists(logPath))
+            {
+                MessageBox.Show($"Log file not found: {logPath}", "Eror", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            try
+            {
+                using (var openLogProcess = new Process())
+                {
+                    openLogProcess.StartInfo = new ProcessStartInfo
+                    {
+                        FileName = logPath,
+                        UseShellExecute = true
+                    };
+
+                    openLogProcess.Start();
+                }
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = $"Failed to load log file: {logPath}";
+                this._log.Error(errorMessage, ex);
+                MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
     private void DefaultOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -57,6 +116,11 @@ public partial class SettingsUserControl : UserControl
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         Settings.Default.PropertyChanged += this.DefaultOnPropertyChanged;
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        Settings.Default.PropertyChanged -= this.DefaultOnPropertyChanged;
     }
 
     /// <summary>
@@ -111,70 +175,6 @@ public partial class SettingsUserControl : UserControl
             MessageBox.Show(Application.Current.MainWindow!,
                 "Failed to find the STO base folder in the Windows registry.",
                 "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-        }
-    }
-
-    /// <summary>
-    ///     A generic on click event
-    /// </summary>
-    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (!(sender is Button button)) return;
-
-        if (button == this.uiButtonPurgeLogsNow)
-        {
-            this._log.Debug("Purging log files.");
-
-            var purgeResult = CombatLogHelper.TryPurgeCombatLogFolder(new CombatLogParseSettings(Settings.Default),
-                out var filesPurged);
-
-            if (purgeResult.SuccessFull)
-            {
-                if (filesPurged.Any())
-                    ResponseDialog.Show(Application.Current.MainWindow, "Combat logs were purged.",
-                        "Combat log purge", detailsBoxCaption: "File(s) purged", detailsBoxList: filesPurged);
-                else
-                    ResponseDialog.Show(Application.Current.MainWindow, "No combat logs available to purge.",
-                        "Combat log purge");
-            }
-            else
-            {
-                if (purgeResult.Details.Any(res => res.ResultLevel > ResultLevel.Info && res.Message != null))
-                    ResponseDialog.Show(Application.Current.MainWindow, "Combat log purge error", "Error",
-                        detailsBoxList: purgeResult.Details
-                            .Where(res => res.ResultLevel > ResultLevel.Info && res.Message != null)
-                            .Select(res => res.Message).ToList());
-            }
-        }
-        else if (button == this.uiButtonOpenLogFile)
-        {
-            var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "StoCombatAnalyzer\\logs\\StoCombatAnalyzer.log");
-            if (!File.Exists(logPath))
-            {
-                MessageBox.Show($"Log file not found: {logPath}", "Eror", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            try
-            {
-                using (var openLogProcess = new Process())
-                {
-                    openLogProcess.StartInfo = new ProcessStartInfo
-                    {
-                        FileName = logPath,
-                        UseShellExecute = true
-                    };
-
-                    openLogProcess.Start();
-                }
-            }
-            catch (Exception ex)
-            {
-                var errorMessage = $"Failed to load log file: {logPath}";
-                this._log.Error(errorMessage, ex);
-                MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
         }
     }
 

@@ -14,8 +14,14 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Controls;
 /// </summary>
 public partial class ResponseDialog : Window
 {
+    #region Private Fields
+
     // Determines if the dialog should block when opened.
     private readonly bool _isModalDialog;
+
+    #endregion
+
+    #region Constructors
 
     /// <summary>
     ///     The main constructor. Made private so only the static <see cref="Show" /> and <see cref="ShowDialog" /> methods
@@ -83,27 +89,9 @@ public partial class ResponseDialog : Window
         this.Closed += this.OnClosed;
     }
 
-    private void UiButtonOk_Click(object sender, RoutedEventArgs e)
-    {
-        if (this._isModalDialog) this.DialogResult = true;
+    #endregion
 
-        this.Close();
-    }
-
-    private void UiButtonCancel_Click(object sender, RoutedEventArgs e)
-    {
-        if (this._isModalDialog) this.DialogResult = false;
-
-        this.Close();
-    }
-
-    private void OnClosed(object? sender, EventArgs e)
-    {
-        this.Closed -= this.OnClosed;
-
-        this.uiButtonOk.Click -= this.UiButtonOk_Click;
-        this.uiButtonCancel.Click -= this.UiButtonCancel_Click;
-    }
+    #region Public Members
 
     /// <summary>
     ///     Show the dialog, without blocking the caller.
@@ -127,7 +115,7 @@ public partial class ResponseDialog : Window
     ///     <para>If not provided, a default is used, assuming details are provided.</para>
     /// </param>
     public static void Show(Window? owner, string message, string? caption = null, bool includeCancel = false,
-        List<string?> detailsBoxList = null, string? detailsBoxCaption = null)
+        List<string>? detailsBoxList = null, string? detailsBoxCaption = null)
     {
         var dialog = new ResponseDialog(owner, false, message, caption, includeCancel, detailsBoxCaption,
             detailsBoxList);
@@ -159,7 +147,8 @@ public partial class ResponseDialog : Window
     public static bool ShowDialog(Window? owner, string message, string? caption = null, bool includeCancel = false,
         List<string>? detailsBoxList = null, string? detailsBoxCaption = null)
     {
-        var dialog = new ResponseDialog(owner, true, message, caption, includeCancel, detailsBoxCaption, detailsBoxList);
+        var dialog = new ResponseDialog(owner, true, message, caption, includeCancel, detailsBoxCaption,
+            detailsBoxList);
 
         var dialogResult = dialog.ShowDialog();
 
@@ -167,4 +156,32 @@ public partial class ResponseDialog : Window
 
         return false;
     }
+
+    #endregion
+
+    #region Other Members
+
+    private void OnClosed(object? sender, EventArgs e)
+    {
+        this.Closed -= this.OnClosed;
+
+        this.uiButtonOk.Click -= this.UiButtonOk_Click;
+        this.uiButtonCancel.Click -= this.UiButtonCancel_Click;
+    }
+
+    private void UiButtonCancel_Click(object sender, RoutedEventArgs e)
+    {
+        if (this._isModalDialog) this.DialogResult = false;
+
+        this.Close();
+    }
+
+    private void UiButtonOk_Click(object sender, RoutedEventArgs e)
+    {
+        if (this._isModalDialog) this.DialogResult = true;
+
+        this.Close();
+    }
+
+    #endregion
 }

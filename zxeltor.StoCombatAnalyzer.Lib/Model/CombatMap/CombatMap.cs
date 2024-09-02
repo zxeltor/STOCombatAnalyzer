@@ -23,7 +23,8 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
 
     private bool _hasChanges;
     private bool _isEnabled = true;
-    private int _maxPlayers = 5;
+    private int? _maxPlayers = 5;
+    private int? _minPlayers = 5;
     private string? _name;
 
     #endregion
@@ -46,28 +47,9 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
 
     #region Public Properties
 
-    /// <summary>
-    ///     The maximum number of players for the map/event
-    /// </summary>
-    public int MaxPlayers
-    {
-        get => this._maxPlayers;
-        set => this.SetField(ref this._maxPlayers, value);
-    }
-
-    [JsonIgnore] public Guid Id { get; }
-
     [JsonIgnore] public bool HasChanges => this._changeCount > 0;
 
-    /// <summary>
-    ///     A label for the map
-    /// </summary>
-    [JsonRequired]
-    public string? Name
-    {
-        get => this._name;
-        set => this.SetField(ref this._name, value);
-    }
+    [JsonIgnore] public bool IsAnException { get; set; }
 
     /// <summary>
     ///     If true, this map will be included in Map Detection logic. False otherwise.
@@ -76,6 +58,33 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
     {
         get => this._isEnabled;
         set => this.SetField(ref this._isEnabled, value);
+    }
+
+    [JsonIgnore] public Guid Id { get; }
+
+    /// <summary>
+    ///     Get the sum of entity matches for this map for the current combat entity
+    /// </summary>
+    /// <returns>The number of matches</returns>
+    [JsonIgnore]
+    public int CombatMatchCountForMap => this.MapEntities.Sum(map => map.CombatMatchCount);
+
+    /// <summary>
+    ///     The maximum number of players for the map/event
+    /// </summary>
+    public int? MaxPlayers
+    {
+        get => this._maxPlayers;
+        set => this.SetField(ref this._maxPlayers, value);
+    }
+
+    /// <summary>
+    ///     The minimum number of players for the map/event
+    /// </summary>
+    public int? MinPlayers
+    {
+        get => this._minPlayers;
+        set => this.SetField(ref this._minPlayers, value);
     }
 
     /// <summary>
@@ -102,13 +111,14 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
     }
 
     /// <summary>
-    ///     Get the sum of entity matches for this map for the current combat entity
+    ///     A label for the map
     /// </summary>
-    /// <returns>The number of matches</returns>
-    [JsonIgnore]
-    public int CombatMatchCountForMap => this.MapEntities.Sum(map => map.CombatMatchCount);
-
-    [JsonIgnore] public bool IsAnException { get; set; }
+    [JsonRequired]
+    public string? Name
+    {
+        get => this._name;
+        set => this.SetField(ref this._name, value);
+    }
 
     #endregion
 
@@ -120,6 +130,21 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
         return this._name == other._name && this.Id.Equals(other.Id);
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return this.Equals((CombatMap)obj);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(this._name, this.Id);
     }
 
     /// <inheritdoc />
@@ -140,24 +165,18 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
         return $"Name={this.Name}, Entities={this.MapEntities.Count}, Matches={this.CombatMatchCountForMap}";
     }
 
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return this.Equals((CombatMap)obj);
-    }
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(this._name, this.Id);
-    }
-
     #endregion
 
     #region Other Members
+
+    // Create the OnPropertyChanged method to raise the event
+    // The calling member's name will be used as the parameter.
+    protected void OnPropertyChanged([CallerMemberName] string name = null)
+    {
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        if (string.IsNullOrWhiteSpace(name) || !name.Equals(nameof(this.HasChanges))) this._changeCount++;
+    }
 
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
@@ -171,15 +190,6 @@ public class CombatMap : INotifyPropertyChanged, IEquatable<CombatMap>
         field = value;
         this.OnPropertyChanged(propertyName);
         return true;
-    }
-
-    // Create the OnPropertyChanged method to raise the event
-    // The calling member's name will be used as the parameter.
-    protected void OnPropertyChanged([CallerMemberName] string name = null)
-    {
-        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-
-        if (string.IsNullOrWhiteSpace(name) || !name.Equals(nameof(this.HasChanges))) this._changeCount++;
     }
 
     #endregion

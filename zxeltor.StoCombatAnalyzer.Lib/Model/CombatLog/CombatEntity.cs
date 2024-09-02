@@ -9,13 +9,14 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Humanizer;
 using Newtonsoft.Json;
+using zxeltor.StoCombatAnalyzer.Lib.Parser;
 
 namespace zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 
 /// <summary>
 ///     This object represents a Player or Non-Player entity from the STO combat logs.
 /// </summary>
-public class CombatEntity : INotifyPropertyChanged
+public class CombatEntity : INotifyPropertyChanged, IRejectAbleEntity
 {
     #region Private Fields
 
@@ -56,6 +57,9 @@ public class CombatEntity : INotifyPropertyChanged
     private double? _petsMaxMagnitude;
 
     private double? _petsTotalMagnitude;
+    private Type _rejectAbleType;
+    private bool _rejected;
+    private string? _rejectionReason;
 
     #endregion
 
@@ -92,16 +96,244 @@ public class CombatEntity : INotifyPropertyChanged
 
     #region Public Properties
 
+    public bool IsCombinePets
+    {
+        get => this._isCombinePets;
+        set => this.SetField(ref this._isCombinePets, value);
+    }
+
     public bool IsEnableInactiveTimeCalculations
     {
         get => this._isEnableInactiveTimeCalculations;
         set => this.SetField(ref this._isEnableInactiveTimeCalculations, value);
     }
 
-    public bool IsCombinePets
+    /// <summary>
+    ///     If true this entity is a Player. If false the entity is a Non-Player.
+    /// </summary>
+    public bool IsPlayer { get; set; }
+
+    /// <summary>
+    ///     True if this object was rejected during the combat log parsing process.
+    /// </summary>
+    public bool Rejected
     {
-        get => this._isCombinePets;
-        set => this.SetField(ref this._isCombinePets, value);
+        get => this._rejected;
+        set => this.SetField(ref this._rejected, value);
+    }
+
+    /// <summary>
+    ///     Used to establish the end time for this combat entity.
+    ///     <para>The last timestamp from our <see cref="CombatEvent" /> collections, based on ann ordered list.</para>
+    /// </summary>
+    public DateTime? EntityCombatEnd
+    {
+        get
+        {
+            if (this._entityCombatEnd != null && this._isObjectLocked)
+                return this._entityCombatEnd;
+
+            return this._entityCombatEnd = this._combatEventList.Count == 0
+                ? null // This should be possible, but checking for it anyway.
+                : this._combatEventList.Last().Timestamp;
+        }
+        set => this._entityCombatEnd = value;
+    }
+
+    /// <summary>
+    ///     Used to establish the start time for this combat entity.
+    ///     <para>The first timestamp from our <see cref="CombatEvent" /> collections, based on an ordered list.</para>
+    /// </summary>
+    public DateTime? EntityCombatStart
+    {
+        get
+        {
+            if (this._entityCombatStart != null && this._isObjectLocked)
+                return this._entityCombatStart;
+
+            return this._entityCombatStart = this._combatEventList.Count == 0
+                ? null // This should be possible, but checking for it anyway.
+                : this._combatEventList.First().Timestamp;
+        }
+        set => this._entityCombatStart = value;
+    }
+
+    /// <summary>
+    ///     A rudimentary calculation for player events EntityMagnitudePerSecond, and probably incorrect.
+    /// </summary>
+    public double? EntityMagnitudePerSecond
+    {
+        get
+        {
+            if (this._entityMagnitudePerSecond.HasValue && this._isObjectLocked)
+                return this._entityMagnitudePerSecond.Value;
+
+            var entityEvents = this._combatEventList
+                .Where(ev => !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+            if (entityEvents.Count == 0 || this.EntityCombatDuration == null)
+                return this._entityMagnitudePerSecond = 0;
+
+            var duration = this.EntityCombatDuration.Value;
+
+            if (this.EntityCombatInActive != null && this.EntityCombatDuration.Value > this.EntityCombatInActive.Value)
+                duration = this.EntityCombatDuration.Value - this.EntityCombatInActive.Value;
+
+            return this._entityMagnitudePerSecond = this.EntityTotalMagnitude / duration.TotalSeconds;
+        }
+        set => this._entityMagnitudePerSecond = value;
+    }
+
+    /// <summary>
+    ///     A rudimentary calculation for max damage for player events, and probably incorrect.
+    /// </summary>
+    public double? EntityMaxMagnitude
+    {
+        get
+        {
+            if (this._entityMaxMagnitude.HasValue && this._isObjectLocked)
+                return this._entityMaxMagnitude.Value;
+
+            var entityEvents = this._combatEventList
+                .Where(ev => !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+            if (entityEvents.Count == 0) return this._entityMaxMagnitude = 0;
+
+            return this._entityMaxMagnitude = entityEvents.Max(dam => Math.Abs(dam.Magnitude));
+        }
+        set => this._entityMaxMagnitude = value;
+    }
+
+    /// <summary>
+    ///     A rudimentary calculation for total damage for player events, and probably incorrect.
+    /// </summary>
+    public double? EntityTotalMagnitude
+    {
+        get
+        {
+            if (this._entityTotalMagnitude.HasValue && this._isObjectLocked)
+                return this._entityTotalMagnitude.Value;
+
+            var entityEvents = this._combatEventList
+                .Where(ev => !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+            if (entityEvents.Count == 0) return this._entityTotalMagnitude = 0;
+
+            return this._entityTotalMagnitude = entityEvents.Sum(dam => Math.Abs(dam.Magnitude));
+        }
+        set => this._entityTotalMagnitude = value;
+    }
+
+    /// <summary>
+    ///     A rudimentary calculation for player pet events EntityMagnitudePerSecond, and probably incorrect.
+    /// </summary>
+    public double? PetsMagnitudePerSecond
+    {
+        get
+        {
+            if (this._petsMagnitudePerSecond.HasValue && this._isObjectLocked)
+                return this._petsMagnitudePerSecond.Value;
+
+            var petEvents = this._combatEventList.Where(ev =>
+                ev.IsOwnerPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+            if (petEvents.Count == 0 || this.EntityCombatDuration == null)
+                return this._petsMagnitudePerSecond = 0;
+
+            var duration = this.EntityCombatDuration.Value;
+
+            if (this.EntityCombatInActive != null && this.EntityCombatDuration.Value > this.EntityCombatInActive.Value)
+                duration = this.EntityCombatDuration.Value - this.EntityCombatInActive.Value;
+
+            return this._petsMagnitudePerSecond = this.PetsTotalMagnitude / duration.TotalSeconds;
+        }
+        set => this._petsMagnitudePerSecond = value;
+    }
+
+    /// <summary>
+    ///     A rudimentary calculation for max damage for player pet events, and probably incorrect.
+    /// </summary>
+    public double? PetsMaxMagnitude
+    {
+        get
+        {
+            if (this._petsMaxMagnitude.HasValue && this._isObjectLocked)
+                return this._petsMaxMagnitude.Value;
+
+            var petEvents = this._combatEventList.Where(ev =>
+                ev.IsOwnerPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+            if (petEvents.Count == 0) return this._petsMaxMagnitude = 0;
+
+            return this._petsMaxMagnitude = petEvents.Max(dam => Math.Abs(dam.Magnitude));
+        }
+        set => this._petsMaxMagnitude = value;
+    }
+
+    /// <summary>
+    ///     A rudimentary calculation for total damage for player pet events, and probably incorrect.
+    /// </summary>
+    public double? PetsTotalMagnitude
+    {
+        get
+        {
+            if (this._petsTotalMagnitude.HasValue && this._isObjectLocked)
+                return this._petsTotalMagnitude.Value;
+
+            var petEvents = this._combatEventList.Where(ev =>
+                ev.IsOwnerPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+            if (petEvents.Count == 0) return this._petsTotalMagnitude = 0;
+
+            return this._petsTotalMagnitude = petEvents.Sum(dam => Math.Abs(dam.Magnitude));
+        }
+        set => this._petsTotalMagnitude = value;
+    }
+
+    /// <summary>
+    ///     Get a number of attacks for this entity
+    /// </summary>
+    public int? EntityCombatAttacks
+    {
+        get
+        {
+            if (this._entityCombatAttacks != null && this._isObjectLocked)
+                return this._entityCombatAttacks;
+
+            this._entityCombatAttacks = 0;
+
+            if (this.CombatEventTypeListForEntity != null)
+                this._entityCombatAttacks += this.CombatEventTypeListForEntity.Sum(evt => evt.Attacks);
+
+            if (this.CombatEventTypeListForEntityPets != null)
+                this._entityCombatAttacks +=
+                    this.CombatEventTypeListForEntityPets.Sum(pEvt => pEvt.CombatEventTypes.Sum(evt => evt.Attacks));
+
+            return this._entityCombatAttacks;
+        }
+        set => this._entityCombatAttacks = value;
+    }
+
+    /// <summary>
+    ///     Get a number of kills for this entity.
+    /// </summary>
+    public int? EntityCombatKills
+    {
+        get
+        {
+            if (this._entityCombatKills != null && this._isObjectLocked)
+                return this._entityCombatKills;
+
+            var killList = this._combatEventList
+                .Where(ev => ev.Flags.Contains("kill", StringComparison.CurrentCultureIgnoreCase))
+                .ToList();
+
+            if (killList.Count == 0)
+                return this._entityCombatKills = 0;
+
+            return killList.Count;
+        }
+        set => this._entityCombatKills = value;
     }
 
     public int? MinInActiveInSeconds
@@ -109,6 +341,8 @@ public class CombatEntity : INotifyPropertyChanged
         get => this._minInActiveInSeconds;
         set => this.SetField(ref this._minInActiveInSeconds, value);
     }
+
+    public IReadOnlyList<CombatEvent> CombatEventsList => this._combatEventList;
 
     /// <summary>
     ///     A list of timespans where the Player is considered Inactive.
@@ -147,7 +381,10 @@ public class CombatEntity : INotifyPropertyChanged
         set => this._deadZones = value;
     }
 
-    public IReadOnlyList<CombatEvent> CombatEventsList => this._combatEventList;
+    /// <summary>
+    ///     A list of combat events for this entity.
+    /// </summary>
+    private List<CombatEvent> _combatEventList { get; } = new();
 
     /// <summary>
     ///     Get a list of event types specific to the Player or Non-Player
@@ -216,39 +453,51 @@ public class CombatEntity : INotifyPropertyChanged
     }
 
     /// <summary>
-    ///     Used to establish the start time for this combat entity.
-    ///     <para>The first timestamp from our <see cref="CombatEvent" /> collections, based on an ordered list.</para>
+    ///     A label for our entity
     /// </summary>
-    public DateTime? EntityCombatStart
-    {
-        get
-        {
-            if (this._entityCombatStart != null && this._isObjectLocked)
-                return this._entityCombatStart;
-
-            return this._entityCombatStart = this._combatEventList.Count == 0
-                ? null // This should be possible, but checking for it anyway.
-                : this._combatEventList.First().Timestamp;
-        }
-        set => this._entityCombatStart = value;
-    }
+    public string OwnerDisplay { get; set; }
 
     /// <summary>
-    ///     Used to establish the end time for this combat entity.
-    ///     <para>The last timestamp from our <see cref="CombatEvent" /> collections, based on ann ordered list.</para>
+    ///     The ID for our entity
     /// </summary>
-    public DateTime? EntityCombatEnd
+    public string OwnerInternal { get; set; }
+
+    [JsonIgnore]
+    public string ToCombatStats
     {
         get
         {
-            if (this._entityCombatEnd != null && this._isObjectLocked)
-                return this._entityCombatEnd;
+            var str = new StringBuilder($"{this.OwnerDisplay}: ");
+            str.Append($"Attacks={this.EntityCombatAttacks ?? 0}, ");
 
-            return this._entityCombatEnd = this._combatEventList.Count == 0
-                ? null // This should be possible, but checking for it anyway.
-                : this._combatEventList.Last().Timestamp;
+            if (this.EntityTotalMagnitude == null)
+                str.Append("Dam=0, ");
+            else
+                str.Append($"Dam={this.EntityTotalMagnitude.Value.ToMetric(decimals: 2)}, ");
+
+            if (this.EntityMagnitudePerSecond == null)
+                str.Append("DPS=0, ");
+            else
+                str.Append($"DPS={this.EntityMagnitudePerSecond.Value.ToMetric(decimals: 2)}, ");
+
+            if (this.EntityCombatInActive == null)
+                str.Append("InActive=0");
+            else
+                str.Append($"InActive={this.EntityCombatInActive.Value.ToString("g")}");
+
+            return str.ToString();
         }
-        set => this._entityCombatEnd = value;
+    }
+
+    public string? RejectionDetails { get; set; }
+
+    /// <summary>
+    ///     If rejected, this will contain a reason for why this object was rejected.
+    /// </summary>
+    public string? RejectionReason
+    {
+        get => this._rejectionReason;
+        set => this.SetField(ref this._rejectionReason, value);
     }
 
     /// <summary>
@@ -291,231 +540,6 @@ public class CombatEntity : INotifyPropertyChanged
         set => this._entityCombatInActive = value;
     }
 
-    /// <summary>
-    ///     Get a number of kills for this entity.
-    /// </summary>
-    public int? EntityCombatKills
-    {
-        get
-        {
-            if (this._entityCombatKills != null && this._isObjectLocked)
-                return this._entityCombatKills;
-
-            var killList = this._combatEventList
-                .Where(ev => ev.Flags.Contains("kill", StringComparison.CurrentCultureIgnoreCase))
-                .ToList();
-
-            if (killList.Count == 0)
-                return this._entityCombatKills = 0;
-
-            return killList.Count;
-        }
-        set => this._entityCombatKills = value;
-    }
-
-    /// <summary>
-    ///     Get a number of attacks for this entity
-    /// </summary>
-    public int? EntityCombatAttacks
-    {
-        get
-        {
-            if (this._entityCombatAttacks != null && this._isObjectLocked)
-                return this._entityCombatAttacks;
-
-            this._entityCombatAttacks = 0;
-
-            if (this.CombatEventTypeListForEntity != null)
-                this._entityCombatAttacks += this.CombatEventTypeListForEntity.Sum(evt => evt.Attacks);
-
-            if (this.CombatEventTypeListForEntityPets != null)
-                this._entityCombatAttacks +=
-                    this.CombatEventTypeListForEntityPets.Sum(pEvt => pEvt.CombatEventTypes.Sum(evt => evt.Attacks));
-
-            return this._entityCombatAttacks;
-        }
-        set => this._entityCombatAttacks = value;
-    }
-
-    /// <summary>
-    ///     A rudimentary calculation for player events EntityMagnitudePerSecond, and probably incorrect.
-    /// </summary>
-    public double? EntityMagnitudePerSecond
-    {
-        get
-        {
-            if (this._entityMagnitudePerSecond.HasValue && this._isObjectLocked)
-                return this._entityMagnitudePerSecond.Value;
-
-            var entityEvents = this._combatEventList
-                .Where(ev => !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
-
-            if (entityEvents.Count == 0 || this.EntityCombatDuration == null)
-                return this._entityMagnitudePerSecond = 0;
-
-            var duration = this.EntityCombatDuration.Value;
-
-            if (this.EntityCombatInActive != null && this.EntityCombatDuration.Value > this.EntityCombatInActive.Value)
-                duration = this.EntityCombatDuration.Value - this.EntityCombatInActive.Value;
-
-            return this._entityMagnitudePerSecond = this.EntityTotalMagnitude / duration.TotalSeconds;
-        }
-        set => this._entityMagnitudePerSecond = value;
-    }
-
-    /// <summary>
-    ///     A rudimentary calculation for player pet events EntityMagnitudePerSecond, and probably incorrect.
-    /// </summary>
-    public double? PetsMagnitudePerSecond
-    {
-        get
-        {
-            if (this._petsMagnitudePerSecond.HasValue && this._isObjectLocked)
-                return this._petsMagnitudePerSecond.Value;
-
-            var petEvents = this._combatEventList.Where(ev =>
-                ev.IsOwnerPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
-
-            if (petEvents.Count == 0 || this.EntityCombatDuration == null)
-                return this._petsMagnitudePerSecond = 0;
-
-            var duration = this.EntityCombatDuration.Value;
-
-            if (this.EntityCombatInActive != null && this.EntityCombatDuration.Value > this.EntityCombatInActive.Value)
-                duration = this.EntityCombatDuration.Value - this.EntityCombatInActive.Value;
-
-            return this._petsMagnitudePerSecond = this.PetsTotalMagnitude / duration.TotalSeconds;
-        }
-        set => this._petsMagnitudePerSecond = value;
-    }
-
-    /// <summary>
-    ///     A rudimentary calculation for max damage for player events, and probably incorrect.
-    /// </summary>
-    public double? EntityMaxMagnitude
-    {
-        get
-        {
-            if (this._entityMaxMagnitude.HasValue && this._isObjectLocked)
-                return this._entityMaxMagnitude.Value;
-
-            var entityEvents = this._combatEventList
-                .Where(ev => !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
-
-            if (entityEvents.Count == 0) return this._entityMaxMagnitude = 0;
-
-            return this._entityMaxMagnitude = entityEvents.Max(dam => Math.Abs(dam.Magnitude));
-        }
-        set => this._entityMaxMagnitude = value;
-    }
-
-    /// <summary>
-    ///     A rudimentary calculation for max damage for player pet events, and probably incorrect.
-    /// </summary>
-    public double? PetsMaxMagnitude
-    {
-        get
-        {
-            if (this._petsMaxMagnitude.HasValue && this._isObjectLocked)
-                return this._petsMaxMagnitude.Value;
-
-            var petEvents = this._combatEventList.Where(ev =>
-                ev.IsOwnerPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
-
-            if (petEvents.Count == 0) return this._petsMaxMagnitude = 0;
-
-            return this._petsMaxMagnitude = petEvents.Max(dam => Math.Abs(dam.Magnitude));
-        }
-        set => this._petsMaxMagnitude = value;
-    }
-
-    /// <summary>
-    ///     A rudimentary calculation for total damage for player events, and probably incorrect.
-    /// </summary>
-    public double? EntityTotalMagnitude
-    {
-        get
-        {
-            if (this._entityTotalMagnitude.HasValue && this._isObjectLocked)
-                return this._entityTotalMagnitude.Value;
-
-            var entityEvents = this._combatEventList
-                .Where(ev => !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
-
-            if (entityEvents.Count == 0) return this._entityTotalMagnitude = 0;
-
-            return this._entityTotalMagnitude = entityEvents.Sum(dam => Math.Abs(dam.Magnitude));
-        }
-        set => this._entityTotalMagnitude = value;
-    }
-
-    /// <summary>
-    ///     A rudimentary calculation for total damage for player pet events, and probably incorrect.
-    /// </summary>
-    public double? PetsTotalMagnitude
-    {
-        get
-        {
-            if (this._petsTotalMagnitude.HasValue && this._isObjectLocked)
-                return this._petsTotalMagnitude.Value;
-
-            var petEvents = this._combatEventList.Where(ev =>
-                ev.IsOwnerPetEvent && !ev.Type.Equals("HitPoints", StringComparison.CurrentCultureIgnoreCase)).ToList();
-
-            if (petEvents.Count == 0) return this._petsTotalMagnitude = 0;
-
-            return this._petsTotalMagnitude = petEvents.Sum(dam => Math.Abs(dam.Magnitude));
-        }
-        set => this._petsTotalMagnitude = value;
-    }
-
-    /// <summary>
-    ///     The ID for our entity
-    /// </summary>
-    public string OwnerInternal { get; set; }
-
-    /// <summary>
-    ///     A label for our entity
-    /// </summary>
-    public string OwnerDisplay { get; set; }
-
-    /// <summary>
-    ///     If true this entity is a Player. If false the entity is a Non-Player.
-    /// </summary>
-    public bool IsPlayer { get; set; }
-
-    /// <summary>
-    ///     A list of combat events for this entity.
-    /// </summary>
-    private List<CombatEvent> _combatEventList { get; } = new();
-
-    [JsonIgnore]
-    public string ToCombatStats
-    {
-        get
-        {
-            var str = new StringBuilder($"{this.OwnerDisplay}: ");
-            str.Append($"Attacks={this.EntityCombatAttacks ?? 0}, ");
-
-            if (this.EntityTotalMagnitude == null)
-                str.Append("Dam=0, ");
-            else
-                str.Append($"Dam={this.EntityTotalMagnitude.Value.ToMetric(decimals: 2)}, ");
-
-            if (this.EntityMagnitudePerSecond == null)
-                str.Append("DPS=0, ");
-            else
-                str.Append($"DPS={this.EntityMagnitudePerSecond.Value.ToMetric(decimals: 2)}, ");
-
-            if (this.EntityCombatInActive == null)
-                str.Append("InActive=0");
-            else
-                str.Append($"InActive={this.EntityCombatInActive.Value.ToString("g")}");
-
-            return str.ToString();
-        }
-    }
-
     #endregion
 
     #region Public Members
@@ -556,6 +580,13 @@ public class CombatEntity : INotifyPropertyChanged
 
     #region Other Members
 
+    // Create the OnPropertyChanged method to raise the event
+    // The calling member's name will be used as the parameter.
+    protected void OnPropertyChanged([CallerMemberName] string? name = null)
+    {
+        if (name != null) this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
     private void RefreshProperties()
     {
         this._combatEventTypeListForEntity = null;
@@ -586,13 +617,6 @@ public class CombatEntity : INotifyPropertyChanged
         field = value;
         if (propertyName != null) this.OnPropertyChanged(propertyName);
         return true;
-    }
-
-    // Create the OnPropertyChanged method to raise the event
-    // The calling member's name will be used as the parameter.
-    protected void OnPropertyChanged([CallerMemberName] string? name = null)
-    {
-        if (name != null) this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
     #endregion

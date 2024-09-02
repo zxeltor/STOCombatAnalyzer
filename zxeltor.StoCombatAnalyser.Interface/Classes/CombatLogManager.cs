@@ -13,6 +13,7 @@ using zxeltor.StoCombatAnalyzer.Interface.Classes.UI;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
 using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 using zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;
+using zxeltor.StoCombatAnalyzer.Lib.Parser;
 
 namespace zxeltor.StoCombatAnalyzer.Interface.Classes;
 
@@ -37,6 +38,8 @@ public class CombatLogManager : INotifyPropertyChanged
     #endregion
 
     #region Private Fields
+
+    private CombatLogParserResult? _combatLogParserResult;
 
     private CombatMapDetectionSettings? _combatMapDetectionSettings = new();
 
@@ -128,36 +131,6 @@ public class CombatLogManager : INotifyPropertyChanged
     }
 
     /// <summary>
-    ///     The title for main UI.
-    /// </summary>
-    public string MainWindowTitle => $"{Resources.ApplicationName}: {this.ApplicationVersionInfoString}";
-
-    /// <summary>
-    ///     Used to filter the result set for the data grid
-    /// </summary>
-    public string? DataGridSearchString
-    {
-        get => this._dataGridSearchString;
-        set
-        {
-            this.SetField(ref this._dataGridSearchString, value);
-            this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
-        }
-    }
-
-    /// <summary>
-    ///     Assembly version string for the application.
-    /// </summary>
-    public string ApplicationVersionInfoString
-    {
-        get
-        {
-            var version = AssemblyInfoHelper.GetApplicationVersionFromAssembly();
-            return $"{version.Major}.{version.Minor}.{version.Revision}";
-        }
-    }
-
-    /// <summary>
     ///     The currently selected Combat instance from <see cref="Combats" />
     /// </summary>
     public Combat? SelectedCombat
@@ -185,17 +158,31 @@ public class CombatLogManager : INotifyPropertyChanged
     }
 
     /// <summary>
-    ///     Total damage for the selected event type
+    ///     The filter string for the
     /// </summary>
-    public double? SelectedCombatEntityEventTypeTotalDamage
+    public CombatEventTypeSelector EventTypeDisplayFilter
     {
-        get
+        get => this._eventTypeDisplayFilter;
+        set
         {
-            if (this.SelectedCombatEntity?.CombatEventTypeListForEntity == null ||
-                this.SelectedCombatEntity.CombatEventTypeListForEntity.Count == 0) return null;
-
-            return this.SelectedCombatEntity.CombatEventTypeListForEntity.Sum(ev => ev.Damage);
+            this.SetField(ref this._eventTypeDisplayFilter, value ?? new CombatEventTypeSelector("OVERALL"));
+            this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
         }
+    }
+
+    public CombatLogParserResult? CombatLogParserResult
+    {
+        get => this._combatLogParserResult;
+        set => this.SetField(ref this._combatLogParserResult, value);
+    }
+
+    /// <summary>
+    ///     Combat map detection settings.
+    /// </summary>
+    public CombatMapDetectionSettings? CombatMapDetectionSettings
+    {
+        get => this._combatMapDetectionSettings;
+        set => this.SetField(ref this._combatMapDetectionSettings, value);
     }
 
     /// <summary>
@@ -213,17 +200,16 @@ public class CombatLogManager : INotifyPropertyChanged
     }
 
     /// <summary>
-    ///     Total damage for the selected pet event type
+    ///     Total damage for the selected event type
     /// </summary>
-    public double? SelectedCombatEntityPetEventTypeTotalDamage
+    public double? SelectedCombatEntityEventTypeTotalDamage
     {
         get
         {
-            if (this.SelectedCombatEntity?.CombatEventTypeListForEntityPets == null ||
-                this.SelectedCombatEntity.CombatEventTypeListForEntityPets.Count == 0) return null;
+            if (this.SelectedCombatEntity?.CombatEventTypeListForEntity == null ||
+                this.SelectedCombatEntity.CombatEventTypeListForEntity.Count == 0) return null;
 
-            return this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Sum(ev =>
-                ev.CombatEventTypes.Sum(evt => evt.Damage));
+            return this.SelectedCombatEntity.CombatEventTypeListForEntity.Sum(ev => ev.Damage);
         }
     }
 
@@ -243,22 +229,24 @@ public class CombatLogManager : INotifyPropertyChanged
     }
 
     /// <summary>
-    ///     Combat map detection settings.
+    ///     Total damage for the selected pet event type
     /// </summary>
-    public CombatMapDetectionSettings? CombatMapDetectionSettings
+    public double? SelectedCombatEntityPetEventTypeTotalDamage
     {
-        get => this._combatMapDetectionSettings;
-        set => this.SetField(ref this._combatMapDetectionSettings, value);
+        get
+        {
+            if (this.SelectedCombatEntity?.CombatEventTypeListForEntityPets == null ||
+                this.SelectedCombatEntity.CombatEventTypeListForEntityPets.Count == 0) return null;
+
+            return this.SelectedCombatEntity?.CombatEventTypeListForEntityPets.Sum(ev =>
+                ev.CombatEventTypes.Sum(evt => evt.Damage));
+        }
     }
 
     /// <summary>
-    ///     A backed up serialized version of our CombatMapDetectionSettings
+    ///     A list of <see cref="Combat" /> displayed in the main UI.
     /// </summary>
-    public string? CombatMapDetectionSettingsBeforeSave
-    {
-        get => this._combatMapDetectionSettingsBeforeSave;
-        set => this.SetField(ref this._combatMapDetectionSettingsBeforeSave, value);
-    }
+    public ObservableCollection<Combat> Combats { get; set; } = new();
 
     /// <summary>
     ///     A list of <see cref="CombatEvent" /> for <see cref="SelectedCombat" />
@@ -346,6 +334,17 @@ public class CombatLogManager : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    ///     A list of <see cref="CombatEventType" /> for the Selected CombatEntity
+    /// </summary>
+    public ObservableCollection<CombatEventType>? SelectedEntityCombatEventTypeList { get; set; } = new();
+
+    /// <summary>
+    ///     A list of available combat event type metrics to display.
+    /// </summary>
+    public ObservableCollection<CombatEventTypeMetric> CombatEventTypeMetrics =>
+        CombatEventTypeMetric.CombatEventTypeMetricList;
+
     public ObservableCollection<CombatEventTypeSelector> SelectedEntityCombatEventTypeListDisplayedFilterOptions
     {
         get
@@ -378,38 +377,48 @@ public class CombatLogManager : INotifyPropertyChanged
     }
 
     /// <summary>
-    ///     A list of available combat event type metrics to display.
-    /// </summary>
-    public ObservableCollection<CombatEventTypeMetric> CombatEventTypeMetrics =>
-        CombatEventTypeMetric.CombatEventTypeMetricList;
-
-    /// <summary>
-    ///     The filter string for the
-    /// </summary>
-    public CombatEventTypeSelector EventTypeDisplayFilter
-    {
-        get => this._eventTypeDisplayFilter;
-        set
-        {
-            this.SetField(ref this._eventTypeDisplayFilter, value ?? new CombatEventTypeSelector("OVERALL"));
-            this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
-        }
-    }
-
-    /// <summary>
-    ///     A list of <see cref="CombatEventType" /> for the Selected CombatEntity
-    /// </summary>
-    public ObservableCollection<CombatEventType>? SelectedEntityCombatEventTypeList { get; set; } = new();
-
-    /// <summary>
     ///     A list of Pet <see cref="CombatEventType" /> for the Selected CombatEntity
     /// </summary>
     public ObservableCollection<CombatPetEventType>? SelectedEntityPetCombatEventTypeList { get; set; } = new();
 
     /// <summary>
-    ///     A list of <see cref="Combat" /> displayed in the main UI.
+    ///     Assembly version string for the application.
     /// </summary>
-    public ObservableCollection<Combat> Combats { get; set; } = new();
+    public string ApplicationVersionInfoString
+    {
+        get
+        {
+            var version = AssemblyInfoHelper.GetApplicationVersionFromAssembly();
+            return $"{version.Major}.{version.Minor}.{version.Revision}";
+        }
+    }
+
+    /// <summary>
+    ///     The title for main UI.
+    /// </summary>
+    public string MainWindowTitle => $"{Resources.ApplicationName}: {this.ApplicationVersionInfoString}";
+
+    /// <summary>
+    ///     A backed up serialized version of our CombatMapDetectionSettings
+    /// </summary>
+    public string? CombatMapDetectionSettingsBeforeSave
+    {
+        get => this._combatMapDetectionSettingsBeforeSave;
+        set => this.SetField(ref this._combatMapDetectionSettingsBeforeSave, value);
+    }
+
+    /// <summary>
+    ///     Used to filter the result set for the data grid
+    /// </summary>
+    public string? DataGridSearchString
+    {
+        get => this._dataGridSearchString;
+        set
+        {
+            this.SetField(ref this._dataGridSearchString, value);
+            this.OnPropertyChanged(nameof(this.FilteredSelectedEntityCombatEventList));
+        }
+    }
 
     #endregion
 
@@ -470,6 +479,11 @@ public class CombatLogManager : INotifyPropertyChanged
         Settings.Default.Save();
     }
 
+    protected void OnPropertyChanged([CallerMemberName] string? name = null)
+    {
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
     /// <summary>
     ///     A helper method created to support the <see cref="INotifyPropertyChanged" /> implementation of this class.
     /// </summary>
@@ -479,11 +493,6 @@ public class CombatLogManager : INotifyPropertyChanged
         field = value;
         this.OnPropertyChanged(propertyName);
         return true;
-    }
-
-    protected void OnPropertyChanged([CallerMemberName] string? name = null)
-    {
-        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
     #endregion

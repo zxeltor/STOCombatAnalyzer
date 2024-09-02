@@ -122,9 +122,13 @@ public static class AppHelper
                     DetailsDialog.ShowDialog(mainWindow, "Export Selected Combat Entity",
                         Resources.export_combat_json);
                     break;
-                case "import_combat_json":
-                    DetailsDialog.ShowDialog(mainWindow, "Import Combat Entity from JSON",
-                        Resources.import_detection_json);
+                case "parse_combat_json":
+                    DetailsDialog.ShowDialog(mainWindow, "Import and Parse Combat Entities from JSON",
+                        Resources.parse_combat_json);
+                    break;
+                case "parse_sto_combat_file":
+                    DetailsDialog.ShowDialog(mainWindow, "Import and Parse STO Combat Log Files",
+                        Resources.parse_sto_combat_file);
                     break;
             }
         }

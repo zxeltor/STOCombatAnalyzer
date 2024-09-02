@@ -179,9 +179,6 @@ Note: A Combat entity needs to be selected in the "Log File Analyzer" tab for th
   <data name="GithubRepoWikiUrl" xml:space="preserve">
     <value>https://github.com/zxeltor/STOCombatAnalyzer/wiki</value>
   </data>
-  <data name="import_combat_json" xml:space="preserve">
-    <value>Used to import a Combat entity from a JSON file.</value>
-  </data>
   <data name="import_detection_json" xml:space="preserve">
     <value>Import a new or modified CombatMapDetectionSettings.json file. These settings affect how a map is determined for a Combat entity.
 
@@ -202,6 +199,12 @@ Note: The new settings won't be reflected in the interface until you run "Parse 
   </data>
   <data name="map_entity_list" xml:space="preserve">
     <value>This displays a collection of configurable map entities. A map can represent a physical map, a TFO, or some other event in the game.</value>
+  </data>
+  <data name="parse_combat_json" xml:space="preserve">
+    <value>Used to import and parse one or multiple Combat entities from JSON file(s).</value>
+  </data>
+  <data name="parse_sto_combat_file" xml:space="preserve">
+    <value>Used to import and parse one or multiple STO Combat log file(s).</value>
   </data>
   <data name="player_select" xml:space="preserve">
     <value>When a Player is selected here, the rest of the controls in the UI update with information for the selected Player.</value>

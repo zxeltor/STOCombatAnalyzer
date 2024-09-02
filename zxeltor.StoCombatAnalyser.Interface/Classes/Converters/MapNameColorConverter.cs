@@ -17,8 +17,14 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Classes.Converters;
 [ValueConversion(typeof(string), typeof(Brush))]
 public class MapNameColorConverter : IValueConverter
 {
-    private Brush _colorFound = new SolidColorBrush(Color.FromArgb(255, 100, 149, 237));
-    private Brush _colorNotFound = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
+    #region Private Fields
+
+    private readonly Brush _colorFound = new SolidColorBrush(Colors.CornflowerBlue);
+    private readonly Brush _colorNotFound = new SolidColorBrush(Colors.Purple);
+
+    #endregion
+
+    #region Public Members
 
     /// <inheritdoc />
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -39,4 +45,6 @@ public class MapNameColorConverter : IValueConverter
     {
         throw new NotImplementedException();
     }
+
+    #endregion
 }

@@ -951,67 +951,6 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
         if (image.Tag is not string tagString) return;
 
         AppHelper.DisplayDetailsDialog(this.MainWindow, tagString);
-
-        //switch (image.Tag)
-        //{
-        //    case "map_entity_list":
-        //        DetailsDialog.ShowDialog(this.MainWindow, "CombatMapEntityList",
-        //            Properties.Resources.map_entity_list);
-        //        break;
-        //    case "selected_combat":
-        //        DetailsDialog.ShowDialog(this.MainWindow, "Combat Analysis",
-        //            Properties.Resources.combat_analysis);
-        //        break;
-        //    case "selected_combat_unique_list":
-        //        DetailsDialog.ShowDialog(this.MainWindow, "Selected Combat: Entity List",
-        //            Properties.Resources.selected_combat_unique_list);
-        //        break;
-        //    case "combat_details":
-        //        DetailsDialog.ShowDialog(this.MainWindow, "Player Select",
-        //            Properties.Resources.player_select);
-        //        break;
-        //    case "combat_event_type_breakdown":
-        //        DetailsDialog.ShowDialog(this.MainWindow, "Event Type Breakdown",
-        //            Properties.Resources.combat_event_type_breakdown);
-        //        break;
-        //    case "all_combat_events_datagrid":
-        //        DetailsDialog.ShowDialog(this.MainWindow, "Event(s) DataGrid",
-        //            Properties.Resources.all_combat_events_datagrid);
-        //        break;
-        //    case "combat_events_plot":
-        //        DetailsDialog.ShowDialog(this.MainWindow, "Event(s) Magnitude Plot",
-        //            Properties.Resources.combat_events_scatterplot);
-        //        break;
-        //    case "import_detection_json_from_url":
-        //        DetailsDialog.ShowDialog(this.MainWindow,
-        //            "Download and Install the latest Map Detection Settings",
-        //            Properties.Resources.import_detection_json_from_url);
-        //        break;
-        //    case "import_detection_json":
-        //        DetailsDialog.ShowDialog(this.MainWindow, "Import Map Detection Settings",
-        //            Properties.Resources.import_detection_json);
-        //        break;
-        //    case "export_detection_json":
-        //        DetailsDialog.ShowDialog(this.MainWindow, "Export Map Detection Settings",
-        //            Properties.Resources.export_detection_json);
-        //        break;
-        //    case "export_detection_json_no_indents":
-        //        DetailsDialog.ShowDialog(this.MainWindow, "Export Map Detection Settings",
-        //            Properties.Resources.export_detection_json_no_indents);
-        //        break;
-        //    case "reset_detection_json":
-        //        DetailsDialog.ShowDialog(this.MainWindow, "Reset Map Detection Settings",
-        //            Properties.Resources.reset_detection_json);
-        //        break;
-        //    case "export_combat_json":
-        //        DetailsDialog.ShowDialog(this.MainWindow, "Export Selected Combat Entity",
-        //            Properties.Resources.export_combat_json);
-        //        break;
-        //    case "import_combat_json":
-        //        DetailsDialog.ShowDialog(this.MainWindow, "Import Combat Entity from JSON",
-        //            Properties.Resources.import_detection_json);
-        //        break;
-        //}
     }
 
     private void UIElement_OnMouseDown(object sender, MouseButtonEventArgs e)
@@ -1036,13 +975,19 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
             return;
         }
 
-        this.MainWindow?.ParseLogFiles();
+        this.MainWindow?.ParseLogFiles(null);
     }
 
     private void Browse_OnMouseLeftButtonUp(object sender, RoutedEventArgs e)
     {
         if (!(e.Source is Button button))
             return;
+
+        if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.LeftAlt))
+        {
+            Settings.Default.IsDisplayDevTestTools = !Settings.Default.IsDisplayDevTestTools;
+            return;
+        }
 
         AppHelper.DisplayHelpUrlInBrowser(this.MainWindow, Properties.Resources.GithubMapDetectionSectionOfWikiUrl);
     }
@@ -1193,4 +1138,27 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
     }
 
     #endregion
+
+
+    private void UiButtonParseLogFile_OnClick(object sender, RoutedEventArgs e)
+    {
+        this.ParseFilesFromDialog(false);
+    }
+
+    private void UiButtonParseJsonFile_OnClick(object sender, RoutedEventArgs e)
+    {
+        this.ParseFilesFromDialog(true);
+    }
+
+    private void ParseFilesFromDialog(bool filesAreJson)
+    {
+        var dialog = new OpenFileDialog();
+        dialog.Multiselect = true;
+
+        var dialogResult = dialog.ShowDialog(MainWindow);
+        if (dialogResult.HasValue && dialogResult.Value && dialog.FileNames.Length > 0)
+        {
+            MainWindow.ParseLogFiles(dialog.FileNames.ToList(), filesAreJson);
+        }
+    }
 }

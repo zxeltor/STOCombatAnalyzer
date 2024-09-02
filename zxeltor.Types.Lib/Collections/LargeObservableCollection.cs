@@ -60,6 +60,6 @@ public class LargeObservableCollection<T> : ObservableCollection<T>
         foreach (var i in collection) this.Items.Add(i);
         this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     }
-
+    
     #endregion
 }

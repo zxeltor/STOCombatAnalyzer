@@ -8,8 +8,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
 using System.Runtime.CompilerServices;
-using zxeltor.StoCombatAnalyzer.Lib.Model;
 using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
+using zxeltor.StoCombatAnalyzer.Lib.Parser;
 
 namespace zxeltor.StoCombatAnalyzer.Lib;
 
@@ -44,12 +44,6 @@ public class CombatLogDataContext : INotifyPropertyChanged
 
     #region Public Properties
 
-    public ObservableCollection<Combat>? CombatList
-    {
-        get => this._combatList;
-        set => this.SetField(ref this._combatList, value);
-    }
-
     public Combat? SelectedCombat
     {
         get => this._selectedCombat;
@@ -72,6 +66,12 @@ public class CombatLogDataContext : INotifyPropertyChanged
     {
         get => this._combatLogParseSettings;
         set => this.SetField(ref this._combatLogParseSettings, value);
+    }
+
+    public ObservableCollection<Combat>? CombatList
+    {
+        get => this._combatList;
+        set => this.SetField(ref this._combatList, value);
     }
 
     #endregion

@@ -7,7 +7,7 @@
 using System.Windows;
 using System.Windows.Threading;
 using log4net;
-using zxeltor.Types.Lib.Result;
+using zxeltor.StoCombatAnalyzer.Lib.Parser;
 
 //using System.Windows.Threading;
 
@@ -20,14 +20,15 @@ public partial class ProgressDialog : Window
 {
     #region Private Fields
 
+    private Func<CombatLogParserResult> _funcToRun;
+
     private readonly ILog _log = LogManager.GetLogger(typeof(ProgressDialog));
-    private Func<Result> _funcToRun;
 
     #endregion
 
     #region Constructors
 
-    public ProgressDialog(Window parent, Func<Result> funcToRun, string? message = "Processing data")
+    public ProgressDialog(Window parent, Func<CombatLogParserResult> funcToRun, string? message = "Processing data")
     {
         this.InitializeComponent();
 
@@ -46,11 +47,17 @@ public partial class ProgressDialog : Window
 
     #region Public Properties
 
-    public Result? ParseResult { get; set; }
+    public CombatLogParserResult? ParseResult { get; set; }
 
     #endregion
 
     #region Other Members
+
+    private void OnClosed(object? sender, EventArgs e)
+    {
+        this.Closed -= this.OnClosed;
+        this._funcToRun = null;
+    }
 
     private void ProgressDialog_ContentRendered(object? sender, EventArgs e)
     {
@@ -61,7 +68,7 @@ public partial class ProgressDialog : Window
             var dispatchOp = this.Dispatcher.BeginInvoke(this._funcToRun, DispatcherPriority.Background);
             dispatchOp.Wait();
 
-            this.ParseResult = dispatchOp.Result as Result;
+            this.ParseResult = dispatchOp.Result as CombatLogParserResult;
 
             this.DialogResult = true;
         }
@@ -70,12 +77,6 @@ public partial class ProgressDialog : Window
             this._log.Error($"Failed to run background task: {this._funcToRun.Method}", exception);
             this.DialogResult = false;
         }
-    }
-
-    private void OnClosed(object? sender, EventArgs e)
-    {
-        this.Closed -= this.OnClosed;
-        this._funcToRun = null;
     }
 
     #endregion

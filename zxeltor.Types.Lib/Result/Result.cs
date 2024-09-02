@@ -29,6 +29,12 @@ public class Result : INotifyPropertyChanged
     {
     }
 
+    public List<string> GetMessagesByMinLevel(ResultLevel minResultLevel)
+    {
+        return this.Details.Where(det => det.ResultLevel >= minResultLevel && det.Message != null)
+            .Select(det => det.Message).ToList();
+    }
+
     #region Constructors
     /// <summary>
     ///     Used to create a new result object.

@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Compile Remove="AppConstants.cs" />
+    <Compile Remove="Controls\CombatDetailsControl.xaml.cs" />
     <Compile Remove="Settings.cs" />
   </ItemGroup>
 
@@ -40,6 +41,10 @@
     <None Remove="Log4Net.config" />
     <None Remove="Log4Net.Development.config" />
     <None Remove="StoCombatAnalyzerSettings2.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="Controls\CombatDetailsControl.xaml" />
   </ItemGroup>
 
   <ItemGroup>

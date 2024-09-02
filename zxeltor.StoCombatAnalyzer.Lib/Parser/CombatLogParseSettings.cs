@@ -12,7 +12,7 @@ using log4net;
 using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;
 
-namespace zxeltor.StoCombatAnalyzer.Lib.Model;
+namespace zxeltor.StoCombatAnalyzer.Lib.Parser;
 
 public class CombatLogParseSettings : INotifyPropertyChanged, IDisposable
 {
@@ -20,24 +20,50 @@ public class CombatLogParseSettings : INotifyPropertyChanged, IDisposable
 
     private readonly ApplicationSettingsBase? _applicationSettingsBase;
     private readonly List<PropertyInfo>? _applicationSettingsBaseProperties;
-
-    private readonly ILog _log = LogManager.GetLogger(typeof(CombatLogParseSettings));
-    private readonly List<PropertyInfo>? _propertyInfoList;
-
+    private int _combatEventCountMinimum = 4;
     private string? _combatLogPath;
     private string _combatLogPathFilePattern = "combatlog*.log";
-
     private string? _defaultCombatDetectionSettings;
-
     private int _howFarBackForCombatInHours = 24;
     private int _howLongBeforeNewCombatInSeconds = 20;
     private int _howLongToKeepLogsInDays = 7;
     private bool _isCombinePets = true;
+    private bool _isDisplayParseResults;
+    private bool _isDisplayRejectParserItemsInUi;
     private bool _isEnableInactiveTimeCalculations = true;
-
+    private bool _isEnforceCombatEventMinimum;
+    private bool _isEnforceMapMaxPlayerCount = true;
+    private bool _isEnforceMapMinPlayerCount = true;
+    private bool _isRejectCombatIfUserPlayerNotIncluded = true;
+    private bool _isRejectCombatWithNoPlayers = true;
+    private bool _isRemoveEntityOutliers = true;
+    private readonly ILog _log = LogManager.GetLogger(typeof(CombatLogParseSettings));
     private CombatMapDetectionSettings? _mapDetectionSettings;
     private int _minInActiveInSeconds = 4;
+    private string? _myCharacter;
+    private readonly List<PropertyInfo>? _propertyInfoList;
     private string? _userCombatDetectionSettings;
+    private int _combatDurationPercentage = 1;
+    private bool _isRemoveEntityOutliersPlayers;
+    private bool _isRemoveEntityOutliersNonPlayers;
+
+    public bool IsRemoveEntityOutliersPlayers
+    {
+        get => this._isRemoveEntityOutliersPlayers;
+        set => SetField(ref this._isRemoveEntityOutliersPlayers, value);
+    }
+
+    public bool IsRemoveEntityOutliersNonPlayers
+    {
+        get => this._isRemoveEntityOutliersNonPlayers; 
+        set => SetField(ref this._isRemoveEntityOutliersNonPlayers, value);
+    }
+
+    public int CombatDurationPercentage
+    {
+        get => this._combatDurationPercentage;
+        set => SetField(ref this._combatDurationPercentage, value);
+    }
 
     #endregion
 
@@ -105,86 +131,64 @@ public class CombatLogParseSettings : INotifyPropertyChanged, IDisposable
 
     #region Public Properties
 
-    public bool IsEnableInactiveTimeCalculations
-    {
-        get => this._isEnableInactiveTimeCalculations;
-        set => this.SetField(ref this._isEnableInactiveTimeCalculations, value);
-    }
-
-    public int MinInActiveInSeconds
-    {
-        get => this._minInActiveInSeconds;
-        set => this.SetField(ref this._minInActiveInSeconds, value);
-    }
-
     public bool IsCombinePets
     {
         get => this._isCombinePets;
         set => this.SetField(ref this._isCombinePets, value);
     }
 
-    /// <summary>
-    ///     Application default <see cref="CombatMapDetectionSettings" />
-    /// </summary>
-    public string? DefaultCombatDetectionSettings
+    public bool IsDisplayParseResults
     {
-        get => this._defaultCombatDetectionSettings;
-        set => this.SetField(ref this._defaultCombatDetectionSettings, value);
+        get => this._isDisplayParseResults;
+        set => this.SetField(ref this._isDisplayParseResults, value);
     }
 
-    /// <summary>
-    ///     User level <see cref="CombatMapDetectionSettings" />
-    /// </summary>
-    public string? UserCombatDetectionSettings
+    public bool IsDisplayRejectParserItemsInUi
     {
-        get => this._userCombatDetectionSettings;
-        set => this.SetField(ref this._userCombatDetectionSettings, value);
+        get => this._isDisplayRejectParserItemsInUi;
+        set => this.SetField(ref this._isDisplayRejectParserItemsInUi, value);
     }
 
-    /// <summary>
-    ///     The folder to the STO combat log files.
-    /// </summary>
-    public string? CombatLogPath
+    public bool IsEnableInactiveTimeCalculations
     {
-        get => this._combatLogPath;
-        set => this.SetField(ref this._combatLogPath, value);
+        get => this._isEnableInactiveTimeCalculations;
+        set => this.SetField(ref this._isEnableInactiveTimeCalculations, value);
     }
 
-    /// <summary>
-    ///     How long to keep STO combat files around in days.
-    /// </summary>
-    public int HowLongToKeepLogsInDays
+    public bool IsEnforceCombatEventMinimum
     {
-        get => this._howLongToKeepLogsInDays;
-        set => this.SetField(ref this._howLongToKeepLogsInDays, value);
+        get => this._isEnforceCombatEventMinimum;
+        set => this.SetField(ref this._isEnforceCombatEventMinimum, value);
     }
 
-    /// <summary>
-    ///     A file pattern used to search for combat log files.
-    ///     <para>Wildcards can be used to return multiple files.</para>
-    /// </summary>
-    public string CombatLogPathFilePattern
+    public bool IsEnforceMapMaxPlayerCount
     {
-        get => this._combatLogPathFilePattern;
-        set => this.SetField(ref this._combatLogPathFilePattern, value);
+        get => this._isEnforceMapMaxPlayerCount;
+        set => this.SetField(ref this._isEnforceMapMaxPlayerCount, value);
     }
 
-    /// <summary>
-    ///     A timespan in hours to retrieve combat log data.
-    /// </summary>
-    public int HowFarBackForCombatInHours
+    public bool IsEnforceMapMinPlayerCount
     {
-        get => this._howFarBackForCombatInHours;
-        set => this.SetField(ref this._howFarBackForCombatInHours, value);
+        get => this._isEnforceMapMinPlayerCount;
+        set => this.SetField(ref this._isEnforceMapMinPlayerCount, value);
     }
 
-    /// <summary>
-    ///     A timespan in seconds defining a new combat instance boundary in time.
-    /// </summary>
-    public int HowLongBeforeNewCombatInSeconds
+    public bool IsRejectCombatIfUserPlayerNotIncluded
     {
-        get => this._howLongBeforeNewCombatInSeconds;
-        set => this.SetField(ref this._howLongBeforeNewCombatInSeconds, value);
+        get => this._isRejectCombatIfUserPlayerNotIncluded;
+        set => this.SetField(ref this._isRejectCombatIfUserPlayerNotIncluded, value);
+    }
+
+    public bool IsRejectCombatWithNoPlayers
+    {
+        get => this._isRejectCombatWithNoPlayers;
+        set => this.SetField(ref this._isRejectCombatWithNoPlayers, value);
+    }
+
+    public bool IsRemoveEntityOutliers
+    {
+        get => this._isRemoveEntityOutliers;
+        set => this.SetField(ref this._isRemoveEntityOutliers, value);
     }
 
     /// <summary>
@@ -208,6 +212,88 @@ public class CombatLogParseSettings : INotifyPropertyChanged, IDisposable
             return this._mapDetectionSettings;
         }
         set => this.SetField(ref this._mapDetectionSettings, value);
+    }
+
+    public int CombatEventCountMinimum
+    {
+        get => this._combatEventCountMinimum;
+        set => this.SetField(ref this._combatEventCountMinimum, value);
+    }
+
+    /// <summary>
+    ///     A timespan in hours to retrieve combat log data.
+    /// </summary>
+    public int HowFarBackForCombatInHours
+    {
+        get => this._howFarBackForCombatInHours;
+        set => this.SetField(ref this._howFarBackForCombatInHours, value);
+    }
+
+    /// <summary>
+    ///     A timespan in seconds defining a new combat instance boundary in time.
+    /// </summary>
+    public int HowLongBeforeNewCombatInSeconds
+    {
+        get => this._howLongBeforeNewCombatInSeconds;
+        set => this.SetField(ref this._howLongBeforeNewCombatInSeconds, value);
+    }
+
+    /// <summary>
+    ///     How long to keep STO combat files around in days.
+    /// </summary>
+    public int HowLongToKeepLogsInDays
+    {
+        get => this._howLongToKeepLogsInDays;
+        set => this.SetField(ref this._howLongToKeepLogsInDays, value);
+    }
+
+    public int MinInActiveInSeconds
+    {
+        get => this._minInActiveInSeconds;
+        set => this.SetField(ref this._minInActiveInSeconds, value);
+    }
+
+    /// <summary>
+    ///     A file pattern used to search for combat log files.
+    ///     <para>Wildcards can be used to return multiple files.</para>
+    /// </summary>
+    public string CombatLogPathFilePattern
+    {
+        get => this._combatLogPathFilePattern;
+        set => this.SetField(ref this._combatLogPathFilePattern, value);
+    }
+
+    /// <summary>
+    ///     The folder to the STO combat log files.
+    /// </summary>
+    public string? CombatLogPath
+    {
+        get => this._combatLogPath;
+        set => this.SetField(ref this._combatLogPath, value);
+    }
+
+    /// <summary>
+    ///     Application default <see cref="CombatMapDetectionSettings" />
+    /// </summary>
+    public string? DefaultCombatDetectionSettings
+    {
+        get => this._defaultCombatDetectionSettings;
+        set => this.SetField(ref this._defaultCombatDetectionSettings, value);
+    }
+
+    public string? MyCharacter
+    {
+        get => this._myCharacter;
+        set => this.SetField(ref this._myCharacter, value);
+    }
+
+    /// <summary>
+    ///     User level <see cref="CombatMapDetectionSettings" />
+    /// </summary>
+    public string? UserCombatDetectionSettings
+    {
+        get => this._userCombatDetectionSettings;
+        set => this.SetField(ref this._userCombatDetectionSettings, value);
     }
 
     #endregion

@@ -98,12 +98,12 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool DebugLogging {
+        public bool IsDebugLoggingEnabled {
             get {
-                return ((bool)(this["DebugLogging"]));
+                return ((bool)(this["IsDebugLoggingEnabled"]));
             }
             set {
-                this["DebugLogging"] = value;
+                this["IsDebugLoggingEnabled"] = value;
             }
         }
         
@@ -401,18 +401,6 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool DisplayCombatDetailsControl {
-            get {
-                return ((bool)(this["DisplayCombatDetailsControl"]));
-            }
-            set {
-                this["DisplayCombatDetailsControl"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool IsDetectionsSettingsTabEnabled {
             get {
@@ -425,7 +413,7 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool IsCombatDetailsTabEnabled {
             get {
                 return ((bool)(this["IsCombatDetailsTabEnabled"]));
@@ -444,6 +432,150 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
             }
             set {
                 this["CombatEventTypeGridContext"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsRejectCombatWithNoPlayers {
+            get {
+                return ((bool)(this["IsRejectCombatWithNoPlayers"]));
+            }
+            set {
+                this["IsRejectCombatWithNoPlayers"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int CombatEventCountMinimum {
+            get {
+                return ((int)(this["CombatEventCountMinimum"]));
+            }
+            set {
+                this["CombatEventCountMinimum"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsEnforceCombatEventMinimum {
+            get {
+                return ((bool)(this["IsEnforceCombatEventMinimum"]));
+            }
+            set {
+                this["IsEnforceCombatEventMinimum"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsEnforceMapMinPlayerCount {
+            get {
+                return ((bool)(this["IsEnforceMapMinPlayerCount"]));
+            }
+            set {
+                this["IsEnforceMapMinPlayerCount"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsEnforceMapMaxPlayerCount {
+            get {
+                return ((bool)(this["IsEnforceMapMaxPlayerCount"]));
+            }
+            set {
+                this["IsEnforceMapMaxPlayerCount"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsRemoveEntityOutliers {
+            get {
+                return ((bool)(this["IsRemoveEntityOutliers"]));
+            }
+            set {
+                this["IsRemoveEntityOutliers"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsRejectCombatIfUserPlayerNotIncluded {
+            get {
+                return ((bool)(this["IsRejectCombatIfUserPlayerNotIncluded"]));
+            }
+            set {
+                this["IsRejectCombatIfUserPlayerNotIncluded"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsDisplayRejectParserItemsInUi {
+            get {
+                return ((bool)(this["IsDisplayRejectParserItemsInUi"]));
+            }
+            set {
+                this["IsDisplayRejectParserItemsInUi"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsDisplayDevTestTools {
+            get {
+                return ((bool)(this["IsDisplayDevTestTools"]));
+            }
+            set {
+                this["IsDisplayDevTestTools"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public int CombatDurationPercentage {
+            get {
+                return ((int)(this["CombatDurationPercentage"]));
+            }
+            set {
+                this["CombatDurationPercentage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsRemoveEntityOutliersPlayers {
+            get {
+                return ((bool)(this["IsRemoveEntityOutliersPlayers"]));
+            }
+            set {
+                this["IsRemoveEntityOutliersPlayers"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsRemoveEntityOutliersNonPlayers {
+            get {
+                return ((bool)(this["IsRemoveEntityOutliersNonPlayers"]));
+            }
+            set {
+                this["IsRemoveEntityOutliersNonPlayers"] = value;
             }
         }
     }

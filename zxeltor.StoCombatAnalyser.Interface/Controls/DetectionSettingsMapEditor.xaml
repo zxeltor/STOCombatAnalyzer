@@ -9,7 +9,7 @@
         xmlns:model="clr-namespace:zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;assembly=zxeltor.StoCombatAnalyzer.Lib"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type model:CombatMap}}"
-        Title="Combat Map Settings Editor" Height="200" Width="300" WindowStyle="ToolWindow" WindowStartupLocation="CenterOwner">
+        Title="Combat Map Settings Editor" Height="220" Width="300" WindowStyle="ToolWindow" WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <converters:IntToStringValidationConverter x:Key="stringToIntValidationConverter" />
     </Window.Resources>
@@ -19,7 +19,7 @@
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-        <Label Name="uiLabelName" Grid.Row="0" Content="{Binding Path=Name}" FontWeight="Bold" 
+        <Label Name="uiLabelName" Grid.Row="0" Content="{Binding Path=Name}" FontWeight="Bold" Margin="4,4,4,4"
                HorizontalAlignment="Center" VerticalAlignment="Center" VerticalContentAlignment="Center" 
                HorizontalContentAlignment="Center">
             <Label.Style>
@@ -37,28 +37,26 @@
                 </Style>
             </Label.Style>
         </Label>
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            
-            <CheckBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="4,4,4,4"
-                      IsChecked="{Binding Path=IsEnabled, Mode=TwoWay}" Content="Enabled"></CheckBox>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxWidth="4,4,4,4">
+            <StackPanel Orientation="Vertical">
+                <CheckBox IsChecked="{Binding Path=IsEnabled, Mode=TwoWay}" Content="Enabled" Margin="4,4,4,4"></CheckBox>
 
-            <Label Grid.Row="1" Grid.Column="0" Content="Max Players:" Margin="0,4,4,0" VerticalAlignment="Center" />
-            <TextBox Name="uiTextBoxMaxPlayers" Grid.Row="1" Grid.Column="1" Margin="0,4,4,0" VerticalAlignment="Center" Width="60" HorizontalAlignment="Left" 
-                     Text="{Binding Path=MaxPlayers, Mode=TwoWay, Converter={StaticResource stringToIntValidationConverter}}">
-            </TextBox>
-            <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" FontWeight="Light" Margin="4,0,4,4" TextWrapping="Wrap">
-                Note: A value of 0 will set the map to a no player limit.
-            </TextBlock>
-        </Grid>
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,4">
+                    <Label Content="Players: " VerticalAlignment="Center" />
+                    <Label Content="Min=" VerticalAlignment="Center" />
+                    <TextBox Name="uiTextBoxMinPlayers" VerticalAlignment="Center" Width="40" HorizontalAlignment="Left" 
+                             Text="{Binding Path=MinPlayers, Mode=TwoWay, Converter={StaticResource stringToIntValidationConverter}}">
+                    </TextBox>
+                    <Label Content="Max=" VerticalAlignment="Center" />
+                    <TextBox Name="uiTextBoxMaxPlayers" VerticalAlignment="Center" Width="40" HorizontalAlignment="Left" 
+                             Text="{Binding Path=MaxPlayers, Mode=TwoWay, Converter={StaticResource stringToIntValidationConverter}}">
+                    </TextBox>
+                </StackPanel>
+                <TextBlock FontWeight="Light" TextWrapping="Wrap" Margin="4,0,4,0">
+                    Note: A value of 0 for player min or max disables the limit for the map/event.
+                </TextBlock>
+            </StackPanel>
+        </ScrollViewer>
         <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Right" Margin="4,4,4,4">
             <Button Name="uiButtonOk" Content="OK" Padding="14,2,14,2" Click="UiButtonOk_OnClick"/>
         </StackPanel>
