@@ -168,13 +168,17 @@ public static class AppHelper
                     url = Resources.GithubRepoWikiUrl;
                     UrlHelper.LaunchUrlInDefaultBrowser(Resources.GithubRepoWikiUrl);
                     break;
-                case "GithubMapSettingsWikiUrl":
-                    url = Resources.GithubMapSettingsSectionOfWikiUrl;
-                    UrlHelper.LaunchUrlInDefaultBrowser(Resources.GithubMapSettingsSectionOfWikiUrl);
+                case "GithubSettingsSectionOfWikiUrl":
+                    url = Resources.GithubSettingsSectionOfWikiUrl;
+                    UrlHelper.LaunchUrlInDefaultBrowser(Resources.GithubSettingsSectionOfWikiUrl);
                     break;
                 case "GithubMapDetectionSectionOfWikiUrl":
                     url = Resources.GithubMapDetectionSectionOfWikiUrl;
                     UrlHelper.LaunchUrlInDefaultBrowser(Resources.GithubMapDetectionSectionOfWikiUrl);
+                    break;
+                case "GithubCombatAnalyzerSectionOfWikiUrl":
+                    url = Resources.GithubCombatAnalyzerSectionOfWikiUrl;
+                    UrlHelper.LaunchUrlInDefaultBrowser(Resources.GithubCombatAnalyzerSectionOfWikiUrl);
                     break;
             }
         }

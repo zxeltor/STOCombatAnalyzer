@@ -164,20 +164,23 @@ Note: A Combat entity needs to be selected in the "Log File Analyzer" tab for th
   <data name="export_detection_json_no_indents" xml:space="preserve">
     <value>Export map detection settings to a JSON file without indentation.</value>
   </data>
+  <data name="GithubCombatAnalyzerSectionOfWikiUrl" xml:space="preserve">
+    <value>https://github.com/zxeltor/STOCombatAnalyzer/wiki/Application-Tab:-Combat-Analyzer</value>
+  </data>
   <data name="GithubMapDetectionSectionOfWikiUrl" xml:space="preserve">
-    <value>https://github.com/zxeltor/STOCombatAnalyzer/wiki/Map-Detection</value>
+    <value>https://github.com/zxeltor/STOCombatAnalyzer/wiki/Application-Tab:-Map-Event-Detection-Settings</value>
   </data>
   <data name="GithubMapDetectRepoUrl" xml:space="preserve">
     <value>https://github.com/zxeltor/STOCombatAnalyzer.Settings</value>
-  </data>
-  <data name="GithubMapSettingsSectionOfWikiUrl" xml:space="preserve">
-    <value>https://github.com/zxeltor/STOCombatAnalyzer/wiki/Application-Tab:-Tools-Settings</value>
   </data>
   <data name="GithubRepoUrl" xml:space="preserve">
     <value>https://github.com/zxeltor/STOCombatAnalyzer</value>
   </data>
   <data name="GithubRepoWikiUrl" xml:space="preserve">
     <value>https://github.com/zxeltor/STOCombatAnalyzer/wiki</value>
+  </data>
+  <data name="GithubSettingsSectionOfWikiUrl" xml:space="preserve">
+    <value>https://github.com/zxeltor/STOCombatAnalyzer/wiki/Application-Tab:-Tools-Settings</value>
   </data>
   <data name="import_detection_json" xml:space="preserve">
     <value>Import a new or modified CombatMapDetectionSettings.json file. These settings affect how a map is determined for a Combat entity.

@@ -174,7 +174,16 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to https://github.com/zxeltor/STOCombatAnalyzer/wiki/Map-Detection.
+        ///   Looks up a localized string similar to https://github.com/zxeltor/STOCombatAnalyzer/wiki/Application-Tab:-Combat-Analyzer.
+        /// </summary>
+        public static string GithubCombatAnalyzerSectionOfWikiUrl {
+            get {
+                return ResourceManager.GetString("GithubCombatAnalyzerSectionOfWikiUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to https://github.com/zxeltor/STOCombatAnalyzer/wiki/Application-Tab:-Map-Event-Detection-Settings.
         /// </summary>
         public static string GithubMapDetectionSectionOfWikiUrl {
             get {
@@ -188,15 +197,6 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         public static string GithubMapDetectRepoUrl {
             get {
                 return ResourceManager.GetString("GithubMapDetectRepoUrl", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to https://github.com/zxeltor/STOCombatAnalyzer/wiki/Application-Tab:-Tools-Settings.
-        /// </summary>
-        public static string GithubMapSettingsSectionOfWikiUrl {
-            get {
-                return ResourceManager.GetString("GithubMapSettingsSectionOfWikiUrl", resourceCulture);
             }
         }
         
@@ -215,6 +215,15 @@ namespace zxeltor.StoCombatAnalyzer.Interface.Properties {
         public static string GithubRepoWikiUrl {
             get {
                 return ResourceManager.GetString("GithubRepoWikiUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to https://github.com/zxeltor/STOCombatAnalyzer/wiki/Application-Tab:-Tools-Settings.
+        /// </summary>
+        public static string GithubSettingsSectionOfWikiUrl {
+            get {
+                return ResourceManager.GetString("GithubSettingsSectionOfWikiUrl", resourceCulture);
             }
         }
         

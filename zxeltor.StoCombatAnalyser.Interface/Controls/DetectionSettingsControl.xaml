@@ -91,6 +91,7 @@
             </GroupBox>
 
             <Button Margin="18,0,0,0" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent"
+                    Tag="GithubMapDetectionSectionOfWikiUrl"
                     Click="Browse_OnMouseLeftButtonUp">
                 <Image Source="../Images/glyphicons-195-question-sign.png" ToolTip="Attempt to open the Map Detection section of the Wiki in your default browser."
                        VerticalAlignment="Center" Stretch="Fill" Height="24" Margin="0,0,0,0"/>

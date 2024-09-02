@@ -989,7 +989,9 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
             return;
         }
 
-        AppHelper.DisplayHelpUrlInBrowser(this.MainWindow, Properties.Resources.GithubMapDetectionSectionOfWikiUrl);
+        if (button.Tag is not string tagString) return;
+
+        AppHelper.DisplayHelpUrlInBrowser(MainWindow, tagString);
     }
 
     private void EditMapDetectionSettings_OnClick(object sender, RoutedEventArgs e)

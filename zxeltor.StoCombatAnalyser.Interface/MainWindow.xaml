@@ -186,7 +186,7 @@
                                           Click="UiCheckBoxDisplayAnalysisTools_OnClick"
                                           VerticalAlignment="Center" ToolTip="{x:Static properties:Resources.is_display_analysis_tools}"/>
 
-                                <Button Tag="GithubRepoWikiUrl" Background="Transparent" BorderBrush="Transparent" 
+                                <Button Tag="GithubCombatAnalyzerSectionOfWikiUrl" Background="Transparent" BorderBrush="Transparent" 
                                         Click="Browse_OnMouseLeftButtonUp">
                                     <Image Source="/Images/glyphicons-195-question-sign.png" 
                                            ToolTip="Attempt to open the Wiki in your default browser."
@@ -640,7 +640,7 @@
                                         Click="UiButtonResetMapEntities_OnClick"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Grid.Column="1" VerticalAlignment="Top">
-                                <Button Tag="GithubMapSettingsWikiUrl" Background="Transparent" BorderBrush="Transparent" 
+                                <Button Tag="GithubSettingsSectionOfWikiUrl" Background="Transparent" BorderBrush="Transparent" 
                                         Click="Browse_OnMouseLeftButtonUp">
                                     <Image Source="/Images/glyphicons-195-question-sign.png" 
                                            ToolTip="Attempt to open the Settings section of the Wiki in your default browser."
