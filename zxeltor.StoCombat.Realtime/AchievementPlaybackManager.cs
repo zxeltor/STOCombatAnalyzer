@@ -3,8 +3,8 @@ using System.Reflection;
 using System.Windows.Media;
 using System.Windows.Threading;
 using log4net;
-using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
-using zxeltor.StoCombatAnalyzer.Lib.Parser;
+using zxeltor.StoCombat.Lib.Model.CombatLog;
+using zxeltor.StoCombat.Lib.Parser;
 
 namespace zxeltor.StoCombat.Realtime
 {

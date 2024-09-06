@@ -5,9 +5,9 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Humanizer.Localisation.TimeToClockNotation;
 using log4net;
-using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
-using zxeltor.StoCombatAnalyzer.Lib.Model.Realtime;
-using zxeltor.StoCombatAnalyzer.Lib.Parser;
+using zxeltor.StoCombat.Lib.Model.CombatLog;
+using zxeltor.StoCombat.Lib.Model.Realtime;
+using zxeltor.StoCombat.Lib.Parser;
 
 namespace zxeltor.StoCombat.Realtime
 {

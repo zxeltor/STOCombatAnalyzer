@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
     <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>A:\Github\StoDpsParser\zxeltor.StoCombatAnalyser.Interface\zxeltor.StoCombatAnalyzer.Interface_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>A:\Github\StoDpsParser\zxeltor.StoCombat.Analyser\zxeltor.StoCombat.Analyzer_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

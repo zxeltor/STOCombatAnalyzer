@@ -17,9 +17,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using log4net;
+using zxeltor.StoCombat.Lib.Helpers;
 using zxeltor.StoCombat.Realtime.Properties;
-
-using zxeltor.StoCombatAnalyzer.Lib.Helpers;
 
 namespace zxeltor.StoCombat.Realtime
 {

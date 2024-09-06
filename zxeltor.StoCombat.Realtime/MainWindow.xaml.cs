@@ -15,11 +15,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using log4net;
+using zxeltor.StoCombat.Lib.Model.CombatLog;
+using zxeltor.StoCombat.Lib.Parser;
 using zxeltor.StoCombat.Realtime.Properties;
-
-using zxeltor.StoCombatAnalyzer.Lib.Helpers;
-using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
-using zxeltor.StoCombatAnalyzer.Lib.Parser;
 using zxeltor.Types.Lib;
 using zxeltor.Types.Lib.Result;
 

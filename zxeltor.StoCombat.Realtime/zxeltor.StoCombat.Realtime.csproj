@@ -34,11 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\zxeltor.StoCombatAnalyzer.Lib\zxeltor.StoCombatAnalyzer.Lib.csproj" />
-    <ProjectReference Include="..\zxeltor.Types.Lib\zxeltor.Types.Lib.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="AudioFiles\dominating.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -96,6 +91,10 @@
     <Content Include="AudioFiles\wickedsick.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\zxeltor.StoCombat.Lib\zxeltor.StoCombat.Lib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
