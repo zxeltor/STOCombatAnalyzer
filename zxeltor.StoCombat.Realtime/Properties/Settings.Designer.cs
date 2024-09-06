@@ -190,5 +190,41 @@ namespace zxeltor.StoCombat.Realtime.Properties {
                 this["HowOftenParseLogsInSeconds"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsProcessKillingSpreeAnnouncements {
+            get {
+                return ((bool)(this["IsProcessKillingSpreeAnnouncements"]));
+            }
+            set {
+                this["IsProcessKillingSpreeAnnouncements"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsProcessMultiKillAnnouncements {
+            get {
+                return ((bool)(this["IsProcessMultiKillAnnouncements"]));
+            }
+            set {
+                this["IsProcessMultiKillAnnouncements"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int AnnouncementPlaybackVolumePercentage {
+            get {
+                return ((int)(this["AnnouncementPlaybackVolumePercentage"]));
+            }
+            set {
+                this["AnnouncementPlaybackVolumePercentage"] = value;
+            }
+        }
     }
 }

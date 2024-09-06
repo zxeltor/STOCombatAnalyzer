@@ -6,7 +6,7 @@
 
 using System.Diagnostics;
 
-namespace zxeltor.ConfigUtilsHelpers.Helpers;
+namespace zxeltor.Types.Lib.Helpers;
 
 /// <summary>
 ///     A collection of Url related helper methods.

@@ -6,7 +6,7 @@
 
 using System.Reflection;
 
-namespace zxeltor.ConfigUtilsHelpers.Helpers;
+namespace zxeltor.Types.Lib.Helpers;
 
 /// <summary>
 ///     A collection of static helpers used to retrieve assembly information from the entry assembly of the current
@@ -17,7 +17,7 @@ public static class AssemblyInfoHelper
     /// <summary>
     ///     Get an application name based on the file name of the entry assembly (without file extension) for the current
     ///     application.
-    ///     <para>If assembly info is not available, a default of <see cref="Constants.ApplicationNameDefault" /> is returned.</para>
+    ///     <para>If assembly info is not available, a default of <see cref="zxeltor.ConfigUtilsHelpers.Constants.ApplicationNameDefault" /> is returned.</para>
     /// </summary>
     /// <returns>The application name.</returns>
     public static string GetApplicationNameFromAssemblyOrDefault()
@@ -29,7 +29,7 @@ public static class AssemblyInfoHelper
     /// <summary>
     ///     Get assembly information version from the entry assembly for the current application.
     ///     <para>
-    ///         If assembly info is not available, a default of <see cref="Constants.ApplicationInfoVersionDefault" /> is
+    ///         If assembly info is not available, a default of <see cref="zxeltor.ConfigUtilsHelpers.Constants.ApplicationInfoVersionDefault" /> is
     ///         returned.
     ///     </para>
     /// </summary>

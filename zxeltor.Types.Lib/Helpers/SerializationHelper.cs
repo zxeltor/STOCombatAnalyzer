@@ -5,9 +5,9 @@
 // LICENSE file in the root directory of this source tree.
 
 using Newtonsoft.Json;
-using zxeltor.ConfigUtilsHelpers.Extensions;
+using zxeltor.Types.Lib.Extensions;
 
-namespace zxeltor.ConfigUtilsHelpers.Helpers;
+namespace zxeltor.Types.Lib.Helpers;
 
 /// <summary>
 ///     A collection of helpers to serialize or deserialize object to or from JSON.

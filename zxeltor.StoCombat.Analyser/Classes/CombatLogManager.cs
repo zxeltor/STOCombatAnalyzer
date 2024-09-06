@@ -8,12 +8,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using log4net;
-using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombat.Analyzer.Classes.UI;
 using zxeltor.StoCombat.Analyzer.Properties;
 using zxeltor.StoCombat.Lib.Model.CombatLog;
 using zxeltor.StoCombat.Lib.Model.CombatMap;
 using zxeltor.StoCombat.Lib.Parser;
+using zxeltor.Types.Lib.Helpers;
 
 namespace zxeltor.StoCombat.Analyzer.Classes;
 

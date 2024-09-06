@@ -9,7 +9,6 @@ using System.Configuration;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using log4net;
-using zxeltor.StoCombat.Lib.Model.CombatMap;
 
 namespace zxeltor.StoCombat.Lib.Parser;
 
@@ -17,46 +16,30 @@ public class RealtimeCombatLogParseSettings : INotifyPropertyChanged, IDisposabl
 {
     #region Private Fields
 
+    private int _announcementPlaybackVolumePercentage;
+
     private readonly ApplicationSettingsBase? _applicationSettingsBase;
     private readonly List<PropertyInfo>? _applicationSettingsBaseProperties;
     private int _combatDurationPercentage = 1;
-    private int _combatEventCountMinimum = 4;
     private string? _combatLogPath;
     private string _combatLogPathFilePattern = "combatlog*.log";
-    private string? _defaultCombatDetectionSettings;
-    private int _howFarBackForCombatInHours = 24;
     private int _howLongBeforeNewCombatInSeconds = 20;
-    private int _howLongToKeepLogsInDays = 7;
+    private int _howOftenParseLogsInSeconds = 3;
     private int _howOftenPullDataFromLogFilesSeconds = 4;
     private bool _isCombinePets;
-    private bool _isDisplayParseResults;
-    private bool _isDisplayRejectParserItemsInUi;
     private bool _isEnableInactiveTimeCalculations;
-    private bool _isEnforceCombatEventMinimum;
-    private bool _isEnforceMapMaxPlayerCount;
-    private bool _isEnforceMapMinPlayerCount;
+    private bool _isIncludeAssistedKillsInAchievements;
     private bool _isKeepPlayersInListAfterCombat;
-    private bool _isRejectCombatIfUserPlayerNotIncluded;
-    private bool _isRejectCombatWithNoPlayers;
-    private bool _isRemoveEntityOutliers;
+    private bool _isProcessKillingSpreeAnnouncements;
+    private bool _isProcessMultiKillAnnouncements;
     private bool _isRemoveEntityOutliersNonPlayers;
     private bool _isRemoveEntityOutliersPlayers;
     private bool _isUnrealAnnouncementsEnabled;
     private readonly ILog _log = LogManager.GetLogger(typeof(CombatLogParseSettings));
-    private CombatMapDetectionSettings? _mapDetectionSettings;
     private int _minInActiveInSeconds = 4;
     private int _multiKillWaitInSeconds;
     private string? _myCharacter;
     private readonly List<PropertyInfo>? _propertyInfoList;
-    private string? _userCombatDetectionSettings;
-    private int _howOftenParseLogsInSeconds = 3;
-    private bool _isIncludeAssistedKillsInAchievements;
-
-    public bool IsIncludeAssistedKillsInAchievements
-    {
-        get => this._isIncludeAssistedKillsInAchievements;
-        set => this.SetField(ref this._isIncludeAssistedKillsInAchievements, value);
-    }
 
     #endregion
 
@@ -96,12 +79,6 @@ public class RealtimeCombatLogParseSettings : INotifyPropertyChanged, IDisposabl
 
     #region Public Properties
 
-    public int HowOftenParseLogsInSeconds
-    {
-        get => this._howOftenParseLogsInSeconds;
-        set => this.SetField(ref this._howOftenParseLogsInSeconds, value);
-    }
-
     public bool IsCombinePets
     {
         get => this._isCombinePets;
@@ -114,10 +91,28 @@ public class RealtimeCombatLogParseSettings : INotifyPropertyChanged, IDisposabl
         set => this.SetField(ref this._isEnableInactiveTimeCalculations, value);
     }
 
+    public bool IsIncludeAssistedKillsInAchievements
+    {
+        get => this._isIncludeAssistedKillsInAchievements;
+        set => this.SetField(ref this._isIncludeAssistedKillsInAchievements, value);
+    }
+
     public bool IsKeepPlayersInListAfterCombat
     {
         get => this._isKeepPlayersInListAfterCombat;
         set => this.SetField(ref this._isKeepPlayersInListAfterCombat, value);
+    }
+
+    public bool IsProcessKillingSpreeAnnouncements
+    {
+        get => this._isProcessKillingSpreeAnnouncements;
+        set => this.SetField(ref this._isProcessKillingSpreeAnnouncements, value);
+    }
+
+    public bool IsProcessMultiKillAnnouncements
+    {
+        get => this._isProcessMultiKillAnnouncements;
+        set => this.SetField(ref this._isProcessMultiKillAnnouncements, value);
     }
 
     public bool IsRemoveEntityOutliersNonPlayers
@@ -138,6 +133,12 @@ public class RealtimeCombatLogParseSettings : INotifyPropertyChanged, IDisposabl
         set => this.SetField(ref this._isUnrealAnnouncementsEnabled, value);
     }
 
+    public int AnnouncementPlaybackVolumePercentage
+    {
+        get => this._announcementPlaybackVolumePercentage;
+        set => this.SetField(ref this._announcementPlaybackVolumePercentage, value);
+    }
+
     public int CombatDurationPercentage
     {
         get => this._combatDurationPercentage;
@@ -151,6 +152,12 @@ public class RealtimeCombatLogParseSettings : INotifyPropertyChanged, IDisposabl
     {
         get => this._howLongBeforeNewCombatInSeconds;
         set => this.SetField(ref this._howLongBeforeNewCombatInSeconds, value);
+    }
+
+    public int HowOftenParseLogsInSeconds
+    {
+        get => this._howOftenParseLogsInSeconds;
+        set => this.SetField(ref this._howOftenParseLogsInSeconds, value);
     }
 
     public int HowOftenPullDataFromLogFilesSeconds

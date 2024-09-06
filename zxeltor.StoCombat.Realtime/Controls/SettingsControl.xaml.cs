@@ -1,26 +1,13 @@
-﻿using Microsoft.Win32;
-
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using log4net;
+using Microsoft.Win32;
 using zxeltor.StoCombat.Lib.Helpers;
 using zxeltor.StoCombat.Realtime.Properties;
 
-namespace zxeltor.StoCombat.Realtime
+namespace zxeltor.StoCombat.Realtime.Controls
 {
     /// <summary>
     /// Interaction logic for SettingsControl.xaml
@@ -33,7 +20,7 @@ namespace zxeltor.StoCombat.Realtime
         {
             InitializeComponent();
         }
-
+        
         /// <summary>
         ///     A generic on click event
         /// </summary>

@@ -62,8 +62,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\zxeltor.ConfigUtilsHelpers\zxeltor.ConfigUtilsHelpers.csproj" />
     <ProjectReference Include="..\zxeltor.StoCombat.Lib\zxeltor.StoCombat.Lib.csproj" />
+    <ProjectReference Include="..\zxeltor.Types.Lib\zxeltor.Types.Lib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,8 +9,8 @@ using System.Configuration;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using log4net;
-using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombat.Lib.Model.CombatMap;
+using zxeltor.Types.Lib.Helpers;
 
 namespace zxeltor.StoCombat.Lib.Parser;
 
@@ -29,7 +29,7 @@ public class CombatLogParseSettings : INotifyPropertyChanged, IDisposable
     private int _howLongToKeepLogsInDays = 7;
     private bool _isCombinePets = true;
     private bool _isDisplayParseResults;
-    private bool _isDisplayRejectParserItemsInUi;
+    private bool _isDisplayRejectedParserItemsInUi;
     private bool _isEnableInactiveTimeCalculations = true;
     private bool _isEnforceCombatEventMinimum;
     private bool _isEnforceMapMaxPlayerCount = true;
@@ -143,10 +143,10 @@ public class CombatLogParseSettings : INotifyPropertyChanged, IDisposable
         set => this.SetField(ref this._isDisplayParseResults, value);
     }
 
-    public bool IsDisplayRejectParserItemsInUi
+    public bool IsDisplayRejectedParserItemsInUi
     {
-        get => this._isDisplayRejectParserItemsInUi;
-        set => this.SetField(ref this._isDisplayRejectParserItemsInUi, value);
+        get => this._isDisplayRejectedParserItemsInUi;
+        set => this.SetField(ref this._isDisplayRejectedParserItemsInUi, value);
     }
 
     public bool IsEnableInactiveTimeCalculations

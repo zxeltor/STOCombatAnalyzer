@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 using System.Windows;
-using zxeltor.ConfigUtilsHelpers.Extensions;
+using zxeltor.Types.Lib.Extensions;
 
 namespace zxeltor.StoCombat.Analyzer.Controls;
 

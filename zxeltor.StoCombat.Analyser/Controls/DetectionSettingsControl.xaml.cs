@@ -15,7 +15,6 @@ using System.Windows.Data;
 using System.Windows.Input;
 using log4net;
 using Microsoft.Win32;
-using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombat.Analyzer.Classes;
 using zxeltor.StoCombat.Analyzer.Classes.Converters;
 using zxeltor.StoCombat.Analyzer.Helpers;
@@ -24,6 +23,7 @@ using zxeltor.StoCombat.Lib.DataContext.GridContext;
 using zxeltor.StoCombat.Lib.Model.CombatLog;
 using zxeltor.StoCombat.Lib.Model.CombatMap;
 using zxeltor.Types.Lib.Collections;
+using zxeltor.Types.Lib.Helpers;
 using Image = System.Windows.Controls.Image;
 
 namespace zxeltor.StoCombat.Analyzer.Controls;

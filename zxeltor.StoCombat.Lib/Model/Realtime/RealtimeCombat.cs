@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using zxeltor.StoCombat.Lib.Model.CombatLog;
 using zxeltor.StoCombat.Lib.Parser;
 using zxeltor.Types.Lib.Collections;
+using zxeltor.Types.Lib.Extensions;
 
 namespace zxeltor.StoCombat.Lib.Model.Realtime;
 
@@ -162,6 +163,12 @@ public class RealtimeCombat : INotifyPropertyChanged
             var existingPlayer = this.PlayerEntities.FirstOrDefault(owner => owner.OwnerInternal.Equals(combatEvent.OwnerInternal));
             if (existingPlayer == null)
             {
+                existingPlayer = new RealtimeCombatEntity(combatEvent, combatLogParseSettings);
+                this.PlayerEntities.Add(existingPlayer);
+            }
+            else if (!existingPlayer.IsInCombat)
+            {
+                this.PlayerEntities.Remove(existingPlayer);
                 existingPlayer = new RealtimeCombatEntity(combatEvent, combatLogParseSettings);
                 this.PlayerEntities.Add(existingPlayer);
             }

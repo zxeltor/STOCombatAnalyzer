@@ -98,7 +98,7 @@
     <Setting Name="IsRejectCombatIfUserPlayerNotIncluded" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="IsDisplayRejectParserItemsInUi" Type="System.Boolean" Scope="User">
+    <Setting Name="IsDisplayRejectedParserItemsInUi" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="IsDisplayDevTestTools" Type="System.Boolean" Scope="User">

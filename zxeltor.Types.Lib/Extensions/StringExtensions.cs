@@ -6,7 +6,7 @@
 
 using System.Text.RegularExpressions;
 
-namespace zxeltor.ConfigUtilsHelpers.Extensions;
+namespace zxeltor.Types.Lib.Extensions;
 
 public static class StringExtensions
 {

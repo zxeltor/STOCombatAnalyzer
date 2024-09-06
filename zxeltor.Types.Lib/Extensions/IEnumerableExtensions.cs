@@ -4,7 +4,9 @@
 // This source code is licensed under the Apache-2.0-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-namespace zxeltor.Types.Lib.Collections;
+using zxeltor.Types.Lib.Collections;
+
+namespace zxeltor.Types.Lib.Extensions;
 
 public static class IEnumerableExtensions
 {

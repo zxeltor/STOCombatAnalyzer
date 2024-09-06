@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using zxeltor.StoCombat.Lib.Model.CombatLog;
 using zxeltor.StoCombat.Lib.Parser;
 using zxeltor.Types.Lib.Collections;
+using zxeltor.Types.Lib.Extensions;
 
 namespace zxeltor.StoCombat.Lib.Model.Realtime;
 

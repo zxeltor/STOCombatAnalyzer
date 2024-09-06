@@ -5,8 +5,8 @@
 // LICENSE file in the root directory of this source tree.
 
 using log4net;
-using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombat.Lib.Model.CombatLog;
+using zxeltor.Types.Lib.Helpers;
 
 namespace zxeltor.StoCombat.Lib.DataContext.GridContext;
 

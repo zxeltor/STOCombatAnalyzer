@@ -6,7 +6,7 @@
 
 using System.Text.RegularExpressions;
 using log4net;
-using zxeltor.ConfigUtilsHelpers.Extensions;
+using zxeltor.Types.Lib.Extensions;
 
 namespace zxeltor.StoCombat.Lib.Model.CombatLog;
 

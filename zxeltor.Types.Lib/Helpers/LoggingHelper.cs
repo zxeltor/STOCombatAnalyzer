@@ -8,9 +8,13 @@ using log4net;
 using log4net.Appender;
 using log4net.Config;
 using log4net.Core;
+using log4net.Layout;
 using log4net.Repository.Hierarchy;
 
-namespace zxeltor.ConfigUtilsHelpers.Helpers;
+using zxeltor.Types.Lib.Collections;
+using zxeltor.Types.Lib.Logging;
+
+namespace zxeltor.Types.Lib.Helpers;
 
 /// <summary>
 ///     A collection of static helpers used to manage logging for the application.
@@ -96,5 +100,49 @@ public class LoggingHelper
         return false;
     }
 
+    public static bool TryAddingDataGridCollectionAppender(string appenderName, SyncNotifyCollection<DataGridRowContext> logGridRows)
+    {
+        try
+        {
+
+            Hierarchy h = (Hierarchy)LogManager.GetRepository();
+            h.Root.Level = Level.All;
+
+            var appender = CreateDataGridCollectionAppender(appenderName, logGridRows);
+
+            if (appender != null)
+            {
+                h.Root.AddAppender(appender);
+                h.Configured = true;
+                return true;
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Error("Failed to add DataGridCollectionAppender", e);
+        }
+
+        return false;
+    }
+
+    public static IAppender? CreateDataGridCollectionAppender(string appenderName, SyncNotifyCollection<DataGridRowContext> logGridRows)
+    {
+        try
+        {
+            var appender = new DataGridCollectionAppender(appenderName, logGridRows);
+            PatternLayout layout = new PatternLayout();
+            layout.ConversionPattern = "% message %";
+            layout.ActivateOptions();
+            appender.Layout = layout;
+            appender.ActivateOptions();
+            return appender;
+        }
+        catch (Exception e)
+        {
+            Log.Error("Failed to create DataGridCollectionAppender", e);
+        }
+
+        return null;
+    }
     #endregion
 }

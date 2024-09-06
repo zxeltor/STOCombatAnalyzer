@@ -7,10 +7,10 @@
 using System.IO;
 using System.Text;
 using log4net;
-using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombat.Lib.Model.CombatLog;
 using zxeltor.StoCombat.Lib.Model.CombatMap;
 using zxeltor.StoCombat.Lib.Parser;
+using zxeltor.Types.Lib.Helpers;
 using zxeltor.Types.Lib.Result;
 
 namespace zxeltor.StoCombat.Lib.Helpers;
@@ -404,7 +404,7 @@ public static class ParserHelper
             && !combatLogParseSettings.IsEnforceCombatEventMinimum)
             return resultFinal;
 
-        foreach (var combat in combatList)
+        foreach (var combat in combatList.ToList())
         {
             if (combatLogParseSettings.IsRejectCombatWithNoPlayers && combat.PlayerEntities.Count == 0)
             {
@@ -412,6 +412,7 @@ public static class ParserHelper
                 combat.RejectionReason = "Reject If No Players";
                 combat.RejectionDetails =
                     $"Rejected Combat: Start={combat.CombatStart?.ToString("g")}, Reason={combat.RejectionReason}";
+                if (!combatLogParseSettings.IsDisplayRejectedParserItemsInUi) combatList.Remove(combat);
                 Log.Debug(combat.RejectionDetails);
                 resultFinal.AddMessage(combat.RejectionDetails);
                 resultFinal.AddRejectedObject(combat);
@@ -431,6 +432,7 @@ public static class ParserHelper
                     combat.RejectionReason = "Reject If No Players From Account";
                     combat.RejectionDetails =
                         $"Rejected Combat: Start={combat.CombatStart?.ToString("g")}, Reason={combat.RejectionReason}";
+                    if (!combatLogParseSettings.IsDisplayRejectedParserItemsInUi) combatList.Remove(combat);
                     Log.Debug(combat.RejectionDetails);
                     resultFinal.AddMessage(combat.RejectionDetails);
                     resultFinal.AddRejectedObject(combat);
@@ -443,8 +445,10 @@ public static class ParserHelper
             {
                 combat.Rejected = true;
                 combat.RejectionReason = "Enforce Event Minimum";
-                combat.RejectionDetails =
-                    $"Rejected Combat: Start={combat.CombatStart?.ToString("g")}, Reason={combat.RejectionReason}";
+                combat.RejectionDetails =  $"Rejected Combat: Start={combat.CombatStart?.ToString("g")}, Reason={combat.RejectionReason}";
+
+                if (!combatLogParseSettings.IsDisplayRejectedParserItemsInUi) combatList.Remove(combat);
+
                 Log.Debug(combat.RejectionDetails);
                 resultFinal.AddMessage(combat.RejectionDetails);
                 resultFinal.AddRejectedObject(combat);
@@ -557,7 +561,7 @@ public static class ParserHelper
                 // In theory, if we get this far, it's been decided the reject entity is unrelated to the combat instance.
                 possibleRejectEntity.Rejected = true;
                 possibleRejectEntity.RejectionReason = "Remove Unrelated Entity";
-                combat.RejectedCombatEntities.Add(new RejectedCombatEntity(possibleRejectEntity, originalCombatStart, originalCombatEnd, originalCombatDuration));
+                if (combatLogParseSettings.IsDisplayRejectedParserItemsInUi) combat.RejectedCombatEntities.Add(new RejectedCombatEntity(possibleRejectEntity, originalCombatStart, originalCombatEnd, originalCombatDuration));
 
                 if (possibleRejectEntity.IsPlayer)
                 {

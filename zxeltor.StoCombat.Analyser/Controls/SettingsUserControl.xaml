@@ -138,10 +138,10 @@
                                 </TextBlock>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource styleSettingsBorder}" Visibility="Collapsed">
+                        <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <CheckBox Content="Display Rejected Parser Items" FontWeight="Bold"
-                                          IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsDisplayRejectParserItemsInUi, Mode=TwoWay}" />
+                                          IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsDisplayRejectedParserItemsInUi, Mode=TwoWay}" />
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
                                     Enable the display of rejected parser items in the UI. This can include rejected combat instances, or player entities.
                                 </TextBlock>

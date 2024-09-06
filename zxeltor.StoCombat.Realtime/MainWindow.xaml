@@ -4,10 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:zxeltor.StoCombat.Realtime"
+        xmlns:controls="clr-namespace:zxeltor.StoCombat.Realtime.Controls"
         xmlns:properties="clr-namespace:zxeltor.StoCombat.Realtime.Properties"
         xmlns:converters="clr-namespace:zxeltor.StoCombat.Realtime.Converters"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
+        xmlns:classes="clr-namespace:zxeltor.StoCombat.Realtime.Classes"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type={x:Type local:RealtimeCombatLogMonitor}}"
+        d:DataContext="{d:DesignInstance Type={x:Type classes:RealtimeCombatLogMonitor}}"
         Title="MainWindow" Height="298" Width="381">
     <Window.Resources>
         <ResourceDictionary Source="Styles/StoCombatResourceDictionary.xaml"></ResourceDictionary>
@@ -37,7 +40,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6">
                                 <TextBlock Text="Status:" Grid.Row="0" Grid.Column="0" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
-                                <TextBlock Text="{Binding Path=StatusMessage}" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                                <TextBlock Text="{Binding Path=IsRunning}" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
                             </StackPanel>
 
                             <!--<TextBlock Text="Processing:" Grid.Row="1" Grid.Column="0" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
@@ -78,6 +81,7 @@
                                 Height="18" ToolTip="Start the real-time parser" Click="UiButtonStart_OnClick">
                             <Image Source="Images/glyphicons-174-play.png"></Image>
                         </Button>
+
                         <Button Name="uiButtonEnd" HorizontalAlignment="Left" Margin="8,0,0,0" Padding="2,2,2,2" VerticalAlignment="Top" 
                                 Height="18" ToolTip="Stop the real-time parser" Click="UiButtonEnd_OnClick">
                             <Image Source="Images/glyphicons-176-stop.png"></Image>
@@ -126,8 +130,11 @@
                     </DataGrid>
                 </Grid>
             </TabItem>
+            <TabItem Header="Logging">
+                <controls:LogControl></controls:LogControl>
+            </TabItem>
             <TabItem Header="Settings" DataContext="{Binding Source={x:Static properties:Settings.Default}}">
-                <local:SettingsControl></local:SettingsControl>
+                <controls:SettingsControl></controls:SettingsControl>
             </TabItem>
         </TabControl>
     </Grid>

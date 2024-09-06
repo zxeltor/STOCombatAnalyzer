@@ -398,12 +398,12 @@ namespace zxeltor.StoCombat.Analyzer.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool IsDisplayRejectParserItemsInUi {
+        public bool IsDisplayRejectedParserItemsInUi {
             get {
-                return ((bool)(this["IsDisplayRejectParserItemsInUi"]));
+                return ((bool)(this["IsDisplayRejectedParserItemsInUi"]));
             }
             set {
-                this["IsDisplayRejectParserItemsInUi"] = value;
+                this["IsDisplayRejectedParserItemsInUi"] = value;
             }
         }
         
