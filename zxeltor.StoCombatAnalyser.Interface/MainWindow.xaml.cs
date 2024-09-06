@@ -23,10 +23,10 @@ using zxeltor.ConfigUtilsHelpers.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Classes;
 using zxeltor.StoCombatAnalyzer.Interface.Classes.Converters;
 using zxeltor.StoCombatAnalyzer.Interface.Classes.UI;
-using zxeltor.StoCombatAnalyzer.Interface.Classes.UI.GridContext;
 using zxeltor.StoCombatAnalyzer.Interface.Controls;
 using zxeltor.StoCombatAnalyzer.Interface.Helpers;
 using zxeltor.StoCombatAnalyzer.Interface.Properties;
+using zxeltor.StoCombatAnalyzer.Lib.DataContext.GridContext;
 using zxeltor.StoCombatAnalyzer.Lib.Helpers;
 using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 using zxeltor.StoCombatAnalyzer.Lib.Model.CombatMap;
@@ -120,7 +120,7 @@ public partial class MainWindow
 
     private void EstablishGridColumns()
     {
-        this.MyGridContext = CombatEventTypeDataGridContext.GetDefaultContext();
+        this.MyGridContext = CombatEventTypeDataGridContext.GetDefaultContext(Settings.Default.CombatEventTypeGridContext);
         if (this.MyGridContext == null || this.MyGridContext.GridColumns.Count == 0) return;
 
         var propertyInfoList = typeof(CombatEvent).GetProperties().ToList();

@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes.Converters
+namespace zxeltor.StoCombat.Realtime.Converters
 {
     public class IntToStringValidationConverter : IValueConverter
     {

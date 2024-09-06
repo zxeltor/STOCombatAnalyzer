@@ -9,7 +9,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes.Converters;
+namespace zxeltor.StoCombat.Realtime.Converters;
 
 /// <summary>
 ///     Used to convert and object type into a UI Visibility value.

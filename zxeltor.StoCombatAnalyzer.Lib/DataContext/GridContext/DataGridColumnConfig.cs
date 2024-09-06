@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes.UI.GridContext;
+namespace zxeltor.StoCombatAnalyzer.Lib.DataContext.GridContext;
 
 /// <summary>
 ///     Used with a DataGridContext to define properties for viewing in a DataGrid

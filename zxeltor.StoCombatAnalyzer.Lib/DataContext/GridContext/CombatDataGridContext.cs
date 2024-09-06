@@ -6,10 +6,9 @@
 
 using log4net;
 using zxeltor.ConfigUtilsHelpers.Helpers;
-using zxeltor.StoCombatAnalyzer.Interface.Properties;
 using zxeltor.StoCombatAnalyzer.Lib.Model.CombatLog;
 
-namespace zxeltor.StoCombatAnalyzer.Interface.Classes.UI.GridContext;
+namespace zxeltor.StoCombatAnalyzer.Lib.DataContext.GridContext;
 
 /// <summary>
 ///     A DataGridContext for <see cref="CombatEntity" />
@@ -37,13 +36,12 @@ public class CombatDataGridContext : DataGridContext<Combat>
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
-    public new static CombatDataGridContext? GetDefaultContext()
+    public new static CombatDataGridContext? GetDefaultContext(string? serializedContextFromConfig)
     {
         try
         {
-            if (!string.IsNullOrWhiteSpace(Settings.Default.CombatControlGridDisplayList))
-                if (SerializationHelper.TryDeserializeString(
-                        Settings.Default.CombatControlGridDisplayList, out CombatDataGridContext? context))
+            if (!string.IsNullOrWhiteSpace(serializedContextFromConfig))
+                if (SerializationHelper.TryDeserializeString(serializedContextFromConfig, out CombatDataGridContext? context))
                     if (context != null)
                         return context;
         }
@@ -86,9 +84,6 @@ public class CombatDataGridContext : DataGridContext<Combat>
                 new DataGridColumnConfig(nameof(CombatEvent.OriginalFileLineString), isVisible: false)
             }
         };
-
-        Settings.Default.CombatControlGridDisplayList = SerializationHelper.Serialize(newConfig);
-        Settings.Default.Save();
 
         return newConfig;
     }

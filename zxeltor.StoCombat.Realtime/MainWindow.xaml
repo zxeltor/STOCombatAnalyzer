@@ -1,0 +1,134 @@
+﻿<Window x:Class="zxeltor.StoCombat.Realtime.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:zxeltor.StoCombat.Realtime"
+        xmlns:properties="clr-namespace:zxeltor.StoCombat.Realtime.Properties"
+        xmlns:converters="clr-namespace:zxeltor.StoCombat.Realtime.Converters"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type={x:Type local:RealtimeCombatLogMonitor}}"
+        Title="MainWindow" Height="298" Width="381">
+    <Window.Resources>
+        <ResourceDictionary Source="Styles/StoCombatResourceDictionary.xaml"></ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <TabControl>
+            <TabItem Header="Monitor">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Vertical" Margin="4,4,4,4" Grid.Row="0" HorizontalAlignment="Left">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6">
+                                <TextBlock Text="Status:" Grid.Row="0" Grid.Column="0" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                <TextBlock Text="{Binding Path=StatusMessage}" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                            </StackPanel>
+
+                            <!--<TextBlock Text="Processing:" Grid.Row="1" Grid.Column="0" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                            <TextBlock Text="{Binding Path=ProcessUpdate}" Grid.Row="1" Grid.Column="1" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>-->
+                            
+                            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6">
+                                <TextBlock Text="File:" Grid.Row="1" Grid.Column="0" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                <TextBlock Text="{Binding Path=LatestFile.Name}" Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                            </StackPanel>
+
+                            <!--<TextBlock Text="Lines last read:" Grid.Row="3" Grid.Column="0" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                            <TextBlock Text="{Binding Path=LastTimerStartTimeUtc, Converter={StaticResource dateTimeToHoursMinutesSecondsMilliSecondsConverter}}" 
+                                       Grid.Row="3" Grid.Column="1" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>-->
+
+                            <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Lines last read:" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                    <TextBlock Text="{Binding Path=LinesLastReadCount}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="4,0,0,0">
+                                    <TextBlock Text="Events last added:" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                    <TextBlock Text="{Binding Path=EventsLastAddCount}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="4,0,0,0">
+                                    <TextBlock Text="Parsing Errors:" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                    <TextBlock Text="{Binding Path=ErrorsCountSinceNewCombat}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                                </StackPanel>
+                            </WrapPanel>
+                        </Grid>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4,4,4,4" Grid.Row="0" HorizontalAlignment="Right">
+                        <Button Name="uiButtonPlayAudio" ToolTip="Play Test Audio" Margin="8,0,0,0" Padding="2,2,2,2" 
+                                Height="18" Click="UiButtonPlayAudio_OnClick" VerticalAlignment="Top" >
+                            <Image Source="Images/glyphicons-240-albums.png"></Image>
+                        </Button>
+
+                        <Button Name="uiButtonStart" HorizontalAlignment="Left" Margin="16,0,0,0" Padding="2,2,2,2" VerticalAlignment="Top" 
+                                Height="18" ToolTip="Start the real-time parser" Click="UiButtonStart_OnClick">
+                            <Image Source="Images/glyphicons-174-play.png"></Image>
+                        </Button>
+                        <Button Name="uiButtonEnd" HorizontalAlignment="Left" Margin="8,0,0,0" Padding="2,2,2,2" VerticalAlignment="Top" 
+                                Height="18" ToolTip="Stop the real-time parser" Click="UiButtonEnd_OnClick">
+                            <Image Source="Images/glyphicons-176-stop.png"></Image>
+                        </Button>
+                    </StackPanel>
+                    <DataGrid Grid.Row="1" Margin="10,10,10,10" ItemsSource="{Binding Path=CurrentCombat.PlayerEntitiesOrderByName}" CanUserAddRows="False" IsReadOnly="True" CanUserDeleteRows="False"
+              CanUserResizeRows="False" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" AutoGenerateColumns="False">
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsInCombat}" Value="True">
+                                        <Setter Property="Foreground" Value="{StaticResource colorEventTypeMetricValue}"></Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsInCombat}" Value="False">
+                                        <Setter Property="Foreground" Value="{StaticResource colorRejectedReason}"></Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name"
+                                Binding="{Binding Path=OwnerDisplay}"
+                                IsReadOnly="True" SortDirection="Ascending" />
+                            <DataGridTextColumn Header="Damage"
+                                                Binding="{Binding Path=EntityTotalMagnitude, Converter={StaticResource doubleToThousandsStringConverter}}"
+                                                IsReadOnly="True" />
+                            <DataGridTextColumn Header="DPS"
+                                                Binding="{Binding Path=EntityMagnitudePerSecond, Converter={StaticResource doubleToThousandsStringConverter}}"
+                                                IsReadOnly="True" />
+                            <DataGridTextColumn Header="Kills"
+                                                Binding="{Binding Path=EntityCombatKills}"
+                                                IsReadOnly="True" />
+                            <DataGridTextColumn Header="Attacks"
+                                                Binding="{Binding Path=EntityCombatAttacks}"
+                                                IsReadOnly="True" />
+                            <DataGridTextColumn Header="Last Active"
+                                                Binding="{Binding Path=EntityCombatEnd, Converter={StaticResource dateTimeToHoursMinutesSecondsMilliSecondsConverter}}"
+                                                IsReadOnly="True" />
+                            <!--<DataGridTextColumn Header="Duration"
+                                                Binding="{Binding Path=EntityCombatDuration, Converter={StaticResource timeSpanMinSeconds}}"
+                                                IsReadOnly="True" />
+                            <DataGridTextColumn Header="Inactive"
+                                                Binding="{Binding Path=EntityCombatInActive, Converter={StaticResource timeSpanMinSeconds}}"
+                                                IsReadOnly="True" />-->
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Settings" DataContext="{Binding Source={x:Static properties:Settings.Default}}">
+                <local:SettingsControl></local:SettingsControl>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

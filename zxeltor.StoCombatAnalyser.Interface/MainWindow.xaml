@@ -12,7 +12,8 @@
     mc:Ignorable="d"
     Title="{Binding Path=MainWindowTitle}" Height="980" MinHeight="800" Width="1820" MinWidth="1000" WindowStartupLocation="CenterScreen">
     <Window.Resources>
-        <ResourceDictionary Source="Controls/StoCombatResourceDictionary.xaml"></ResourceDictionary>
+        <ResourceDictionary Source="Controls/StoCombatResourceDictionary.xaml">
+        </ResourceDictionary>
     </Window.Resources>
     <Grid x:Name="uiGridMain">
         <TabControl x:Name="uiTableControlMain" Margin="0">
