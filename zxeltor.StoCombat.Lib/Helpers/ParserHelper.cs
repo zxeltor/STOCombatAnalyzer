@@ -100,10 +100,8 @@ public static class ParserHelper
         finalCombatListResult = new List<Combat>();
 
         var resultEvents = isJsonFileList
-            ? TryGetCombatEventsListFromCombatJsonFileList(combatLogParseSettings, filesToParse,
-                out var combatEventListOrderedByTimestamp)
-            : TryGetCombatEventsListFromFileList(combatLogParseSettings, filesToParse,
-                out combatEventListOrderedByTimestamp);
+            ? TryGetCombatEventsListFromCombatJsonFileList(filesToParse, out var combatEventListOrderedByTimestamp)
+            : TryGetCombatEventsListFromFileList(filesToParse, out combatEventListOrderedByTimestamp);
 
         resultFinal.MergeResult(resultEvents);
         if (resultFinal.MaxLevel >= ResultLevel.Halt)
@@ -843,8 +841,7 @@ public static class ParserHelper
         return resultFinal;
     }
 
-    private static CombatLogParserResult TryGetCombatEventsListFromFileList(
-        CombatLogParseSettings combatLogParseSettings, List<string> filesToParse,
+    private static CombatLogParserResult TryGetCombatEventsListFromFileList(List<string> filesToParse,
         out List<CombatEvent> combatEventListResults)
     {
         var resultFinal = new CombatLogParserResult();
@@ -905,8 +902,7 @@ public static class ParserHelper
         return resultFinal;
     }
 
-    private static CombatLogParserResult TryGetCombatEventsListFromCombatJsonFileList(
-        CombatLogParseSettings combatLogParseSettings, List<string> filesToParse,
+    private static CombatLogParserResult TryGetCombatEventsListFromCombatJsonFileList(List<string> filesToParse,
         out List<CombatEvent> combatEventListResults)
     {
         var resultFinal = new CombatLogParserResult();

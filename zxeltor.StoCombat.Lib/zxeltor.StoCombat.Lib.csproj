@@ -18,8 +18,4 @@
     <ProjectReference Include="..\zxeltor.Types.Lib\zxeltor.Types.Lib.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Style\" />
-  </ItemGroup>
-
 </Project>
