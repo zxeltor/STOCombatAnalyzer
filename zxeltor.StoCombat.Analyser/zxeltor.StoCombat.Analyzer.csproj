@@ -60,10 +60,7 @@
     <PackageReference Include="log4net" Version="2.0.17" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="ScottPlot.WPF" Version="5.0.37" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\zxeltor.StoCombat.Lib\zxeltor.StoCombat.Lib.csproj" />
+    <PackageReference Include="zxeltor.StoCombat.Lib" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
