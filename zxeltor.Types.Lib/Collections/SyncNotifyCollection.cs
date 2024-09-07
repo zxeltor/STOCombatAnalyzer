@@ -138,13 +138,31 @@ public sealed class SyncNotifyCollection<T> : ICollection<T>, INotifyCollectionC
         }
     }
 
+    /// <summary>
+    ///     Insert an item at the given index.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="item"></param>
+    public void Insert(int index, T item)
+    {
+        this._cacheLock.EnterWriteLock();
+        try
+        {
+            this._syncList.Insert(index, item);
+            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item));
+        }
+        finally
+        {
+            this._cacheLock.ExitWriteLock();
+        }
+    }
+
     public void AddRange(IEnumerable<T> collection)
     {
         this._cacheLock.EnterWriteLock();
         try
         {
             foreach (var item in collection) this._syncList.Add(item);
-
             this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
         finally
@@ -245,6 +263,7 @@ public sealed class SyncNotifyCollection<T> : ICollection<T>, INotifyCollectionC
     private void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
     {
         this.CollectionChanged?.Invoke(this, arg);
+        this.OnPropertyChanged(nameof(Count));
     }
 
     #endregion

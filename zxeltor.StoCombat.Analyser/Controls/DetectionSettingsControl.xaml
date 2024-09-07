@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mainAppProp="clr-namespace:zxeltor.StoCombat.Analyzer.Properties"
              xmlns:classes="clr-namespace:zxeltor.StoCombat.Analyzer.Classes"
+             xmlns:controls="clr-namespace:zxeltor.StoCombat.Analyzer.Controls"
              d:DataContext="{d:DesignInstance Type={x:Type classes:CombatLogManager}}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" d:Background="AliceBlue">
@@ -806,8 +807,8 @@
                                 <Image Tag="all_combat_events_datagrid" Source="../Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" MouseLeftButtonUp="DetailsImage_OnMouseLeftButtonUp" 
                                        ToolTip="Click for more details." VerticalAlignment="Center"/>
                                 <TextBlock Text="Selected Combat: All Event(s): " Margin="8,0,0,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=local:DetectionSettingsControl}, Path=CombatEventList.Count}" Margin="0,0,0,0" VerticalAlignment="Center"
-                            Visibility="{Binding RelativeSource={RelativeSource AncestorType=local:DetectionSettingsControl}, Path=CombatEventList.Count, Converter={StaticResource typeToVisibilityConverter}}"/>
+                                <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=controls:DetectionSettingsControl}, Path=CombatEventList.Count}" Margin="0,0,0,0" VerticalAlignment="Center"
+                            Visibility="{Binding RelativeSource={RelativeSource AncestorType=controls:DetectionSettingsControl}, Path=CombatEventList.Count, Converter={StaticResource typeToVisibilityConverter}}"/>
                             </StackPanel>
                         </GroupBox.Header>
                         <Grid>
@@ -842,7 +843,7 @@
                                 </Button>
                             </Grid>
 
-                            <DataGrid Name="uiDataGridAllEvents" Grid.Row="1" ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=local:DetectionSettingsControl}, Path=CombatEventList}"
+                            <DataGrid Name="uiDataGridAllEvents" Grid.Row="1" ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=controls:DetectionSettingsControl}, Path=CombatEventList}"
                                 AutoGenerateColumns="False" CanUserReorderColumns="True" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserAddRows="False" SelectionUnit="Cell">
                                 <DataGrid.ContextMenu>
                                     <ContextMenu>

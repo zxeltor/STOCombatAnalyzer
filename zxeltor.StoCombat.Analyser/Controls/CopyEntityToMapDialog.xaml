@@ -8,17 +8,6 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type local:CopyEntityToMapDialogDataContext}}"
         Title="{Binding Source={x:Static mainAppProp:Resources.copy_unique_entities_tomap}}" Height="500" Width="800">
-    <Window.Resources>
-        <Brush x:Key="colorEventTypeMetricLabel">Green</Brush>
-        <Brush x:Key="colorEventTypeMetricValue">Blue</Brush>
-        <Brush x:Key="colorImported">DarkOrange</Brush>
-        <Style TargetType="Border" x:Key="borderStyle">
-            <Setter Property="BorderBrush" Value="DarkSlateBlue"></Setter>
-            <Setter Property="BorderThickness" Value="2"></Setter>
-            <Setter Property="Margin" Value="2,2,2,2"></Setter>
-            <Setter Property="Padding" Value="4,4,4,4"></Setter>
-        </Style>
-    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>

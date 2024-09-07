@@ -12,22 +12,29 @@ using log4net;
 using zxeltor.StoCombat.Lib.Model.CombatLog;
 using zxeltor.StoCombat.Lib.Model.Realtime;
 using zxeltor.StoCombat.Lib.Parser;
+using zxeltor.Types.Lib.Result;
 
 namespace zxeltor.StoCombat.Realtime.Classes;
 
 public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
 {
+    #region Static Fields and Constants
+
+    private static readonly ILog _log = LogManager.GetLogger(typeof(RealtimeCombatLogMonitor));
+
+    #endregion
+
     #region Private Fields
 
     private RealtimeCombat? _currentCombat;
     private long _errorsCountSinceNewCombat;
     private long _eventsLastAddCount;
+    private bool _hasHalted;
     private bool _isRunning;
     private long _lastPosition;
     private DateTime? _lastTimerStartTimeUtc;
-    private FileInfo? _latestFile;
+    private FileInfo? _latestFileInfo;
     private long _linesLastReadCount;
-    private readonly ILog _log = LogManager.GetLogger(typeof(RealtimeCombatLogMonitor));
     private string? _logFileStringResult;
     private string? _parserUpdate;
     private readonly RealtimeCombatLogParseSettings _parseSettings;
@@ -46,6 +53,12 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
 
     #region Public Properties
 
+    public bool HasHalted
+    {
+        get => this._hasHalted;
+        set => this.SetField(ref this._hasHalted, value);
+    }
+
     public bool IsRunning
     {
         get => this._isRunning;
@@ -58,10 +71,17 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
         set => this.SetField(ref this._lastTimerStartTimeUtc, value);
     }
 
-    public FileInfo? LatestFile
+    public DateTime? LatestFileUpdated => this.LatestFileInfo?.LastWriteTime;
+
+    public FileInfo? LatestFileInfo
     {
-        get => this._latestFile;
-        set => this.SetField(ref this._latestFile, value);
+        get => this._latestFileInfo;
+        set
+        {
+            this.SetField(ref this._latestFileInfo, value);
+            this.OnPropertyChanged(nameof(this.LatestFileName));
+            this.OnPropertyChanged(nameof(this.LatestFileUpdated));
+        }
     }
 
     public long ErrorsCountSinceNewCombat
@@ -87,6 +107,8 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
         get => this._currentCombat;
         set => this.SetField(ref this._currentCombat, value);
     }
+
+    public string? LatestFileName => this.LatestFileInfo?.Name;
 
     public string? ParserUpdate
     {
@@ -117,7 +139,7 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
         {
             this.ParserUpdate = "Failed to dispose of parser.";
 
-            this._log.Error(this.ParserUpdate, e);
+            _log.Error(this.ParserUpdate, e);
         }
     }
 
@@ -142,7 +164,7 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
             this.IsRunning = false;
             this.ParserUpdate = "Failed to start parser.";
 
-            this._log.Error(this.ParserUpdate, e);
+            _log.Error(this.ParserUpdate, e);
         }
     }
 
@@ -188,6 +210,8 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
 
         if (this.LastTimerStartTimeUtc - fileToParse.LastWriteTimeUtc > this.HowLongBeforeNewCombatInSeconds)
         {
+            this.LatestFileInfo = fileToParse;
+
             if (this.CurrentCombat != null) this.CurrentCombat.SendRealtimeUpdateNotifications();
             this.ParserUpdate =
                 $"A STO combat log file was found, but it hasn't updated in last {this.HowLongBeforeNewCombatInSeconds.TotalSeconds} seconds.";
@@ -195,11 +219,12 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
         }
 
         // We check here to see if a new, or more recently updated log file was found.
-        if (this.LatestFile == null || !this.LatestFile.Name.Equals(fileToParse.Name))
+        if (this.LatestFileInfo == null || !this.LatestFileInfo.Name.Equals(fileToParse.Name))
         {
-            this.LatestFile = fileToParse;
             this._lastPosition = 0;
         }
+
+        this.LatestFileInfo = fileToParse;
 
         // Update the Combat object in the UI, regardless of getting a file update.
         if (this.CurrentCombat != null) this.CurrentCombat.SendRealtimeUpdateNotifications();
@@ -221,17 +246,17 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
     /// <exception cref="Exception">File parsing failed.</exception>
     private void ProcessCurrentFile()
     {
-        using (var fs = new FileStream(this.LatestFile!.FullName, FileMode.Open, FileAccess.Read,
+        using (var fs = new FileStream(this.LatestFileInfo!.FullName, FileMode.Open, FileAccess.Read,
                    FileShare.ReadWrite | FileShare.Delete))
         {
-            if (!fs.CanRead) throw new Exception($"Don't have read access: {this.LatestFile.Name}");
+            if (!fs.CanRead) throw new Exception($"Don't have read access: {this.LatestFileInfo.Name}");
             if (!fs.CanSeek)
-                throw new Exception($"Can't seek position {this._lastPosition} in file : {this.LatestFile.Name}");
+                throw new Exception($"Can't seek position {this._lastPosition} in file : {this.LatestFileInfo.Name}");
 
             var position = fs.Seek(this._lastPosition, SeekOrigin.Current);
             if (position != this._lastPosition)
                 throw new Exception(
-                    $"Seek position {this._lastPosition} position in file : {this.LatestFile.Name}");
+                    $"Seek position {this._lastPosition} position in file : {this.LatestFileInfo.Name}");
             this._lastPosition = fs.Length;
 
             using (var reader = new StreamReader(fs))
@@ -248,7 +273,7 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
                         lineCounter++;
 
                         // Use our new combat event object to parse the log file line.
-                        var combatEvent = new CombatEvent(this.LatestFile.Name, this._logFileStringResult, 0);
+                        var combatEvent = new CombatEvent(this.LatestFileInfo.Name, this._logFileStringResult, 0);
 
                         // If the entry doesn't belong to a player, or it falls outside our timespan, we 
                         // ignore it and move on.
@@ -291,7 +316,7 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
                     catch (Exception e)
                     {
                         this.ErrorsCountSinceNewCombat++;
-                        this._log.Error($"Error parsing line: {this._logFileStringResult}", e);
+                        _log.Error($"Error parsing line: {this._logFileStringResult}", e);
                     }
                 }
 
@@ -307,14 +332,14 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
     /// <exception cref="Exception">File parsing failed.</exception>
     private void ProcessNewFile()
     {
-        using (var fs = new FileStream(this.LatestFile!.FullName, FileMode.Open, FileAccess.Read,
+        using (var fs = new FileStream(this.LatestFileInfo!.FullName, FileMode.Open, FileAccess.Read,
                    FileShare.ReadWrite | FileShare.Delete))
         {
             var length = fs.Length;
 
             using (var reader = new StreamReader(fs))
             {
-                if (!fs.CanRead) throw new Exception($"Don't have read access: {this.LatestFile.Name}");
+                if (!fs.CanRead) throw new Exception($"Don't have read access: {this.LatestFileInfo.Name}");
 
                 this._lastPosition = length;
 
@@ -330,7 +355,7 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
                         lineCounter++;
 
                         // Use our new combat event object to parse the log file line.
-                        var combatEvent = new CombatEvent(this.LatestFile.Name, this._logFileStringResult, 0);
+                        var combatEvent = new CombatEvent(this.LatestFileInfo.Name, this._logFileStringResult, 0);
 
                         // If the entry doesn't belong to a player, or it falls outside our timespan, we 
                         // ignore it and move on.
@@ -357,7 +382,7 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
                     catch (Exception e)
                     {
                         this.ErrorsCountSinceNewCombat++;
-                        this._log.Error($"Error parsing line: {this._logFileStringResult}", e);
+                        _log.Error($"Error parsing line: {this._logFileStringResult}", e);
                     }
                 }
 
@@ -393,11 +418,15 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
         try
         {
             this.IsRunning = true;
+            this.HasHalted = false;
             this.LastTimerStartTimeUtc = DateTime.UtcNow;
 
             this._timer?.Change(Timeout.Infinite, Timeout.Infinite);
 
             this.CleanupCurrentCombat();
+
+            if (string.IsNullOrWhiteSpace(this._parseSettings.MyCharacter))
+                throw new ParserHaltException("MyCharacter is not set.");
 
             if (!this.FolderAndRecentLogFileIsAvailable()) return;
 
@@ -409,12 +438,15 @@ public class RealtimeCombatLogMonitor : IDisposable, INotifyPropertyChanged
         catch (ParserHaltException e)
         {
             this.IsRunning = false;
-            this._log.Error(e);
+            this.HasHalted = true;
+            _log.Error(e);
+            AppNotificationManager.Instance.SendNotification(this, e, ResultLevel.Halt);
         }
         catch (Exception e)
         {
             this.ErrorsCountSinceNewCombat++;
-            this._log.Error($"Failed during STO combat log parse. Reason={e.Message}");
+            _log.Error("Failed during STO combat log parse.", e);
+            AppNotificationManager.Instance.SendNotification(this, "Failed during STO combat log parse.", e);
         }
         finally
         {

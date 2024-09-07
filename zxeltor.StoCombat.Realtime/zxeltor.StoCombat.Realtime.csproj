@@ -6,6 +6,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <AssemblyVersion>1.12.0.0</AssemblyVersion>
+    <AssemblyName>StoCombatRealtime</AssemblyName>
+    <ApplicationIcon>Images\sto-realtime-128.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,8 +34,11 @@
     <None Remove="Images\glyphicons-174-play.png" />
     <None Remove="Images\glyphicons-176-stop.png" />
     <None Remove="Images\glyphicons-240-albums.png" />
+    <None Remove="Images\glyphicons-505-alert.png" />
     <None Remove="Images\glyphicons-82-refresh.png" />
     <None Remove="Images\glyphicons-87-display.png" />
+    <None Remove="Images\sto-realtime-128.ico" />
+    <None Remove="Images\sto-realtime-128.png" />
     <None Remove="Log4Net.config" />
   </ItemGroup>
 
@@ -94,6 +100,7 @@
     <Content Include="AudioFiles\wickedsick.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Images\sto-realtime-128.ico" />
     <Content Include="Log4Net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -107,8 +114,11 @@
     <Resource Include="Images\glyphicons-174-play.png" />
     <Resource Include="Images\glyphicons-176-stop.png" />
     <Resource Include="Images\glyphicons-240-albums.png" />
+    <Resource Include="Images\glyphicons-505-alert.png" />
     <Resource Include="Images\glyphicons-82-refresh.png" />
     <Resource Include="Images\glyphicons-87-display.png" />
+    <Resource Include="Images\sto-realtime-128.ico" />
+    <Resource Include="Images\sto-realtime-128.png" />
   </ItemGroup>
 
   <ItemGroup>

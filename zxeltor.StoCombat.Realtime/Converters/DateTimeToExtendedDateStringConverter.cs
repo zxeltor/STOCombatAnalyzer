@@ -21,7 +21,7 @@ public class DateTimeToExtendedDateStringConverter : IValueConverter
     {
         if (value == null) return null;
 
-        return ((DateTime)value).ToString("MM/dd H:mm:ss.fff");
+        return ((DateTime)value).ToString("MM/dd/yy H:mm:ss.fff");
     }
 
     /// <inheritdoc />

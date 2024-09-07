@@ -24,6 +24,7 @@ using log4net.Core;
 using log4net.Layout;
 using zxeltor.Types.Lib.Helpers;
 using zxeltor.Types.Lib.Logging;
+using zxeltor.StoCombat.Realtime.Classes;
 
 
 namespace zxeltor.StoCombat.Realtime.Controls
@@ -33,7 +34,7 @@ namespace zxeltor.StoCombat.Realtime.Controls
     /// </summary>
     public partial class LogControl : UserControl
     {
-        private readonly ILog _log = log4net.LogManager.GetLogger(typeof(LogControl));
+        private static readonly ILog _log = log4net.LogManager.GetLogger(typeof(LogControl));
 
         public LogControlDataContext MyContext { get; }
 
@@ -41,9 +42,19 @@ namespace zxeltor.StoCombat.Realtime.Controls
         {
             InitializeComponent();
             DataContext = MyContext = new LogControlDataContext();
-            LoggingHelper.TryAddingDataGridCollectionAppender("logcontrol", MyContext.LogGridRows);
+
+            AppNotificationManager.Instance.OnNotification += InstanceOnOnNotification;
         }
-        
+        ~LogControl()
+        {
+            AppNotificationManager.Instance.OnNotification -= InstanceOnOnNotification;
+        }
+
+        private void InstanceOnOnNotification(object? sender, DataGridRowContext e)
+        {
+            this.Dispatcher.Invoke( () => MyContext.LogGridRows.Add(e));
+        }
+
         public void AddLog(string message, ResultLevel resultLevel = ResultLevel.Info)
         {
             this.MyContext.AddLogGridRow(new DataGridRowContext(message, resultLevel));

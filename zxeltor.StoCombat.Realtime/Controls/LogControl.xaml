@@ -4,30 +4,40 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:zxeltor.StoCombat.Realtime.Controls"
-             xmlns:collections="clr-namespace:zxeltor.Types.Lib.Collections;assembly=zxeltor.Types.Lib"
+             xmlns:converters="clr-namespace:zxeltor.StoCombat.Realtime.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" d:Background="Azure"
              d:DataContext="{d:DesignInstance Type={x:Type local:LogControlDataContext}}">
+    <UserControl.Resources>
+        <converters:ResultLevelColorConverter x:Key="resultLevelColorConverter"></converters:ResultLevelColorConverter>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right" Margin="4,4,4,4">
-            <TextBlock Text="Max Entries:" VerticalAlignment="Center"></TextBlock>
-            <TextBox Text="100" MinWidth="40" VerticalAlignment="Center"></TextBox>
-            <Button Name="uiButtonClearLog" Margin="16,0,0,0" Click="UiButtonClearLog_OnClick">
-                <Image Source="../Images/glyphicons-82-refresh.png"></Image>
-            </Button>
-        </StackPanel>
-        <GroupBox Header="Log Entries" Grid.Row="1"> 
-            <DataGrid CanUserAddRows="False" CanUserResizeRows="False" CanUserSortColumns="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
-                      CanUserResizeColumns="False" AutoGenerateColumns="False"
+        <GroupBox Grid.Row="0">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Button Name="uiButtonClearLog" Margin="0,0,4,0" Height="14" Click="UiButtonClearLog_OnClick"
+                            VerticalAlignment="Center">
+                        <Image Source="../Images/glyphicons-82-refresh.png"></Image>
+                    </Button>
+                    <TextBlock Text="Log Entries: " VerticalAlignment="Center"></TextBlock>
+                    <TextBlock Text="{Binding Path=LogGridRows.Count}" VerticalAlignment="Center"></TextBlock>
+                </StackPanel>
+            </GroupBox.Header> 
+            <DataGrid CanUserAddRows="False" CanUserResizeRows="False" CanUserSortColumns="True" CanUserDeleteRows="False" CanUserReorderColumns="False"
+                      CanUserResizeColumns="False" AutoGenerateColumns="False" IsReadOnly="True"
                       ItemsSource="{Binding Path=LogGridRows}">
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Foreground" Value="{Binding Path=ResultLevel, Converter={StaticResource resultLevelColorConverter}}"></Setter>
+                    </Style>
+                </DataGrid.RowStyle>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Timestamp" Binding="{Binding Path=Timestamp}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="ResultLevel" Binding="{Binding Path=ResultLevel}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Message" Binding="{Binding Path=Message}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Timestamp" Binding="{Binding Path=Timestamp}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTextColumn Header="ResultLevel" Binding="{Binding Path=ResultLevel}" IsReadOnly="True"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Message" Binding="{Binding Path=Message}" IsReadOnly="True"></DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </GroupBox>

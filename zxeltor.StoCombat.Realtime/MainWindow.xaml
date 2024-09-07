@@ -3,15 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:zxeltor.StoCombat.Realtime"
         xmlns:controls="clr-namespace:zxeltor.StoCombat.Realtime.Controls"
         xmlns:properties="clr-namespace:zxeltor.StoCombat.Realtime.Properties"
-        xmlns:converters="clr-namespace:zxeltor.StoCombat.Realtime.Converters"
-        xmlns:tb="http://www.hardcodet.net/taskbar"
         xmlns:classes="clr-namespace:zxeltor.StoCombat.Realtime.Classes"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type classes:RealtimeCombatLogMonitor}}"
-        Title="MainWindow" Height="298" Width="381">
+        Title="MainWindow" Height="300" Width="440">
     <Window.Resources>
         <ResourceDictionary Source="Styles/StoCombatResourceDictionary.xaml"></ResourceDictionary>
     </Window.Resources>
@@ -39,42 +36,43 @@
                                 <ColumnDefinition Width="*"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6">
-                                <TextBlock Text="Status:" Grid.Row="0" Grid.Column="0" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
-                                <TextBlock Text="{Binding Path=IsRunning}" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                                <TextBlock Text="Running:" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                <TextBlock Text="{Binding Path=IsRunning}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
                             </StackPanel>
-
-                            <!--<TextBlock Text="Processing:" Grid.Row="1" Grid.Column="0" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
-                            <TextBlock Text="{Binding Path=ProcessUpdate}" Grid.Row="1" Grid.Column="1" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>-->
                             
                             <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6">
-                                <TextBlock Text="File:" Grid.Row="1" Grid.Column="0" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
-                                <TextBlock Text="{Binding Path=LatestFile.Name}" Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                                <TextBlock Text="File:" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                <TextBlock Text="{Binding Path=LatestFileName}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
                             </StackPanel>
 
-                            <!--<TextBlock Text="Lines last read:" Grid.Row="3" Grid.Column="0" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
-                            <TextBlock Text="{Binding Path=LastTimerStartTimeUtc, Converter={StaticResource dateTimeToHoursMinutesSecondsMilliSecondsConverter}}" 
-                                       Grid.Row="3" Grid.Column="1" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>-->
-
-                            <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Lines last read:" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
-                                    <TextBlock Text="{Binding Path=LinesLastReadCount}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="4,0,0,0">
-                                    <TextBlock Text="Events last added:" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
-                                    <TextBlock Text="{Binding Path=EventsLastAddCount}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="4,0,0,0">
-                                    <TextBlock Text="Parsing Errors:" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
-                                    <TextBlock Text="{Binding Path=ErrorsCountSinceNewCombat}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
-                                </StackPanel>
-                            </WrapPanel>
+                            <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6">
+                                <TextBlock Text="File Last Updated:" Margin="0,0,4,0" Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                                <TextBlock Text="{Binding Path=LatestFileUpdated, Converter={StaticResource dateTimeToExtendedDateStringConverter}}" 
+                                           TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                            </StackPanel>
                         </Grid>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="4,4,4,4" Grid.Row="0" HorizontalAlignment="Right">
-                        <Button Name="uiButtonPlayAudio" ToolTip="Play Test Audio" Margin="8,0,0,0" Padding="2,2,2,2" 
-                                Height="18" Click="UiButtonPlayAudio_OnClick" VerticalAlignment="Top" >
-                            <Image Source="Images/glyphicons-240-albums.png"></Image>
+                        <Button Name="uiButtonOpenLog" HorizontalAlignment="Left" Margin="16,0,0,0" Padding="2,2,2,2" VerticalAlignment="Top" 
+                                Height="18" ToolTip="Open the Logging tab"
+                                Click="UiButtonOpenLog_OnClick">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Style.Setters>
+                                        <Setter Property="Background" Value="Transparent"></Setter>
+                                        <Setter Property="BorderBrush" Value="Transparent"></Setter>
+                                    </Style.Setters>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=HasHalted}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"></Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Path=HasHalted}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <Image Name="uiImageAlert" Source="Images/glyphicons-505-alert.png"></Image>
                         </Button>
 
                         <Button Name="uiButtonStart" HorizontalAlignment="Left" Margin="16,0,0,0" Padding="2,2,2,2" VerticalAlignment="Top" 
@@ -120,18 +118,32 @@
                             <DataGridTextColumn Header="Last Active"
                                                 Binding="{Binding Path=EntityCombatEnd, Converter={StaticResource dateTimeToHoursMinutesSecondsMilliSecondsConverter}}"
                                                 IsReadOnly="True" />
-                            <!--<DataGridTextColumn Header="Duration"
-                                                Binding="{Binding Path=EntityCombatDuration, Converter={StaticResource timeSpanMinSeconds}}"
-                                                IsReadOnly="True" />
-                            <DataGridTextColumn Header="Inactive"
-                                                Binding="{Binding Path=EntityCombatInActive, Converter={StaticResource timeSpanMinSeconds}}"
-                                                IsReadOnly="True" />-->
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Logging">
-                <controls:LogControl></controls:LogControl>
+            <TabItem Header="Logging" Name="uiTabItemLogging">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <WrapPanel Orientation="Horizontal" Grid.Row="0" Margin="4,4,4,4">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Lines last read: " Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                            <TextBlock Text="{Binding Path=LinesLastReadCount}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="8,0,0,0">
+                            <TextBlock Text="Events last added: " Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                            <TextBlock Text="{Binding Path=EventsLastAddCount}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="8,0,0,0">
+                            <TextBlock Text="Parsing Errors: " Foreground="{StaticResource colorEventTypeMetricLabel}"></TextBlock>
+                            <TextBlock Text="{Binding Path=ErrorsCountSinceNewCombat}" TextWrapping="Wrap" Foreground="{StaticResource colorEventTypeMetricValue}"></TextBlock>
+                        </StackPanel>
+                    </WrapPanel>
+                    <controls:LogControl Grid.Row="1"></controls:LogControl>
+                </Grid>
             </TabItem>
             <TabItem Header="Settings" DataContext="{Binding Source={x:Static properties:Settings.Default}}">
                 <controls:SettingsControl></controls:SettingsControl>

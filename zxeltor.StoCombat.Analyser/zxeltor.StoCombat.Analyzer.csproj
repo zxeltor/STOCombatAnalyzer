@@ -9,7 +9,7 @@
     <AssemblyName>StoCombatAnalyzer</AssemblyName>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <SignAssembly>True</SignAssembly>
-    <ApplicationIcon>Images\trekwphaser-128x128.ico</ApplicationIcon>
+    <ApplicationIcon>Images\sto-analyzer-128.ico</ApplicationIcon>
     <FileVersion></FileVersion>
     <AssemblyVersion>1.12.0.0</AssemblyVersion>
     <AssemblyOriginatorKeyFile>zxeltor.StoCombat.Analyzer_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
@@ -37,7 +37,8 @@
     <None Remove="Images\glyphicons-512-copy.png" />
     <None Remove="Images\glyphicons-602-chevron-down.png" />
     <None Remove="Images\glyphicons-82-refresh.png" />
-    <None Remove="Images\trekwphaser-128x128.png" />
+    <None Remove="Images\sto-analyzer-128.ico" />
+    <None Remove="Images\sto-analyzer-128.png" />
     <None Remove="Log4Net.config" />
     <None Remove="Log4Net.Development.config" />
     <None Remove="StoCombatAnalyzerSettings2.json" />
@@ -48,7 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Images\trekwphaser-128x128.ico" />
+    <Content Include="Images\sto-analyzer-128.ico" />
     <Content Include="Log4Net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -63,7 +64,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\zxeltor.StoCombat.Lib\zxeltor.StoCombat.Lib.csproj" />
-    <ProjectReference Include="..\zxeltor.Types.Lib\zxeltor.Types.Lib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -81,7 +81,8 @@
     <Resource Include="Images\glyphicons-512-copy.png" />
     <Resource Include="Images\glyphicons-602-chevron-down.png" />
     <Resource Include="Images\glyphicons-82-refresh.png" />
-    <Resource Include="Images\trekwphaser-128x128.png" />
+    <Resource Include="Images\sto-analyzer-128.ico" />
+    <Resource Include="Images\sto-analyzer-128.png" />
   </ItemGroup>
 
   <ItemGroup>

@@ -110,9 +110,16 @@ public class LoggingHelper
 
             var appender = CreateDataGridCollectionAppender(appenderName, logGridRows);
 
-            if (appender != null)
+            var loggers = h.GetCurrentLoggers();
+
+            if (appender != null && loggers != null)
             {
-                h.Root.AddAppender(appender);
+                foreach (var log in loggers)
+                {
+                    var logger = log as Logger;
+                    if(logger == null) continue;
+                    logger.AddAppender(appender);
+                }
                 h.Configured = true;
                 return true;
             }
