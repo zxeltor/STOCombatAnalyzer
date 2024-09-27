@@ -40,7 +40,7 @@ public sealed class StoCombatAnalyzerSettings : INotifyPropertyChanged, IDisposa
     private bool _isDisplayPlotPlayerInactive;
     private bool _isEnableAnalysisTools;
     private bool _isIncludeNonPlayerEntities;
-    private CombatLogParseSettings _parserSettings;
+    private CombatLogParseSettings? _parserSettings;
     private bool _purgeCombatLogs;
 
     #endregion
@@ -117,7 +117,7 @@ public sealed class StoCombatAnalyzerSettings : INotifyPropertyChanged, IDisposa
         set => this.SetField(ref this._purgeCombatLogs, value);
     }
 
-    public CombatLogParseSettings ParserSettings
+    public CombatLogParseSettings? ParserSettings
     {
         get => this._parserSettings;
         set => this.SetField(ref this._parserSettings, value);
@@ -261,6 +261,9 @@ public sealed class StoCombatAnalyzerSettings : INotifyPropertyChanged, IDisposa
     /// </summary>
     private void Init()
     {
+        if (ParserSettings == null)
+            ParserSettings = new CombatLogParseSettings();
+        
         var mapDetectionSettings = GetMapDetectionSettings();
         this.ParserSettings.PropertyChanged += this.ParserSettingsOnPropertyChanged;
         this.ParserSettings.MapDetectionSettings = mapDetectionSettings;
