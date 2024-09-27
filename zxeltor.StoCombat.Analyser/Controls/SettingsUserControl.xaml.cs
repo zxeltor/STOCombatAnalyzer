@@ -11,9 +11,9 @@ using System.Windows;
 using System.Windows.Controls;
 using log4net;
 using Microsoft.Win32;
+using zxeltor.StoCombat.Analyzer.Classes;
 using zxeltor.StoCombat.Analyzer.Properties;
 using zxeltor.StoCombat.Lib.Helpers;
-using zxeltor.StoCombat.Lib.Parser;
 using zxeltor.Types.Lib.Result;
 
 namespace zxeltor.StoCombat.Analyzer.Controls;
@@ -35,6 +35,8 @@ public partial class SettingsUserControl : UserControl
     {
         this.InitializeComponent();
 
+        this.DataContext = StoCombatAnalyzerSettings.Instance;
+
         this.Loaded += this.OnLoaded;
         this.Unloaded += this.OnUnloaded;
     }
@@ -54,7 +56,8 @@ public partial class SettingsUserControl : UserControl
         {
             this._log.Debug("Purging log files.");
 
-            var purgeResult = ParserHelper.TryPurgeCombatLogFolder(new CombatLogParseSettings(Settings.Default),
+            var purgeResult = ParserHelper.TryPurgeCombatLogFolder(StoCombatAnalyzerSettings.Instance.ParserSettings,
+                StoCombatAnalyzerSettings.Instance.HowLongToKeepLogsInDays,
                 out var filesPurged);
 
             if (purgeResult.SuccessFull)
@@ -134,13 +137,14 @@ public partial class SettingsUserControl : UserControl
             Multiselect = false
         };
 
-        if (!string.IsNullOrWhiteSpace(Settings.Default.CombatLogPath))
-            if (Directory.Exists(Settings.Default.CombatLogPath))
-                dialog.InitialDirectory = Settings.Default.CombatLogPath;
+        if (!string.IsNullOrWhiteSpace(StoCombatAnalyzerSettings.Instance.ParserSettings.CombatLogPath))
+            if (Directory.Exists(StoCombatAnalyzerSettings.Instance.ParserSettings.CombatLogPath))
+                dialog.InitialDirectory = StoCombatAnalyzerSettings.Instance.ParserSettings.CombatLogPath;
 
         var dialogResult = dialog.ShowDialog(Application.Current.MainWindow);
 
-        if (dialogResult.HasValue && dialogResult.Value) Settings.Default.CombatLogPath = dialog.FolderName;
+        if (dialogResult.HasValue && dialogResult.Value)
+            StoCombatAnalyzerSettings.Instance.ParserSettings.CombatLogPath = dialog.FolderName;
     }
 
     /// <summary>
@@ -157,14 +161,14 @@ public partial class SettingsUserControl : UserControl
             var stoLogFolderPath = Path.Combine(stoBaseFolder, LibHelper.StoCombatLogSubFolder);
             if (Directory.Exists(stoLogFolderPath))
             {
-                Settings.Default.CombatLogPath = stoLogFolderPath;
+                StoCombatAnalyzerSettings.Instance.ParserSettings.CombatLogPath = stoLogFolderPath;
                 MessageBox.Show(Application.Current.MainWindow!,
                     "The STO log folder was found. Setting CombatLogPath with the folder path.",
                     "Information", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
-                Settings.Default.CombatLogPath = stoBaseFolder;
+                StoCombatAnalyzerSettings.Instance.ParserSettings.CombatLogPath = stoBaseFolder;
                 MessageBox.Show(Application.Current.MainWindow!,
                     "The STO base folder was found, but not the combat log sub folder. Setting CombatLogPath to the base STO folder as a starting point.",
                     "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);

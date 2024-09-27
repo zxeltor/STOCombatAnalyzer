@@ -200,6 +200,9 @@ Note: The new settings won't be reflected in the interface until you run "Parse 
   <data name="is_display_pets_only" xml:space="preserve">
     <value>If selected, display a breakdown of Pet Only events in the Event Type Breakdown barchart.</value>
   </data>
+  <data name="MapDetctionSettingsDownloadUrl" xml:space="preserve">
+    <value>https://raw.githubusercontent.com/zxeltor/STOCombatAnalyzer.Settings/main/CombatMapDetectionSettings.json</value>
+  </data>
   <data name="map_entity_list" xml:space="preserve">
     <value>This displays a collection of configurable map entities. A map can represent a physical map, a TFO, or some other event in the game.</value>
   </data>

@@ -35,11 +35,10 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 {
     #region Private Fields
 
-    private readonly ILog _log = LogManager.GetLogger(typeof(DetectionSettingsControl));
-
     private readonly LargeObservableCollection<CombatEvent> _combatEventList = [];
+    private string? _combatMapDetectionSettingsBeforeSave;
     private string? _filterString;
-
+    private readonly ILog _log = LogManager.GetLogger(typeof(DetectionSettingsControl));
     private readonly LargeObservableCollection<CombatEvent> _unfilteredList = [];
 
     #endregion
@@ -60,18 +59,15 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
     #region Public Properties
 
-    private CombatLogManager? CombatLogManagerContext => this.DataContext as CombatLogManager;
+    public CombatDataGridContext? MyGridContext { get; set; }
 
-    private MainWindow? MainWindow => Application.Current.MainWindow as MainWindow;
+    private CombatLogManager? CombatLogManagerContext => this.DataContext as CombatLogManager;
 
     public LargeObservableCollection<CombatEvent> CombatEventList
     {
         get
         {
-            if (string.IsNullOrWhiteSpace(this.FilterString))
-            {
-                return this._unfilteredList;
-            }
+            if (string.IsNullOrWhiteSpace(this.FilterString)) return this._unfilteredList;
 
             this._combatEventList.Clear();
 
@@ -104,7 +100,13 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
         }
     }
 
-    public CombatDataGridContext? MyGridContext { get; set; }
+    private MainWindow? MainWindow => Application.Current.MainWindow as MainWindow;
+
+    public string? CombatMapDetectionSettingsBeforeSave
+    {
+        get => this._combatMapDetectionSettingsBeforeSave;
+        set => this.SetField(ref this._combatMapDetectionSettingsBeforeSave, value);
+    }
 
     public string? FilterString
     {
@@ -126,106 +128,21 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
     #region Other Members
 
-    private void UiButtonImportMapEntities_OnClick(object sender, RoutedEventArgs e)
+    private void Browse_OnMouseLeftButtonUp(object sender, RoutedEventArgs e)
     {
-        var openFile = new OpenFileDialog
+        if (!(e.Source is Button button))
+            return;
+
+        if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.LeftAlt))
         {
-            Filter = "MapEntities JSON|*.json"
-        };
-
-        var result = openFile.ShowDialog();
-
-        if (result == true)
-            try
-            {
-                using (var sr = new StreamReader(openFile.FileName))
-                {
-                    var jsonString = sr.ReadToEnd();
-                    var serializationResult = SerializationHelper.Deserialize<CombatMapDetectionSettings>(jsonString);
-
-                    this.CombatLogManagerContext.CombatMapDetectionSettings = serializationResult;
-
-                    Settings.Default.UserCombatDetectionSettings = jsonString;
-                    //Settings.Default.Save();
-                }
-
-                var successStorage =
-                    new StringBuilder(
-                        $"Successfully imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
-                successStorage.Append(Environment.NewLine).Append(Environment.NewLine)
-                    .Append(
-                        "Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
-
-                this._log.Info(
-                    $"Successfully imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
-                MessageBox.Show(this.MainWindow, successStorage.ToString(), "Success", MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-
-                this.CombatLogManagerContext.Combats.Clear();
-            }
-            catch (Exception exception)
-            {
-                var errorMessage = $"Failed to import MapEntities JSON. Reason={exception.Message}";
-                this._log.Error(errorMessage, exception);
-                MessageBox.Show(this.MainWindow, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-    }
-
-    private void UiButtonResetMapEntities_OnClick(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            if (this.CombatLogManagerContext == null) return;
-
-            Settings.Default.UserCombatDetectionSettings = null;
-            //Settings.Default.Save();
-
-            this.CombatLogManagerContext.CombatMapDetectionSettings =
-                SerializationHelper.Deserialize<CombatMapDetectionSettings>(Settings.Default
-                    .DefaultCombatDetectionSettings);
-
-            this.CombatLogManagerContext.Combats.Clear();
-
-            var message = "Map detection settings have been set to application default.";
-            this._log.Info(message);
-            MessageBox.Show(this.MainWindow, $"{message} You'll need to parse your logs again.", "Info",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-        catch (Exception exception)
-        {
-            var error = "Failed to switch map detection setting to application default.";
-            this._log.Error(error, exception);
-            MessageBox.Show(this.MainWindow, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
-
-    private void OnUnloaded(object sender, RoutedEventArgs e)
-    {
-        this._unfilteredList.Clear();
-        this._combatEventList.Clear();
-        //this.OnPropertyChanged(nameof(this.CombatEventList));
-
-        if (this.CombatLogManagerContext != null)
-            this.CombatLogManagerContext.PropertyChanged -= this.CombatLogManagerContextOnPropertyChanged;
-    }
-
-    private void OnLoaded(object sender, RoutedEventArgs e)
-    {
-        if (this.CombatLogManagerContext == null)
-        {
-            MessageBox.Show(this.MainWindow, $"Failed to initialize {nameof(DetectionSettingsControl)}");
+            StoCombatAnalyzerSettings.Instance.IsDisplayDevTestTools =
+                !StoCombatAnalyzerSettings.Instance.IsDisplayDevTestTools;
             return;
         }
 
-        if (this.CombatLogManagerContext.SelectedCombat != null)
-        {
-            this._unfilteredList.Clear();
-            this._unfilteredList.AddRange(this.CombatLogManagerContext.SelectedCombat.AllCombatEvents);
-        }
+        if (button.Tag is not string tagString) return;
 
-        this.OnPropertyChanged(nameof(this.CombatEventList));
-
-        this.CombatLogManagerContext.PropertyChanged += this.CombatLogManagerContextOnPropertyChanged;
+        AppHelper.DisplayHelpUrlInBrowser(this.MainWindow, tagString);
     }
 
     private void CombatLogManagerContextOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -235,47 +152,36 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
             this._unfilteredList.Clear();
 
             if (this.CombatLogManagerContext?.SelectedCombat != null)
-            {
                 this._unfilteredList.AddRange(this.CombatLogManagerContext.SelectedCombat.AllCombatEvents);
-            }
 
             this.OnPropertyChanged(nameof(this.CombatEventList));
         }
     }
 
-    private void MenuItemRemoveCombat_OnClick(object sender, RoutedEventArgs e)
+    private void DetailsImage_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
-        if (e.Source is MenuItem menuItem)
-            if (menuItem.CommandParameter is Combat combat)
-            {
-                if (combat.ImportedDate == null)
-                {
-                    MessageBox.Show(this.MainWindow, "You can only remove an imported combat", "Info",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-                    return;
-                }
+        if (!(e.Source is Image image)) return;
 
-                this.CombatLogManagerContext?.Combats.Remove(combat);
-            }
+        if (image.Tag is not string tagString) return;
+
+        AppHelper.DisplayDetailsDialog(this.MainWindow, tagString);
     }
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    private void EditMapDetectionSettings_OnClick(object sender, RoutedEventArgs e)
     {
-        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+        if (sender is not Button buttonResult) return;
 
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        field = value;
-        this.OnPropertyChanged(propertyName);
-        return true;
+        if (buttonResult.CommandParameter is not CombatMap combatMapResult) return;
+
+        var dialog = new DetectionSettingsMapEditor();
+        dialog.Owner = this.MainWindow;
+        dialog.ShowDialog(combatMapResult);
     }
 
     private void EstablishGridColumns()
     {
-        this.MyGridContext = CombatDataGridContext.GetDefaultContext(Settings.Default.CombatControlGridDisplayList);
+        this.MyGridContext =
+            CombatDataGridContext.GetDefaultContext(StoCombatAnalyzerSettings.Instance.CombatControlGridDisplayList);
         if (this.MyGridContext == null || this.MyGridContext.GridColumns.Count == 0) return;
 
         var propertyInfoList = typeof(CombatEvent).GetProperties().ToList();
@@ -331,191 +237,6 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
         }
     }
 
-    private void UiButtonResetDataGridFilter_OnClick(object sender, RoutedEventArgs e)
-    {
-        this.uiTextBoxSearchGrid.Text = string.Empty;
-        this.FilterString = null;
-    }
-
-    private void UiTextBoxSearchGrid_OnKeyUp(object sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Enter || e.Key == Key.Return)
-            this.UiButtonSetDataGridFilter_OnClick(sender, new RoutedEventArgs());
-    }
-
-    private void UiButtonSetDataGridFilter_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(this.uiTextBoxSearchGrid.Text))
-            this.UiButtonResetDataGridFilter_OnClick(sender, e);
-        else
-            this.FilterString = this.uiTextBoxSearchGrid.Text.Trim();
-    }
-
-    private void UiButtonExportMapEntities_OnClick(object sender, RoutedEventArgs e)
-    {
-        var saveFile = new SaveFileDialog();
-        saveFile.Filter = "MapDetectionSettings JSON|*.json";
-
-        var result = saveFile.ShowDialog();
-
-        if (result.HasValue && result.Value)
-            try
-            {
-                if (string.IsNullOrWhiteSpace(saveFile.FileName))
-                {
-                    MessageBox.Show(this.MainWindow, "You need to select a file name.", "Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Exclamation);
-                    return;
-                }
-
-                var indent = e.Source is Button buttonResult && buttonResult.Tag is string tagResult &&
-                             tagResult.Equals("export_detection_json");
-
-                using (var sw = new StreamWriter(saveFile.FileName))
-                {
-                    var combatMapDetectionSettings = this.CombatLogManagerContext?.CombatMapDetectionSettings;
-                    if (combatMapDetectionSettings != null)
-                    {
-                        var serializationResult =
-                            SerializationHelper.Serialize(combatMapDetectionSettings, indent);
-                        sw.Write(serializationResult);
-                    }
-
-                    sw.Flush();
-                }
-
-                var successStorage = "Successfully exported MapDetectionSettings to JSON";
-                this._log.Info(successStorage);
-                MessageBox.Show(this.MainWindow, successStorage, "Success", MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
-            catch (Exception exception)
-            {
-                var errorMessage = $"Failed to export MapDetectionSettings to JSON. Reason={exception.Message}";
-                this._log.Error(errorMessage, exception);
-                MessageBox.Show(this.MainWindow, errorMessage, "Error", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-    }
-
-    private void UiButtonSaveDetectionSettings_OnClick(object sender, RoutedEventArgs e)
-    {
-        var dialogResult = MessageBox.Show(this.MainWindow,
-            "Are you sure you want to save changes to MapDetectionSettings?",
-            "Question",
-            MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-        if (dialogResult != MessageBoxResult.Yes) return;
-
-        try
-        {
-            var combatMapDetectionSettings = this.CombatLogManagerContext?.CombatMapDetectionSettings;
-            if (combatMapDetectionSettings != null)
-            {
-                var serializedString =
-                    SerializationHelper.Serialize(combatMapDetectionSettings);
-
-                if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatDetectionSettings) &&
-                    SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
-                        Settings.Default.UserCombatDetectionSettings,
-                        out _))
-                {
-                    var combatLogManagerContext = this.CombatLogManagerContext;
-                    if (combatLogManagerContext != null)
-                        combatLogManagerContext.CombatMapDetectionSettingsBeforeSave =
-                            Settings.Default.UserCombatDetectionSettings;
-                }
-
-                else if (!string.IsNullOrWhiteSpace(Settings.Default.DefaultCombatDetectionSettings) &&
-                         SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
-                             Settings.Default.DefaultCombatDetectionSettings, out _))
-                {
-                    var combatLogManagerContext = this.CombatLogManagerContext;
-                    if (combatLogManagerContext != null)
-                        combatLogManagerContext.CombatMapDetectionSettingsBeforeSave =
-                            Settings.Default.DefaultCombatDetectionSettings;
-                }
-
-                Settings.Default.UserCombatDetectionSettings = serializedString;
-            }
-
-            var successMessage =
-                $"Successfully saved {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.";
-
-            var successMessageForDisplay = new StringBuilder(successMessage);
-            successMessageForDisplay.Append(Environment.NewLine).Append(Environment.NewLine)
-                .Append(
-                    "Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
-
-            this._log.Info(successMessage);
-            MessageBox.Show(this.MainWindow, successMessageForDisplay.ToString(), "Success",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-
-            this.CombatLogManagerContext.Combats.Clear();
-        }
-        catch (Exception exception)
-        {
-            this._log.Error("Failed to save MapDetectionSettings.", exception);
-
-            MessageBox.Show(this.MainWindow,
-                $"Failed to save MapDetectionSettings. Reason={exception.Message}", "Error",
-                MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
-
-    private void UiButtonCancelDetectionSettings_OnClick(object sender, RoutedEventArgs e)
-    {
-        var dialogResult = MessageBox.Show(this.MainWindow,
-            "Are you sure you want to cancel your changes to MapDetectionSettings?", "Question",
-            MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-        if (dialogResult != MessageBoxResult.Yes) return;
-
-        if (!string.IsNullOrWhiteSpace(this.CombatLogManagerContext?.CombatMapDetectionSettingsBeforeSave) &&
-            SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
-                this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave,
-                out var canceledCombatMapSettingsUser))
-        {
-            this.CombatLogManagerContext.CombatMapDetectionSettings = canceledCombatMapSettingsUser;
-            Settings.Default.UserCombatDetectionSettings =
-                this.CombatLogManagerContext.CombatMapDetectionSettingsBeforeSave;
-            this.SetMapDetectionSettingsChanged(false);
-        }
-        else if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatDetectionSettings) &&
-                 SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
-                     Settings.Default.UserCombatDetectionSettings,
-                     out var combatMapSettingsUser))
-        {
-            var combatLogManagerContext = this.CombatLogManagerContext;
-            if (combatLogManagerContext != null)
-                combatLogManagerContext.CombatMapDetectionSettings = combatMapSettingsUser;
-            this.SetMapDetectionSettingsChanged(false);
-        }
-        else if (!string.IsNullOrWhiteSpace(Settings.Default.DefaultCombatDetectionSettings) &&
-                 SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
-                     Settings.Default.DefaultCombatDetectionSettings, out var combatMapSettingsDefault))
-        {
-            var combatLogManagerContext = this.CombatLogManagerContext;
-            if (combatLogManagerContext != null)
-                combatLogManagerContext.CombatMapDetectionSettings = combatMapSettingsDefault;
-            this.SetMapDetectionSettingsChanged(false);
-        }
-        else
-        {
-            var error = "Failed to cancel MapDetectionSettings changes. No previous settings found.";
-            this._log.Error(error);
-            MessageBox.Show(this.MainWindow, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
-
-    private void SetMapDetectionSettingsChanged(bool hasChanges = true)
-    {
-        var combatLogManagerContext = this.CombatLogManagerContext;
-        if (combatLogManagerContext?.CombatMapDetectionSettings != null)
-            combatLogManagerContext?.CombatMapDetectionSettings.SetChange(hasChanges);
-    }
-
     private void MapDetectButton_OnClick(object sender, RoutedEventArgs e)
     {
         if (!(e.Source is Button buttonResult))
@@ -541,7 +262,7 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
-                this.CombatLogManagerContext?.CombatMapDetectionSettings?.CombatMapEntityList.Add(
+                StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.CombatMapEntityList.Add(
                     new CombatMap { Name = name });
                 this.SetMapDetectionSettingsChanged();
             }
@@ -569,7 +290,7 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
             if (dialogResult == MessageBoxResult.Yes)
             {
-                this.CombatLogManagerContext?.CombatMapDetectionSettings?.CombatMapEntityList.Remove(
+                StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.CombatMapEntityList.Remove(
                     combatMapDeleteResult);
                 this.SetMapDetectionSettingsChanged();
             }
@@ -614,7 +335,8 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
             if (messageBoxResult == MessageBoxResult.Yes)
             {
                 var mapResult =
-                    (from map in this.CombatLogManagerContext?.CombatMapDetectionSettings.CombatMapEntityList
+                    (from map in StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings
+                            .CombatMapEntityList
                         from ent in map.MapEntities
                         where ent.Id.Equals(combatMapEntityDeleteResult.Id)
                         select map).FirstOrDefault();
@@ -673,7 +395,8 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
             if (messageBoxResult == MessageBoxResult.Yes)
             {
                 var mapResult =
-                    (from map in this.CombatLogManagerContext?.CombatMapDetectionSettings.CombatMapEntityList
+                    (from map in StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings
+                            ?.CombatMapEntityList
                         from ent in map.MapEntityExclusions
                         where ent.Id.Equals(combatMapEntityExceptionDeleteResult.Id)
                         select map).FirstOrDefault();
@@ -702,7 +425,7 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
-                this.CombatLogManagerContext?.CombatMapDetectionSettings?.EntityExclusionList.Add(
+                StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.EntityExclusionList.Add(
                     new CombatMapEntity(name));
                 this.SetMapDetectionSettingsChanged();
             }
@@ -731,7 +454,7 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
             if (messageBoxResult == MessageBoxResult.Yes)
             {
-                this.CombatLogManagerContext?.CombatMapDetectionSettings?.EntityExclusionList.Remove(
+                StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.EntityExclusionList.Remove(
                     combatEntityExceptionDeleteResult);
                 this.SetMapDetectionSettingsChanged();
             }
@@ -760,8 +483,9 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
-                this.CombatLogManagerContext?.CombatMapDetectionSettings?.GenericGroundMap.MapEntities.Add(
-                    new CombatMapEntity(name));
+                StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.GenericGroundMap.MapEntities
+                    .Add(
+                        new CombatMapEntity(name));
                 this.SetMapDetectionSettingsChanged();
             }
         }
@@ -789,8 +513,9 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
             if (messageBoxResult == MessageBoxResult.Yes)
             {
-                this.CombatLogManagerContext?.CombatMapDetectionSettings?.GenericGroundMap.MapEntities.Remove(
-                    combatEntityGroundDeleteResult);
+                StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.GenericGroundMap.MapEntities
+                    .Remove(
+                        combatEntityGroundDeleteResult);
                 this.SetMapDetectionSettingsChanged();
             }
         }
@@ -804,8 +529,9 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
-                this.CombatLogManagerContext?.CombatMapDetectionSettings?.GenericGroundMap.MapEntityExclusions.Add(
-                    new CombatMapEntity(name));
+                StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.GenericGroundMap
+                    .MapEntityExclusions.Add(
+                        new CombatMapEntity(name));
                 this.SetMapDetectionSettingsChanged();
             }
         }
@@ -833,8 +559,9 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
             if (messageBoxResult == MessageBoxResult.Yes)
             {
-                this.CombatLogManagerContext?.CombatMapDetectionSettings?.GenericGroundMap.MapEntityExclusions.Remove(
-                    combatEntityGroundExceptionDeleteResult);
+                StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.GenericGroundMap
+                    .MapEntityExclusions.Remove(
+                        combatEntityGroundExceptionDeleteResult);
                 this.SetMapDetectionSettingsChanged();
             }
         }
@@ -862,7 +589,7 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
-                this.CombatLogManagerContext?.CombatMapDetectionSettings?.GenericSpaceMap.MapEntities.Add(
+                StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.GenericSpaceMap.MapEntities.Add(
                     new CombatMapEntity(name));
                 this.SetMapDetectionSettingsChanged();
             }
@@ -891,8 +618,9 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
             if (messageBoxResult == MessageBoxResult.Yes)
             {
-                this.CombatLogManagerContext?.CombatMapDetectionSettings?.GenericSpaceMap.MapEntities.Remove(
-                    combatEntitySpaceDeleteResult);
+                StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.GenericSpaceMap.MapEntities
+                    .Remove(
+                        combatEntitySpaceDeleteResult);
                 this.SetMapDetectionSettingsChanged();
             }
         }
@@ -906,8 +634,9 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
             if (dialogResult.HasValue && dialogResult.Value && !string.IsNullOrWhiteSpace(name))
             {
-                this.CombatLogManagerContext?.CombatMapDetectionSettings?.GenericSpaceMap.MapEntityExclusions.Add(
-                    new CombatMapEntity(name));
+                StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.GenericSpaceMap
+                    .MapEntityExclusions.Add(
+                        new CombatMapEntity(name));
                 this.SetMapDetectionSettingsChanged();
             }
         }
@@ -935,84 +664,241 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
             if (messageBoxResult == MessageBoxResult.Yes)
             {
-                this.CombatLogManagerContext?.CombatMapDetectionSettings?.GenericSpaceMap.MapEntityExclusions.Remove(
-                    combatEntitySpaceExceptionDeleteResult);
+                StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.GenericSpaceMap
+                    .MapEntityExclusions.Remove(
+                        combatEntitySpaceExceptionDeleteResult);
                 this.SetMapDetectionSettingsChanged();
             }
         }
     }
 
-    private void DetailsImage_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    private void MenuItemRemoveCombat_OnClick(object sender, RoutedEventArgs e)
     {
-        if (!(e.Source is Image image)) return;
+        if (e.Source is MenuItem menuItem)
+            if (menuItem.CommandParameter is Combat combat)
+            {
+                if (combat.ImportedDate == null)
+                {
+                    MessageBox.Show(this.MainWindow, "You can only remove an imported combat", "Info",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    return;
+                }
 
-        if (image.Tag is not string tagString) return;
-
-        AppHelper.DisplayDetailsDialog(this.MainWindow, tagString);
+                this.CombatLogManagerContext?.Combats.Remove(combat);
+            }
     }
 
-    private void UIElement_OnMouseDown(object sender, MouseButtonEventArgs e)
+    private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (e.Source is FrameworkElement element)
+        if (this.CombatLogManagerContext == null)
         {
-            if (element.DataContext is CombatMap combatMap)
-                combatMap.IsEnabled = !combatMap.IsEnabled;
-            else if (element.DataContext is CombatMapEntity combatMapEntity)
-                combatMapEntity.IsEnabled = !combatMapEntity.IsEnabled;
+            MessageBox.Show(this.MainWindow, $"Failed to initialize {nameof(DetectionSettingsControl)}");
+            return;
         }
+
+        if (this.CombatLogManagerContext.SelectedCombat != null)
+        {
+            this._unfilteredList.Clear();
+            this._unfilteredList.AddRange(this.CombatLogManagerContext.SelectedCombat.AllCombatEvents);
+        }
+
+        this.CombatMapDetectionSettingsBeforeSave =
+            SerializationHelper.Serialize(StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings);
+
+        this.OnPropertyChanged(nameof(this.CombatEventList));
+
+        this.CombatLogManagerContext.PropertyChanged += this.CombatLogManagerContextOnPropertyChanged;
     }
 
-    private void UiButtonParseLog_OnClick(object sender, RoutedEventArgs e)
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
-        e.Handled = true;
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        this._unfilteredList.Clear();
+        this._combatEventList.Clear();
+
+        if (this.CombatLogManagerContext != null)
+            this.CombatLogManagerContext.PropertyChanged -= this.CombatLogManagerContextOnPropertyChanged;
+    }
+
+    private void ParseFilesFromDialog(bool filesAreJson)
+    {
+        var dialog = new OpenFileDialog();
+        dialog.Multiselect = true;
+
+        var dialogResult = dialog.ShowDialog(this.MainWindow);
+        if (dialogResult.HasValue && dialogResult.Value && dialog.FileNames.Length > 0)
+            this.MainWindow.ParseLogFiles(dialog.FileNames.ToList(), filesAreJson);
+    }
+
+    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        field = value;
+        this.OnPropertyChanged(propertyName);
+        return true;
+    }
+
+    private void SetMapDetectionSettingsChanged(bool hasChanges = true)
+    {
         var combatLogManagerContext = this.CombatLogManagerContext;
-        if (combatLogManagerContext != null && combatLogManagerContext.IsExecutingBackgroundProcess)
+        if (StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings != null)
+            StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings.SetChange(hasChanges);
+    }
+
+    private void UiButtonCancelDetectionSettings_OnClick(object sender, RoutedEventArgs e)
+    {
+        var dialogResult = MessageBox.Show(this.MainWindow,
+            "Are you sure you want to cancel your changes to MapDetectionSettings?", "Question",
+            MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+        if (dialogResult != MessageBoxResult.Yes) return;
+
+        if (!string.IsNullOrWhiteSpace(this.CombatMapDetectionSettingsBeforeSave) &&
+            SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
+                this.CombatMapDetectionSettingsBeforeSave,
+                out var canceledCombatMapSettingsUser))
         {
-            e.Handled = true;
+            StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings = canceledCombatMapSettingsUser;
+            this.SetMapDetectionSettingsChanged(false);
+        }
+        else
+        {
+            var error = "Failed to cancel MapDetectionSettings changes. No previous settings found.";
+            this._log.Error(error);
+            MessageBox.Show(this.MainWindow, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void UiButtonCopyEntities_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (this.CombatLogManagerContext?.SelectedCombat == null || this.CombatLogManagerContext.SelectedCombat
+                                                                     .UniqueEntityIds == null
+                                                                 || this.CombatLogManagerContext.SelectedCombat
+                                                                     .UniqueEntityIds.Count == 0)
+        {
+            MessageBox.Show(this.MainWindow,
+                "This feature doesn't do anything if the Unique list of Non-Player entities is empty.", "Notification",
+                MessageBoxButton.OK, MessageBoxImage.Exclamation);
             return;
         }
 
-        this.MainWindow?.ParseLogFiles(null);
-    }
-
-    private void Browse_OnMouseLeftButtonUp(object sender, RoutedEventArgs e)
-    {
-        if (!(e.Source is Button button))
-            return;
-
-        if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.LeftAlt))
+        if (StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings == null || StoCombatAnalyzerSettings
+                .Instance.ParserSettings.MapDetectionSettings.CombatMapEntityList.Count == 0)
         {
-            Settings.Default.IsDisplayDevTestTools = !Settings.Default.IsDisplayDevTestTools;
+            MessageBox.Show(this.MainWindow,
+                "This feature doesn't do anything if theirs no maps listed in Combat Map List.", "Notification",
+                MessageBoxButton.OK, MessageBoxImage.Exclamation);
             return;
         }
 
-        if (button.Tag is not string tagString) return;
-
-        AppHelper.DisplayHelpUrlInBrowser(this.MainWindow, tagString);
+        var result = CopyEntityToMapDialog.ShowDialog(this.MainWindow,
+            StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings.CombatMapEntityListOrderedByMapName
+                .ToList(),
+            this.CombatLogManagerContext.SelectedCombat.UniqueEntityIds.ToList());
     }
 
-    private void EditMapDetectionSettings_OnClick(object sender, RoutedEventArgs e)
+    private void UiButtonExportCombat_OnClick(object sender, RoutedEventArgs e)
     {
-        if (sender is not Button buttonResult) return;
+        if (this.CombatLogManagerContext?.SelectedCombat == null)
+        {
+            MessageBox.Show(this.MainWindow, "Need to select a Combat from the CombatList dropdown.", "Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Exclamation);
+            return;
+        }
 
-        if (buttonResult.CommandParameter is not CombatMap combatMapResult) return;
+        var saveFile = new SaveFileDialog();
+        saveFile.Filter = "Combat JSON|*.json";
 
-        var dialog = new DetectionSettingsMapEditor();
-        dialog.Owner = this.MainWindow;
-        dialog.ShowDialog(combatMapResult);
+        var result = saveFile.ShowDialog();
+
+        if (result.HasValue && result.Value)
+            try
+            {
+                if (string.IsNullOrWhiteSpace(saveFile.FileName))
+                {
+                    MessageBox.Show(this.MainWindow, "You need to select a file name.", "Error", MessageBoxButton.OK,
+                        MessageBoxImage.Exclamation);
+                    return;
+                }
+
+                using (var sw = new StreamWriter(saveFile.FileName))
+                {
+                    var serializationResult =
+                        SerializationHelper.Serialize(this.CombatLogManagerContext.SelectedCombat, true);
+                    sw.Write(serializationResult);
+                    sw.Flush();
+                }
+
+                var successStorage = "Successfully exported Combat to JSON";
+                this._log.Info(successStorage);
+                MessageBox.Show(this.MainWindow, successStorage, "Success", MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception exception)
+            {
+                var errorMessage = $"Failed to export Combat to JSON. Reason={exception.Message}";
+                this._log.Error(errorMessage, exception);
+                MessageBox.Show(this.MainWindow, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+    }
+
+    private void UiButtonExportMapEntities_OnClick(object sender, RoutedEventArgs e)
+    {
+        var saveFile = new SaveFileDialog();
+        saveFile.Filter = "MapDetectionSettings JSON|*.json";
+
+        var result = saveFile.ShowDialog();
+
+        if (result.HasValue && result.Value)
+            try
+            {
+                if (string.IsNullOrWhiteSpace(saveFile.FileName))
+                {
+                    MessageBox.Show(this.MainWindow, "You need to select a file name.", "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Exclamation);
+                    return;
+                }
+
+                var indent = e.Source is Button buttonResult && buttonResult.Tag is string tagResult &&
+                             tagResult.Equals("export_detection_json");
+
+                using (var sw = new StreamWriter(saveFile.FileName))
+                {
+                    var combatMapDetectionSettings =
+                        StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings;
+                    if (combatMapDetectionSettings != null)
+                    {
+                        var serializationResult =
+                            SerializationHelper.Serialize(combatMapDetectionSettings, indent);
+                        sw.Write(serializationResult);
+                    }
+
+                    sw.Flush();
+                }
+
+                var successStorage = "Successfully exported MapDetectionSettings to JSON";
+                this._log.Info(successStorage);
+                MessageBox.Show(this.MainWindow, successStorage, "Success", MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception exception)
+            {
+                var errorMessage = $"Failed to export MapDetectionSettings to JSON. Reason={exception.Message}";
+                this._log.Error(errorMessage, exception);
+                MessageBox.Show(this.MainWindow, errorMessage, "Error", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
     }
 
     private void UiButtonImportCombat_OnClick(object sender, RoutedEventArgs e)
     {
-        //if (this.CombatLogManagerContext.SelectedCombat == null)
-        //{
-        //    MessageBox.Show(this.MainWindow, "Need to select a Combat from the CombatList dropdown.", "Error",
-        //        MessageBoxButton.OK,
-        //        MessageBoxImage.Exclamation);
-        //    return;
-        //}
-
         var openFile = new OpenFileDialog();
         openFile.Filter = "Combat JSON|*.json";
         openFile.Multiselect = true;
@@ -1069,80 +955,49 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
             }
     }
 
-    private void UiButtonExportCombat_OnClick(object sender, RoutedEventArgs e)
+    private void UiButtonImportMapEntities_OnClick(object sender, RoutedEventArgs e)
     {
-        if (this.CombatLogManagerContext?.SelectedCombat == null)
+        var openFile = new OpenFileDialog
         {
-            MessageBox.Show(this.MainWindow, "Need to select a Combat from the CombatList dropdown.", "Error",
-                MessageBoxButton.OK,
-                MessageBoxImage.Exclamation);
-            return;
-        }
+            Filter = "MapEntities JSON|*.json"
+        };
 
-        var saveFile = new SaveFileDialog();
-        saveFile.Filter = "Combat JSON|*.json";
+        var result = openFile.ShowDialog();
 
-        var result = saveFile.ShowDialog();
-
-        if (result.HasValue && result.Value)
+        if (result == true)
             try
             {
-                if (string.IsNullOrWhiteSpace(saveFile.FileName))
+                using (var sr = new StreamReader(openFile.FileName))
                 {
-                    MessageBox.Show(this.MainWindow, "You need to select a file name.", "Error", MessageBoxButton.OK,
-                        MessageBoxImage.Exclamation);
-                    return;
+                    var jsonString = sr.ReadToEnd();
+                    var serializationResult = SerializationHelper.Deserialize<CombatMapDetectionSettings>(jsonString);
+
+                    StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings = serializationResult;
+
+                    //Settings.Default.UserCombatDetectionSettings = jsonString;
+                    //Settings.Default.Save();
                 }
 
-                using (var sw = new StreamWriter(saveFile.FileName))
-                {
-                    var serializationResult =
-                        SerializationHelper.Serialize(this.CombatLogManagerContext.SelectedCombat, true);
-                    sw.Write(serializationResult);
-                    sw.Flush();
-                }
+                var successStorage =
+                    new StringBuilder(
+                        $"Successfully imported {StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.CombatMapEntityList.Count} maps with entities.");
+                successStorage.Append(Environment.NewLine).Append(Environment.NewLine)
+                    .Append(
+                        "Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
 
-                var successStorage = "Successfully exported Combat to JSON";
-                this._log.Info(successStorage);
-                MessageBox.Show(this.MainWindow, successStorage, "Success", MessageBoxButton.OK,
+                this._log.Info(
+                    $"Successfully imported {StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.CombatMapEntityList.Count} maps with entities.");
+                MessageBox.Show(this.MainWindow, successStorage.ToString(), "Success", MessageBoxButton.OK,
                     MessageBoxImage.Information);
+
+                this.CombatLogManagerContext?.Combats.Clear();
             }
             catch (Exception exception)
             {
-                var errorMessage = $"Failed to export Combat to JSON. Reason={exception.Message}";
+                var errorMessage = $"Failed to import MapEntities JSON. Reason={exception.Message}";
                 this._log.Error(errorMessage, exception);
                 MessageBox.Show(this.MainWindow, errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-    }
-
-    private void UiButtonCopyEntities_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (this.CombatLogManagerContext?.SelectedCombat == null || this.CombatLogManagerContext.SelectedCombat.UniqueEntityIds == null
-            || this.CombatLogManagerContext.SelectedCombat.UniqueEntityIds.Count == 0)
-        {
-            MessageBox.Show(this.MainWindow,
-                "This feature doesn't do anything if the Unique list of Non-Player entities is empty.", "Notification", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-            return;
-        }
-
-        if (this.CombatLogManagerContext.CombatMapDetectionSettings == null || this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count == 0)
-        {
-            MessageBox.Show(this.MainWindow,
-                "This feature doesn't do anything if theirs no maps listed in Combat Map List.", "Notification", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-            return;
-        }
-
-        var result = CopyEntityToMapDialog.ShowDialog(this.MainWindow,
-            this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityListOrderedByMapName.ToList(),
-            this.CombatLogManagerContext.SelectedCombat.UniqueEntityIds.ToList());
-    }
-
-    #endregion
-
-
-    private void UiButtonParseLogFile_OnClick(object sender, RoutedEventArgs e)
-    {
-        this.ParseFilesFromDialog(false);
     }
 
     private void UiButtonParseJsonFile_OnClick(object sender, RoutedEventArgs e)
@@ -1150,15 +1005,124 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
         this.ParseFilesFromDialog(true);
     }
 
-    private void ParseFilesFromDialog(bool filesAreJson)
+    private void UiButtonParseLog_OnClick(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog();
-        dialog.Multiselect = true;
+        e.Handled = true;
 
-        var dialogResult = dialog.ShowDialog(this.MainWindow);
-        if (dialogResult.HasValue && dialogResult.Value && dialog.FileNames.Length > 0)
+        var combatLogManagerContext = this.CombatLogManagerContext;
+        if (combatLogManagerContext != null && combatLogManagerContext.IsExecutingBackgroundProcess)
         {
-            this.MainWindow.ParseLogFiles(dialog.FileNames.ToList(), filesAreJson);
+            e.Handled = true;
+            return;
+        }
+
+        this.MainWindow?.ParseLogFiles(null);
+    }
+
+
+    private void UiButtonParseLogFile_OnClick(object sender, RoutedEventArgs e)
+    {
+        this.ParseFilesFromDialog(false);
+    }
+
+    private void UiButtonResetDataGridFilter_OnClick(object sender, RoutedEventArgs e)
+    {
+        this.uiTextBoxSearchGrid.Text = string.Empty;
+        this.FilterString = null;
+    }
+
+    private void UiButtonResetMapEntities_OnClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (this.CombatLogManagerContext == null) return;
+
+            Settings.Default.UserCombatDetectionSettings = null;
+            //Settings.Default.Save();
+
+            StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings =
+                SerializationHelper.Deserialize<CombatMapDetectionSettings>(Settings.Default
+                    .DefaultCombatDetectionSettings);
+
+            this.CombatLogManagerContext.Combats.Clear();
+
+            var message = "Map detection settings have been set to application default.";
+            this._log.Info(message);
+            MessageBox.Show(this.MainWindow, $"{message} You'll need to parse your logs again.", "Info",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception exception)
+        {
+            var error = "Failed to switch map detection setting to application default.";
+            this._log.Error(error, exception);
+            MessageBox.Show(this.MainWindow, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+
+    private void UiButtonSaveDetectionSettings_OnClick(object sender, RoutedEventArgs e)
+    {
+        var dialogResult = MessageBox.Show(this.MainWindow,
+            "Are you sure you want to save changes to MapDetectionSettings?",
+            "Question",
+            MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+        if (dialogResult != MessageBoxResult.Yes) return;
+
+        try
+        {
+            StoCombatAnalyzerSettings.Instance.SaveToAppConfig();
+
+            this.CombatMapDetectionSettingsBeforeSave =
+                SerializationHelper.Serialize(StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings);
+
+            var successMessage =
+                $"Successfully saved {StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.CombatMapEntityList.Count} maps with entities.";
+
+            var successMessageForDisplay = new StringBuilder(successMessage);
+            successMessageForDisplay.Append(Environment.NewLine).Append(Environment.NewLine)
+                .Append(
+                    "Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
+
+            this._log.Info(successMessage);
+            MessageBox.Show(this.MainWindow, successMessageForDisplay.ToString(), "Success",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+
+            this.CombatLogManagerContext.Clear();
+        }
+        catch (Exception exception)
+        {
+            this._log.Error("Failed to save MapDetectionSettings.", exception);
+
+            MessageBox.Show(this.MainWindow,
+                $"Failed to save MapDetectionSettings. Reason={exception.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void UiButtonSetDataGridFilter_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(this.uiTextBoxSearchGrid.Text))
+            this.UiButtonResetDataGridFilter_OnClick(sender, e);
+        else
+            this.FilterString = this.uiTextBoxSearchGrid.Text.Trim();
+    }
+
+    private void UIElement_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.Source is FrameworkElement element)
+        {
+            if (element.DataContext is CombatMap combatMap)
+                combatMap.IsEnabled = !combatMap.IsEnabled;
+            else if (element.DataContext is CombatMapEntity combatMapEntity)
+                combatMapEntity.IsEnabled = !combatMapEntity.IsEnabled;
+        }
+    }
+
+    private void UiTextBoxSearchGrid_OnKeyUp(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter || e.Key == Key.Return)
+            this.UiButtonSetDataGridFilter_OnClick(sender, new RoutedEventArgs());
+    }
+
+    #endregion
 }

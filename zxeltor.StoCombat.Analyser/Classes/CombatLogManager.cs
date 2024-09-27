@@ -5,13 +5,13 @@
 // LICENSE file in the root directory of this source tree.
 
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using log4net;
 using zxeltor.StoCombat.Analyzer.Classes.UI;
 using zxeltor.StoCombat.Analyzer.Properties;
 using zxeltor.StoCombat.Lib.Model.CombatLog;
-using zxeltor.StoCombat.Lib.Model.CombatMap;
 using zxeltor.StoCombat.Lib.Parser;
 using zxeltor.Types.Lib.Helpers;
 
@@ -33,29 +33,18 @@ public class CombatLogManager : INotifyPropertyChanged
 
     #region Static Fields and Constants
 
-    private static readonly ILog _log = LogManager.GetLogger(typeof(CombatLogManager));
+    private static readonly ILog Log = LogManager.GetLogger(typeof(CombatLogManager));
 
     #endregion
 
     #region Private Fields
 
     private CombatLogParserResult? _combatLogParserResult;
-
-    private CombatMapDetectionSettings? _combatMapDetectionSettings = new();
-
-    private string? _combatMapDetectionSettingsBeforeSave;
     private string? _dataGridSearchString;
-
     private CombatEventTypeSelector _eventTypeDisplayFilter = new("OVERALL");
-    private bool _isDisplayPlotPlayerInactive = true;
-
     private bool _isExecutingBackgroundProcess;
-    private bool _isPlotDisplayMagnitude = true;
-    private bool _isPlotDisplayMagnitudeBase;
     private Combat? _selectedCombat;
-
     private CombatEntity? _selectedCombatEntity;
-
     private CombatEventType? _selectedCombatEventType;
 
     #endregion
@@ -64,62 +53,13 @@ public class CombatLogManager : INotifyPropertyChanged
 
     public CombatLogManager()
     {
-        // Pull our map detection settings from the config
-        if (!string.IsNullOrWhiteSpace(Settings.Default.UserCombatDetectionSettings) &&
-            SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
-                Settings.Default.UserCombatDetectionSettings,
-                out var combatMapSettingsUser))
-            this.CombatMapDetectionSettings = combatMapSettingsUser;
-        else if (!string.IsNullOrWhiteSpace(Settings.Default.DefaultCombatDetectionSettings) &&
-                 SerializationHelper.TryDeserializeString<CombatMapDetectionSettings>(
-                     Settings.Default.DefaultCombatDetectionSettings, out var combatMapSettingsDefault))
-            this.CombatMapDetectionSettings = combatMapSettingsDefault;
-
-        if (this.CombatMapDetectionSettings != null)
-            this.CombatMapDetectionSettings.SetChange(false);
-
         Settings.Default.PropertyChanged += this.DefaultOnPropertyChanged;
+        this.Combats.CollectionChanged += this.CombatsOnCollectionChanged;
     }
 
     #endregion
 
     #region Public Properties
-
-    /// <summary>
-    ///     Display Magnitude in the main Plot control
-    /// </summary>
-    public bool IsDisplayPlotMagnitude
-    {
-        get => this._isPlotDisplayMagnitude;
-        set => this.SetField(ref this._isPlotDisplayMagnitude, value);
-    }
-
-    /// <summary>
-    ///     Display BaseMagnitude in the main Plot control
-    /// </summary>
-    public bool IsDisplayPlotMagnitudeBase
-    {
-        get => this._isPlotDisplayMagnitudeBase = Settings.Default.IsDisplayPlotMagnitudeBase;
-        set
-        {
-            this.SetField(ref this._isPlotDisplayMagnitudeBase, value);
-            if (Settings.Default.IsDisplayPlotMagnitudeBase != value)
-                Settings.Default.IsDisplayPlotMagnitudeBase = value;
-            //Settings.Default.Save();
-        }
-    }
-
-    public bool IsDisplayPlotPlayerInactive
-    {
-        get => this._isDisplayPlotPlayerInactive = Settings.Default.IsDisplayPlotPlayerInactive;
-        set
-        {
-            this.SetField(ref this._isDisplayPlotPlayerInactive, value);
-            if (Settings.Default.IsDisplayPlotPlayerInactive != value)
-                Settings.Default.IsDisplayPlotPlayerInactive = value;
-            //Settings.Default.Save();
-        }
-    }
 
     /// <summary>
     ///     A databind to disable the main UI while an expensive background process is running
@@ -174,15 +114,6 @@ public class CombatLogManager : INotifyPropertyChanged
     {
         get => this._combatLogParserResult;
         set => this.SetField(ref this._combatLogParserResult, value);
-    }
-
-    /// <summary>
-    ///     Combat map detection settings.
-    /// </summary>
-    public CombatMapDetectionSettings? CombatMapDetectionSettings
-    {
-        get => this._combatMapDetectionSettings;
-        set => this.SetField(ref this._combatMapDetectionSettings, value);
     }
 
     /// <summary>
@@ -248,11 +179,6 @@ public class CombatLogManager : INotifyPropertyChanged
     /// </summary>
     public ObservableCollection<Combat> Combats { get; set; } = new();
 
-    /// <summary>
-    ///     A list of <see cref="CombatEvent" /> for <see cref="SelectedCombat" />
-    /// </summary>
-    //public ObservableCollection<CombatEvent>? SelectedEntityCombatEventList { get; set; } = new();
-
     public ObservableCollection<CombatEvent>? FilteredSelectedEntityCombatEventList
     {
         get
@@ -260,7 +186,7 @@ public class CombatLogManager : INotifyPropertyChanged
             ObservableCollection<CombatEvent> results;
 
             // If we don't have analysis tool turned on, we don't want to take the time to return this list.
-            if (!Settings.Default.IsEnableAnalysisTools)
+            if (!StoCombatAnalyzerSettings.Instance.IsEnableAnalysisTools)
                 return null;
 
             if (this.SelectedCombatEntity == null)
@@ -275,8 +201,7 @@ public class CombatLogManager : INotifyPropertyChanged
             else if (this.EventTypeDisplayFilter.EventTypeId.Equals("PETS OVERALL"))
             {
                 results = new ObservableCollection<CombatEvent>(
-                    this.SelectedCombatEntity.CombatEventsList?.Where(evt => evt.IsOwnerPetEvent) ??
-                    Array.Empty<CombatEvent>());
+                    this.SelectedCombatEntity.CombatEventsList.Where(evt => evt.IsOwnerPetEvent));
             }
             // Return a list of events specific to a Pet
             else if (this.EventTypeDisplayFilter.IsPetEvent)
@@ -306,13 +231,12 @@ public class CombatLogManager : INotifyPropertyChanged
             {
                 // Return a list of events for a specific non-pet event.
                 results = new ObservableCollection<CombatEvent>(
-                    this.SelectedCombatEntity.CombatEventsList?.Where(evt => !evt.IsOwnerPetEvent &&
-                                                                             evt.EventInternal.Equals(
-                                                                                 this.EventTypeDisplayFilter
-                                                                                     .EventTypeId,
-                                                                                 StringComparison
-                                                                                     .CurrentCultureIgnoreCase)) ??
-                    Array.Empty<CombatEvent>());
+                    this.SelectedCombatEntity.CombatEventsList.Where(evt => !evt.IsOwnerPetEvent &&
+                                                                            evt.EventInternal.Equals(
+                                                                                this.EventTypeDisplayFilter
+                                                                                    .EventTypeId,
+                                                                                StringComparison
+                                                                                    .CurrentCultureIgnoreCase)));
             }
 
             // Filter our final result set, if we have a filter string set.
@@ -399,15 +323,6 @@ public class CombatLogManager : INotifyPropertyChanged
     public string MainWindowTitle => $"{Resources.ApplicationName}: {this.ApplicationVersionInfoString}";
 
     /// <summary>
-    ///     A backed up serialized version of our CombatMapDetectionSettings
-    /// </summary>
-    public string? CombatMapDetectionSettingsBeforeSave
-    {
-        get => this._combatMapDetectionSettingsBeforeSave;
-        set => this.SetField(ref this._combatMapDetectionSettingsBeforeSave, value);
-    }
-
-    /// <summary>
     ///     Used to filter the result set for the data grid
     /// </summary>
     public string? DataGridSearchString
@@ -423,6 +338,22 @@ public class CombatLogManager : INotifyPropertyChanged
     #endregion
 
     #region Public Members
+
+    /// <summary>
+    ///     Used to reset the object after <see cref="Combats" /> is cleared.
+    /// </summary>
+    public void Clear()
+    {
+        this.SelectedCombat = null;
+        this.SelectedCombatEntity = null;
+        this.SelectedCombatEventType = null;
+        this.CombatLogParserResult = null;
+        this.Combats.Clear();
+        this.FilteredSelectedEntityCombatEventList?.Clear();
+        this.SelectedEntityCombatEventTypeList?.Clear();
+        this.SelectedEntityCombatEventTypeListDisplayedFilterOptions.Clear();
+        this.SelectedEntityPetCombatEventTypeList?.Clear();
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -470,6 +401,14 @@ public class CombatLogManager : INotifyPropertyChanged
     #endregion
 
     #region Other Members
+
+    private void CombatsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        //if (e.Action == NotifyCollectionChangedAction.Reset)
+        //{
+        //    this.Clear();
+        //}
+    }
 
     /// <summary>
     ///     Event handler used to save changes to the main app settings when a property changes.

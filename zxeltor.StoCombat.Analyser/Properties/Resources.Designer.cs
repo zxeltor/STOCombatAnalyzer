@@ -279,6 +279,15 @@ namespace zxeltor.StoCombat.Analyzer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to https://raw.githubusercontent.com/zxeltor/STOCombatAnalyzer.Settings/main/CombatMapDetectionSettings.json.
+        /// </summary>
+        public static string MapDetctionSettingsDownloadUrl {
+            get {
+                return ResourceManager.GetString("MapDetctionSettingsDownloadUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Used to import and parse one or multiple Combat entities from JSON file(s)..
         /// </summary>
         public static string parse_combat_json {

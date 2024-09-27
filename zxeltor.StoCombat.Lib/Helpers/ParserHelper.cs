@@ -766,16 +766,14 @@ public static class ParserHelper
 
         if (string.IsNullOrWhiteSpace(combatLogParseSettings.CombatLogPath))
         {
-            resultFinal.AddMessage($"Argument is null {nameof(combatLogParseSettings.CombatLogPath)}",
+            return resultFinal.AddMessage($"Argument is null {nameof(combatLogParseSettings.CombatLogPath)}",
                 ResultLevel.Halt);
-            throw new ArgumentNullException(nameof(combatLogParseSettings.CombatLogPath));
         }
 
         if (string.IsNullOrWhiteSpace(combatLogParseSettings.CombatLogPathFilePattern))
         {
-            resultFinal.AddMessage($"Argument is null {nameof(combatLogParseSettings.CombatLogPathFilePattern)}",
+            return resultFinal.AddMessage($"Argument is null {nameof(combatLogParseSettings.CombatLogPathFilePattern)}",
                 ResultLevel.Halt);
-            throw new ArgumentNullException(nameof(combatLogParseSettings.CombatLogPathFilePattern));
         }
 
         var howFarBackInTime = TimeSpan.Zero;
@@ -857,31 +855,34 @@ public static class ParserHelper
             try
             {
                 // Since we can read in multiple log files, let's filter out the ones which are too old.
-                using (var sr = File.OpenText(fileInfoEntry.FullName))
+                using (var fs = new FileStream(fileInfoEntry.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
                 {
-                    resultFinal.AddMessage($"Parsing log: {Path.GetFileName(fileInfoEntry.FullName)}",
-                        ResultLevel.Debug);
-
-                    var fileLineCounter = 0;
-
-                    while (sr.ReadLine() is { } fileLine)
+                    using (var sr = new StreamReader(fs))
                     {
-                        fileLineCounter++;
-                        try
-                        {
-                            var combatEvent = new CombatEvent(Path.GetFileName(fileInfoEntry.FullName), fileLine,
-                                fileLineCounter);
+                        resultFinal.AddMessage($"Parsing log: {Path.GetFileName(fileInfoEntry.FullName)}",
+                            ResultLevel.Debug);
 
-                            resultFinal.AddParseResult(fileInfoEntry.FullName);
-                            combatEventListResults.Add(combatEvent);
-                        }
-                        catch (Exception ex)
+                        var fileLineCounter = 0;
+
+                        while (sr.ReadLine() is { } fileLine)
                         {
-                            var errorString =
-                                $"Failed to parse log file=\"{fileInfoEntry.FullName}\", at line={fileLineCounter}. File line string={fileLine}";
-                            Log.Error(errorString, ex);
-                            resultFinal.AddMessage(errorString, ResultLevel.Error);
-                            resultFinal.AddParseResult(fileInfoEntry.FullName, false);
+                            fileLineCounter++;
+                            try
+                            {
+                                var combatEvent = new CombatEvent(Path.GetFileName(fileInfoEntry.FullName), fileLine,
+                                    fileLineCounter);
+
+                                resultFinal.AddParseResult(fileInfoEntry.FullName);
+                                combatEventListResults.Add(combatEvent);
+                            }
+                            catch (Exception ex)
+                            {
+                                var errorString =
+                                    $"Failed to parse log file=\"{fileInfoEntry.FullName}\", at line={fileLineCounter}. File line string={fileLine}";
+                                Log.Error(errorString, ex);
+                                resultFinal.AddMessage(errorString, ResultLevel.Error);
+                                resultFinal.AddParseResult(fileInfoEntry.FullName, false);
+                            }
                         }
                     }
                 }

@@ -3,9 +3,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:properties="clr-namespace:zxeltor.StoCombat.Analyzer.Properties"
     xmlns:scottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
     xmlns:classes="clr-namespace:zxeltor.StoCombat.Analyzer.Classes"
+    xmlns:resources="clr-namespace:zxeltor.StoCombat.Analyzer.Properties"
     xmlns:controls="clr-namespace:zxeltor.StoCombat.Analyzer.Controls"
     x:Class="zxeltor.StoCombat.Analyzer.MainWindow"
     d:DataContext="{d:DesignInstance Type={x:Type classes:CombatLogManager}}"
@@ -22,7 +22,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="50*" />
-                        <RowDefinition Height="{Binding Source={x:Static properties:Settings.Default}, Path=IsEnableAnalysisTools, Converter={StaticResource boolToGridLengthConverter}}" />
+                        <RowDefinition Height="{Binding Source={x:Static classes:StoCombatAnalyzerSettings.Instance}, Path=IsEnableAnalysisTools, Converter={StaticResource boolToGridLengthConverter}}" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="30*"></ColumnDefinition>
@@ -74,6 +74,11 @@
                                                         <TextBlock Text="Map: " />
                                                         <TextBlock Text="{Binding Path=Map, Converter={StaticResource mapNameStringConverter}}" 
                                                                    Foreground="{Binding Path=Map, Converter={StaticResource mapNameColorConverter}}" FontWeight="Bold" />
+                                                        <StackPanel Orientation="Horizontal" Margin="8,0,0,0" Visibility="{Binding Path=MergeCount, Converter={StaticResource typeToVisibilityConverter}}">
+                                                            <TextBlock Text="M: " Foreground="{StaticResource colorEventTypeMetricLabel}"/>
+                                                            <TextBlock Text="{Binding Path=MergeCount}" 
+                                                                       Foreground="{StaticResource colorEventTypeMetricValue}"/>
+                                                        </StackPanel>
                                                     </StackPanel>
                                                     <StackPanel Orientation="Horizontal" Visibility="{Binding Path=RejectedCombatEntities.Count, Converter={StaticResource typeToVisibilityConverter}}">
                                                         <TextBlock Text="Rejected Entities: " />
@@ -115,7 +120,13 @@
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                                             <TextBlock Text="Map: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
-                                            <TextBlock Text="{Binding Path=SelectedCombat.Map, Converter={StaticResource mapNameStringConverter}}" Foreground="{Binding Path=SelectedCombat.Map, Converter={StaticResource mapNameColorConverter}}" FontWeight="Bold" />
+                                            <TextBlock Text="{Binding Path=SelectedCombat.Map, Converter={StaticResource mapNameStringConverter}}" Foreground="{Binding Path=SelectedCombat.Map, 
+                                                Converter={StaticResource mapNameColorConverter}}" FontWeight="Bold" />
+                                            <StackPanel Orientation="Horizontal" Margin="8,0,0,0" Visibility="{Binding Path=SelectedCombat.MergeCount, Converter={StaticResource typeToVisibilityConverter}}">
+                                                <TextBlock Text="M: " Foreground="{StaticResource colorEventTypeMetricLabel}"/>
+                                                <TextBlock Text="{Binding Path=SelectedCombat.MergeCount}"
+                                                           Foreground="{StaticResource colorEventTypeMetricValue}"/>
+                                            </StackPanel>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                                             <TextBlock Text="Players: " Margin="0,0,0,0" Visibility="{Binding Path=SelectedCombat.PlayerEntities, Converter={StaticResource typeToVisibilityConverter}}" 
@@ -132,7 +143,7 @@
                                                        Visibility="{Binding Path=SelectedCombat.RejectedCombatEntities.Count, Converter={StaticResource typeToVisibilityConverter}}"
                                                        Foreground="{StaticResource colorRejected}" />
                                             <TextBlock Text="Events: " Margin="4,0,0,0" Foreground="{StaticResource colorEventTypeMetricLabel}" />
-                                            <TextBlock Text="{Binding Path=SelectedCombat.EventsCount}" Foreground="{StaticResource colorEventTypeMetricValue}" />
+                                            <TextBlock Text="{Binding Path=SelectedCombat.AllCombatEvents.Count}" Foreground="{StaticResource colorEventTypeMetricValue}" />
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                                             <TextBlock Text="Duration: " Foreground="{StaticResource colorEventTypeMetricLabel}" />
@@ -183,9 +194,9 @@
 
                             <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,0,0">
                                 <CheckBox Name="uiCheckBoxDisplayAnalysisTools" Content="Display Enhanced Tools" Margin="2,0,18,0"
-                                          IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsEnableAnalysisTools, Mode=TwoWay}"
+                                          IsChecked="{Binding Source={x:Static classes:StoCombatAnalyzerSettings.Instance}, Path=IsEnableAnalysisTools, Mode=TwoWay}"
                                           Click="UiCheckBoxDisplayAnalysisTools_OnClick"
-                                          VerticalAlignment="Center" ToolTip="{x:Static properties:Resources.is_display_analysis_tools}"/>
+                                          VerticalAlignment="Center" ToolTip="{x:Static resources:Resources.is_display_analysis_tools}"/>
 
                                 <Button Tag="GithubCombatAnalyzerSectionOfWikiUrl" Background="Transparent" BorderBrush="Transparent" 
                                         Click="Browse_OnMouseLeftButtonUp">
@@ -352,7 +363,7 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="50*" />
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="{Binding Source={x:Static properties:Settings.Default}, Path=IsIncludeNonPlayerEntities, Converter={StaticResource boolToGridLengthConverter}}" />
+                                    <RowDefinition Height="{Binding Source={x:Static classes:StoCombatAnalyzerSettings.Instance}, Path=IsIncludeNonPlayerEntities, Converter={StaticResource boolToGridLengthConverter}}" />
                                 </Grid.RowDefinitions>
                                 
                                 <GroupBox Grid.Row="0" Margin="0,0,0,0">
@@ -397,11 +408,11 @@
                                 </GroupBox>
 
                                 <CheckBox Name="uiCheckBoxDisplayNonPlayerEntities" Grid.Row="1" Margin="0,4,0,0" 
-                                          IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsIncludeNonPlayerEntities, Mode=TwoWay}" 
+                                          IsChecked="{Binding Source={x:Static classes:StoCombatAnalyzerSettings.Instance}, Path=IsIncludeNonPlayerEntities, Mode=TwoWay}" 
                                           Content="Display Non-Players" HorizontalAlignment="Left" />
 
                                 <GroupBox Grid.Row="2" Margin="0,4,0,0" 
-                                          Visibility="{Binding Source={x:Static properties:Settings.Default}, Path=IsIncludeNonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}">
+                                          Visibility="{Binding Source={x:Static classes:StoCombatAnalyzerSettings.Instance}, Path=IsIncludeNonPlayerEntities, Converter={StaticResource typeToVisibilityConverter}}">
                                     <GroupBox.Header>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Non Players: "></TextBlock>
@@ -452,7 +463,7 @@
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
                                 <CheckBox Name="uiCheckBoxDisplayPetsOnlyOnPieChart" IsChecked="False" Content="Display Pet Breakdown" Margin="8,0,0,0"
-                                          ToolTip="{x:Static properties:Resources.is_display_pets_only}"
+                                          ToolTip="{x:Static resources:Resources.is_display_pets_only}"
                                           VerticalAlignment="Center" Tag="PetsOnlyOn"
                                           Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
                                           Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" />
@@ -466,7 +477,7 @@
                         <scottPlot:WpfPlot Name="uiScottBarChartEntityEventTypes" />
                     </GroupBox>
 
-                    <Grid Grid.Row="2" Grid.Column="0" ColumnSpan="2" Visibility="{Binding Source={x:Static properties:Settings.Default}, Path=IsEnableAnalysisTools, Converter={StaticResource typeToVisibilityConverter}}">
+                    <Grid Grid.Row="2" Grid.Column="0" ColumnSpan="2" Visibility="{Binding Source={x:Static classes:StoCombatAnalyzerSettings.Instance}, Path=IsEnableAnalysisTools, Converter={StaticResource typeToVisibilityConverter}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="50*" />
                             <ColumnDefinition Width="50*" />
@@ -562,13 +573,13 @@
 
                                     <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                                         <CheckBox x:Name="uiCheckboxPlotPlayerInactive" Content="Player InActive Times" Margin="8,0,0,0" 
-                                                  IsChecked="{Binding Path=IsDisplayPlotPlayerInactive, Mode=TwoWay}"
+                                                  IsChecked="{Binding Source={x:Static classes:StoCombatAnalyzerSettings.Instance}, Path=IsDisplayPlotPlayerInactive, Mode=TwoWay}"
                                                   Tag="PlotDisplayDisplayPlotPlayerInactive"
                                                   Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
                                                   Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
                                                   ToolTip="Display player overall inactive times on the plot."/>
                                         <CheckBox x:Name="uiCheckboxPlotDisplayMagnitudeBase" Content="Event MagnitudeBase" Margin="8,0,0,0"
-                                                  IsChecked="{Binding Path=IsDisplayPlotMagnitudeBase, Mode=TwoWay}"
+                                                  IsChecked="{Binding Source={x:Static classes:StoCombatAnalyzerSettings.Instance}, Path=IsDisplayPlotMagnitudeBase, Mode=TwoWay}"
                                                   Tag="PlotDisplayMagnitudeBase"
                                                   Checked="UiCheckbox_OnCheckedOrUnCheckedForPlots"
                                                   Unchecked="UiCheckbox_OnCheckedOrUnCheckedForPlots" 
@@ -594,14 +605,14 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Parser Results" Visibility="{Binding Source={x:Static properties:Settings.Default}, 
+            <TabItem Header="Parser Results" Visibility="{Binding Source={x:Static classes:StoCombatAnalyzerSettings.Instance}, 
                             Path=IsDisplayDevTestTools, Converter={StaticResource typeToVisibilityConverter}}">
                 <Grid>
                     <controls:ParserResultsControl></controls:ParserResultsControl>
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Map/Event Detection Settings" Visibility="{Binding Source={x:Static properties:Settings.Default}, 
+            <TabItem Header="Map/Event Detection Settings" Visibility="{Binding Source={x:Static classes:StoCombatAnalyzerSettings.Instance}, 
                     Path=IsDetectionsSettingsTabEnabled, Converter={StaticResource typeToVisibilityConverter}}">
                 <Grid Name="uiGridDetectionSettingsEditor" Margin="0,0,0,0" />
             </TabItem>
@@ -622,7 +633,7 @@
                                 
                                 <Button Name="uiButtonGarbageCollection" Content="Run Garbage Collection" Click="UiButtonGarbageCollection_OnClick" 
                                         Padding="4,4,4,4" Margin="4,0,0,0"
-                                        Visibility="{Binding Source={x:Static properties:Settings.Default}, 
+                                        Visibility="{Binding Source={x:Static classes:StoCombatAnalyzerSettings.Instance}, 
                                             Path=IsDisplayDevTestTools, Converter={StaticResource typeToVisibilityConverter}}"/>
 
                                 <Image Tag="import_detection_json_from_url" Source="Images/glyphicons-196-info-sign.png" Stretch="Fill" Height="16" Margin="16,0,0,0"

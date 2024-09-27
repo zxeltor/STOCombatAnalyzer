@@ -3,9 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:properties="clr-namespace:zxeltor.StoCombat.Analyzer.Properties"
+             xmlns:classes="clr-namespace:zxeltor.StoCombat.Analyzer.Classes"
              xmlns:converters="clr-namespace:zxeltor.StoCombat.Analyzer.Classes.Converters"
-             mc:Ignorable="d" d:Background="Beige" d:DesignHeight="1200" d:DesignWidth="1200">
+             mc:Ignorable="d" d:Background="Beige" d:DesignHeight="1200" d:DesignWidth="1200"
+             d:DataContext="{d:DesignInstance Type={x:Type classes:StoCombatAnalyzerSettings}}">
     <UserControl.Resources>
         <converters:IntToStringValidationConverter x:Key="intToStringValidationConverter" />
         <Brush x:Key="colorSettingsDescription">Black</Brush>
@@ -59,7 +60,7 @@
                                 <StackPanel Orientation="Vertical">
                                     <WrapPanel Orientation="Horizontal">
                                         <TextBlock Text="CombatLogPath:" FontWeight="Bold"/>
-                                        <TextBox Name="uiTextBoxCombatLogPath" Text="{Binding Source={x:Static properties:Settings.Default}, Path=CombatLogPath, Mode=TwoWay}" Margin="4,0,0,0" MinWidth="100" HorizontalAlignment="Stretch" />
+                                        <TextBox Name="uiTextBoxCombatLogPath" Text="{Binding Path=ParserSettings.CombatLogPath, Mode=TwoWay}" Margin="4,0,0,0" MinWidth="100" HorizontalAlignment="Stretch" />
                                         <Button Name="uiButtonBoxCombatLogPathSelect" Content="Browse" Click="UiButtonBoxCombatLogPath_OnClick" Margin="10,0,0,0" />
                                         <Button Name="uiButtonBoxCombatLogPathDetect" Content="Detect" Click="UiButtonBoxCombatLogPathDetect_OnClick" Margin="10,0,0,0" />
                                     </WrapPanel>
@@ -74,7 +75,7 @@
                                 <WrapPanel Orientation="Horizontal">
                                     <TextBlock Text="CombatLogPathFilePattern:" FontWeight="Bold"/>
                                     <TextBox Name="uiTextBoxCombatLogPathFilePattern" Margin="4,0,0,0" 
-                                        Text="{Binding Source={x:Static properties:Settings.Default}, Path=CombatLogPathFilePattern, Mode=TwoWay}" MinWidth="100"/>
+                                        Text="{Binding Path=ParserSettings.CombatLogPathFilePattern, Mode=TwoWay}" MinWidth="100"/>
                                 </WrapPanel>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
                                     A file pattern used to select one or more combat log files from the log folder. This search pattern supports wildcards so one or more files can be selected.
@@ -85,7 +86,7 @@
                             <StackPanel Orientation="Vertical">
                                 <WrapPanel Orientation="Horizontal">
                                     <TextBlock Text="MyCharacter:" FontWeight="Bold"/>
-                                    <TextBox Margin="4,0,0,0" Text="{Binding Source={x:Static properties:Settings.Default}, Path=MyCharacter, Mode=TwoWay}" MinWidth="200"/>
+                                    <TextBox Margin="4,0,0,0" Text="{Binding Path=ParserSettings.MyCharacter, Mode=TwoWay}" MinWidth="200"/>
                                 </WrapPanel>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
                                     A setting used to identify a single player, or an account. No value disables this feature.
@@ -102,7 +103,7 @@
                                 <WrapPanel Orientation="Horizontal">
                                     <TextBlock Text="HowFarBackForCombat:" FontWeight="Bold"/>
                                     <TextBox Name="uiTextBoxHowFarBackForCombat" 
-                                        Text="{Binding Source={x:Static properties:Settings.Default}, Path=HowFarBackForCombatInHours, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}}" 
+                                        Text="{Binding Path=ParserSettings.HowFarBackForCombatInHours, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}}" 
                                         Margin="4,0,0,0" MinWidth="60" />
                                     <TextBlock Text="Hours" Margin="2,0,0,0"></TextBlock>
                                 </WrapPanel>
@@ -116,7 +117,7 @@
                                 <WrapPanel Orientation="Horizontal">
                                     <TextBlock Text="HowLongBeforeNewCombat:" FontWeight="Bold"/>
                                     <TextBox Name="uiTextBoxHowLongBeforeNewCombat" 
-                Text="{Binding Source={x:Static properties:Settings.Default}, Path=HowLongBeforeNewCombatInSeconds, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}, ConverterParameter=1}" 
+                                    Text="{Binding Path=ParserSettings.HowLongBeforeNewCombatInSeconds, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}, ConverterParameter=1}" 
                                     Margin="4,0,0,0" MinWidth="60" />
                                     <TextBlock Text="Seconds" Margin="2,0,0,0"></TextBlock>
                                 </WrapPanel>
@@ -125,14 +126,14 @@
                                 </TextBlock>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsNote}" Margin="0,4,0,0">
                                     <Bold>Note:</Bold> This parameter has a huge impact on the parser, and affects the boundary logic used to determine combat instances. 
-                                    The lower you set this value from the default, the greater the chance of unrelated combat events being merged into a same combat instance.
+                                    The higher you set this value from the default, the greater the chance of unrelated combat events being merged into the same combat instance.
                                 </TextBlock>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <CheckBox Content="Display Parser Results" FontWeight="Bold"
-                                          IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsDisplayParseResults, Mode=TwoWay}" />
+                                          IsChecked="{Binding Path=IsDisplayParseResults, Mode=TwoWay}" />
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
                                     Enable the display of the parser results dialog.
                                 </TextBlock>
@@ -141,7 +142,7 @@
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <CheckBox Content="Display Rejected Parser Items" FontWeight="Bold"
-                                          IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsDisplayRejectedParserItemsInUi, Mode=TwoWay}" />
+                                          IsChecked="{Binding Path=ParserSettings.IsDisplayRejectedParserItemsInUi, Mode=TwoWay}" />
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
                                     Enable the display of rejected parser items in the UI. This can include rejected combat instances, or player entities.
                                 </TextBlock>
@@ -152,10 +153,45 @@
 
                 <GroupBox Header="Combat Specific Parser Settings" Grid.Row="1">
                     <StackPanel Orientation="Vertical" CanVerticallyScroll="True">
+                        <Border Style="{StaticResource styleSettingsBorderEmpty}">
+                            <StackPanel Orientation="Vertical">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0" Style="{StaticResource styleSettingsInnerBorder}">
+                                        <StackPanel Orientation="Vertical">
+                                            <CheckBox Content="Merge Similar Combats" FontWeight="Bold"
+                                                IsChecked="{Binding Path=ParserSettings.IsCombineSimilarCombatInstances, Mode=TwoWay}" />
+                                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                                If enabled, the parser will merge consecutive combat instances with the same players.
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Grid.Column="1" Style="{StaticResource styleSettingsInnerBorder}">
+                                        <StackPanel Orientation="Vertical">
+                                            <WrapPanel Orientation="Horizontal">
+                                                <TextBlock Text="Merge Max Timespan: "  FontWeight="Bold" />
+                                                <TextBox Text="{Binding Path=ParserSettings.CombineCombatMaxTimeSeconds, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}}" 
+                                                    MinWidth="60"/>
+                                                <TextBlock Text="Seconds" Margin="2,0,0,0"></TextBlock>
+                                            </WrapPanel>
+                                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
+                                                If <Bold>Merge Similar Combats</Bold> is enabled, this specifies the maximum timespan between instances to be merged.
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <CheckBox Content="Reject If No Players From Account" FontWeight="Bold"
-                                          IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsRejectCombatIfUserPlayerNotIncluded, Mode=TwoWay}" />
+                                          IsChecked="{Binding Path=ParserSettings.IsRejectCombatIfUserPlayerNotIncluded, Mode=TwoWay}" />
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
                                     If enabled, the parser will reject a combat instance if it doesn't include a player from your account.
                                 </TextBlock>
@@ -168,7 +204,7 @@
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <CheckBox Content="Reject If No Players" FontWeight="Bold"
-                                    IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsRejectCombatWithNoPlayers, Mode=TwoWay}" />
+                                    IsChecked="{Binding Path=ParserSettings.IsRejectCombatWithNoPlayers, Mode=TwoWay}" />
                                 <TextBlock TextWrapping="Wrap"  Foreground="{StaticResource colorSettingsDescription}">
                                     If enabled, the parser will reject any detected combat instances which have no players.
                                 </TextBlock>
@@ -186,7 +222,7 @@
                                     <Border Grid.Column="0" Style="{StaticResource styleSettingsInnerBorder}">
                                         <StackPanel Orientation="Vertical">
                                             <CheckBox Content="Enforce Event Minimum" FontWeight="Bold"
-                                                      IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsEnforceCombatEventMinimum, Mode=TwoWay}" />
+                                                      IsChecked="{Binding Path=ParserSettings.IsEnforceCombatEventMinimum, Mode=TwoWay}" />
                                             <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
                                                 If enabled, the parser will exclude any detected combat instances, with fewer then the configured minimum of events.
                                             </TextBlock>
@@ -197,7 +233,7 @@
                                         <StackPanel Orientation="Vertical">
                                             <WrapPanel Orientation="Horizontal">
                                                 <TextBlock Text="CombatEventCountMinimum: "  FontWeight="Bold" />
-                                                <TextBox Text="{Binding Source={x:Static properties:Settings.Default}, Path=CombatEventCountMinimum, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}}" 
+                                                <TextBox Text="{Binding Path=ParserSettings.CombatEventCountMinimum, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}}" 
                                                      MinWidth="60"/>
                                                 <TextBlock Text="Event(s)" Margin="2,0,0,0"></TextBlock>
                                             </WrapPanel>
@@ -219,7 +255,7 @@
                                 <Border Grid.Column="0" Style="{StaticResource styleSettingsInnerBorder}">
                                     <StackPanel Orientation="Vertical" Grid.Column="0">
                                         <CheckBox Content="Remove Unrelated Entity" FontWeight="Bold"
-                                                IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsRemoveEntityOutliers, Mode=TwoWay}" />
+                                                IsChecked="{Binding Path=ParserSettings.IsRemoveEntityOutliers, Mode=TwoWay}" />
                                         <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
                                             If enabled, attempt to remove unrelated players or non-players from the beginning or end of a combat instance.
                                         </TextBlock>
@@ -230,28 +266,13 @@
                                 </Border>
                                 <Border Grid.Column="1" Style="{StaticResource styleSettingsBorderEmpty}">
                                     <StackPanel Orientation="Vertical">
-                                        <!--<Border Style="{StaticResource styleSettingsInnerBorder}">
-                                            <StackPanel Orientation="Vertical">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="CombatDurationPercentage: "  FontWeight="Bold" />
-                                                    <TextBox Text="{Binding Source={x:Static properties:Settings.Default}, Path=CombatDurationPercentage, 
-                                                        Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}, ConverterParameter=1}" 
-                                                             MinWidth="60"/>
-                                                    <TextBlock Text="%" Margin="2,0,0,0"></TextBlock>
-                                                </StackPanel>
-                                                <TextBlock TextWrapping="Wrap" Margin="0,4,0,0" Foreground="{StaticResource colorSettingsDescription}">
-                                                    If <Bold>Remove Entity Outliers</Bold> is enabled, this value is used as a threshold when determining
-                                                    if an entity duration falls below a combat instance duration.
-                                                </TextBlock>
-                                            </StackPanel>
-                                        </Border>-->
                                         <Border Style="{StaticResource styleSettingsInnerBorder}">
                                             <StackPanel Orientation="Vertical">
                                                 <StackPanel Orientation="Horizontal" Margin="0,2,0,2">
                                                     <CheckBox Content="Remove Players" FontWeight="Bold"
-                                                              IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsRemoveEntityOutliersPlayers, Mode=TwoWay}" />
+                                                              IsChecked="{Binding Path=ParserSettings.IsRemoveEntityOutliersPlayers, Mode=TwoWay}" />
                                                     <CheckBox Content="Remove Non-Players" FontWeight="Bold" Margin="8,0,0,0"
-                                                              IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsRemoveEntityOutliersNonPlayers, Mode=TwoWay}" />
+                                                              IsChecked="{Binding Path=ParserSettings.IsRemoveEntityOutliersNonPlayers, Mode=TwoWay}" />
                                                 </StackPanel>
                                                 <TextBlock TextWrapping="Wrap" Margin="0,4,0,0" Foreground="{StaticResource colorSettingsDescription}">
                                                     If <Bold>Remove Unrelated Entity</Bold> is enabled, these values decide if player and/or non-player entities 
@@ -271,7 +292,7 @@
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <CheckBox Content="Combine Pets" FontWeight="Bold"
-                                    IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsCombinePets, Mode=TwoWay}" />
+                                    IsChecked="{Binding Path=ParserSettings.IsCombinePets, Mode=TwoWay}" />
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
                                     Combine pet damage metrics by Label instead of unique id.
                                 </TextBlock>
@@ -293,7 +314,7 @@
                                 <Border Grid.Column="0" Style="{StaticResource styleSettingsInnerBorder}">
                                     <StackPanel Orientation="Vertical">
                                         <CheckBox Content="Inactive Time Adjustments" FontWeight="Bold"
-                                            IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsEnableInactiveTimeCalculations, Mode=TwoWay}" />
+                                            IsChecked="{Binding Path=ParserSettings.IsEnableInactiveTimeCalculations, Mode=TwoWay}" />
                                         <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
                                             If enabled, the application will attempt to detect Inactive time(s) for a player. 
                                             InActive means the player took no actions for a span of time. 
@@ -307,7 +328,7 @@
                                         <WrapPanel Orientation="Horizontal">
                                             <TextBlock Text="Min Delay Before Inactive:" FontWeight="Bold" />
                                             <TextBox Width="60" Margin="4,0,0,0"
-                                                     Text="{Binding Source={x:Static properties:Settings.Default}, Path=MinInActiveInSeconds, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}}"/>
+                                                     Text="{Binding Path=ParserSettings.MinInActiveInSeconds, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}}"/>
                                             <TextBlock Text="Seconds" Margin="2,0,0,0"></TextBlock>
                                         </WrapPanel>
                                         <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
@@ -334,7 +355,8 @@
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <WrapPanel Orientation="Horizontal">
-                                    <CheckBox Content="Purge STO Combat Logs At Startup" FontWeight="Bold" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=PurgeCombatLogs, Mode=TwoWay}" />
+                                    <CheckBox Content="Purge Combat Logs" FontWeight="Bold" 
+                                              IsChecked="{Binding Path=PurgeCombatLogs, Mode=TwoWay}" />
                                     <Button Name="uiButtonPurgeLogsNow" Tag="PurgeLogsNow" Content="Purge Now" Margin="4,0,0,0" Padding="4,0,4,0" 
                                         Click="ButtonBase_OnClick" />
                                 </WrapPanel>
@@ -351,7 +373,7 @@
                                 <WrapPanel Orientation="Horizontal">
                                     <TextBlock Text="How Long To Keep STO Combat Logs:" FontWeight="Bold" />
                                     <TextBox Name="uiTextBoxHowLongToKeepLogs" 
-                                        Text="{Binding Source={x:Static properties:Settings.Default}, Path=HowLongToKeepLogsInDays, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}, ConverterParameter=1}" 
+                                        Text="{Binding Path=HowLongToKeepLogsInDays, Mode=TwoWay, Converter={StaticResource intToStringValidationConverter}, ConverterParameter=1}" 
                                         Margin="4,0,0,0" Width="60" />
                                     <TextBlock Text="Day(s)" Margin="2,0,0,0" />
                                 </WrapPanel>
@@ -364,19 +386,19 @@
                             <StackPanel Orientation="Vertical">
                                 <WrapPanel Orientation="Horizontal">
                                     <CheckBox x:Name="uiCheckBoxEnableDebugLogging" Content="Debug Logging" FontWeight="Bold"
-                                    IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsDebugLoggingEnabled, Mode=TwoWay}" />
+                                    IsChecked="{Binding Path=IsDebugLoggingEnabled, Mode=TwoWay}" />
                                     <Button x:Name="uiButtonOpenLogFile" Content="Open Log File" Margin="4,0,0,0" Padding="4,0,4,0"
                                         Click="ButtonBase_OnClick" />
                                 </WrapPanel>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
-                                Enable debug logging for this application. This adjusts what the application logs to file, and is primary for troubleshooting purposes.
+                                Enable debug logging for this application. This adjusts what the application logs to file, and is primarily for troubleshooting purposes.
                                 </TextBlock>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <CheckBox Content="Display Map/Events Detection Settings Tab" FontWeight="Bold"
-                                    IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsDetectionsSettingsTabEnabled, Mode=TwoWay}" />
+                                    IsChecked="{Binding Path=IsDetectionsSettingsTabEnabled, Mode=TwoWay}" />
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
                                     Enable the Map/Events Detection Settings tab in the UI. This feature is used to make adjustments to the map detection settings.
                                 </TextBlock>
@@ -390,7 +412,7 @@
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <CheckBox Content="Enforce Map Player Minimum" FontWeight="Bold"
-                                   IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsEnforceMapMinPlayerCount, Mode=TwoWay}" />
+                                   IsChecked="{Binding Path=ParserSettings.IsEnforceMapMinPlayerCount, Mode=TwoWay}" />
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
                                     If enabled, the player minimum value for a map, will be taken into consideration when choosing a map for a combat instance.
                                 </TextBlock>
@@ -399,7 +421,7 @@
                         <Border Style="{StaticResource styleSettingsBorder}">
                             <StackPanel Orientation="Vertical">
                                 <CheckBox Content="Enforce Map Player Maximum" FontWeight="Bold"
-                                              IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=IsEnforceMapMaxPlayerCount, Mode=TwoWay}" />
+                                              IsChecked="{Binding Path=ParserSettings.IsEnforceMapMaxPlayerCount, Mode=TwoWay}" />
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource colorSettingsDescription}">
                                     If enabled, the player maximum value for a map, will be taken into consideration when choosing a map for a combat instance.
                                 </TextBlock>

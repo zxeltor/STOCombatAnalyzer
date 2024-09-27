@@ -135,7 +135,7 @@ public class CombatEntity : INotifyPropertyChanged, IRejectAbleEntity
 
             return this._entityCombatEnd = this._combatEventList.Count == 0
                 ? null // This should be possible, but checking for it anyway.
-                : this._combatEventList.Last().Timestamp;
+                : this._combatEventList.Max(evt => evt.Timestamp);
         }
         set => this._entityCombatEnd = value;
     }
@@ -153,7 +153,7 @@ public class CombatEntity : INotifyPropertyChanged, IRejectAbleEntity
 
             return this._entityCombatStart = this._combatEventList.Count == 0
                 ? null // This should be possible, but checking for it anyway.
-                : this._combatEventList.First().Timestamp;
+                : this._combatEventList.Min(evt => evt.Timestamp);
         }
         set => this._entityCombatStart = value;
     }
@@ -364,7 +364,7 @@ public class CombatEntity : INotifyPropertyChanged, IRejectAbleEntity
                 ? TimeSpan.FromSeconds(this.MinInActiveInSeconds.Value)
                 : TimeSpan.FromSeconds(1);
 
-            var lastTimestamp = this.CombatEventsList.First().Timestamp;
+            var lastTimestamp = this.CombatEventsList.Min(evt => evt.Timestamp);
 
             foreach (var combatEvent in this.CombatEventsList)
             {

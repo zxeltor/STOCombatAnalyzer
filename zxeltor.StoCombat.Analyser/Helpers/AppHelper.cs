@@ -25,24 +25,6 @@ public static class AppHelper
     #region Public Members
 
     /// <summary>
-    ///     Used to find child control of a given type.
-    /// </summary>
-    /// <typeparam name="T">The control type</typeparam>
-    /// <param name="depObj">The parent control</param>
-    /// <returns>An enumeration of child controls</returns>
-    public static IEnumerable<T> FindVisualChildren<T>(DependencyObject? depObj) where T : DependencyObject
-    {
-        if (depObj == null) yield break;
-        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
-        {
-            var child = VisualTreeHelper.GetChild(depObj, i);
-            if (child is T dependencyObject) yield return dependencyObject;
-
-            foreach (var childOfChild in FindVisualChildren<T>(child)) yield return childOfChild;
-        }
-    }
-
-    /// <summary>
     ///     Display a dialog to the user
     /// </summary>
     /// <param name="mainWindow">The parent window</param>
@@ -150,7 +132,6 @@ public static class AppHelper
     /// <param name="tagString">A tag string to the url</param>
     public static void DisplayHelpUrlInBrowser(MainWindow mainWindow, string tagString)
     {
-        var result = new Result();
         var url = string.Empty;
         try
         {
@@ -194,20 +175,41 @@ public static class AppHelper
     }
 
     /// <summary>
-    ///     A check to move previous version settings into the latest version.
+    ///     Used to find child control of a given type.
+    /// </summary>
+    /// <typeparam name="T">The control type</typeparam>
+    /// <param name="depObj">The parent control</param>
+    /// <returns>An enumeration of child controls</returns>
+    public static IEnumerable<T> FindVisualChildren<T>(DependencyObject? depObj) where T : DependencyObject
+    {
+        if (depObj == null) yield break;
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+        {
+            var child = VisualTreeHelper.GetChild(depObj, i);
+            if (child is T dependencyObject) yield return dependencyObject;
+
+            foreach (var childOfChild in FindVisualChildren<T>(child)) yield return childOfChild;
+        }
+    }
+
+    /// <summary>
+    ///     Confirm we have settings after a software update. If not, attempt to pull the
+    ///     settings from the previous version
+    ///     <para>If all else fails, default settings are put in place.</para>
     /// </summary>
     /// <returns>True if successful. False otherwise.</returns>
     public static bool TryVerifyApplicationsSettingsPostVersionUpdate()
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(Settings.Default.CombatLogPath))
+            if (string.IsNullOrWhiteSpace(Settings.Default.StoCombatAnalyzerSettings))
             {
-                var previousVersion = Settings.Default.GetPreviousVersion(nameof(Settings.Default.CombatLogPath));
-                if (previousVersion != null && previousVersion is string resultString)
+                var previousVersion =
+                    Settings.Default.GetPreviousVersion(nameof(Settings.Default.StoCombatAnalyzerSettings));
+                if (previousVersion != null)
                 {
-                    // If setting for the current version aren't found, let's look for a previous version.
                     Settings.Default.Upgrade();
+                    Settings.Default.Save();
                 }
             }
 
@@ -215,7 +217,7 @@ public static class AppHelper
         }
         catch (Exception e)
         {
-            Log.Error("Failed to verify application settings.", e);
+            Log.Error("Failed to verify application settings during version check.", e);
         }
 
         return false;

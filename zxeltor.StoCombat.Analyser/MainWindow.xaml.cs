@@ -30,6 +30,7 @@ using zxeltor.StoCombat.Lib.Helpers;
 using zxeltor.StoCombat.Lib.Model.CombatLog;
 using zxeltor.StoCombat.Lib.Model.CombatMap;
 using zxeltor.StoCombat.Lib.Parser;
+using zxeltor.Types.Lib.Collections;
 using zxeltor.Types.Lib.Helpers;
 using zxeltor.Types.Lib.Result;
 using Color = ScottPlot.Color;
@@ -54,14 +55,7 @@ public partial class MainWindow
     public MainWindow()
     {
         this.InitializeComponent();
-
-        this.CombatLogManagerContext = new CombatLogManager();
-        this.DataContext = this.CombatLogManagerContext;
-
-        this.EstablishGridColumns();
-
-        Settings.Default.PropertyChanged += this.OnApplicationSettingsPropertyChanged;
-
+        this.DataContext = this.CombatLogManagerContext = new CombatLogManager();
         this.Loaded += this.OnLoaded;
         this.Unloaded += this.OnUnloaded;
     }
@@ -85,7 +79,8 @@ public partial class MainWindow
 
         if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.LeftAlt))
         {
-            Settings.Default.IsDisplayDevTestTools = !Settings.Default.IsDisplayDevTestTools;
+            StoCombatAnalyzerSettings.Instance.IsDisplayDevTestTools =
+                !StoCombatAnalyzerSettings.Instance.IsDisplayDevTestTools;
             return;
         }
 
@@ -118,9 +113,11 @@ public partial class MainWindow
         }
     }
 
-    private void EstablishGridColumns()
+    private void EstablishMainDataGridColumnsFromConfig()
     {
-        this.MyGridContext = CombatEventTypeDataGridContext.GetDefaultContext(Settings.Default.CombatEventTypeGridContext);
+        this.MyGridContext =
+            CombatEventTypeDataGridContext.GetDefaultContext(StoCombatAnalyzerSettings.Instance
+                .CombatEventTypeGridContext);
         if (this.MyGridContext == null || this.MyGridContext.GridColumns.Count == 0) return;
 
         var propertyInfoList = typeof(CombatEvent).GetProperties().ToList();
@@ -178,36 +175,39 @@ public partial class MainWindow
 
     private void OnApplicationSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != null && e.PropertyName.Equals(nameof(Settings.Default.IsDetectionsSettingsTabEnabled)))
-            this.EnableDetectionSettingsEditor(Settings.Default.IsDetectionsSettingsTabEnabled);
+        if (e.PropertyName != null &&
+            e.PropertyName.Equals(nameof(StoCombatAnalyzerSettings.Instance.IsDetectionsSettingsTabEnabled)))
+            this.EnableDetectionSettingsEditor(StoCombatAnalyzerSettings.Instance.IsDetectionsSettingsTabEnabled);
         //else if (e.PropertyName != null && e.PropertyName.Equals(nameof(Settings.IsCombatDetailsTabEnabled)))
         //    this.EnableCombatAnalyzer(Settings.Default.IsCombatDetailsTabEnabled);
-        else if (e.PropertyName != null && e.PropertyName.Equals(nameof(Settings.Default.IsDebugLoggingEnabled)))
-            LoggingHelper.TrySettingLog4NetLogLevel(Settings.Default.IsDebugLoggingEnabled);
+        else if (e.PropertyName != null &&
+                 e.PropertyName.Equals(nameof(StoCombatAnalyzerSettings.Instance.IsDebugLoggingEnabled)))
+            LoggingHelper.TrySettingLog4NetLogLevel(StoCombatAnalyzerSettings.Instance.IsDebugLoggingEnabled);
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         this.Loaded -= this.OnLoaded;
 
-        // Initialize log4net settings based on log4net.config
-        LoggingHelper.ConfigureLog4NetLogging();
-
         AppHelper.TryVerifyApplicationsSettingsPostVersionUpdate();
+        StoCombatAnalyzerSettings.Instance.PropertyChanged += this.OnApplicationSettingsPropertyChanged;
 
-        LoggingHelper.TrySettingLog4NetLogLevel(Settings.Default.IsDebugLoggingEnabled);
+        LoggingHelper.TryConfigureLog4NetLogging(out var isUsingDevelopmentConfig);
+        LoggingHelper.TrySettingLog4NetLogLevel(StoCombatAnalyzerSettings.Instance.IsDebugLoggingEnabled);
 
-        this.EnableDetectionSettingsEditor(Settings.Default.IsDetectionsSettingsTabEnabled);
-        //this.EnableCombatAnalyzer(Settings.Default.IsCombatDetailsTabEnabled);
+        this.EstablishMainDataGridColumnsFromConfig();
 
-        if (!Settings.Default.PurgeCombatLogs) return;
+        this.EnableDetectionSettingsEditor(StoCombatAnalyzerSettings.Instance.IsDetectionsSettingsTabEnabled);
+
+        if (!StoCombatAnalyzerSettings.Instance.PurgeCombatLogs) return;
 
         var purgeResult =
-            ParserHelper.TryPurgeCombatLogFolder(new CombatLogParseSettings(Settings.Default), out var filesPurged);
+            ParserHelper.TryPurgeCombatLogFolder(StoCombatAnalyzerSettings.Instance.ParserSettings,
+                StoCombatAnalyzerSettings.Instance.HowLongToKeepLogsInDays, out var filesPurged);
 
         if (purgeResult.SuccessFull || purgeResult.Level < ResultLevel.Halt)
         {
-            if (filesPurged.Count > 0 && Settings.Default.IsDebugLoggingEnabled)
+            if (filesPurged.Count > 0 && StoCombatAnalyzerSettings.Instance.IsDebugLoggingEnabled)
                 ResponseDialog.Show(Application.Current.MainWindow, "The combat logs were automatically purged.",
                     "Combat log purge", detailsBoxCaption: "File(s) purged", detailsBoxList: filesPurged);
         }
@@ -239,16 +239,20 @@ public partial class MainWindow
             progressDialog = new ProgressDialog(this,
                 () =>
                 {
-                    var settings = new CombatLogParseSettings(Settings.Default);
-                    List<Combat>? combatListResult;
+                    var settings =
+                        StoCombatAnalyzerSettings.Instance
+                            .ParserSettings; // new CombatLogParseSettings(Settings.Default);
+                    SyncNotifyCollection<Combat>? combatListResult;
 
                     CombatLogParserResult? finalResult;
 
-                    this.CombatLogManagerContext.CombatLogParserResult = finalResult = 
-                        fileList == null ? ParserHelper.TryGetCombatList(settings, out combatListResult)
-                        : ParserHelper.TryGetCombatListFromFiles(settings, fileList, isJsonFiles, out combatListResult);
+                    this.CombatLogManagerContext.Clear();
 
-                    this.CombatLogManagerContext.Combats.Clear();
+                    this.CombatLogManagerContext.CombatLogParserResult = finalResult =
+                        fileList == null
+                            ? ParserHelper.TryGetCombatList(settings, out combatListResult)
+                            : ParserHelper.TryGetCombatListFromFiles(settings, fileList, isJsonFiles,
+                                out combatListResult);
 
                     if (!finalResult.SuccessFull &&
                         finalResult.MaxLevel >= ResultLevel.Halt)
@@ -274,18 +278,20 @@ public partial class MainWindow
 
             // Optionally load the latest Combat instance from the Combat list
             var latestCombat = this.CombatLogManagerContext.Combats.FirstOrDefault();
-            if (Settings.Default.IsSelectLatestCombatOnParseLogs && latestCombat != null)
+            if (StoCombatAnalyzerSettings.Instance.IsSelectLatestCombatOnParseLogs && latestCombat != null)
                 this.CombatLogManagerContext.SelectedCombat = latestCombat;
             else
                 this.SetPlots();
 
-            if (Settings.Default.IsDisplayParseResults || resultFinal.MaxLevel > ResultLevel.Info)
+            if (StoCombatAnalyzerSettings.Instance.IsDisplayParseResults || resultFinal.MaxLevel > ResultLevel.Info)
             {
                 var finalMessage = resultFinal.MaxLevel <= ResultLevel.Info
                     ? "Successfully parsed the combat log(s)."
                     : "Parsing of the combat logs is complete, but errors were encountered.";
 
-                var displayLevel = Settings.Default.IsDebugLoggingEnabled ? ResultLevel.Debug : ResultLevel.Info;
+                var displayLevel = StoCombatAnalyzerSettings.Instance.IsDebugLoggingEnabled
+                    ? ResultLevel.Debug
+                    : ResultLevel.Info;
 
                 ResponseDialog.Show(Application.Current.MainWindow,
                     finalMessage, "Parse Results",
@@ -323,10 +329,14 @@ public partial class MainWindow
 
     private void SetBarChartForEntity()
     {
-        if (this.uiScottBarChartEntityEventTypes == null) return;
+        if (this.uiScottBarChartEntityEventTypes == null || this.CombatLogManagerContext == null) return;
 
         this.uiScottBarChartEntityEventTypes.Plot.Clear();
         this.uiScottBarChartEntityEventTypes.Refresh();
+        this.uiScottBarChartEntityEventTypes.MouseLeftButtonDown -=
+            this.UiScottBarChartEntityEventTypes_MouseLeftButtonDown;
+
+        if (this.CombatLogManagerContext.Combats == null || this.CombatLogManagerContext.Combats.Count == 0) return;
 
         var positionCounter = 0;
         var bars = new List<Bar>();
@@ -482,81 +492,83 @@ public partial class MainWindow
 
         this.uiScottScatterPlotEntityEvents.Plot.Clear();
         this.uiScottScatterPlotEntityEvents.Refresh();
+        this.uiScottScatterPlotEntityEvents.MouseLeftButtonDown -=
+            this.UiScottScatterPlotEntityEventsOnMouseLeftButtonDown;
+
+        if (this.CombatLogManagerContext.Combats == null || this.CombatLogManagerContext.Combats.Count == 0) return;
 
         // If analysis tools are disabled, just return after plot has been cleared.
-        if (!Settings.Default.IsEnableAnalysisTools)
+        if (!StoCombatAnalyzerSettings.Instance.IsEnableAnalysisTools)
             return;
 
         var filteredCombatEventList = this.CombatLogManagerContext.FilteredSelectedEntityCombatEventList;
 
         if (filteredCombatEventList != null && filteredCombatEventList.Count > 0)
         {
-            if (this.CombatLogManagerContext.IsDisplayPlotMagnitudeBase)
+            if (StoCombatAnalyzerSettings.Instance.IsDisplayPlotMagnitudeBase)
             {
                 var magnitudeBaseDataList = filteredCombatEventList
                     .OrderBy(ev => ev.Timestamp)
                     .Select(ev => new { Mag = ev.MagnitudeBase, DateTimeDouble = ev.Timestamp.ToOADate() })
                     .ToList();
 
-                var signal = this.uiScottScatterPlotEntityEvents.Plot.Add.SignalXY(
+                var signal2 = this.uiScottScatterPlotEntityEvents.Plot.Add.SignalXY(
                     magnitudeBaseDataList.Select(pd => pd.DateTimeDouble).ToArray(),
                     magnitudeBaseDataList.Select(pd => pd.Mag).ToArray());
 
-                signal.MarkerSize = 25;
-                signal.Color = Color.FromHex("7e00ff");
-                signal.LegendText = "MagnitudeBase";
+                signal2.MarkerSize = 25;
+                signal2.Color = Color.FromHex("7e00ff");
+                signal2.LegendText = "MagnitudeBase";
             }
 
-            if (this.CombatLogManagerContext.IsDisplayPlotMagnitude)
-            {
-                var magnitudeDataList = filteredCombatEventList
-                    .OrderBy(ev => ev.Timestamp)
-                    .Select(ev => new { Mag = ev.Magnitude, DateTimeDouble = ev.Timestamp.ToOADate() }).ToList();
 
-                var inactiveLegendAdded = false;
+            var magnitudeDataList = filteredCombatEventList
+                .OrderBy(ev => ev.Timestamp)
+                .Select(ev => new { Mag = ev.Magnitude, DateTimeDouble = ev.Timestamp.ToOADate() }).ToList();
 
-                if (this.CombatLogManagerContext.IsDisplayPlotPlayerInactive)
-                    if (this.CombatLogManagerContext.SelectedCombatEntity != null)
-                        foreach (var deadZone in this.CombatLogManagerContext.SelectedCombatEntity.DeadZones)
+            var inactiveLegendAdded = false;
+
+            if (StoCombatAnalyzerSettings.Instance.IsDisplayPlotPlayerInactive)
+                if (this.CombatLogManagerContext.SelectedCombatEntity != null)
+                    foreach (var deadZone in this.CombatLogManagerContext.SelectedCombatEntity.DeadZones)
+                    {
+                        var minValue = magnitudeDataList.Min(mag => mag.Mag);
+                        var maxValue = magnitudeDataList.Max(mag => mag.Mag);
+                        if (Math.Abs(minValue - maxValue) < 100)
                         {
-                            var minValue = magnitudeDataList.Min(mag => mag.Mag);
-                            var maxValue = magnitudeDataList.Max(mag => mag.Mag);
-                            if (Math.Abs(minValue - maxValue) < 100)
-                            {
-                                minValue = -50;
-                                maxValue = 50;
-                            }
-
-                            var deadZoneSignal = this.uiScottScatterPlotEntityEvents.Plot.Add.Rectangle(
-                                deadZone.StartTime.ToOADate(), deadZone.EndTime.ToOADate(), minValue, maxValue);
-
-                            deadZoneSignal.FillStyle.Color = Colors.Black.WithAlpha(.2);
-                            deadZoneSignal.LineStyle.Color = Colors.Black;
-                            deadZoneSignal.LineStyle.Width = 3;
-                            deadZoneSignal.LineStyle.Pattern = LinePattern.Solid;
-
-                            var text = this.uiScottScatterPlotEntityEvents.Plot.Add.Text(
-                                $"{deadZone.Duration.TotalSeconds} seconds",
-                                (deadZone.StartTime.ToOADate() + deadZone.EndTime.ToOADate()) / 2, minValue);
-
-                            text.LabelFontSize = 18;
-                            text.LabelFontColor = Colors.Blue;
-                            text.Alignment = Alignment.UpperCenter;
-
-                            if (!inactiveLegendAdded)
-                                deadZoneSignal.LegendText = "Inactive";
-
-                            inactiveLegendAdded = true;
+                            minValue = -50;
+                            maxValue = 50;
                         }
 
-                var signal = this.uiScottScatterPlotEntityEvents.Plot.Add.SignalXY(
-                    magnitudeDataList.Select(pd => pd.DateTimeDouble).ToArray(),
-                    magnitudeDataList.Select(pd => pd.Mag).ToArray());
+                        var deadZoneSignal = this.uiScottScatterPlotEntityEvents.Plot.Add.Rectangle(
+                            deadZone.StartTime.ToOADate(), deadZone.EndTime.ToOADate(), minValue, maxValue);
 
-                signal.MarkerSize = 15;
-                signal.LegendText = "Magnitude";
-                signal.Color = Color.FromHex("00bdff");
-            }
+                        deadZoneSignal.FillStyle.Color = Colors.Black.WithAlpha(.2);
+                        deadZoneSignal.LineStyle.Color = Colors.Black;
+                        deadZoneSignal.LineStyle.Width = 3;
+                        deadZoneSignal.LineStyle.Pattern = LinePattern.Solid;
+
+                        var text = this.uiScottScatterPlotEntityEvents.Plot.Add.Text(
+                            $"{deadZone.Duration.TotalSeconds} seconds",
+                            (deadZone.StartTime.ToOADate() + deadZone.EndTime.ToOADate()) / 2, minValue);
+
+                        text.LabelFontSize = 18;
+                        text.LabelFontColor = Colors.Blue;
+                        text.Alignment = Alignment.UpperCenter;
+
+                        if (!inactiveLegendAdded)
+                            deadZoneSignal.LegendText = "Inactive";
+
+                        inactiveLegendAdded = true;
+                    }
+
+            var signal = this.uiScottScatterPlotEntityEvents.Plot.Add.SignalXY(
+                magnitudeDataList.Select(pd => pd.DateTimeDouble).ToArray(),
+                magnitudeDataList.Select(pd => pd.Mag).ToArray());
+
+            signal.MarkerSize = 15;
+            signal.LegendText = "Magnitude";
+            signal.Color = Color.FromHex("00bdff");
         }
 
         this.uiScottScatterPlotEntityEvents.Plot.Legend.FontSize = 24;
@@ -677,19 +689,16 @@ public partial class MainWindow
 
         if (combatEntity != null && combatEntity.CombatEventsList.Any())
         {
-            if (this.CombatLogManagerContext.IsDisplayPlotMagnitudeBase)
+            if (StoCombatAnalyzerSettings.Instance.IsDisplayPlotMagnitudeBase)
             {
-                var marker = this.uiScottScatterPlotEntityEvents.Plot.Add.Marker(combatEvent.Timestamp.ToOADate(),
+                var marker2 = this.uiScottScatterPlotEntityEvents.Plot.Add.Marker(combatEvent.Timestamp.ToOADate(),
                     combatEvent.MagnitudeBase, MarkerShape.OpenTriangleDown, 40, Color.FromHex("ff0000"));
-                marker.MarkerLineWidth = 4;
+                marker2.MarkerLineWidth = 4;
             }
 
-            if (this.CombatLogManagerContext.IsDisplayPlotMagnitude)
-            {
-                var marker = this.uiScottScatterPlotEntityEvents.Plot.Add.Marker(combatEvent.Timestamp.ToOADate(),
-                    combatEvent.Magnitude, MarkerShape.OpenTriangleDown, 30, Color.FromHex("ff0000"));
-                marker.MarkerLineWidth = 4;
-            }
+            var marker = this.uiScottScatterPlotEntityEvents.Plot.Add.Marker(combatEvent.Timestamp.ToOADate(),
+                combatEvent.Magnitude, MarkerShape.OpenTriangleDown, 30, Color.FromHex("ff0000"));
+            marker.MarkerLineWidth = 4;
         }
 
         this.uiScottScatterPlotEntityEvents.Refresh();
@@ -734,7 +743,7 @@ public partial class MainWindow
 
         try
         {
-            var downloadUrl = Settings.Default.MapDetctionSettingsDownloadUrl;
+            var downloadUrl = Properties.Resources.MapDetctionSettingsDownloadUrl;
 
             using (var httpClient = new HttpClient())
             {
@@ -778,31 +787,27 @@ public partial class MainWindow
                     return;
                 }
 
-                this.CombatLogManagerContext.CombatMapDetectionSettings = combatMapDetectionSettings;
-
-                Settings.Default.UserCombatDetectionSettings =
-                    SerializationHelper.Serialize(combatMapDetectionSettings);
-                //Settings.Default.Save();
+                StoCombatAnalyzerSettings.Instance.SetMapDetectionSettings(combatMapDetectionSettings);
             }
 
             var successStorage =
                 new StringBuilder(
-                    $"Successfully downloaded and imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
+                    $"Successfully downloaded and imported {StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
             successStorage.Append(Environment.NewLine).Append(Environment.NewLine)
                 .Append(
                     "Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
 
             this._log.Info(
-                $"Successfully downloaded and imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
+                $"Successfully downloaded and imported {StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
             MessageBox.Show(this, successStorage.ToString(), "Success", MessageBoxButton.OK,
                 MessageBoxImage.Information);
 
-            this.CombatLogManagerContext.Combats.Clear();
+            this.CombatLogManagerContext.Clear();
         }
         catch (Exception exception)
         {
             var errorMessage = $"Failed to import MapEntities JSON. Reason={exception.Message}.";
-            this._log.Error(errorMessage + $" Url={Settings.Default.MapDetctionSettingsDownloadUrl}", exception);
+            this._log.Error(errorMessage + $" Url={Properties.Resources.MapDetctionSettingsDownloadUrl}", exception);
 
             var uiErrorMessage =
                 new StringBuilder(errorMessage);
@@ -849,25 +854,22 @@ public partial class MainWindow
                     var jsonString = sr.ReadToEnd();
                     var serializationResult = SerializationHelper.Deserialize<CombatMapDetectionSettings>(jsonString);
 
-                    this.CombatLogManagerContext.CombatMapDetectionSettings = serializationResult;
-
-                    Settings.Default.UserCombatDetectionSettings = jsonString;
-                    //Settings.Default.Save();
+                    StoCombatAnalyzerSettings.Instance.SetMapDetectionSettings(serializationResult);
                 }
 
                 var successStorage =
                     new StringBuilder(
-                        $"Successfully imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
+                        $"Successfully imported {StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.CombatMapEntityList.Count} maps with entities.");
                 successStorage.Append(Environment.NewLine).Append(Environment.NewLine)
                     .Append(
                         "Don't forget to parse your logs again to take advantage of the latest Map Detection Settings.");
 
                 this._log.Info(
-                    $"Successfully imported {this.CombatLogManagerContext.CombatMapDetectionSettings.CombatMapEntityList.Count} maps with entities.");
+                    $"Successfully imported {StoCombatAnalyzerSettings.Instance.ParserSettings.MapDetectionSettings?.CombatMapEntityList.Count} maps with entities.");
                 MessageBox.Show(this, successStorage.ToString(), "Success", MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
-                this.CombatLogManagerContext.Combats.Clear();
+                this.CombatLogManagerContext.Clear();
             }
             catch (Exception exception)
             {
@@ -902,13 +904,9 @@ public partial class MainWindow
         try
         {
             Settings.Default.UserCombatDetectionSettings = null;
-            //Settings.Default.Save();
+            StoCombatAnalyzerSettings.Instance.ResetMapDetectionSettingsFromAppDefault();
 
-            this.CombatLogManagerContext.CombatMapDetectionSettings =
-                SerializationHelper.Deserialize<CombatMapDetectionSettings>(Settings.Default
-                    .DefaultCombatDetectionSettings);
-
-            this.CombatLogManagerContext.Combats.Clear();
+            this.CombatLogManagerContext.Clear();
 
             var message = "Map detection settings have been set to application default.";
             this._log.Info(message);
@@ -977,11 +975,11 @@ public partial class MainWindow
                 if (checkBox.IsChecked != null && checkBox.IsChecked.Value)
                     this.CombatLogManagerContext.EventTypeDisplayFilter = this.CombatLogManagerContext
                         .SelectedEntityCombatEventTypeListDisplayedFilterOptions
-                        .FirstOrDefault(eventType => eventType.EventTypeId.Equals("PETS OVERALLS"));
+                        .First(eventType => eventType.EventTypeId.Equals("PETS OVERALL"));
                 else if (checkBox.IsChecked != null && !checkBox.IsChecked.Value)
                     this.CombatLogManagerContext.EventTypeDisplayFilter = this.CombatLogManagerContext
                         .SelectedEntityCombatEventTypeListDisplayedFilterOptions
-                        .FirstOrDefault(eventType => eventType.EventTypeId.Equals("OVERALL"));
+                        .First(eventType => eventType.EventTypeId.Equals("OVERALL"));
             }
 
             this.SetPlots();
@@ -1001,14 +999,14 @@ public partial class MainWindow
     {
         if (e.AddedItems.Count > 0 && e.AddedItems[0] is Combat selectedCombat)
         {
-            if (string.IsNullOrWhiteSpace(Settings.Default.MyCharacter))
+            if (string.IsNullOrWhiteSpace(StoCombatAnalyzerSettings.Instance.ParserSettings.MyCharacter))
             {
                 this.SetSelectedCombatEntity(null);
             }
             else
             {
                 var playerEntity = selectedCombat.PlayerEntities.FirstOrDefault(player =>
-                    player.OwnerInternal.Contains(Settings.Default.MyCharacter));
+                    player.OwnerInternal.Contains(StoCombatAnalyzerSettings.Instance.ParserSettings.MyCharacter));
                 if (playerEntity != null)
                     this.SetSelectedCombatEntity(playerEntity);
                 else

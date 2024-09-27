@@ -44,6 +44,7 @@ public static class CombatLogParserResultExtensions
     public static CombatLogParserResult AddMessage(this CombatLogParserResult thisResult, string? message, ResultLevel resultLevel = ResultLevel.Info)
     {
         if (string.IsNullOrWhiteSpace(message)) throw new ArgumentNullException("message");
+        thisResult.MaxLevel = resultLevel;
         thisResult.ResultMessages.Add(new CombatLogParserResultMessage(message, resultLevel));
         return thisResult;
     }

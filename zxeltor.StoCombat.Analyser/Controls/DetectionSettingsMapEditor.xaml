@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:model="clr-namespace:zxeltor.StoCombat.Lib.Model.CombatMap;assembly=zxeltor.StoCombat.Lib"
         xmlns:converters="clr-namespace:zxeltor.StoCombat.Analyzer.Classes.Converters"
-        mc:Ignorable="d"
+        mc:Ignorable="d" ShowInTaskbar="False"
         d:DataContext="{d:DesignInstance Type={x:Type model:CombatMap}}"
         Title="Combat Map Settings Editor" Height="220" Width="300" WindowStyle="ToolWindow" WindowStartupLocation="CenterOwner">
     <Window.Resources>
