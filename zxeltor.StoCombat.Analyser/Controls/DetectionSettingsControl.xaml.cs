@@ -850,9 +850,11 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
 
     private void UiButtonExportMapEntities_OnClick(object sender, RoutedEventArgs e)
     {
+        bool indent = !(Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.LeftAlt));
+
         var saveFile = new SaveFileDialog();
         saveFile.Filter = "MapDetectionSettings JSON|*.json";
-
+        
         var result = saveFile.ShowDialog();
 
         if (result.HasValue && result.Value)
@@ -866,8 +868,8 @@ public partial class DetectionSettingsControl : UserControl, INotifyPropertyChan
                     return;
                 }
 
-                var indent = e.Source is Button buttonResult && buttonResult.Tag is string tagResult &&
-                             tagResult.Equals("export_detection_json");
+                //var indent = e.Source is Button buttonResult && buttonResult.Tag is string tagResult &&
+                //             tagResult.Equals("export_detection_json");
 
                 using (var sw = new StreamWriter(saveFile.FileName))
                 {
