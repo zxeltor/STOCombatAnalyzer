@@ -32,7 +32,7 @@ See the [wiki](https://github.com/zxeltor/STOCombatAnalyzer/wiki#installer) for 
 
 ## Screen Shots
 Figure 1: What the UI looks like after a successfull parse, and a combat instance was selected in the Combat List dropdown.
-![The main tab](https://github.com/zxeltor/STOCombatAnalyzer/blob/master/zxeltor.StoCombatAnalyser.Interface/Images/StoCombatAnalyzerScreenShot.jpg)
+![The main tab](https://github.com/zxeltor/STOCombatAnalyzer/blob/master/zxeltor.StoCombat.Analyser/Images/StoCombatAnalyzerScreenShot.jpg)
 
 ---
 
