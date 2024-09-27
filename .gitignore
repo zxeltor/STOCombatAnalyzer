@@ -364,3 +364,4 @@ FodyWeavers.xsd
 /zxeltor.StoCombatAnalyser.Interface/StoCombatAnalyzerSettings2.json
 /zxeltor.StoCombatAnalyser.Interface/Log4Net.Development.config
 /nuget.config
+/StoDpsParser.sln.DotSettings
