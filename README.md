@@ -15,7 +15,7 @@ This app displays a breakdown of various damage/ability [metrics](https://github
 
 See the [wiki](https://github.com/zxeltor/STOCombatAnalyzer/wiki) for more details.
 
-This is a companion project of [STOCombatRealtime](https://github.com/zxeltor/zxeltor.StoCombat.Realtime)). STOCombatRealtime provides a real-time combat data overlay for STO.
+This is a companion project of [STOCombatRealtime](https://github.com/zxeltor/zxeltor.StoCombat.Realtime). STOCombatRealtime provides a real-time combat data overlay for STO.
 
 ---
 ## Building
