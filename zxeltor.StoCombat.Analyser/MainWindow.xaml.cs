@@ -226,6 +226,42 @@ public partial class MainWindow
         this.Unloaded += this.OnUnloaded;
     }
 
+    /// <summary>
+    ///     Confirm required parser settings are valid before starting a new parse.
+    /// </summary>
+    /// <returns>True if valid. False otherwise.</returns>
+    private bool ParserSettingsAreValid()
+    {
+        if (string.IsNullOrWhiteSpace(StoCombatAnalyzerSettings.Instance.ParserSettings?.CombatLogPath))
+        {
+            this._log.Error("CombatLogPath is not set. Check settings");
+            MessageBox.Show(this, "CombatLogPath is not set. Check settings", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return false;
+        }
+
+        if (!Directory.Exists(StoCombatAnalyzerSettings.Instance.ParserSettings.CombatLogPath))
+        {
+            this._log.Error("The directory specified for CombatLogPath doesn't exist. Check settings.");
+            MessageBox.Show(this, "The directory specified for CombatLogPath doesn't exist. Check settings.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(StoCombatAnalyzerSettings.Instance.ParserSettings.CombatLogPathFilePattern))
+        {
+            this._log.Error("CombatLogPathFilePattern is not set. Check settings");
+            MessageBox.Show(this, "CombatLogPathFilePattern is not set. Check settings", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return false;
+        }
+
+        //if (string.IsNullOrWhiteSpace(StoCombatAnalyzerSettings.Instance.ParserSettings.MyCharacter))
+        //{
+        //    this._log.Error("MyCharacter is not set. Check settings");
+        //    MessageBox.Show(this, "MyCharacter is not set. This is used to identity a Player, or all of the Players on your account.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        //}
+
+        return true;
+    }
+
     internal void ParseLogFiles(List<string>? fileList, bool isJsonFiles = false)
     {
         this.CombatLogManagerContext.IsExecutingBackgroundProcess = true;
@@ -236,15 +272,17 @@ public partial class MainWindow
 
         try
         {
+            if (!this.ParserSettingsAreValid()) return;
+
             progressDialog = new ProgressDialog(this,
                 () =>
                 {
+                    CombatLogParserResult? finalResult;
+
                     var settings =
                         StoCombatAnalyzerSettings.Instance
                             .ParserSettings; // new CombatLogParseSettings(Settings.Default);
                     SyncNotifyCollection<Combat>? combatListResult;
-
-                    CombatLogParserResult? finalResult;
 
                     this.CombatLogManagerContext.Clear();
 
