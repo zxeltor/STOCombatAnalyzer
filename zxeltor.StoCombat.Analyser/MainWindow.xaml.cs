@@ -182,7 +182,7 @@ public partial class MainWindow
         //    this.EnableCombatAnalyzer(Settings.Default.IsCombatDetailsTabEnabled);
         else if (e.PropertyName != null &&
                  e.PropertyName.Equals(nameof(StoCombatAnalyzerSettings.Instance.IsDebugLoggingEnabled)))
-            LoggingHelper.TrySettingLog4NetLogLevel(StoCombatAnalyzerSettings.Instance.IsDebugLoggingEnabled);
+            Log4NetHelper.TrySettingLog4NetLogLevel(StoCombatAnalyzerSettings.Instance.IsDebugLoggingEnabled);
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -192,8 +192,8 @@ public partial class MainWindow
         AppHelper.TryVerifyApplicationsSettingsPostVersionUpdate();
         StoCombatAnalyzerSettings.Instance.PropertyChanged += this.OnApplicationSettingsPropertyChanged;
 
-        LoggingHelper.TryConfigureLog4NetLogging(out var isUsingDevelopmentConfig);
-        LoggingHelper.TrySettingLog4NetLogLevel(StoCombatAnalyzerSettings.Instance.IsDebugLoggingEnabled);
+        Log4NetHelper.TryConfigureLog4NetLogging(out var isUsingDevelopmentConfig);
+        Log4NetHelper.TrySettingLog4NetLogLevel(StoCombatAnalyzerSettings.Instance.IsDebugLoggingEnabled);
 
         this.EstablishMainDataGridColumnsFromConfig();
 
@@ -223,7 +223,7 @@ public partial class MainWindow
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
-        this.Unloaded += this.OnUnloaded;
+        this.Unloaded -= this.OnUnloaded;
     }
 
     /// <summary>
@@ -419,7 +419,7 @@ public partial class MainWindow
                             Value = evt.GetEventTypeValueForMetric(selectedCombatEventMetric),
                             FillColor = colorArray[colorCounter++],
                             Label = evt.GetEventTypeLabelForMetric(selectedCombatEventMetric),
-                            CenterLabel = true
+                            CenterLabel = false
                         });
                     });
                 });
@@ -454,7 +454,7 @@ public partial class MainWindow
                         Value = evt.GetEventTypeValueForMetric(selectedCombatEventMetric),
                         FillColor = colorArray[colorCounter++],
                         Label = evt.GetEventTypeLabelForMetric(selectedCombatEventMetric),
-                        CenterLabel = true
+                        CenterLabel = false
                     });
                 });
             }
@@ -471,7 +471,7 @@ public partial class MainWindow
                         Value = sumOfMagnitude,
                         FillColor = Color.FromHex("000000"),
                         Label = $"PETS OVERALL: Damage({sumOfMagnitude.ToMetric(null, 2)})",
-                        CenterLabel = true
+                        CenterLabel = false
                     });
             }
 

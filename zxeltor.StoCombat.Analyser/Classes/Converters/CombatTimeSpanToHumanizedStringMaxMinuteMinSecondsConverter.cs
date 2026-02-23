@@ -7,7 +7,6 @@
 using System.Globalization;
 using System.Windows.Data;
 using Humanizer;
-using Humanizer.Localisation;
 
 namespace zxeltor.StoCombat.Analyzer.Classes.Converters;
 
