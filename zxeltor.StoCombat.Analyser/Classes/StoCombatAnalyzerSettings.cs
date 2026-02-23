@@ -50,6 +50,7 @@ public sealed class StoCombatAnalyzerSettings : INotifyPropertyChanged, IDisposa
     /// <summary>
     ///     A private constructor to block creating instances outside the singleton pattern and serialization
     /// </summary>
+    [JsonConstructor]
     private StoCombatAnalyzerSettings()
     {
     }
